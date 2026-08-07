@@ -76,7 +76,10 @@ function pad(n: number) {
 }
 
 export function chavePeriodo(dataISO: string, granularidade: Granularidade): string {
-  const [ano, mes, dia] = dataISO.split("-").map(Number);
+  const partes = dataISO.split("-").map(Number);
+  const ano = partes[0] ?? 1970;
+  const mes = partes[1] ?? 1;
+  const dia = partes[2] ?? 1;
   if (granularidade === "dia") return dataISO;
   if (granularidade === "mes") return `${ano}-${pad(mes)}`;
   if (granularidade === "quinzena") return `${ano}-${pad(mes)}-${dia <= 15 ? "Q1" : "Q2"}`;
