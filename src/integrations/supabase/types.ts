@@ -14,7 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      colaboradores: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      configuracoes: {
+        Row: {
+          chave: string
+          id: string
+          updated_at: string
+          valor: Json
+        }
+        Insert: {
+          chave: string
+          id?: string
+          updated_at?: string
+          valor: Json
+        }
+        Update: {
+          chave?: string
+          id?: string
+          updated_at?: string
+          valor?: Json
+        }
+        Relationships: []
+      }
+      empresas: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      importacoes: {
+        Row: {
+          created_at: string
+          data_importacao: string
+          erros: number
+          id: string
+          nome_arquivo: string
+          quantidade_registros: number
+          registros_adicionados: number
+          registros_atualizados: number
+          registros_ignorados: number
+          status: string
+          usuario: string
+        }
+        Insert: {
+          created_at?: string
+          data_importacao?: string
+          erros?: number
+          id?: string
+          nome_arquivo: string
+          quantidade_registros?: number
+          registros_adicionados?: number
+          registros_atualizados?: number
+          registros_ignorados?: number
+          status?: string
+          usuario?: string
+        }
+        Update: {
+          created_at?: string
+          data_importacao?: string
+          erros?: number
+          id?: string
+          nome_arquivo?: string
+          quantidade_registros?: number
+          registros_adicionados?: number
+          registros_atualizados?: number
+          registros_ignorados?: number
+          status?: string
+          usuario?: string
+        }
+        Relationships: []
+      }
+      vagas: {
+        Row: {
+          colaborador_id: string | null
+          created_at: string
+          data: string
+          descricao: string | null
+          empresa_id: string | null
+          hash_registro: string | null
+          id: string
+          importacao_id: string | null
+          observacao: string | null
+          quantidade: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          colaborador_id?: string | null
+          created_at?: string
+          data: string
+          descricao?: string | null
+          empresa_id?: string | null
+          hash_registro?: string | null
+          id?: string
+          importacao_id?: string | null
+          observacao?: string | null
+          quantidade?: number
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          colaborador_id?: string | null
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          empresa_id?: string | null
+          hash_registro?: string | null
+          id?: string
+          importacao_id?: string | null
+          observacao?: string | null
+          quantidade?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vagas_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vagas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vagas_importacao_id_fkey"
+            columns: ["importacao_id"]
+            isOneToOne: false
+            referencedRelation: "importacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
