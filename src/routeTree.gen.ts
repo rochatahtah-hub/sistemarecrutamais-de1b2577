@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CompararRouteImport } from './routes/comparar'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as VagasRouteImport } from './routes/vagas'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
@@ -22,9 +25,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompararRoute = CompararRouteImport.update({
+  id: '/comparar',
+  path: '/comparar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VagasRoute = VagasRouteImport.update({
@@ -55,7 +73,10 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/comparar': typeof CompararRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/importar': typeof ImportarRoute
+  '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -64,7 +85,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/comparar': typeof CompararRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/importar': typeof ImportarRoute
+  '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -74,7 +98,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/comparar': typeof CompararRoute
+  '/configuracoes': typeof ConfiguracoesRoute
   '/importar': typeof ImportarRoute
+  '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -85,7 +112,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/comparar'
+    | '/configuracoes'
     | '/importar'
+    | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -94,7 +124,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/comparar'
+    | '/configuracoes'
     | '/importar'
+    | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -103,7 +136,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/comparar'
+    | '/configuracoes'
     | '/importar'
+    | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -113,7 +149,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompararRoute: typeof CompararRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
   ImportarRoute: typeof ImportarRoute
+  RelatoriosRoute: typeof RelatoriosRoute
   VagasRoute: typeof VagasRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
@@ -130,11 +169,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comparar': {
+      id: '/comparar'
+      path: '/comparar'
+      fullPath: '/comparar'
+      preLoaderRoute: typeof CompararRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/importar': {
       id: '/importar'
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vagas': {
@@ -177,7 +237,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompararRoute: CompararRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
   ImportarRoute: ImportarRoute,
+  RelatoriosRoute: RelatoriosRoute,
   VagasRoute: VagasRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
