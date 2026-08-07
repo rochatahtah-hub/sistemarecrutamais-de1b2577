@@ -10,33 +10,154 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CompararRouteImport } from './routes/comparar'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as VagasRouteImport } from './routes/vagas'
+import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
+import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
+import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
+import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompararRoute = CompararRouteImport.update({
+  id: '/comparar',
+  path: '/comparar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportarRoute = ImportarRouteImport.update({
+  id: '/importar',
+  path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VagasRoute = VagasRouteImport.update({
+  id: '/vagas',
+  path: '/vagas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColaboradoresIndexRoute = ColaboradoresIndexRouteImport.update({
+  id: '/colaboradores/',
+  path: '/colaboradores/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColaboradoresNomeRoute = ColaboradoresNomeRouteImport.update({
+  id: '/colaboradores/$nome',
+  path: '/colaboradores/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
+  id: '/empresas/',
+  path: '/empresas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
+  id: '/empresas/$nome',
+  path: '/empresas/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/comparar': typeof CompararRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/importar': typeof ImportarRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/vagas': typeof VagasRoute
+  '/colaboradores/$nome': typeof ColaboradoresNomeRoute
+  '/empresas/$nome': typeof EmpresasNomeRoute
+  '/colaboradores/': typeof ColaboradoresIndexRoute
+  '/empresas/': typeof EmpresasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/comparar': typeof CompararRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/importar': typeof ImportarRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/vagas': typeof VagasRoute
+  '/colaboradores/$nome': typeof ColaboradoresNomeRoute
+  '/empresas/$nome': typeof EmpresasNomeRoute
+  '/colaboradores': typeof ColaboradoresIndexRoute
+  '/empresas': typeof EmpresasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/comparar': typeof CompararRoute
+  '/configuracoes': typeof ConfiguracoesRoute
+  '/importar': typeof ImportarRoute
+  '/relatorios': typeof RelatoriosRoute
+  '/vagas': typeof VagasRoute
+  '/colaboradores/$nome': typeof ColaboradoresNomeRoute
+  '/empresas/$nome': typeof EmpresasNomeRoute
+  '/colaboradores/': typeof ColaboradoresIndexRoute
+  '/empresas/': typeof EmpresasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/comparar'
+    | '/configuracoes'
+    | '/importar'
+    | '/relatorios'
+    | '/vagas'
+    | '/colaboradores/$nome'
+    | '/empresas/$nome'
+    | '/colaboradores/'
+    | '/empresas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/comparar'
+    | '/configuracoes'
+    | '/importar'
+    | '/relatorios'
+    | '/vagas'
+    | '/colaboradores/$nome'
+    | '/empresas/$nome'
+    | '/colaboradores'
+    | '/empresas'
+  id:
+    | '__root__'
+    | '/'
+    | '/comparar'
+    | '/configuracoes'
+    | '/importar'
+    | '/relatorios'
+    | '/vagas'
+    | '/colaboradores/$nome'
+    | '/empresas/$nome'
+    | '/colaboradores/'
+    | '/empresas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompararRoute: typeof CompararRoute
+  ConfiguracoesRoute: typeof ConfiguracoesRoute
+  ImportarRoute: typeof ImportarRoute
+  RelatoriosRoute: typeof RelatoriosRoute
+  VagasRoute: typeof VagasRoute
+  ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
+  EmpresasNomeRoute: typeof EmpresasNomeRoute
+  ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
+  EmpresasIndexRoute: typeof EmpresasIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +169,84 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comparar': {
+      id: '/comparar'
+      path: '/comparar'
+      fullPath: '/comparar'
+      preLoaderRoute: typeof CompararRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/importar': {
+      id: '/importar'
+      path: '/importar'
+      fullPath: '/importar'
+      preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vagas': {
+      id: '/vagas'
+      path: '/vagas'
+      fullPath: '/vagas'
+      preLoaderRoute: typeof VagasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/colaboradores/': {
+      id: '/colaboradores/'
+      path: '/colaboradores'
+      fullPath: '/colaboradores/'
+      preLoaderRoute: typeof ColaboradoresIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/colaboradores/$nome': {
+      id: '/colaboradores/$nome'
+      path: '/colaboradores/$nome'
+      fullPath: '/colaboradores/$nome'
+      preLoaderRoute: typeof ColaboradoresNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/': {
+      id: '/empresas/'
+      path: '/empresas'
+      fullPath: '/empresas/'
+      preLoaderRoute: typeof EmpresasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/$nome': {
+      id: '/empresas/$nome'
+      path: '/empresas/$nome'
+      fullPath: '/empresas/$nome'
+      preLoaderRoute: typeof EmpresasNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompararRoute: CompararRoute,
+  ConfiguracoesRoute: ConfiguracoesRoute,
+  ImportarRoute: ImportarRoute,
+  RelatoriosRoute: RelatoriosRoute,
+  VagasRoute: VagasRoute,
+  ColaboradoresNomeRoute: ColaboradoresNomeRoute,
+  EmpresasNomeRoute: EmpresasNomeRoute,
+  ColaboradoresIndexRoute: ColaboradoresIndexRoute,
+  EmpresasIndexRoute: EmpresasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
