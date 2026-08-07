@@ -52,10 +52,6 @@ function Delta({ valor, invertido = false }: { valor: number; invertido?: boolea
   );
 }
 
-export default function _unused() {
-  return null;
-}
-
 function Pagina() {
   const { data: registros = [] } = useVagas();
   const hoje = new Date();

@@ -34,9 +34,9 @@ export const Route = createFileRoute("/configuracoes")({
 });
 
 const GRUPOS: { chave: keyof MapeamentoStatus; titulo: string; ajuda: string }[] = [
-  { chave: "PRESENCA", titulo: "Presença", ajuda: "Ex.: presente, compareceu, ok" },
-  { chave: "FALTA", titulo: "Falta", ajuda: "Ex.: faltou, ausente, no show" },
-  { chave: "CANCELAMENTO", titulo: "Cancelamento", ajuda: "Ex.: cancelado, desistiu" },
+  { chave: "presenca", titulo: "Presença", ajuda: "Ex.: presente, compareceu, ok" },
+  { chave: "falta", titulo: "Falta", ajuda: "Ex.: faltou, ausente, no show" },
+  { chave: "cancelamento", titulo: "Cancelamento", ajuda: "Ex.: cancelado, desistiu" },
 ];
 
 function Pagina() {
