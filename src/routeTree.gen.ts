@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as VagasRouteImport } from './routes/vagas'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
@@ -18,6 +20,16 @@ import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImportarRoute = ImportarRouteImport.update({
+  id: '/importar',
+  path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VagasRoute = VagasRouteImport.update({
+  id: '/vagas',
+  path: '/vagas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ColaboradoresIndexRoute = ColaboradoresIndexRouteImport.update({
@@ -43,6 +55,8 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/importar': typeof ImportarRoute
+  '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
@@ -50,6 +64,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/importar': typeof ImportarRoute
+  '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
@@ -58,6 +74,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/importar': typeof ImportarRoute
+  '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
@@ -67,6 +85,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/importar'
+    | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/colaboradores/'
@@ -74,6 +94,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/importar'
+    | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/colaboradores'
@@ -81,6 +103,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/importar'
+    | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/colaboradores/'
@@ -89,6 +113,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ImportarRoute: typeof ImportarRoute
+  VagasRoute: typeof VagasRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
@@ -102,6 +128,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/importar': {
+      id: '/importar'
+      path: '/importar'
+      fullPath: '/importar'
+      preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vagas': {
+      id: '/vagas'
+      path: '/vagas'
+      fullPath: '/vagas'
+      preLoaderRoute: typeof VagasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/colaboradores/': {
@@ -137,6 +177,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ImportarRoute: ImportarRoute,
+  VagasRoute: VagasRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
