@@ -23,7 +23,12 @@ export const CAMPOS: { campo: CampoDestino; label: string; obrigatorio: boolean;
     obrigatorio: true,
     pistas: ["empresa", "cliente", "unidade", "contratante"],
   },
-  { campo: "vaga" as CampoDestino, label: "Vaga", obrigatorio: false, pistas: ["vaga", "cargo", "funcao", "posicao", "descricao"] },
+  {
+    campo: "descricao",
+    label: "Vaga / Cargo",
+    obrigatorio: false,
+    pistas: ["vaga", "cargo", "funcao", "posicao", "descricao"],
+  },
   {
     campo: "quantidade",
     label: "Quantidade de vagas",
