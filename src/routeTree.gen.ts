@@ -10,33 +10,89 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
+import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
+import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
+import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ColaboradoresIndexRoute = ColaboradoresIndexRouteImport.update({
+  id: '/colaboradores/',
+  path: '/colaboradores/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ColaboradoresNomeRoute = ColaboradoresNomeRouteImport.update({
+  id: '/colaboradores/$nome',
+  path: '/colaboradores/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasIndexRoute = EmpresasIndexRouteImport.update({
+  id: '/empresas/',
+  path: '/empresas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
+  id: '/empresas/$nome',
+  path: '/empresas/$nome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/colaboradores/$nome': typeof ColaboradoresNomeRoute
+  '/empresas/$nome': typeof EmpresasNomeRoute
+  '/colaboradores/': typeof ColaboradoresIndexRoute
+  '/empresas/': typeof EmpresasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/colaboradores/$nome': typeof ColaboradoresNomeRoute
+  '/empresas/$nome': typeof EmpresasNomeRoute
+  '/colaboradores': typeof ColaboradoresIndexRoute
+  '/empresas': typeof EmpresasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/colaboradores/$nome': typeof ColaboradoresNomeRoute
+  '/empresas/$nome': typeof EmpresasNomeRoute
+  '/colaboradores/': typeof ColaboradoresIndexRoute
+  '/empresas/': typeof EmpresasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/colaboradores/$nome'
+    | '/empresas/$nome'
+    | '/colaboradores/'
+    | '/empresas/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/colaboradores/$nome'
+    | '/empresas/$nome'
+    | '/colaboradores'
+    | '/empresas'
+  id:
+    | '__root__'
+    | '/'
+    | '/colaboradores/$nome'
+    | '/empresas/$nome'
+    | '/colaboradores/'
+    | '/empresas/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
+  EmpresasNomeRoute: typeof EmpresasNomeRoute
+  ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
+  EmpresasIndexRoute: typeof EmpresasIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +104,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/colaboradores/': {
+      id: '/colaboradores/'
+      path: '/colaboradores'
+      fullPath: '/colaboradores/'
+      preLoaderRoute: typeof ColaboradoresIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/colaboradores/$nome': {
+      id: '/colaboradores/$nome'
+      path: '/colaboradores/$nome'
+      fullPath: '/colaboradores/$nome'
+      preLoaderRoute: typeof ColaboradoresNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/': {
+      id: '/empresas/'
+      path: '/empresas'
+      fullPath: '/empresas/'
+      preLoaderRoute: typeof EmpresasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas/$nome': {
+      id: '/empresas/$nome'
+      path: '/empresas/$nome'
+      fullPath: '/empresas/$nome'
+      preLoaderRoute: typeof EmpresasNomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ColaboradoresNomeRoute: ColaboradoresNomeRoute,
+  EmpresasNomeRoute: EmpresasNomeRoute,
+  ColaboradoresIndexRoute: ColaboradoresIndexRoute,
+  EmpresasIndexRoute: EmpresasIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
