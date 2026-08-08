@@ -237,8 +237,10 @@ function Pagina() {
       <div>
         <h1 className="font-display text-2xl font-bold">Importar dados</h1>
         <p className="text-sm text-muted-foreground">
-          Envie a planilha de controle de vagas (.xlsx ou .xls). Os indicadores são recalculados
-          automaticamente após a confirmação.
+          Envie a planilha de controle de vagas (.xlsx ou .xls). A planilha enviada passa a ser a
+          única fonte de dados do sistema: ao confirmar, os dados da planilha anterior são
+          removidos e todo o sistema (dashboard, colaboradores, empresas, gráficos e rankings) é
+          recalculado apenas com a nova planilha.
         </p>
       </div>
 
@@ -282,7 +284,9 @@ function Pagina() {
                 onClick={confirmar}
                 disabled={salvando || validas.length === 0}
               >
-                {salvando ? "Importando..." : `Confirmar importação (${fmtNum(validas.length)})`}
+                {salvando
+                  ? "Substituindo dados..."
+                  : `Substituir dados pela planilha (${fmtNum(validas.length)})`}
               </Button>
             </div>
           </div>
