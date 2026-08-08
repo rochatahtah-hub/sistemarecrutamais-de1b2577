@@ -351,21 +351,6 @@ function Dashboard() {
       </Painel>
 
       <Painel
-        titulo="Desempenho dos colaboradores (detalhado)"
-        acao={
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/colaboradores">Ver tudo</Link>
-          </Button>
-        }
-      >
-        <TabelaDesempenho
-          linhas={porColaborador.slice(0, 10)}
-          destino="colaboradores"
-          metaPresenca={metas.presenca}
-        />
-      </Painel>
-
-      <Painel
         titulo="Desempenho das empresas"
         acao={
           <Button variant="outline" size="sm" asChild>
