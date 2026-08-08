@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
   Building2,
+  ClipboardCheck,
   FileSpreadsheet,
   GitCompareArrows,
   LayoutDashboard,
@@ -26,6 +27,7 @@ import {
 
 const analise = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
   { title: "Colaboradores", url: "/colaboradores", icon: Users },
   { title: "Empresas", url: "/empresas", icon: Building2 },
   { title: "Vagas", url: "/vagas", icon: Table2 },
