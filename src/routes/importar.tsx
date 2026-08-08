@@ -37,6 +37,7 @@ import {
 } from "@/lib/importacao";
 import { fmtData, fmtNum } from "@/lib/metricas";
 import { MAPEAMENTO_PADRAO, STATUS_LABEL, normalizarTexto } from "@/lib/tipos";
+import { PlanilhaAtivaBanner } from "@/components/PlanilhaAtiva";
 
 /** Aba que representa a área "CONFIRMAÇÃO" (não é o nome de um colaborador). */
 function abaDeConfirmacao(nome: string) {
@@ -261,6 +262,8 @@ function Pagina() {
           recalculado apenas com a nova planilha.
         </p>
       </div>
+
+      <PlanilhaAtivaBanner />
 
       {!arquivo && (
         <label className="surface-panel flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-dashed p-10 text-center transition-colors hover:border-primary/50">

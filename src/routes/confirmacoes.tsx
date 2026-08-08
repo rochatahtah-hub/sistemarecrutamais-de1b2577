@@ -18,6 +18,7 @@ import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { exportarExcel } from "@/lib/exportar";
 import { agregar, fmtData, fmtNum, fmtPct } from "@/lib/metricas";
 import { STATUS_LABEL } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/confirmacoes")({
   head: () => ({
@@ -51,7 +52,7 @@ const ABAS: { valor: Aba; label: string }[] = [
 ];
 
 function Pagina() {
-  const { data: registros = [] } = useVagas();
+  const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const [aba, setAba] = useState<Aba>("TODAS");
   const [pagina, setPagina] = useState(0);
@@ -79,6 +80,8 @@ function Pagina() {
     },
   ];
 
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Presenças, faltas e cancelamentos" />;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -94,6 +97,7 @@ function Pagina() {
       </div>
 
       <FiltrosBar registros={registros} />
+      <PlanilhaAtivaBanner />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {cards.map((c) => (

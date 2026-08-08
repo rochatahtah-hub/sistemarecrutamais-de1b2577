@@ -107,6 +107,49 @@ export function useImportacoes() {
   });
 }
 
+/** Planilha atualmente ativa (última importação concluída) + volume de registros. */
+export function usePlanilhaAtiva() {
+  return useQuery({
+    queryKey: ["planilha-ativa"],
+    queryFn: async () => {
+      const [imp, cont] = await Promise.all([
+        supabase
+          .from("importacoes")
+          .select("id,nome_arquivo,data_importacao,registros_adicionados")
+          .order("data_importacao", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase.from("vagas").select("id", { count: "exact", head: true }),
+      ]);
+      if (imp.error) throw imp.error;
+      if (cont.error) throw cont.error;
+      const registros = cont.count ?? 0;
+      if (registros === 0) return null;
+      return {
+        nome_arquivo: imp.data?.nome_arquivo ?? "planilha.xlsx",
+        data_importacao: imp.data?.data_importacao ?? null,
+        registros,
+      };
+    },
+    staleTime: 30_000,
+  });
+}
+
+/** Retira a planilha ativa: limpa toda a base usada pelo sistema. */
+export function useRetirarPlanilha() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const tabelas = ["vagas", "colaboradores", "empresas", "importacoes"] as const;
+      for (const tabela of tabelas) {
+        const { error } = await supabase.from(tabela).delete().not("id", "is", null);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => qc.invalidateQueries(),
+  });
+}
+
 export function useCadastros() {
   return useQuery({
     queryKey: ["cadastros"],

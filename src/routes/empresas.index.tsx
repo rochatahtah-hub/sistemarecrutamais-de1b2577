@@ -7,6 +7,7 @@ import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { agregarPor } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/empresas/")({
   head: () => ({
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/empresas/")({
 });
 
 function Pagina() {
-  const { data: registros = [] } = useVagas();
+  const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { filtros } = useFiltros();
   const linhas = useMemo(
@@ -35,10 +36,13 @@ function Pagina() {
     [registros, filtros],
   );
 
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Empresas" />;
+
   return (
     <div className="space-y-4">
       <h1 className="font-display text-2xl font-bold">Desempenho das empresas</h1>
       <FiltrosBar registros={registros} />
+      <PlanilhaAtivaBanner />
       <TabelaDesempenho
         linhas={linhas}
         destino="empresas"

@@ -10,6 +10,7 @@ import { aplicarFiltros, descreverPeriodo, useFiltros } from "@/lib/filtros";
 import { exportarExcel, exportarPdf } from "@/lib/exportar";
 import { agregar, fmtNum, fmtPct } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/relatorios")({
 });
 
 function Pagina() {
-  const { data: registros = [] } = useVagas();
+  const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { filtros } = useFiltros();
   const [gerando, setGerando] = useState(false);
@@ -59,6 +60,8 @@ function Pagina() {
     }
   }
 
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Relatórios" />;
+
   return (
     <div className="space-y-4">
       <div>
@@ -69,6 +72,7 @@ function Pagina() {
       </div>
 
       <FiltrosBar registros={registros} />
+      <PlanilhaAtivaBanner />
 
       <div className="surface-panel rounded-xl p-5">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">Prévia do conteúdo</p>
