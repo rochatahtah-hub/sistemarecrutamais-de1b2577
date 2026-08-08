@@ -4,6 +4,7 @@ import { ArrowLeft, Briefcase, CalendarX2, CheckCircle2, Trophy, XCircle } from 
 
 import { CardIndicador } from "./CardIndicador";
 import { GraficoEvolucao } from "./Graficos";
+import { FiltrosBar } from "@/components/FiltrosBar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useVagas } from "@/lib/dados";
+import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import {
   agregar,
   agregarPor,
@@ -35,19 +37,21 @@ import { STATUS_LABEL } from "@/lib/tipos";
 
 export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa"; nome: string }) {
   const { data: registros = [] } = useVagas();
+  const { filtros } = useFiltros();
   const [granularidade, setGranularidade] = useState<Granularidade>("quinzena");
   const [pagina, setPagina] = useState(0);
   const porPagina = 25;
 
+  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
   const meus = useMemo(
-    () => registros.filter((r) => (tipo === "colaborador" ? r.colaborador : r.empresa) === nome),
-    [registros, tipo, nome],
+    () => filtrados.filter((r) => (tipo === "colaborador" ? r.colaborador : r.empresa) === nome),
+    [filtrados, tipo, nome],
   );
   const total = useMemo(() => agregar(meus), [meus]);
   const ranking = useMemo(() => {
-    const linhas = agregarPor(registros, tipo).sort((a, b) => b.pctPresenca - a.pctPresenca);
+    const linhas = agregarPor(filtrados, tipo).sort((a, b) => b.pctPresenca - a.pctPresenca);
     return { posicao: linhas.findIndex((l) => l.nome === nome) + 1, totalLinhas: linhas.length };
-  }, [registros, tipo, nome]);
+  }, [filtrados, tipo, nome]);
   const relacionados = useMemo(
     () => agregarPor(meus, tipo === "colaborador" ? "empresa" : "colaborador"),
     [meus, tipo],
@@ -75,6 +79,8 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
             : "Sem ranking"}
         </Badge>
       </div>
+
+      <FiltrosBar registros={registros} />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <CardIndicador titulo="Total de vagas" valor={fmtNum(total.vagas)} icon={Briefcase} tom="ouro" />
