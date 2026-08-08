@@ -380,6 +380,7 @@ function Pagina() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Linha</TableHead>
+                    <TableHead>Aba</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Colaborador</TableHead>
                     <TableHead>Empresa</TableHead>
@@ -391,8 +392,9 @@ function Pagina() {
                 </TableHeader>
                 <TableBody>
                   {processadas.slice(0, 50).map((l) => (
-                    <TableRow key={l.linha}>
+                    <TableRow key={`${l.aba}-${l.linha}`}>
                       <TableCell className="text-muted-foreground">{l.linha}</TableCell>
+                      <TableCell className="text-muted-foreground">{l.aba}</TableCell>
                       <TableCell>{l.data ? fmtData(l.data) : "—"}</TableCell>
                       <TableCell>{l.colaborador || "—"}</TableCell>
                       <TableCell>{l.empresa || "—"}</TableCell>
@@ -428,13 +430,15 @@ function Pagina() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Linha</TableHead>
+                      <TableHead>Aba</TableHead>
                       <TableHead>Problemas</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {comProblema.slice(0, 200).map((l) => (
-                      <TableRow key={l.linha}>
+                      <TableRow key={`${l.aba}-${l.linha}`}>
                         <TableCell>{l.linha}</TableCell>
+                        <TableCell className="text-muted-foreground">{l.aba}</TableCell>
                         <TableCell className="text-destructive">
                           {l.problemas.join(" · ")}
                         </TableCell>
