@@ -60,6 +60,62 @@ export const CAMPOS: { campo: CampoDestino; label: string; obrigatorio: boolean;
 
 export type Mapeamento = Partial<Record<CampoDestino, string>>;
 
+/** Nomes de abas que NUNCA são recrutadores (informações gerais, resumo, dashboard etc.). */
+const ABAS_NAO_RECRUTADOR = [
+  "informacao",
+  "informacoes",
+  "info",
+  "dashboard",
+  "painel",
+  "resumo",
+  "config",
+  "configuracao",
+  "configuracoes",
+  "parametro",
+  "parametros",
+  "grafico",
+  "graficos",
+  "base",
+  "dados",
+  "geral",
+  "instrucao",
+  "instrucoes",
+  "modelo",
+  "template",
+  "auxiliar",
+  "aux",
+  "lista",
+  "listas",
+  "menu",
+  "capa",
+  "indice",
+  "relatorio",
+  "relatorios",
+  "ranking",
+  "rankings",
+  "total",
+  "totais",
+  "consolidado",
+  "controle",
+  "planilha1",
+  "sheet1",
+  "plan1",
+];
+
+/**
+ * Uma aba é considerada de recrutador quando seu nome parece um nome de pessoa:
+ * apenas letras/espaços, poucas palavras e fora da lista de abas de sistema.
+ */
+export function abaDeRecrutador(nome: string): boolean {
+  const n = normalizarTexto(nome);
+  if (!n) return false;
+  if (n.includes("confirma")) return true; // área CONFIRMAÇÃO é fonte de dados
+  if (ABAS_NAO_RECRUTADOR.some((termo) => n === termo || n.includes(termo))) return false;
+  if (/\d/.test(n)) return false;
+  if (!/^[a-z][a-z\s'.-]*$/.test(n)) return false;
+  return n.split(/\s+/).filter(Boolean).length <= 4;
+}
+
 export function detectarColunas(cabecalhos: string[]): Mapeamento {
   const mapa: Mapeamento = {};
   // A área "CONFIRMAÇÃO" tem prioridade absoluta como fonte de presença/falta/cancelamento.
