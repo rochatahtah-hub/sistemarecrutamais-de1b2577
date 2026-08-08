@@ -14,7 +14,7 @@ export const CAMPOS: { campo: CampoDestino; label: string; obrigatorio: boolean;
   {
     campo: "colaborador",
     label: "Colaborador / Recrutador",
-    obrigatorio: true,
+    obrigatorio: false,
     pistas: ["colaborador", "recrutador", "responsavel", "consultor", "analista", "usuario"],
   },
   {
@@ -26,7 +26,7 @@ export const CAMPOS: { campo: CampoDestino; label: string; obrigatorio: boolean;
   {
     campo: "descricao",
     label: "Vaga / Cargo",
-    obrigatorio: false,
+    obrigatorio: true,
     pistas: ["vaga", "cargo", "funcao", "posicao", "descricao"],
   },
   {
@@ -63,6 +63,11 @@ export function detectarColunas(cabecalhos: string[]): Mapeamento {
   return mapa;
 }
 
+/** Campos que uma aba precisa ter para ser importada (colaborador vem do nome da aba). */
+export function camposFaltando(mapa: Mapeamento) {
+  return CAMPOS.filter((c) => c.obrigatorio && !mapa[c.campo]);
+}
+
 export function converterData(valor: unknown): string | null {
   if (valor === null || valor === undefined || valor === "") return null;
   if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
@@ -94,6 +99,7 @@ export function converterData(valor: unknown): string | null {
 
 export interface LinhaProcessada {
   linha: number;
+  aba: string;
   data: string | null;
   colaborador: string;
   empresa: string;
@@ -110,8 +116,9 @@ export function processarLinhas(
   linhas: Record<string, unknown>[],
   mapa: Mapeamento,
   mapeamentoStatus: MapeamentoStatus = MAPEAMENTO_PADRAO,
+  opcoes: { aba?: string; colaboradorPadrao?: string; vistos?: Set<string> } = {},
 ): LinhaProcessada[] {
-  const vistos = new Set<string>();
+  const vistos = opcoes.vistos ?? new Set<string>();
   return linhas.map((bruta, i) => {
     const pegar = (campo: CampoDestino) => {
       const coluna = mapa[campo];
@@ -122,7 +129,8 @@ export function processarLinhas(
     const data = converterData(pegar("data"));
     if (!data) problemas.push("Data inválida ou ausente");
 
-    const colaborador = String(pegar("colaborador") ?? "").trim();
+    const colaborador =
+      String(pegar("colaborador") ?? "").trim() || (opcoes.colaboradorPadrao ?? "").trim();
     if (!colaborador) problemas.push("Colaborador não identificado");
 
     const empresa = String(pegar("empresa") ?? "").trim();
@@ -148,6 +156,7 @@ export function processarLinhas(
 
     return {
       linha: i + 2,
+      aba: opcoes.aba ?? "",
       data,
       colaborador,
       empresa,

@@ -27,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useConfiguracoes, useImportacoes } from "@/lib/dados";
 import {
   CAMPOS,
+  camposFaltando,
   detectarColunas,
   processarLinhas,
   type Mapeamento,
@@ -53,44 +54,85 @@ export const Route = createFileRoute("/importar")({
   component: Pagina,
 });
 
+interface AbaLida {
+  nome: string;
+  cabecalhos: string[];
+  linhas: Record<string, unknown>[];
+  mapa: Mapeamento;
+  motivo: string | null;
+}
+
 function Pagina() {
   const qc = useQueryClient();
   const { data: config } = useConfiguracoes();
   const { data: importacoes = [] } = useImportacoes();
 
   const [arquivo, setArquivo] = useState<File | null>(null);
-  const [cabecalhos, setCabecalhos] = useState<string[]>([]);
-  const [linhas, setLinhas] = useState<Record<string, unknown>[]>([]);
-  const [mapa, setMapa] = useState<Mapeamento>({});
+  const [abas, setAbas] = useState<AbaLida[]>([]);
   const [salvando, setSalvando] = useState(false);
 
   const mapeamentoStatus = config?.mapeamento ?? MAPEAMENTO_PADRAO;
 
-  const processadas: LinhaProcessada[] = useMemo(
-    () => (linhas.length ? processarLinhas(linhas, mapa, mapeamentoStatus) : []),
-    [linhas, mapa, mapeamentoStatus],
-  );
+  const abasValidas = abas.filter((a) => !a.motivo);
+  const abasIgnoradas = abas.filter((a) => a.motivo);
+
+  const processadas: LinhaProcessada[] = useMemo(() => {
+    const vistos = new Set<string>();
+    return abas
+      .filter((a) => !a.motivo)
+      .flatMap((a) =>
+        processarLinhas(a.linhas, a.mapa, mapeamentoStatus, {
+          aba: a.nome,
+          colaboradorPadrao: a.nome,
+          vistos,
+        }),
+      );
+  }, [abas, mapeamentoStatus]);
+
   const validas = processadas.filter((l) => l.problemas.length === 0 && !l.duplicada);
   const comProblema = processadas.filter((l) => l.problemas.length > 0);
   const duplicadas = processadas.filter((l) => l.duplicada && l.problemas.length === 0);
-  const faltandoObrigatorio = CAMPOS.filter((c) => c.obrigatorio && !mapa[c.campo]);
+
+  const resumoAbas = useMemo(() => {
+    const mapaResumo = new Map<string, number>();
+    for (const l of processadas) mapaResumo.set(l.aba, (mapaResumo.get(l.aba) ?? 0) + 1);
+    return abasValidas.map((a) => ({ nome: a.nome, linhas: mapaResumo.get(a.nome) ?? 0 }));
+  }, [processadas, abas]);
 
   async function aoSelecionar(file: File) {
     try {
       const XLSX = await import("xlsx");
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { cellDates: true });
-      const nomePlanilha = wb.SheetNames[0];
-      if (!nomePlanilha) throw new Error("Planilha vazia");
-      const sheet = wb.Sheets[nomePlanilha]!;
-      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
-      if (json.length === 0) throw new Error("Nenhuma linha encontrada na planilha");
-      const heads = Object.keys(json[0]!);
+      if (wb.SheetNames.length === 0) throw new Error("Planilha vazia");
+      const lidas: AbaLida[] = wb.SheetNames.map((nome) => {
+        const sheet = wb.Sheets[nome];
+        const json = sheet
+          ? XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" })
+          : [];
+        const heads = json.length ? Object.keys(json[0]!) : [];
+        const mapa = detectarColunas(heads);
+        const faltando = camposFaltando(mapa);
+        const motivo =
+          json.length === 0
+            ? "Aba sem linhas de dados"
+            : faltando.length > 0
+              ? `Colunas obrigatórias não encontradas: ${faltando.map((c) => c.label).join(", ")}`
+              : null;
+        return { nome, cabecalhos: heads, linhas: json, mapa, motivo };
+      });
+      const validas = lidas.filter((a) => !a.motivo);
       setArquivo(file);
-      setCabecalhos(heads);
-      setLinhas(json);
-      setMapa(detectarColunas(heads));
-      toast.success(`${json.length} linhas lidas de ${file.name}`);
+      setAbas(lidas);
+      if (validas.length === 0) {
+        toast.error("Nenhuma aba do arquivo tem as colunas mínimas (Data, Empresa, Vaga, Status).");
+      } else {
+        toast.success(
+          `${validas.length} aba(s) lidas de ${file.name}: ${validas
+            .map((a) => `${a.nome} (${a.linhas.length})`)
+            .join(", ")}`,
+        );
+      }
     } catch (e) {
       toast.error(`Não foi possível ler o arquivo: ${(e as Error).message}`);
     }
@@ -98,9 +140,7 @@ function Pagina() {
 
   function cancelar() {
     setArquivo(null);
-    setCabecalhos([]);
-    setLinhas([]);
-    setMapa({});
+    setAbas([]);
   }
 
   async function confirmar() {
@@ -219,7 +259,8 @@ function Pagina() {
               <div>
                 <p className="font-semibold">{arquivo.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {fmtNum(processadas.length)} linhas · {cabecalhos.length} colunas detectadas
+                  {fmtNum(processadas.length)} linhas · {abasValidas.length} aba(s) válidas
+                  {abasIgnoradas.length > 0 && ` · ${abasIgnoradas.length} ignorada(s)`}
                 </p>
               </div>
             </div>
@@ -229,7 +270,7 @@ function Pagina() {
               </Button>
               <Button
                 onClick={confirmar}
-                disabled={salvando || validas.length === 0 || faltandoObrigatorio.length > 0}
+                disabled={salvando || validas.length === 0}
               >
                 {salvando ? "Importando..." : `Confirmar importação (${fmtNum(validas.length)})`}
               </Button>
@@ -238,39 +279,76 @@ function Pagina() {
 
           <div className="surface-panel rounded-xl p-4">
             <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Mapeamento de colunas
+              Abas do arquivo
             </h2>
-            <div className="grid gap-3 md:grid-cols-3">
-              {CAMPOS.map((c) => (
-                <div key={c.campo}>
-                  <Label className="mb-1.5 block text-xs">
-                    {c.label}{" "}
-                    {c.obrigatorio && <span className="text-destructive">*</span>}
-                  </Label>
-                  <Select
-                    value={mapa[c.campo] ?? "__nenhuma__"}
-                    onValueChange={(v) =>
-                      setMapa((m) => ({ ...m, [c.campo]: v === "__nenhuma__" ? undefined : v }))
-                    }
-                  >
-                    <SelectTrigger><SelectValue placeholder="Selecionar coluna" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__nenhuma__">Não utilizar</SelectItem>
-                      {cabecalhos.map((h) => (
-                        <SelectItem key={h} value={h}>{h}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+            <p className="mb-3 text-xs text-muted-foreground">
+              O nome de cada aba é usado como Colaborador / Recrutador.
+            </p>
+            <ul className="mb-3 flex flex-wrap gap-2">
+              {resumoAbas.map((a) => (
+                <li key={a.nome}>
+                  <Badge variant="outline" className="border-success/40 text-success">
+                    {a.nome}: {fmtNum(a.linhas)} linhas
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+            {abasIgnoradas.length > 0 && (
+              <div className="mb-3 space-y-1 rounded-lg border border-destructive/40 bg-destructive/10 p-3">
+                {abasIgnoradas.map((a) => (
+                  <p key={a.nome} className="flex items-start gap-2 text-sm text-destructive">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      Aba <strong>{a.nome}</strong> ignorada — {a.motivo}
+                    </span>
+                  </p>
+                ))}
+              </div>
+            )}
+            <div className="space-y-2">
+              {abasValidas.map((aba) => (
+                <details key={aba.nome} className="rounded-lg border border-border p-3">
+                  <summary className="cursor-pointer text-sm font-medium">
+                    Mapeamento de colunas — {aba.nome}
+                  </summary>
+                  <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    {CAMPOS.map((c) => (
+                      <div key={c.campo}>
+                        <Label className="mb-1.5 block text-xs">
+                          {c.label} {c.obrigatorio && <span className="text-destructive">*</span>}
+                        </Label>
+                        <Select
+                          value={aba.mapa[c.campo] ?? "__nenhuma__"}
+                          onValueChange={(v) =>
+                            setAbas((lista) =>
+                              lista.map((x) =>
+                                x.nome === aba.nome
+                                  ? {
+                                      ...x,
+                                      mapa: {
+                                        ...x.mapa,
+                                        [c.campo]: v === "__nenhuma__" ? undefined : v,
+                                      },
+                                    }
+                                  : x,
+                              ),
+                            )
+                          }
+                        >
+                          <SelectTrigger><SelectValue placeholder="Selecionar coluna" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__nenhuma__">Não utilizar</SelectItem>
+                            {aba.cabecalhos.map((h) => (
+                              <SelectItem key={h} value={h}>{h}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </details>
               ))}
             </div>
-            {faltandoObrigatorio.length > 0 && (
-              <p className="mt-3 flex items-center gap-2 text-sm text-destructive">
-                <AlertCircle className="h-4 w-4" />
-                Campos obrigatórios não mapeados:{" "}
-                {faltandoObrigatorio.map((c) => c.label).join(", ")}
-              </p>
-            )}
           </div>
 
           <div className="grid grid-cols-3 gap-3">
@@ -302,6 +380,7 @@ function Pagina() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Linha</TableHead>
+                    <TableHead>Aba</TableHead>
                     <TableHead>Data</TableHead>
                     <TableHead>Colaborador</TableHead>
                     <TableHead>Empresa</TableHead>
@@ -313,8 +392,9 @@ function Pagina() {
                 </TableHeader>
                 <TableBody>
                   {processadas.slice(0, 50).map((l) => (
-                    <TableRow key={l.linha}>
+                    <TableRow key={`${l.aba}-${l.linha}`}>
                       <TableCell className="text-muted-foreground">{l.linha}</TableCell>
+                      <TableCell className="text-muted-foreground">{l.aba}</TableCell>
                       <TableCell>{l.data ? fmtData(l.data) : "—"}</TableCell>
                       <TableCell>{l.colaborador || "—"}</TableCell>
                       <TableCell>{l.empresa || "—"}</TableCell>
@@ -350,13 +430,15 @@ function Pagina() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Linha</TableHead>
+                      <TableHead>Aba</TableHead>
                       <TableHead>Problemas</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {comProblema.slice(0, 200).map((l) => (
-                      <TableRow key={l.linha}>
+                      <TableRow key={`${l.aba}-${l.linha}`}>
                         <TableCell>{l.linha}</TableCell>
+                        <TableCell className="text-muted-foreground">{l.aba}</TableCell>
                         <TableCell className="text-destructive">
                           {l.problemas.join(" · ")}
                         </TableCell>
