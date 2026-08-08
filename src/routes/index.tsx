@@ -48,6 +48,7 @@ import {
   type LinhaAgregada,
 } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/")({
   head: () => ({
