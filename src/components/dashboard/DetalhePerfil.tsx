@@ -34,6 +34,7 @@ import {
   type Granularidade,
 } from "@/lib/metricas";
 import { STATUS_LABEL } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa"; nome: string }) {
   const { data: registros = [] } = useVagas();

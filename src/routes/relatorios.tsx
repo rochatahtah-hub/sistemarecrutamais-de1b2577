@@ -10,6 +10,7 @@ import { aplicarFiltros, descreverPeriodo, useFiltros } from "@/lib/filtros";
 import { exportarExcel, exportarPdf } from "@/lib/exportar";
 import { agregar, fmtNum, fmtPct } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({

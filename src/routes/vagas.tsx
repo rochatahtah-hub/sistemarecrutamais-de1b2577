@@ -17,6 +17,7 @@ import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { exportarExcel } from "@/lib/exportar";
 import { fmtData, fmtNum } from "@/lib/metricas";
 import { STATUS_LABEL } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/vagas")({
   head: () => ({

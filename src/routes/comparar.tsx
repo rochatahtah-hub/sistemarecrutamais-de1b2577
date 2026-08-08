@@ -15,6 +15,7 @@ import {
 import { useVagas } from "@/lib/dados";
 import { agregar, agregarPor, fmtNum, fmtPct, variacao } from "@/lib/metricas";
 import type { VagaRegistro } from "@/lib/tipos";
+import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/comparar")({
   head: () => ({
