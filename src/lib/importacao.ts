@@ -14,7 +14,7 @@ export const CAMPOS: { campo: CampoDestino; label: string; obrigatorio: boolean;
   {
     campo: "colaborador",
     label: "Colaborador / Recrutador",
-    obrigatorio: true,
+    obrigatorio: false,
     pistas: ["colaborador", "recrutador", "responsavel", "consultor", "analista", "usuario"],
   },
   {
@@ -26,7 +26,7 @@ export const CAMPOS: { campo: CampoDestino; label: string; obrigatorio: boolean;
   {
     campo: "descricao",
     label: "Vaga / Cargo",
-    obrigatorio: false,
+    obrigatorio: true,
     pistas: ["vaga", "cargo", "funcao", "posicao", "descricao"],
   },
   {
@@ -61,6 +61,11 @@ export function detectarColunas(cabecalhos: string[]): Mapeamento {
     if (achado) mapa[campo] = achado;
   }
   return mapa;
+}
+
+/** Campos que uma aba precisa ter para ser importada (colaborador vem do nome da aba). */
+export function camposFaltando(mapa: Mapeamento) {
+  return CAMPOS.filter((c) => c.obrigatorio && !mapa[c.campo]);
 }
 
 export function converterData(valor: unknown): string | null {
