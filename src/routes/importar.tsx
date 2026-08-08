@@ -259,7 +259,8 @@ function Pagina() {
               <div>
                 <p className="font-semibold">{arquivo.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {fmtNum(processadas.length)} linhas · {cabecalhos.length} colunas detectadas
+                  {fmtNum(processadas.length)} linhas · {abasValidas.length} aba(s) válidas
+                  {abasIgnoradas.length > 0 && ` · ${abasIgnoradas.length} ignorada(s)`}
                 </p>
               </div>
             </div>
@@ -269,7 +270,7 @@ function Pagina() {
               </Button>
               <Button
                 onClick={confirmar}
-                disabled={salvando || validas.length === 0 || faltandoObrigatorio.length > 0}
+                disabled={salvando || validas.length === 0}
               >
                 {salvando ? "Importando..." : `Confirmar importação (${fmtNum(validas.length)})`}
               </Button>
@@ -278,39 +279,76 @@ function Pagina() {
 
           <div className="surface-panel rounded-xl p-4">
             <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Mapeamento de colunas
+              Abas do arquivo
             </h2>
-            <div className="grid gap-3 md:grid-cols-3">
-              {CAMPOS.map((c) => (
-                <div key={c.campo}>
-                  <Label className="mb-1.5 block text-xs">
-                    {c.label}{" "}
-                    {c.obrigatorio && <span className="text-destructive">*</span>}
-                  </Label>
-                  <Select
-                    value={mapa[c.campo] ?? "__nenhuma__"}
-                    onValueChange={(v) =>
-                      setMapa((m) => ({ ...m, [c.campo]: v === "__nenhuma__" ? undefined : v }))
-                    }
-                  >
-                    <SelectTrigger><SelectValue placeholder="Selecionar coluna" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__nenhuma__">Não utilizar</SelectItem>
-                      {cabecalhos.map((h) => (
-                        <SelectItem key={h} value={h}>{h}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+            <p className="mb-3 text-xs text-muted-foreground">
+              O nome de cada aba é usado como Colaborador / Recrutador.
+            </p>
+            <ul className="mb-3 flex flex-wrap gap-2">
+              {resumoAbas.map((a) => (
+                <li key={a.nome}>
+                  <Badge variant="outline" className="border-success/40 text-success">
+                    {a.nome}: {fmtNum(a.linhas)} linhas
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+            {abasIgnoradas.length > 0 && (
+              <div className="mb-3 space-y-1 rounded-lg border border-destructive/40 bg-destructive/10 p-3">
+                {abasIgnoradas.map((a) => (
+                  <p key={a.nome} className="flex items-start gap-2 text-sm text-destructive">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      Aba <strong>{a.nome}</strong> ignorada — {a.motivo}
+                    </span>
+                  </p>
+                ))}
+              </div>
+            )}
+            <div className="space-y-2">
+              {abasValidas.map((aba) => (
+                <details key={aba.nome} className="rounded-lg border border-border p-3">
+                  <summary className="cursor-pointer text-sm font-medium">
+                    Mapeamento de colunas — {aba.nome}
+                  </summary>
+                  <div className="mt-3 grid gap-3 md:grid-cols-3">
+                    {CAMPOS.map((c) => (
+                      <div key={c.campo}>
+                        <Label className="mb-1.5 block text-xs">
+                          {c.label} {c.obrigatorio && <span className="text-destructive">*</span>}
+                        </Label>
+                        <Select
+                          value={aba.mapa[c.campo] ?? "__nenhuma__"}
+                          onValueChange={(v) =>
+                            setAbas((lista) =>
+                              lista.map((x) =>
+                                x.nome === aba.nome
+                                  ? {
+                                      ...x,
+                                      mapa: {
+                                        ...x.mapa,
+                                        [c.campo]: v === "__nenhuma__" ? undefined : v,
+                                      },
+                                    }
+                                  : x,
+                              ),
+                            )
+                          }
+                        >
+                          <SelectTrigger><SelectValue placeholder="Selecionar coluna" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__nenhuma__">Não utilizar</SelectItem>
+                            {aba.cabecalhos.map((h) => (
+                              <SelectItem key={h} value={h}>{h}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </details>
               ))}
             </div>
-            {faltandoObrigatorio.length > 0 && (
-              <p className="mt-3 flex items-center gap-2 text-sm text-destructive">
-                <AlertCircle className="h-4 w-4" />
-                Campos obrigatórios não mapeados:{" "}
-                {faltandoObrigatorio.map((c) => c.label).join(", ")}
-              </p>
-            )}
           </div>
 
           <div className="grid grid-cols-3 gap-3">
