@@ -27,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useConfiguracoes, useImportacoes } from "@/lib/dados";
 import {
   CAMPOS,
+  abaDeRecrutador,
   camposFaltando,
   colunaConfirmacao,
   detectarColunas,
@@ -112,6 +113,15 @@ function Pagina() {
       const wb = XLSX.read(buffer, { cellDates: true });
       if (wb.SheetNames.length === 0) throw new Error("Planilha vazia");
       const lidas: AbaLida[] = wb.SheetNames.map((nome) => {
+        if (!abaDeRecrutador(nome)) {
+          return {
+            nome,
+            cabecalhos: [],
+            linhas: [],
+            mapa: {},
+            motivo: "Aba não corresponde a um recrutador — ignorada",
+          };
+        }
         const sheet = wb.Sheets[nome];
         const json = sheet
           ? XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" })
@@ -131,10 +141,12 @@ function Pagina() {
       setArquivo(file);
       setAbas(lidas);
       if (validas.length === 0) {
-        toast.error("Nenhuma aba do arquivo tem as colunas mínimas (Data, Empresa, Vaga, Status).");
+        toast.error(
+          "Nenhuma aba de recrutador válida encontrada (com Data, Empresa, Vaga e Confirmação).",
+        );
       } else {
         toast.success(
-          `${validas.length} aba(s) lidas de ${file.name}: ${validas
+          `${validas.length} aba(s) de recrutador lidas de ${file.name}: ${validas
             .map((a) => `${a.nome} (${a.linhas.length})`)
             .join(", ")}`,
         );
@@ -302,9 +314,10 @@ function Pagina() {
               Abas do arquivo
             </h2>
             <p className="mb-3 text-xs text-muted-foreground">
-              A coluna/aba <strong>CONFIRMAÇÃO</strong> é a fonte de presenças, faltas e
-              cancelamentos. O nome de cada aba é usado como Colaborador / Recrutador (exceto em
-              abas chamadas "Confirmação", onde o colaborador vem de uma coluna).
+              Somente as abas com nome de recrutador são lidas (abas como Informações, Dashboard,
+              Resumo ou Configurações são ignoradas). O nome da aba vira o Colaborador /
+              Recrutador, e a área <strong>CONFIRMAÇÃO</strong> é a fonte de presenças, faltas e
+              cancelamentos.
             </p>
             <ul className="mb-3 flex flex-wrap gap-2">
               {abasValidas.map((a) => (
