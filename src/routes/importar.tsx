@@ -314,9 +314,10 @@ function Pagina() {
               Abas do arquivo
             </h2>
             <p className="mb-3 text-xs text-muted-foreground">
-              A coluna/aba <strong>CONFIRMAÇÃO</strong> é a fonte de presenças, faltas e
-              cancelamentos. O nome de cada aba é usado como Colaborador / Recrutador (exceto em
-              abas chamadas "Confirmação", onde o colaborador vem de uma coluna).
+              Somente as abas com nome de recrutador são lidas (abas como Informações, Dashboard,
+              Resumo ou Configurações são ignoradas). O nome da aba vira o Colaborador /
+              Recrutador, e a área <strong>CONFIRMAÇÃO</strong> é a fonte de presenças, faltas e
+              cancelamentos.
             </p>
             <ul className="mb-3 flex flex-wrap gap-2">
               {abasValidas.map((a) => (
