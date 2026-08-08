@@ -27,6 +27,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useConfiguracoes, useImportacoes } from "@/lib/dados";
 import {
   CAMPOS,
+  camposFaltando,
   detectarColunas,
   processarLinhas,
   type Mapeamento,
@@ -53,44 +54,85 @@ export const Route = createFileRoute("/importar")({
   component: Pagina,
 });
 
+interface AbaLida {
+  nome: string;
+  cabecalhos: string[];
+  linhas: Record<string, unknown>[];
+  mapa: Mapeamento;
+  motivo: string | null;
+}
+
 function Pagina() {
   const qc = useQueryClient();
   const { data: config } = useConfiguracoes();
   const { data: importacoes = [] } = useImportacoes();
 
   const [arquivo, setArquivo] = useState<File | null>(null);
-  const [cabecalhos, setCabecalhos] = useState<string[]>([]);
-  const [linhas, setLinhas] = useState<Record<string, unknown>[]>([]);
-  const [mapa, setMapa] = useState<Mapeamento>({});
+  const [abas, setAbas] = useState<AbaLida[]>([]);
   const [salvando, setSalvando] = useState(false);
 
   const mapeamentoStatus = config?.mapeamento ?? MAPEAMENTO_PADRAO;
 
-  const processadas: LinhaProcessada[] = useMemo(
-    () => (linhas.length ? processarLinhas(linhas, mapa, mapeamentoStatus) : []),
-    [linhas, mapa, mapeamentoStatus],
-  );
+  const abasValidas = abas.filter((a) => !a.motivo);
+  const abasIgnoradas = abas.filter((a) => a.motivo);
+
+  const processadas: LinhaProcessada[] = useMemo(() => {
+    const vistos = new Set<string>();
+    return abas
+      .filter((a) => !a.motivo)
+      .flatMap((a) =>
+        processarLinhas(a.linhas, a.mapa, mapeamentoStatus, {
+          aba: a.nome,
+          colaboradorPadrao: a.nome,
+          vistos,
+        }),
+      );
+  }, [abas, mapeamentoStatus]);
+
   const validas = processadas.filter((l) => l.problemas.length === 0 && !l.duplicada);
   const comProblema = processadas.filter((l) => l.problemas.length > 0);
   const duplicadas = processadas.filter((l) => l.duplicada && l.problemas.length === 0);
-  const faltandoObrigatorio = CAMPOS.filter((c) => c.obrigatorio && !mapa[c.campo]);
+
+  const resumoAbas = useMemo(() => {
+    const mapaResumo = new Map<string, number>();
+    for (const l of processadas) mapaResumo.set(l.aba, (mapaResumo.get(l.aba) ?? 0) + 1);
+    return abasValidas.map((a) => ({ nome: a.nome, linhas: mapaResumo.get(a.nome) ?? 0 }));
+  }, [processadas, abas]);
 
   async function aoSelecionar(file: File) {
     try {
       const XLSX = await import("xlsx");
       const buffer = await file.arrayBuffer();
       const wb = XLSX.read(buffer, { cellDates: true });
-      const nomePlanilha = wb.SheetNames[0];
-      if (!nomePlanilha) throw new Error("Planilha vazia");
-      const sheet = wb.Sheets[nomePlanilha]!;
-      const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
-      if (json.length === 0) throw new Error("Nenhuma linha encontrada na planilha");
-      const heads = Object.keys(json[0]!);
+      if (wb.SheetNames.length === 0) throw new Error("Planilha vazia");
+      const lidas: AbaLida[] = wb.SheetNames.map((nome) => {
+        const sheet = wb.Sheets[nome];
+        const json = sheet
+          ? XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" })
+          : [];
+        const heads = json.length ? Object.keys(json[0]!) : [];
+        const mapa = detectarColunas(heads);
+        const faltando = camposFaltando(mapa);
+        const motivo =
+          json.length === 0
+            ? "Aba sem linhas de dados"
+            : faltando.length > 0
+              ? `Colunas obrigatórias não encontradas: ${faltando.map((c) => c.label).join(", ")}`
+              : null;
+        return { nome, cabecalhos: heads, linhas: json, mapa, motivo };
+      });
+      const validas = lidas.filter((a) => !a.motivo);
       setArquivo(file);
-      setCabecalhos(heads);
-      setLinhas(json);
-      setMapa(detectarColunas(heads));
-      toast.success(`${json.length} linhas lidas de ${file.name}`);
+      setAbas(lidas);
+      if (validas.length === 0) {
+        toast.error("Nenhuma aba do arquivo tem as colunas mínimas (Data, Empresa, Vaga, Status).");
+      } else {
+        toast.success(
+          `${validas.length} aba(s) lidas de ${file.name}: ${validas
+            .map((a) => `${a.nome} (${a.linhas.length})`)
+            .join(", ")}`,
+        );
+      }
     } catch (e) {
       toast.error(`Não foi possível ler o arquivo: ${(e as Error).message}`);
     }
@@ -98,9 +140,7 @@ function Pagina() {
 
   function cancelar() {
     setArquivo(null);
-    setCabecalhos([]);
-    setLinhas([]);
-    setMapa({});
+    setAbas([]);
   }
 
   async function confirmar() {
