@@ -37,9 +37,18 @@ export const CAMPOS: { campo: CampoDestino; label: string; obrigatorio: boolean;
   },
   {
     campo: "status",
-    label: "Status",
+    label: "Confirmação (Status)",
     obrigatorio: true,
-    pistas: ["status", "situacao", "resultado", "presenca", "comparecimento"],
+    pistas: [
+      "confirmacao",
+      "confirmação",
+      "confirmado",
+      "status",
+      "situacao",
+      "resultado",
+      "presenca",
+      "comparecimento",
+    ],
   },
   {
     campo: "observacao",
@@ -53,7 +62,11 @@ export type Mapeamento = Partial<Record<CampoDestino, string>>;
 
 export function detectarColunas(cabecalhos: string[]): Mapeamento {
   const mapa: Mapeamento = {};
+  // A área "CONFIRMAÇÃO" tem prioridade absoluta como fonte de presença/falta/cancelamento.
+  const confirmacao = cabecalhos.find((h) => normalizarTexto(h).includes("confirma"));
+  if (confirmacao) mapa.status = confirmacao;
   for (const { campo, pistas } of CAMPOS) {
+    if (mapa[campo]) continue;
     const achado = cabecalhos.find((h) => {
       const n = normalizarTexto(h);
       return pistas.some((p) => n === p || n.includes(p));
@@ -61,6 +74,12 @@ export function detectarColunas(cabecalhos: string[]): Mapeamento {
     if (achado) mapa[campo] = achado;
   }
   return mapa;
+}
+
+/** Retorna a coluna usada como área "CONFIRMAÇÃO", quando existir. */
+export function colunaConfirmacao(mapa: Mapeamento): string | null {
+  const col = mapa.status;
+  return col && normalizarTexto(col).includes("confirma") ? col : null;
 }
 
 /** Campos que uma aba precisa ter para ser importada (colaborador vem do nome da aba). */
