@@ -28,13 +28,19 @@ import { useConfiguracoes, useImportacoes } from "@/lib/dados";
 import {
   CAMPOS,
   camposFaltando,
+  colunaConfirmacao,
   detectarColunas,
   processarLinhas,
   type Mapeamento,
   type LinhaProcessada,
 } from "@/lib/importacao";
 import { fmtData, fmtNum } from "@/lib/metricas";
-import { MAPEAMENTO_PADRAO, STATUS_LABEL } from "@/lib/tipos";
+import { MAPEAMENTO_PADRAO, STATUS_LABEL, normalizarTexto } from "@/lib/tipos";
+
+/** Aba que representa a área "CONFIRMAÇÃO" (não é o nome de um colaborador). */
+function abaDeConfirmacao(nome: string) {
+  return normalizarTexto(nome).includes("confirma");
+}
 
 export const Route = createFileRoute("/importar")({
   head: () => ({
@@ -83,7 +89,7 @@ function Pagina() {
       .flatMap((a) =>
         processarLinhas(a.linhas, a.mapa, mapeamentoStatus, {
           aba: a.nome,
-          colaboradorPadrao: a.nome,
+          colaboradorPadrao: abaDeConfirmacao(a.nome) ? "" : a.nome,
           vistos,
         }),
       );
@@ -296,8 +302,20 @@ function Pagina() {
               Abas do arquivo
             </h2>
             <p className="mb-3 text-xs text-muted-foreground">
-              O nome de cada aba é usado como Colaborador / Recrutador.
+              A coluna/aba <strong>CONFIRMAÇÃO</strong> é a fonte de presenças, faltas e
+              cancelamentos. O nome de cada aba é usado como Colaborador / Recrutador (exceto em
+              abas chamadas "Confirmação", onde o colaborador vem de uma coluna).
             </p>
+            <ul className="mb-3 flex flex-wrap gap-2">
+              {abasValidas.map((a) => (
+                <li key={`conf-${a.nome}`}>
+                  <Badge variant="outline" className="border-primary/40 text-primary">
+                    {a.nome} · confirmação:{" "}
+                    {colunaConfirmacao(a.mapa) ?? a.mapa.status ?? "não encontrada"}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
             <ul className="mb-3 flex flex-wrap gap-2">
               {resumoAbas.map((a) => (
                 <li key={a.nome}>

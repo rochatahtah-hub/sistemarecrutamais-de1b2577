@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as VagasRouteImport } from './routes/vagas'
@@ -33,6 +34,11 @@ const CompararRoute = CompararRouteImport.update({
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmacoesRoute = ConfirmacoesRouteImport.update({
+  id: '/confirmacoes',
+  path: '/confirmacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImportarRoute = ImportarRouteImport.update({
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
@@ -100,6 +108,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/comparar'
     | '/configuracoes'
+    | '/confirmacoes'
     | '/importar'
     | '/relatorios'
     | '/vagas'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
     | '/'
     | '/comparar'
     | '/configuracoes'
+    | '/confirmacoes'
     | '/importar'
     | '/relatorios'
     | '/vagas'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/comparar'
     | '/configuracoes'
+    | '/confirmacoes'
     | '/importar'
     | '/relatorios'
     | '/vagas'
@@ -151,6 +163,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  ConfirmacoesRoute: typeof ConfirmacoesRoute
   ImportarRoute: typeof ImportarRoute
   RelatoriosRoute: typeof RelatoriosRoute
   VagasRoute: typeof VagasRoute
@@ -181,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/configuracoes'
       preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmacoes': {
+      id: '/confirmacoes'
+      path: '/confirmacoes'
+      fullPath: '/confirmacoes'
+      preLoaderRoute: typeof ConfirmacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/importar': {
@@ -239,6 +259,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  ConfirmacoesRoute: ConfirmacoesRoute,
   ImportarRoute: ImportarRoute,
   RelatoriosRoute: RelatoriosRoute,
   VagasRoute: VagasRoute,
