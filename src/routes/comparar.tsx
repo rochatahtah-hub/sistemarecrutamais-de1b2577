@@ -44,7 +44,6 @@ function Delta({ valor, invertido = false }: { valor: number; invertido?: boolea
   const bom = invertido ? valor < 0 : valor > 0;
   const Icone = neutro ? ArrowRight : valor > 0 ? ArrowUpRight : ArrowDownRight;
   const cor = neutro ? "text-muted-foreground" : bom ? "text-success" : "text-destructive";
-  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="A comparação de períodos" />;
 
   return (
     <span className={`inline-flex items-center gap-1 font-medium tabular-nums ${cor}`}>
@@ -106,8 +105,11 @@ function Pagina() {
     });
   }, [periodoA, periodoB]);
 
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="A comparação de períodos" />;
+
   return (
     <div className="space-y-4">
+      <PlanilhaAtivaBanner />
       <div>
         <h1 className="font-display text-2xl font-bold">Comparar períodos</h1>
         <p className="text-sm text-muted-foreground">
