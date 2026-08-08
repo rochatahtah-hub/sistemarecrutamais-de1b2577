@@ -300,6 +300,71 @@ function Dashboard() {
         />
       </Painel>
 
+      <Painel titulo="Ranking de empresas por faltas">
+        <div className="overflow-x-auto rounded-xl border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-secondary/40">
+                <TableHead>Empresa</TableHead>
+                <TableHead className="text-right">Vagas fechadas</TableHead>
+                <TableHead className="text-right">Presenças</TableHead>
+                <TableHead className="text-right">Faltas</TableHead>
+                <TableHead className="text-right">Cancelamentos</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {porEmpresa.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
+                    Nenhum dado para os filtros selecionados.
+                  </TableCell>
+                </TableRow>
+              )}
+              {[...porEmpresa]
+                .sort((a, b) => b.faltas - a.faltas || b.vagas - a.vagas)
+                .map((l) => (
+                  <TableRow key={l.chave} className="hover:bg-secondary/30">
+                    <TableCell className="font-medium">
+                      <Link
+                        to="/empresas/$nome"
+                        params={{ nome: encodeURIComponent(l.nome) }}
+                        className="text-primary hover:underline"
+                      >
+                        {l.nome}
+                      </Link>
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
+                    <TableCell className="text-right tabular-nums text-success">
+                      {fmtNum(l.presencas)}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums text-destructive">
+                      {fmtNum(l.faltas)}
+                    </TableCell>
+                    <TableCell className="text-right tabular-nums text-warning">
+                      {fmtNum(l.cancelamentos)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Painel>
+
+      <Painel
+        titulo="Desempenho dos colaboradores (detalhado)"
+        acao={
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/colaboradores">Ver tudo</Link>
+          </Button>
+        }
+      >
+        <TabelaDesempenho
+          linhas={porColaborador.slice(0, 10)}
+          destino="colaboradores"
+          metaPresenca={metas.presenca}
+        />
+      </Painel>
+
       <Painel
         titulo="Desempenho das empresas"
         acao={
