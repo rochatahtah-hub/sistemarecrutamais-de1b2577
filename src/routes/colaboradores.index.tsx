@@ -28,7 +28,7 @@ export const Route = createFileRoute("/colaboradores/")({
 });
 
 function Pagina() {
-  const { data: registros = [] } = useVagas();
+  const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { filtros } = useFiltros();
   const linhas = useMemo(
@@ -36,10 +36,13 @@ function Pagina() {
     [registros, filtros],
   );
 
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Colaboradores" />;
+
   return (
     <div className="space-y-4">
       <h1 className="font-display text-2xl font-bold">Desempenho dos colaboradores</h1>
       <FiltrosBar registros={registros} />
+      <PlanilhaAtivaBanner />
       <TabelaDesempenho
         linhas={linhas}
         destino="colaboradores"

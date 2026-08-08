@@ -35,7 +35,7 @@ export const Route = createFileRoute("/vagas")({
 });
 
 function Pagina() {
-  const { data: registros = [] } = useVagas();
+  const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const [pagina, setPagina] = useState(0);
   const porPagina = 50;
@@ -44,6 +44,8 @@ function Pagina() {
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / porPagina));
   const atual = Math.min(pagina, totalPaginas - 1);
   const visiveis = filtrados.slice(atual * porPagina, atual * porPagina + porPagina);
+
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Vagas" />;
 
   return (
     <div className="space-y-4">
@@ -55,6 +57,7 @@ function Pagina() {
       </div>
 
       <FiltrosBar registros={registros} />
+      <PlanilhaAtivaBanner />
 
       <p className="text-sm text-muted-foreground">
         {fmtNum(filtrados.length)} registros encontrados.

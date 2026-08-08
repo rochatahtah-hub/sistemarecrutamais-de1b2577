@@ -44,6 +44,8 @@ function Delta({ valor, invertido = false }: { valor: number; invertido?: boolea
   const bom = invertido ? valor < 0 : valor > 0;
   const Icone = neutro ? ArrowRight : valor > 0 ? ArrowUpRight : ArrowDownRight;
   const cor = neutro ? "text-muted-foreground" : bom ? "text-success" : "text-destructive";
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="A comparação de períodos" />;
+
   return (
     <span className={`inline-flex items-center gap-1 font-medium tabular-nums ${cor}`}>
       <Icone className="h-4 w-4" />
@@ -54,7 +56,7 @@ function Delta({ valor, invertido = false }: { valor: number; invertido?: boolea
 }
 
 function Pagina() {
-  const { data: registros = [] } = useVagas();
+  const { data: registros = [], isLoading } = useVagas();
   const hoje = new Date();
   const iso = (d: Date) => d.toISOString().slice(0, 10);
   const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);

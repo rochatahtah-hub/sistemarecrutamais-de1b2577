@@ -37,7 +37,7 @@ import { STATUS_LABEL } from "@/lib/tipos";
 import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa"; nome: string }) {
-  const { data: registros = [] } = useVagas();
+  const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const [granularidade, setGranularidade] = useState<Granularidade>("quinzena");
   const [pagina, setPagina] = useState(0);
@@ -63,6 +63,8 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
   const paginados = ordenados.slice(pagina * porPagina, pagina * porPagina + porPagina);
   const totalPaginas = Math.max(1, Math.ceil(ordenados.length / porPagina));
 
+  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Este perfil" />;
+
   return (
     <div className="space-y-4">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
@@ -82,6 +84,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
       </div>
 
       <FiltrosBar registros={registros} />
+      <PlanilhaAtivaBanner />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <CardIndicador titulo="Total de vagas" valor={fmtNum(total.vagas)} icon={Briefcase} tom="ouro" />
