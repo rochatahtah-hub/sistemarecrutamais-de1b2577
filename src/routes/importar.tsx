@@ -150,6 +150,14 @@ function Pagina() {
     }
     setSalvando(true);
     try {
+      // A planilha enviada passa a ser a ÚNICA fonte de dados: limpa tudo antes.
+      const limparVagas = await supabase.from("vagas").delete().not("id", "is", null);
+      if (limparVagas.error) throw limparVagas.error;
+      const limparColab = await supabase.from("colaboradores").delete().not("id", "is", null);
+      if (limparColab.error) throw limparColab.error;
+      const limparEmp = await supabase.from("empresas").delete().not("id", "is", null);
+      if (limparEmp.error) throw limparEmp.error;
+
       const nomesColab = Array.from(new Set(validas.map((l) => l.colaborador)));
       const nomesEmp = Array.from(new Set(validas.map((l) => l.empresa)));
 
@@ -213,7 +221,9 @@ function Pagina() {
         .eq("id", importacaoId);
 
       await qc.invalidateQueries();
-      toast.success(`Importação concluída: ${adicionados} registros adicionados.`);
+      toast.success(
+        `Planilha ativa substituída: ${adicionados} registros agora alimentam todo o sistema.`,
+      );
       cancelar();
     } catch (e) {
       toast.error(`Falha na importação: ${(e as Error).message}`);
@@ -227,8 +237,10 @@ function Pagina() {
       <div>
         <h1 className="font-display text-2xl font-bold">Importar dados</h1>
         <p className="text-sm text-muted-foreground">
-          Envie a planilha de controle de vagas (.xlsx ou .xls). Os indicadores são recalculados
-          automaticamente após a confirmação.
+          Envie a planilha de controle de vagas (.xlsx ou .xls). A planilha enviada passa a ser a
+          única fonte de dados do sistema: ao confirmar, os dados da planilha anterior são
+          removidos e todo o sistema (dashboard, colaboradores, empresas, gráficos e rankings) é
+          recalculado apenas com a nova planilha.
         </p>
       </div>
 
@@ -272,7 +284,9 @@ function Pagina() {
                 onClick={confirmar}
                 disabled={salvando || validas.length === 0}
               >
-                {salvando ? "Importando..." : `Confirmar importação (${fmtNum(validas.length)})`}
+                {salvando
+                  ? "Substituindo dados..."
+                  : `Substituir dados pela planilha (${fmtNum(validas.length)})`}
               </Button>
             </div>
           </div>
