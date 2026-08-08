@@ -140,17 +140,7 @@ function Dashboard() {
   };
 
   if (!isLoading && registros.length === 0) {
-    return (
-      <div className="surface-panel mx-auto mt-10 max-w-xl rounded-xl p-8 text-center">
-        <h1 className="font-display text-2xl font-bold text-gradient-gold">Nenhum dado ainda</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Importe sua planilha de controle de vagas para gerar o dashboard gerencial.
-        </p>
-        <Button asChild className="mt-6">
-          <Link to="/importar">Importar Excel</Link>
-        </Button>
-      </div>
-    );
+    return <SemPlanilha pagina="O Dashboard" />;
   }
 
   return (
@@ -163,6 +153,7 @@ function Dashboard() {
       </div>
 
       <FiltrosBar registros={registros} />
+      <PlanilhaAtivaBanner />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <CardIndicador titulo="Vagas fechadas" valor={fmtNum(total.vagas)} icon={Briefcase} tom="ouro" />
