@@ -67,11 +67,15 @@ export function FichaCandidato({ onCandidato, candidato }: Props) {
   }
 
   async function verificarCPF() {
-    if (soDigitos(cpf).length !== 11) return toast.error("Informe um CPF completo.");
+    if (soDigitos(cpf).length !== 11) {
+      toast.error("Informe um CPF completo.");
+      return;
+    }
     const existente = await buscarCandidatoPorCPF(cpf);
     if (!existente) {
       setAviso("");
-      return toast.info("CPF ainda não cadastrado.");
+      toast.info("CPF ainda não cadastrado.");
+      return;
     }
     setAviso("Candidato já cadastrado.");
     setNome(existente.nome);
@@ -80,8 +84,14 @@ export function FichaCandidato({ onCandidato, candidato }: Props) {
   }
 
   async function confirmar() {
-    if (nome.trim().length < 3) return toast.error("Informe o nome do candidato.");
-    if (soDigitos(cpf).length !== 11) return toast.error("Informe um CPF válido.");
+    if (nome.trim().length < 3) {
+      toast.error("Informe o nome do candidato.");
+      return;
+    }
+    if (soDigitos(cpf).length !== 11) {
+      toast.error("Informe um CPF válido.");
+      return;
+    }
     try {
       const { candidato: c, jaExistia } = await salvar.mutateAsync({ nome, cpf, telefone });
       setAviso(jaExistia ? "Candidato já cadastrado." : "");

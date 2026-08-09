@@ -59,7 +59,10 @@ function Pagina() {
 
   async function criar(e: React.FormEvent) {
     e.preventDefault();
-    if (nome.trim().length < 2) return toast.error("Informe o nome da programadora.");
+    if (nome.trim().length < 2) {
+      toast.error("Informe o nome da programadora.");
+      return;
+    }
     setEnviando(true);
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),

@@ -82,9 +82,18 @@ function Pagina() {
   const pctMeta = meta > 0 ? (presencas / meta) * 100 : 0;
 
   async function salvar() {
-    if (!candidato) return toast.error("Selecione ou cadastre o candidato pela ficha.");
-    if (!empresaId) return toast.error("Selecione a empresa.");
-    if (!data) return toast.error("Informe a data.");
+    if (!candidato) {
+      toast.error("Selecione ou cadastre o candidato pela ficha.");
+      return;
+    }
+    if (!empresaId) {
+      toast.error("Selecione a empresa.");
+      return;
+    }
+    if (!data) {
+      toast.error("Informe a data.");
+      return;
+    }
     try {
       const r = await criar.mutateAsync({ candidato, data, empresa_id: empresaId, status });
       toast.success("Programação registrada. Resultados atualizados.");
