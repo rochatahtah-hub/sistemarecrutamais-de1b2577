@@ -30,6 +30,7 @@ interface Props {
 export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal = 0 }: Props) {
   const inputArquivo = useRef<HTMLInputElement>(null);
   const processamentoAtual = useRef(0);
+  const agendamentoColagem = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [colado, setColado] = useState("");
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -44,6 +45,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   useEffect(() => {
     if (!resetSinal) return;
     processamentoAtual.current += 1;
+    if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
     setColado("");
     setNome("");
     setCpf("");
@@ -229,14 +231,16 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
               if (typeof texto === "string" && texto.length > 0) {
                 e.preventDefault();
                 setColado(texto);
-                window.setTimeout(() => void usarFichaColada(texto), 0);
+                if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
+                agendamentoColagem.current = setTimeout(() => void usarFichaColada(texto), 150);
                 return;
               }
               // Guarda o elemento agora: alguns navegadores invalidam o evento após a colagem.
               window.setTimeout(() => {
                 const valor = campo.value ?? "";
                 setColado(valor);
-                void usarFichaColada(valor);
+                if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
+                agendamentoColagem.current = setTimeout(() => void usarFichaColada(valor), 150);
               }, 60);
             } catch (error) {
               console.error("[ficha] falha ao receber conteúdo colado", error);
