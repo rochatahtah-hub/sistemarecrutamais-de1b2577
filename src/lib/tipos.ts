@@ -1,6 +1,7 @@
-export type StatusVaga = "PRESENCA" | "FALTA" | "CANCELAMENTO";
+export type StatusVaga = "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
 
 export const STATUS_LABEL: Record<string, string> = {
+  AGUARDANDO: "⏳ Aguardando confirmação",
   PRESENCA: "Presença",
   FALTA: "Falta",
   CANCELAMENTO: "Cancelamento",
