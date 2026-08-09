@@ -63,10 +63,13 @@ function Pagina() {
         const presencas = soma("PRESENCA");
         const faltas = soma("FALTA");
         const cancelamentos = soma("CANCELAMENTO");
-        const pct = (v: number) => (total ? (v / total) * 100 : 0);
+        const pendentes = soma("AGUARDANDO");
+        const confirmadas = presencas + faltas + cancelamentos;
+        const pct = (v: number) => (confirmadas ? (v / confirmadas) * 100 : 0);
         return {
           ...p,
           total,
+          pendentes,
           presencas,
           faltas,
           cancelamentos,
