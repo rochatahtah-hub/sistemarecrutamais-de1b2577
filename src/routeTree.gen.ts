@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
+import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as VagasRouteImport } from './routes/vagas'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
@@ -31,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatosRoute = CandidatosRouteImport.update({
+  id: '/candidatos',
+  path: '/candidatos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompararRoute = CompararRouteImport.update({
@@ -56,6 +63,11 @@ const ImportarRoute = ImportarRouteImport.update({
 const MinhaProgramacaoRoute = MinhaProgramacaoRouteImport.update({
   id: '/minha-programacao',
   path: '/minha-programacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramadorasRoute = ProgramadorasRouteImport.update({
+  id: '/programadoras',
+  path: '/programadoras',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -92,11 +104,13 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
@@ -107,11 +121,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
@@ -123,11 +139,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
@@ -140,11 +158,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/candidatos'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
     | '/importar'
     | '/minha-programacao'
+    | '/programadoras'
     | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
@@ -155,11 +175,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/candidatos'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
     | '/importar'
     | '/minha-programacao'
+    | '/programadoras'
     | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
@@ -170,11 +192,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
+    | '/candidatos'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
     | '/importar'
     | '/minha-programacao'
+    | '/programadoras'
     | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
@@ -186,11 +210,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  CandidatosRoute: typeof CandidatosRoute
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
   ImportarRoute: typeof ImportarRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
+  ProgramadorasRoute: typeof ProgramadorasRoute
   RelatoriosRoute: typeof RelatoriosRoute
   VagasRoute: typeof VagasRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
@@ -213,6 +239,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidatos': {
+      id: '/candidatos'
+      path: '/candidatos'
+      fullPath: '/candidatos'
+      preLoaderRoute: typeof CandidatosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comparar': {
@@ -248,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/minha-programacao'
       fullPath: '/minha-programacao'
       preLoaderRoute: typeof MinhaProgramacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programadoras': {
+      id: '/programadoras'
+      path: '/programadoras'
+      fullPath: '/programadoras'
+      preLoaderRoute: typeof ProgramadorasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -298,11 +338,13 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  CandidatosRoute: CandidatosRoute,
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,
   ImportarRoute: ImportarRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
+  ProgramadorasRoute: ProgramadorasRoute,
   RelatoriosRoute: RelatoriosRoute,
   VagasRoute: VagasRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
