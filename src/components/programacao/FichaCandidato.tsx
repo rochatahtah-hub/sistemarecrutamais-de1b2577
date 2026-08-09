@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  buscarCandidatoPorCPF,
   formatarCPF,
   formatarTelefone,
   soDigitos,
@@ -73,42 +72,6 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     if (b) onCandidato(null);
   }
 
-  /** Consulta bloqueio e cadastro existente a partir do CPF. */
-  async function conferirCPF(valorCpf: string, preencher = true) {
-    const limpo = soDigitos(valorCpf);
-    if (limpo.length !== 11) return null;
-    try {
-      const b = await buscarBloqueio(limpo);
-      definirBloqueio(b);
-      if (b) {
-        toast.error("🚫 COLABORADOR BLOQUEADO");
-        return null;
-      }
-      const existente = await buscarCandidatoPorCPF(limpo);
-      if (existente) {
-        setAviso("Candidato já cadastrado.");
-        if (preencher) {
-          setNome(existente.nome);
-          setTelefone(formatarTelefone(existente.telefone ?? ""));
-        }
-        onCandidato(existente);
-      } else {
-        setAviso("");
-      }
-      return existente;
-    } catch (error) {
-      console.error("[ficha] falha ao consultar CPF", error);
-      setBloqueio(null);
-      setLiberado(false);
-      onBloqueio?.(null);
-      setAviso(
-        "Não foi possível consultar o CPF agora. A ficha foi mantida para tentar novamente.",
-      );
-      toast.error("Não foi possível consultar o CPF. Tente novamente.");
-      return null;
-    }
-  }
-
   function aplicarDados(dados: { nome: string; cpf: string; telefone: string }) {
     if (dados.nome) setNome(dados.nome);
     if (dados.cpf) setCpf(formatarCPF(dados.cpf));
@@ -121,7 +84,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     const original = typeof textoBruto === "string" ? textoBruto : (campoFicha.current?.value ?? "");
     if (typeof original !== "string") return;
     // O texto integral permanece no campo. Só uma cópia limitada entra no parser.
-    const texto = original.slice(0, 200_000).trim();
+    const texto = original.slice(0, 50_000).trim();
     if (texto.length < 5) {
       setPendencias(["Não foi possível identificar os dados necessários nesta ficha."]);
       setPrevisualizando(false);
@@ -351,7 +314,11 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
               <UserCheck className="mr-2 h-4 w-4" />
               {salvar.isPending ? "Confirmando..." : "Confirmar cadastro"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => setPrevisualizando(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => document.getElementById("f-nome")?.focus()}
+            >
               <Pencil className="mr-2 h-4 w-4" /> Editar
             </Button>
           </div>
