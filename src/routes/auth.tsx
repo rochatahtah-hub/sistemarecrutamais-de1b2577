@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { entrarAdminPrincipal } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -31,6 +33,7 @@ export const Route = createFileRoute("/auth")({
 function Pagina() {
   const navigate = useNavigate();
   const { session, carregando } = useAuth();
+  const acessoAdmin = useServerFn(entrarAdminPrincipal);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
@@ -39,6 +42,24 @@ function Pagina() {
   useEffect(() => {
     if (!carregando && session) void navigate({ to: "/", replace: true });
   }, [session, carregando, navigate]);
+
+  async function entrarComoAdmin() {
+    setEnviando(true);
+    try {
+      const tokens = await acessoAdmin({});
+      const { error } = await supabase.auth.setSession({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+      });
+      if (error) throw error;
+      toast.success("Acesso administrativo liberado.");
+      void navigate({ to: "/", replace: true });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível acessar como administrador.");
+    } finally {
+      setEnviando(false);
+    }
+  }
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
@@ -102,6 +123,19 @@ function Pagina() {
         </div>
 
         <div className="surface-panel rounded-xl p-6">
+          <Button
+            type="button"
+            variant="secondary"
+            className="mb-4 w-full gap-2"
+            disabled={enviando}
+            onClick={() => void entrarComoAdmin()}
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Entrar como Administrador Principal
+          </Button>
+          <p className="mb-4 text-center text-xs text-muted-foreground">
+            rochatahtah@gmail.com — acesso direto, sem senha.
+          </p>
           <Tabs defaultValue="entrar">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="entrar">Entrar</TabsTrigger>
@@ -171,7 +205,7 @@ function Pagina() {
                   {enviando ? "Criando..." : "Criar acesso"}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  O primeiro acesso criado no sistema recebe o perfil de administrador.
+                  Não é necessária confirmação de e-mail: o acesso já fica ativo.
                 </p>
               </form>
             </TabsContent>

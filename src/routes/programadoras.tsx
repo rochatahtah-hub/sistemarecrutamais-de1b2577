@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { useVagas } from "@/lib/dados";
 import { useAuth } from "@/lib/auth";
+import { GerenciarUsuarios } from "@/components/programacao/GerenciarUsuarios";
 import { fmtNum, fmtPct } from "@/lib/metricas";
 import { quinzenaAtual } from "@/lib/quinzena";
 import { useAtualizarPerfil, useProgramadoras } from "@/lib/programacao";
@@ -86,6 +87,8 @@ function Pagina() {
           Desempenho de {q.rotulo} e acompanhamento de atividade.
         </p>
       </div>
+
+      {isAdmin && <GerenciarUsuarios />}
 
       <div className="surface-panel overflow-x-auto rounded-xl p-4">
         <Table>
