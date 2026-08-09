@@ -14,13 +14,13 @@ interface State {
 }
 
 export class SystemErrorBoundary extends Component<Props, State> {
-  state: State = { error: null };
+  override state: State = { error: null };
 
   static getDerivedStateFromError(error: Error): State {
     return { error };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo) {
+  override componentDidCatch(error: Error, info: ErrorInfo) {
     const enriquecido = new Error(error.message, { cause: error });
     enriquecido.stack = `${error.stack ?? ""}\n${info.componentStack ?? ""}`;
     void registrarErroSistema(enriquecido, {
@@ -30,7 +30,7 @@ export class SystemErrorBoundary extends Component<Props, State> {
     });
   }
 
-  render() {
+  override render() {
     if (!this.state.error) return this.props.children;
     return (
       <div className="surface-panel flex min-h-48 flex-col items-center justify-center gap-3 p-6 text-center">

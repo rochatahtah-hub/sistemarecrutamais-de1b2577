@@ -22,6 +22,7 @@ import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as SaudeSistemaRouteImport } from './routes/saude-sistema'
 import { Route as VagasRouteImport } from './routes/vagas'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
@@ -93,6 +94,11 @@ const RelatoriosRoute = RelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SaudeSistemaRoute = SaudeSistemaRouteImport.update({
+  id: '/saude-sistema',
+  path: '/saude-sistema',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VagasRoute = VagasRouteImport.update({
   id: '/vagas',
   path: '/vagas',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
+  '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
+  '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
+  '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/minha-programacao'
     | '/programadoras'
     | '/relatorios'
+    | '/saude-sistema'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -216,6 +226,7 @@ export interface FileRouteTypes {
     | '/minha-programacao'
     | '/programadoras'
     | '/relatorios'
+    | '/saude-sistema'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -236,6 +247,7 @@ export interface FileRouteTypes {
     | '/minha-programacao'
     | '/programadoras'
     | '/relatorios'
+    | '/saude-sistema'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -257,6 +269,7 @@ export interface RootRouteChildren {
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  SaudeSistemaRoute: typeof SaudeSistemaRoute
   VagasRoute: typeof VagasRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
@@ -357,6 +370,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/saude-sistema': {
+      id: '/saude-sistema'
+      path: '/saude-sistema'
+      fullPath: '/saude-sistema'
+      preLoaderRoute: typeof SaudeSistemaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vagas': {
       id: '/vagas'
       path: '/vagas'
@@ -409,6 +429,7 @@ const rootRouteChildren: RootRouteChildren = {
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
   ProgramadorasRoute: ProgramadorasRoute,
   RelatoriosRoute: RelatoriosRoute,
+  SaudeSistemaRoute: SaudeSistemaRoute,
   VagasRoute: VagasRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
@@ -418,13 +439,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
