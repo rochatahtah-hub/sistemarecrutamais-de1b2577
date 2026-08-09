@@ -30,12 +30,20 @@ export const entrarAdminPrincipal = createServerFn({ method: "POST" }).handler(a
     userId = data.user.id;
   }
 
-  await supabaseAdmin
+  const { data: perfil } = await supabaseAdmin
     .from("profiles")
-    .upsert(
-      { id: userId, nome: "Administrador Principal", email: EMAIL_ADMIN_PRINCIPAL, ativo: true },
-      { onConflict: "id" },
-    );
+    .select("id,nome")
+    .eq("id", userId)
+    .maybeSingle();
+  await supabaseAdmin.from("profiles").upsert(
+    {
+      id: userId,
+      nome: perfil?.nome ?? "Administrador Principal",
+      email: EMAIL_ADMIN_PRINCIPAL,
+      ativo: true,
+    },
+    { onConflict: "id" },
+  );
   await supabaseAdmin
     .from("user_roles")
     .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
