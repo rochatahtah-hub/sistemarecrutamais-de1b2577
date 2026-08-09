@@ -139,10 +139,22 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       if (ehTexto) {
         payload = { texto: await file.text() };
       } else {
-        const buffer = new Uint8Array(await file.arrayBuffer());
-        let binario = "";
-        for (const b of buffer) binario += String.fromCharCode(b);
-        payload = { arquivoBase64: btoa(binario), mimeType: file.type || "image/jpeg" };
+        if (file.size > 5_000_000) throw new Error("Arquivo muito grande. Envie até 5 MB.");
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const leitor = new FileReader();
+          leitor.onload = () =>
+            typeof leitor.result === "string"
+              ? resolve(leitor.result)
+              : reject(new Error("Não foi possível ler o arquivo."));
+          leitor.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
+          leitor.readAsDataURL(file);
+        });
+        const separador = dataUrl.indexOf(",");
+        if (separador < 0) throw new Error("Formato de arquivo inválido.");
+        payload = {
+          arquivoBase64: dataUrl.slice(separador + 1),
+          mimeType: file.type || "image/jpeg",
+        };
       }
       const dados = await extrairFicha({ data: payload });
       aplicarDados(dados);
