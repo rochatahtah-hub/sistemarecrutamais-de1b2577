@@ -19,6 +19,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
 import { FiltrosProvider } from "@/lib/filtros";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { SystemErrorBoundary } from "@/components/SystemErrorBoundary";
+import { registrarErroSistema } from "@/lib/system-health";
 
 function NotFoundComponent() {
   return (
@@ -121,7 +123,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="pt-BR" translate="no">
       <head>
         <HeadContent />
       </head>
@@ -135,6 +137,27 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    const erroGlobal = (evento: ErrorEvent) => {
+      void registrarErroSistema(evento.error ?? evento.message, {
+        componente: "Janela principal",
+        operacao: "erro não tratado",
+      });
+    };
+    const rejeicao = (evento: PromiseRejectionEvent) => {
+      void registrarErroSistema(evento.reason, {
+        componente: "Janela principal",
+        operacao: "promessa não tratada",
+      });
+    };
+    window.addEventListener("error", erroGlobal);
+    window.addEventListener("unhandledrejection", rejeicao);
+    return () => {
+      window.removeEventListener("error", erroGlobal);
+      window.removeEventListener("unhandledrejection", rejeicao);
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -179,7 +202,9 @@ function Protegido() {
           <TopBar />
           <main className="min-w-0 flex-1 p-3 md:p-6">
             {/* Required: nested routes render here. */}
-            <Outlet />
+            <SystemErrorBoundary componente="Conteúdo da página">
+              <Outlet />
+            </SystemErrorBoundary>
           </main>
         </div>
       </div>

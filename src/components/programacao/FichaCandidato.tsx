@@ -199,7 +199,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" translate="no">
       <div className="space-y-2">
         <Label htmlFor="ficha-colada">Cole a ficha aqui</Label>
         <Textarea
@@ -209,13 +209,13 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           placeholder="COLE A FICHA AQUI — o texto ficará no campo até você clicar em Processar ficha."
         />
         <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" disabled={lendo} onClick={() => void usarFichaColada()}>
+          <Button type="button" disabled={lendo} onClick={() => void usarFichaColada()} aria-busy={lendo}>
             {lendo ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <ClipboardPaste className="mr-2 h-4 w-4" />
             )}
-            {lendo ? "Processando..." : "Processar ficha"}
+            <span>{lendo ? "Processando..." : "Processar ficha"}</span>
           </Button>
           <input
             ref={inputArquivo}
@@ -271,7 +271,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       <div className="grid gap-3 md:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="f-nome">Nome</Label>
-          <Input id="f-nome" value={nome} onChange={(e) => setNome(e.target.value)} />
+          <Input id="f-nome" value={nome} maxLength={160} onChange={(e) => setNome(e.target.value.slice(0, 160))} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="f-cpf">CPF</Label>

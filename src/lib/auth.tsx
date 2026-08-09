@@ -55,7 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    let ativo = true;
     const { data: sub } = supabase.auth.onAuthStateChange((evento, s) => {
+      if (!ativo || (evento !== "SIGNED_IN" && evento !== "SIGNED_OUT" && evento !== "USER_UPDATED" && evento !== "TOKEN_REFRESHED" && evento !== "INITIAL_SESSION")) return;
       setSession(s);
       if (!s) {
         setPerfil(null);
@@ -63,7 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (evento === "SIGNED_OUT") qc.clear();
         return;
       }
-      setTimeout(() => {
+      window.setTimeout(() => {
+        if (!ativo) return;
         void carregarPerfil(s.user.id);
         if (evento === "SIGNED_IN") {
           void supabase
@@ -74,13 +77,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }, 0);
     });
 
-    void supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      if (data.session) await carregarPerfil(data.session.user.id);
-      setCarregando(false);
+    void supabase.auth.getUser().then(async ({ data, error }) => {
+      if (!ativo) return;
+      if (error || !data.user) {
+        setSession(null);
+        setPerfil(null);
+        setIsAdmin(false);
+        setCarregando(false);
+        return;
+      }
+      const { data: sessao } = await supabase.auth.getSession();
+      if (!ativo) return;
+      setSession(sessao.session);
+      await carregarPerfil(data.user.id);
+      if (ativo) setCarregando(false);
     });
 
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      ativo = false;
+      sub.subscription.unsubscribe();
+    };
   }, [carregarPerfil, qc]);
 
   const valor = useMemo<AuthCtx>(

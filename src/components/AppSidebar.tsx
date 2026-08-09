@@ -16,7 +16,9 @@ import {
   Archive,
   UserCog,
   ShieldOff,
+  Activity,
 } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 import {
   Sidebar,
@@ -59,6 +61,10 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const { isAdmin } = useAuth();
+  const itensFerramentas = isAdmin
+    ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
+    : ferramentas;
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
@@ -105,7 +111,7 @@ export function AppSidebar() {
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
-          <SidebarGroupContent>{renderItens(ferramentas)}</SidebarGroupContent>
+          <SidebarGroupContent>{renderItens(itensFerramentas)}</SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
