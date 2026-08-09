@@ -73,6 +73,17 @@ function Pagina() {
   const [status, setStatus] = useState<"AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO">(
     "AGUARDANDO",
   );
+  const [resetSinal, setResetSinal] = useState(0);
+
+  /** Limpa o formulário para um novo registro (não afeta o registro já salvo). */
+  function limparFormulario() {
+    setCandidato(null);
+    setBloqueio(null);
+    setData(hojeISO());
+    setEmpresaId("");
+    setStatus("AGUARDANDO");
+    setResetSinal((n) => n + 1);
+  }
 
   const daQuinzena = useMemo(
     () => registros.filter((r) => r.data >= q.inicio && r.data <= q.fim),
@@ -114,7 +125,8 @@ function Pagina() {
           : "Programação registrada. Resultados atualizados.",
       );
       if (r?.metaAtingida) toast.success(r.mensagem, { duration: 8000 });
-      setCandidato(null);
+      limparFormulario();
+      toast.info("Formulário limpo — pronto para o próximo colaborador.");
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -197,6 +209,7 @@ function Pagina() {
           candidato={candidato}
           onCandidato={setCandidato}
           onBloqueio={setBloqueio}
+          resetSinal={resetSinal}
         />
 
         <div className="grid gap-3 md:grid-cols-4">
