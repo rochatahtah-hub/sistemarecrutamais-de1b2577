@@ -158,6 +158,13 @@ export function useCriarProgramacao() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (p: NovaProgramacao) => {
+      const { buscarBloqueio } = await import("./bloqueios");
+      const bloqueio = await buscarBloqueio(p.candidato.cpf);
+      if (bloqueio) {
+        throw new Error(
+          `🚫 COLABORADOR BLOQUEADO — ${p.candidato.nome}. Motivo: ${bloqueio.motivo || "não informado"}. Procure o responsável pelo sistema para liberação.`,
+        );
+      }
       const { data: sessao } = await supabase.auth.getUser();
       const uid = sessao.user?.id;
       if (!uid) throw new Error("Sessão expirada. Faça login novamente.");
