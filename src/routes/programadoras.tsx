@@ -100,6 +100,7 @@ function Pagina() {
               <TableHead>#</TableHead>
               <TableHead>Programadora</TableHead>
               <TableHead className="text-right">Programações</TableHead>
+              <TableHead className="text-right">Aguard.</TableHead>
               <TableHead className="text-right">Presenças</TableHead>
               <TableHead className="text-right">Faltas</TableHead>
               <TableHead className="text-right">Cancel.</TableHead>
@@ -121,6 +122,7 @@ function Pagina() {
                   <span className="block text-xs text-muted-foreground">{l.email}</span>
                 </TableCell>
                 <TableCell className="text-right">{fmtNum(l.total)}</TableCell>
+                <TableCell className="text-right">{fmtNum(l.pendentes)}</TableCell>
                 <TableCell className="text-right">{fmtNum(l.presencas)}</TableCell>
                 <TableCell className="text-right">{fmtNum(l.faltas)}</TableCell>
                 <TableCell className="text-right">{fmtNum(l.cancelamentos)}</TableCell>
