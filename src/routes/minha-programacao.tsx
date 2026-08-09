@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarDays, CheckCircle2, Save, Target, Trash2, XCircle } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock, Save, Target, Trash2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { FichaCandidato } from "@/components/programacao/FichaCandidato";
@@ -30,6 +30,7 @@ import { STATUS_LABEL } from "@/lib/tipos";
 import { hojeISO, quinzenaAtual } from "@/lib/quinzena";
 import {
   formatarCPF,
+  useConfirmarProgramacao,
   useCriarProgramacao,
   useEmpresas,
   useExcluirProgramacao,
@@ -63,12 +64,15 @@ function Pagina() {
   const { data: registros = [] } = useMinhasProgramacoes(user?.id);
   const criar = useCriarProgramacao();
   const excluir = useExcluirProgramacao();
+  const confirmar = useConfirmarProgramacao();
 
   const [candidato, setCandidato] = useState<Candidato | null>(null);
   const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
   const [data, setData] = useState(hojeISO());
   const [empresaId, setEmpresaId] = useState("");
-  const [status, setStatus] = useState<"PRESENCA" | "FALTA" | "CANCELAMENTO">("PRESENCA");
+  const [status, setStatus] = useState<"AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO">(
+    "AGUARDANDO",
+  );
 
   const daQuinzena = useMemo(
     () => registros.filter((r) => r.data >= q.inicio && r.data <= q.fim),
@@ -76,10 +80,12 @@ function Pagina() {
   );
 
   const total = daQuinzena.length;
+  const pendentes = daQuinzena.filter((r) => r.status === "AGUARDANDO").length;
   const presencas = daQuinzena.filter((r) => r.status === "PRESENCA").length;
   const faltas = daQuinzena.filter((r) => r.status === "FALTA").length;
   const cancelamentos = daQuinzena.filter((r) => r.status === "CANCELAMENTO").length;
-  const pct = (v: number) => (total ? (v / total) * 100 : 0);
+  const confirmadas = presencas + faltas + cancelamentos;
+  const pct = (v: number) => (confirmadas ? (v / confirmadas) * 100 : 0);
   const meta = perfil?.meta_quinzena ?? 0;
   const pctMeta = meta > 0 ? (presencas / meta) * 100 : 0;
 
@@ -102,9 +108,23 @@ function Pagina() {
     }
     try {
       const r = await criar.mutateAsync({ candidato, data, empresa_id: empresaId, status });
-      toast.success("Programação registrada. Resultados atualizados.");
+      toast.success(
+        status === "AGUARDANDO"
+          ? "Vaga programada como ⏳ Aguardando confirmação."
+          : "Programação registrada. Resultados atualizados.",
+      );
       if (r?.metaAtingida) toast.success(r.mensagem, { duration: 8000 });
       setCandidato(null);
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
+  async function confirmarVaga(id: string, novo: string) {
+    try {
+      const r = await confirmar.mutateAsync({ id, status: novo as typeof status });
+      toast.success("Situação confirmada. Resultados atualizados.");
+      if (r?.metaAtingida) toast.success(r.mensagem, { duration: 8000 });
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -119,8 +139,14 @@ function Pagina() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <CardIndicador titulo="Vagas programadas" valor={fmtNum(total)} icon={CalendarDays} />
+        <CardIndicador
+          titulo="Aguardando confirmação"
+          valor={fmtNum(pendentes)}
+          detalhe="Não contabilizadas"
+          icon={Clock}
+        />
         <CardIndicador
           titulo="Presenças"
           valor={fmtNum(presencas)}
