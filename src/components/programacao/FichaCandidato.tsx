@@ -3,7 +3,7 @@ import {
   ClipboardPaste,
   FileUp,
   Loader2,
-  Search,
+  Pencil,
   ShieldAlert,
   ShieldCheck,
   UserCheck,
@@ -37,9 +37,8 @@ interface Props {
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
 export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal = 0 }: Props) {
   const inputArquivo = useRef<HTMLInputElement>(null);
+  const campoFicha = useRef<HTMLTextAreaElement>(null);
   const processamentoAtual = useRef(0);
-  const agendamentoColagem = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [colado, setColado] = useState("");
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -48,13 +47,13 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [pendencias, setPendencias] = useState<string[]>([]);
   const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
   const [liberado, setLiberado] = useState(false);
+  const [previsualizando, setPrevisualizando] = useState(false);
   const salvar = useSalvarCandidato();
 
   useEffect(() => {
     if (!resetSinal) return;
     processamentoAtual.current += 1;
-    if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
-    setColado("");
+    if (campoFicha.current) campoFicha.current.value = "";
     setNome("");
     setCpf("");
     setTelefone("");
@@ -62,6 +61,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     setPendencias([]);
     setBloqueio(null);
     setLiberado(false);
+    setPrevisualizando(false);
     setLendo(false);
     if (inputArquivo.current) inputArquivo.current.value = "";
   }, [resetSinal]);
@@ -118,12 +118,13 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   async function usarFichaColada(textoBruto?: string) {
     const idProcessamento = processamentoAtual.current + 1;
     processamentoAtual.current = idProcessamento;
-    const original = typeof textoBruto === "string" ? textoBruto : colado;
+    const original = typeof textoBruto === "string" ? textoBruto : (campoFicha.current?.value ?? "");
     if (typeof original !== "string") return;
-    const texto = original.slice(0, 100_000).trim();
-    setColado(original);
+    // O texto integral permanece no campo. Só uma cópia limitada entra no parser.
+    const texto = original.slice(0, 200_000).trim();
     if (texto.length < 5) {
       setPendencias(["Não foi possível identificar os dados necessários nesta ficha."]);
+      setPrevisualizando(false);
       toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
       return;
     }
@@ -148,13 +149,13 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       aplicarDados(dados);
       const faltas = camposFaltantes(dados);
       setPendencias(faltas);
-      if (dados.cpf) await conferirCPF(dados.cpf);
-      if (processamentoAtual.current !== idProcessamento) return;
-      if (faltas.length === 0) toast.success("Ficha lida. Confira os dados.");
-      else toast.warning(faltas[0] ?? "Não foi possível identificar os dados necessários.");
+      setPrevisualizando(faltas.length === 0);
+      if (faltas.length === 0) toast.success("✓ FICHA PROCESSADA");
+      else toast.warning("⚠ NÃO FOI POSSÍVEL IDENTIFICAR TODOS OS DADOS");
     } catch (error) {
       console.error("[ficha] falha isolada no processamento", error);
       if (processamentoAtual.current === idProcessamento) {
+        setPrevisualizando(false);
         setPendencias([
           "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
         ]);
@@ -181,23 +182,17 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       }
       const dados = await extrairFicha({ data: payload });
       aplicarDados(dados);
-      if (dados.cpf) await conferirCPF(dados.cpf);
-      toast.success("Ficha lida. Confira os dados.");
+      const faltas = camposFaltantes(dados);
+      setPendencias(faltas);
+      setPrevisualizando(faltas.length === 0);
+      if (faltas.length === 0) toast.success("✓ FICHA PROCESSADA");
+      else toast.warning("⚠ NÃO FOI POSSÍVEL IDENTIFICAR TODOS OS DADOS");
     } catch (e) {
       toast.error((e as Error).message || "Não consegui ler a ficha.");
     } finally {
       setLendo(false);
       if (inputArquivo.current) inputArquivo.current.value = "";
     }
-  }
-
-  async function verificarCPF() {
-    if (soDigitos(cpf).length !== 11) {
-      toast.error("Informe um CPF completo.");
-      return;
-    }
-    const existente = await conferirCPF(cpf);
-    if (!bloqueio && !existente) toast.info("CPF liberado e ainda não cadastrado.");
   }
 
   async function confirmar() {
@@ -209,17 +204,18 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       toast.error("Informe um CPF válido.");
       return;
     }
-    const b = await buscarBloqueio(cpf);
-    if (b) {
-      definirBloqueio(b);
-      toast.error("🚫 COLABORADOR BLOQUEADO — não é possível usar este CPF.");
-      return;
-    }
     try {
+      const b = await buscarBloqueio(cpf);
+      if (b) {
+        definirBloqueio(b);
+        toast.error("🚫 COLABORADOR BLOQUEADO — não é possível usar este CPF.");
+        return;
+      }
       const { candidato: c, jaExistia } = await salvar.mutateAsync({ nome, cpf, telefone });
       setAviso(jaExistia ? "Candidato já cadastrado." : "");
       definirBloqueio(null);
       onCandidato(c);
+      setPrevisualizando(false);
       toast.success(jaExistia ? "Usando o cadastro existente." : "Candidato cadastrado.");
     } catch (e) {
       toast.error((e as Error).message);
@@ -231,39 +227,10 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       <div className="space-y-2">
         <Label htmlFor="ficha-colada">Cole a ficha aqui</Label>
         <Textarea
+          ref={campoFicha}
           id="ficha-colada"
           rows={4}
-          placeholder="COLE A FICHA AQUI — o sistema identifica sozinho nome, CPF e telefone."
-          value={colado}
-          onChange={(e) => setColado(e.target.value)}
-          onPaste={(e) => {
-            try {
-              const campo = e.currentTarget;
-              const texto = e.clipboardData?.getData("text/plain");
-              if (typeof texto === "string" && texto.length > 0) {
-                e.preventDefault();
-                setColado(texto);
-                if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
-                agendamentoColagem.current = setTimeout(() => void usarFichaColada(texto), 150);
-                return;
-              }
-              // Guarda o elemento agora: alguns navegadores invalidam o evento após a colagem.
-              window.setTimeout(() => {
-                const valor = campo.value ?? "";
-                setColado(valor);
-                if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
-                agendamentoColagem.current = setTimeout(() => void usarFichaColada(valor), 150);
-              }, 60);
-            } catch (error) {
-              console.error("[ficha] falha ao receber conteúdo colado", error);
-              setPendencias([
-                "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
-              ]);
-              toast.error(
-                "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
-              );
-            }
-          }}
+          placeholder="COLE A FICHA AQUI — o texto ficará no campo até você clicar em Processar ficha."
         />
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" disabled={lendo} onClick={() => void usarFichaColada()}>
@@ -272,7 +239,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
             ) : (
               <ClipboardPaste className="mr-2 h-4 w-4" />
             )}
-            {lendo ? "Lendo ficha..." : pendencias.length ? "Tentar novamente" : "Ler ficha colada"}
+            {lendo ? "Processando..." : "Processar ficha"}
           </Button>
           <input
             ref={inputArquivo}
@@ -294,7 +261,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
             Importar arquivo
           </Button>
           <span className="text-xs text-muted-foreground">
-            Somente nome, CPF e telefone são aproveitados — o restante é descartado.
+            Colar apenas mantém o texto. A leitura começa somente ao clicar em Processar ficha.
           </span>
         </div>
       </div>
@@ -332,23 +299,18 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="f-cpf">CPF</Label>
-          <div className="flex gap-2">
-            <Input
-              id="f-cpf"
-              value={cpf}
-              inputMode="numeric"
-              onChange={(e) => {
-                setCpf(formatarCPF(e.target.value));
-                setBloqueio(null);
-                setLiberado(false);
-                onBloqueio?.(null);
-              }}
-              onBlur={() => void conferirCPF(cpf)}
-            />
-            <Button type="button" variant="outline" size="icon" onClick={() => void verificarCPF()}>
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
+          <Input
+            id="f-cpf"
+            value={cpf}
+            inputMode="numeric"
+            onChange={(e) => {
+              setCpf(formatarCPF(e.target.value));
+              setBloqueio(null);
+              setLiberado(false);
+              setPrevisualizando(false);
+              onBloqueio?.(null);
+            }}
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="f-tel">Telefone</Label>
@@ -371,20 +333,32 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
             ))}
           </ul>
           <p className="mt-1 text-xs text-muted-foreground">
-            O texto colado foi mantido. Complete o campo manualmente ou toque em “Tentar novamente”.
+            O texto colado foi mantido. Complete o campo manualmente ou processe novamente.
           </p>
         </div>
       )}
 
+      {previsualizando && !candidato && (
+        <div className="rounded-lg border bg-muted/30 p-4" aria-live="polite">
+          <p className="mb-3 font-semibold text-primary">✓ FICHA PROCESSADA</p>
+          <dl className="grid gap-2 text-sm sm:grid-cols-3">
+            <div><dt className="text-muted-foreground">Nome</dt><dd className="font-medium">{nome}</dd></div>
+            <div><dt className="text-muted-foreground">CPF</dt><dd className="font-medium">{formatarCPF(cpf)}</dd></div>
+            <div><dt className="text-muted-foreground">Telefone</dt><dd className="font-medium">{formatarTelefone(telefone)}</dd></div>
+          </dl>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" onClick={() => void confirmar()} disabled={salvar.isPending}>
+              <UserCheck className="mr-2 h-4 w-4" />
+              {salvar.isPending ? "Confirmando..." : "Confirmar cadastro"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setPrevisualizando(false)}>
+              <Pencil className="mr-2 h-4 w-4" /> Editar
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-3">
-        <Button
-          type="button"
-          onClick={() => void confirmar()}
-          disabled={salvar.isPending || Boolean(bloqueio)}
-        >
-          <UserCheck className="mr-2 h-4 w-4" />
-          {salvar.isPending ? "Salvando..." : "Usar este candidato"}
-        </Button>
         {candidato && !bloqueio && (
           <span className="text-sm text-muted-foreground">
             Selecionado: <strong className="text-foreground">{candidato.nome}</strong> ·{" "}
