@@ -15,6 +15,7 @@ import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as VagasRouteImport } from './routes/vagas'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
@@ -50,6 +51,11 @@ const ConfirmacoesRoute = ConfirmacoesRouteImport.update({
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinhaProgramacaoRoute = MinhaProgramacaoRouteImport.update({
+  id: '/minha-programacao',
+  path: '/minha-programacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
+  '/minha-programacao': typeof MinhaProgramacaoRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
+  '/minha-programacao': typeof MinhaProgramacaoRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
   '/importar': typeof ImportarRoute
+  '/minha-programacao': typeof MinhaProgramacaoRoute
   '/relatorios': typeof RelatoriosRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/confirmacoes'
     | '/importar'
+    | '/minha-programacao'
     | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/confirmacoes'
     | '/importar'
+    | '/minha-programacao'
     | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/confirmacoes'
     | '/importar'
+    | '/minha-programacao'
     | '/relatorios'
     | '/vagas'
     | '/colaboradores/$nome'
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
   ImportarRoute: typeof ImportarRoute
+  MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
   RelatoriosRoute: typeof RelatoriosRoute
   VagasRoute: typeof VagasRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/minha-programacao': {
+      id: '/minha-programacao'
+      path: '/minha-programacao'
+      fullPath: '/minha-programacao'
+      preLoaderRoute: typeof MinhaProgramacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,
   ImportarRoute: ImportarRoute,
+  MinhaProgramacaoRoute: MinhaProgramacaoRoute,
   RelatoriosRoute: RelatoriosRoute,
   VagasRoute: VagasRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
