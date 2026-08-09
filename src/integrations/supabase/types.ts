@@ -170,6 +170,72 @@ export type Database = {
         }
         Relationships: []
       }
+      erros_sistema: {
+        Row: {
+          categoria: string
+          codigo_http: number | null
+          componente: string
+          created_at: string
+          endpoint: string
+          fingerprint: string
+          id: string
+          mensagem: string
+          navegador: string
+          ocorrencias: number
+          operacao: string
+          pagina: string
+          primeira_ocorrencia: string
+          sistema_operacional: string
+          stack: string | null
+          ultima_ocorrencia: string
+          updated_at: string
+          user_agent: string
+          user_id: string | null
+        }
+        Insert: {
+          categoria?: string
+          codigo_http?: number | null
+          componente?: string
+          created_at?: string
+          endpoint?: string
+          fingerprint: string
+          id?: string
+          mensagem: string
+          navegador?: string
+          ocorrencias?: number
+          operacao?: string
+          pagina?: string
+          primeira_ocorrencia?: string
+          sistema_operacional?: string
+          stack?: string | null
+          ultima_ocorrencia?: string
+          updated_at?: string
+          user_agent?: string
+          user_id?: string | null
+        }
+        Update: {
+          categoria?: string
+          codigo_http?: number | null
+          componente?: string
+          created_at?: string
+          endpoint?: string
+          fingerprint?: string
+          id?: string
+          mensagem?: string
+          navegador?: string
+          ocorrencias?: number
+          operacao?: string
+          pagina?: string
+          primeira_ocorrencia?: string
+          sistema_operacional?: string
+          stack?: string | null
+          ultima_ocorrencia?: string
+          updated_at?: string
+          user_agent?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       importacoes: {
         Row: {
           created_at: string
@@ -426,6 +492,34 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      registrar_erro_sistema: {
+        Args: {
+          _categoria: string
+          _codigo_http: number
+          _componente: string
+          _endpoint: string
+          _fingerprint: string
+          _mensagem: string
+          _navegador: string
+          _operacao: string
+          _pagina: string
+          _sistema_operacional: string
+          _stack: string
+          _user_agent: string
+        }
+        Returns: string
+      }
+      resumo_saude_sistema: {
+        Args: never
+        Returns: {
+          categoria: string
+          codigo_http: number
+          componente: string
+          endpoint: string
+          ocorrencias: number
+          ultima_ocorrencia: string
+        }[]
       }
     }
     Enums: {
