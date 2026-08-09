@@ -15,6 +15,7 @@ import {
   Target,
   Archive,
   UserCog,
+  ShieldOff,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,7 @@ const ferramentas = [
   { title: "Relatórios", url: "/relatorios", icon: FileText },
   { title: "Histórico", url: "/historico", icon: Archive },
   { title: "Metas", url: "/metas", icon: Target },
+  { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ] as const;
 
