@@ -233,6 +233,7 @@ function Pagina() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="AGUARDANDO">⏳ Aguardando confirmação</SelectItem>
                 <SelectItem value="PRESENCA">Presença</SelectItem>
                 <SelectItem value="FALTA">Falta</SelectItem>
                 <SelectItem value="CANCELAMENTO">Cancelamento</SelectItem>
@@ -251,8 +252,8 @@ function Pagina() {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          A programadora responsável é identificada automaticamente pelo login e a quinzena pela
-          data informada.
+          Programar uma vaga não confirma presença: com ⏳ Aguardando confirmação a vaga fica
+          pendente e só entra nos resultados após você definir a situação na tabela abaixo.
         </p>
       </div>
 
@@ -281,7 +282,22 @@ function Pagina() {
                   <TableCell>{r.candidato_cpf ? formatarCPF(r.candidato_cpf) : "—"}</TableCell>
                   <TableCell>{r.candidato_telefone ?? "—"}</TableCell>
                   <TableCell>{r.empresa}</TableCell>
-                  <TableCell>{STATUS_LABEL[r.status] ?? r.status}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={r.status}
+                      onValueChange={(v) => void confirmarVaga(r.id, v)}
+                    >
+                      <SelectTrigger className="h-8 w-[210px]">
+                        <SelectValue>{STATUS_LABEL[r.status] ?? r.status}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AGUARDANDO">⏳ Aguardando confirmação</SelectItem>
+                        <SelectItem value="PRESENCA">✓ Presença</SelectItem>
+                        <SelectItem value="FALTA">✕ Falta</SelectItem>
+                        <SelectItem value="CANCELAMENTO">⚠ Cancelamento</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"
