@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { ClipboardPaste, FileUp, Loader2, Search, ShieldAlert, ShieldCheck, UserCheck } from "lucide-react";
+import {
+  ClipboardPaste,
+  FileUp,
+  Loader2,
+  Search,
+  ShieldAlert,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -29,6 +37,8 @@ interface Props {
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
 export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal = 0 }: Props) {
   const inputArquivo = useRef<HTMLInputElement>(null);
+  const processamentoAtual = useRef(0);
+  const agendamentoColagem = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [colado, setColado] = useState("");
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
@@ -42,6 +52,8 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
 
   useEffect(() => {
     if (!resetSinal) return;
+    processamentoAtual.current += 1;
+    if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
     setColado("");
     setNome("");
     setCpf("");
@@ -65,24 +77,36 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   async function conferirCPF(valorCpf: string, preencher = true) {
     const limpo = soDigitos(valorCpf);
     if (limpo.length !== 11) return null;
-    const b = await buscarBloqueio(limpo);
-    definirBloqueio(b);
-    if (b) {
-      toast.error("🚫 COLABORADOR BLOQUEADO");
+    try {
+      const b = await buscarBloqueio(limpo);
+      definirBloqueio(b);
+      if (b) {
+        toast.error("🚫 COLABORADOR BLOQUEADO");
+        return null;
+      }
+      const existente = await buscarCandidatoPorCPF(limpo);
+      if (existente) {
+        setAviso("Candidato já cadastrado.");
+        if (preencher) {
+          setNome(existente.nome);
+          setTelefone(formatarTelefone(existente.telefone ?? ""));
+        }
+        onCandidato(existente);
+      } else {
+        setAviso("");
+      }
+      return existente;
+    } catch (error) {
+      console.error("[ficha] falha ao consultar CPF", error);
+      setBloqueio(null);
+      setLiberado(false);
+      onBloqueio?.(null);
+      setAviso(
+        "Não foi possível consultar o CPF agora. A ficha foi mantida para tentar novamente.",
+      );
+      toast.error("Não foi possível consultar o CPF. Tente novamente.");
       return null;
     }
-    const existente = await buscarCandidatoPorCPF(limpo);
-    if (existente) {
-      setAviso("Candidato já cadastrado.");
-      if (preencher) {
-        setNome(existente.nome);
-        setTelefone(formatarTelefone(existente.telefone ?? ""));
-      }
-      onCandidato(existente);
-    } else {
-      setAviso("");
-    }
-    return existente;
   }
 
   function aplicarDados(dados: { nome: string; cpf: string; telefone: string }) {
@@ -92,9 +116,15 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   }
 
   async function usarFichaColada(textoBruto?: string) {
-    const texto = (textoBruto ?? colado).trim();
+    const idProcessamento = processamentoAtual.current + 1;
+    processamentoAtual.current = idProcessamento;
+    const original = typeof textoBruto === "string" ? textoBruto : colado;
+    if (typeof original !== "string") return;
+    const texto = original.slice(0, 100_000).trim();
+    setColado(original);
     if (texto.length < 5) {
-      toast.error("Cole o conteúdo da ficha primeiro.");
+      setPendencias(["Não foi possível identificar os dados necessários nesta ficha."]);
+      toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
       return;
     }
     setLendo(true);
@@ -103,7 +133,8 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       let dados = interpretarFicha(texto);
       if (!dados.cpf || !dados.nome || !dados.telefone) {
         try {
-          const ia = await extrairFicha({ data: { texto } });
+          const ia = await extrairFicha({ data: { texto: texto.slice(0, 20_000) } });
+          if (processamentoAtual.current !== idProcessamento) return;
           dados = {
             nome: dados.nome || ia.nome,
             cpf: dados.cpf || ia.cpf,
@@ -113,17 +144,24 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           /* mantém a leitura local */
         }
       }
+      if (processamentoAtual.current !== idProcessamento) return;
       aplicarDados(dados);
       const faltas = camposFaltantes(dados);
       setPendencias(faltas);
       if (dados.cpf) await conferirCPF(dados.cpf);
+      if (processamentoAtual.current !== idProcessamento) return;
       if (faltas.length === 0) toast.success("Ficha lida. Confira os dados.");
-      else toast.warning(faltas[0]!);
-    } catch (e) {
-      const msg = (e as Error).message;
-      toast.error(msg && msg !== "Tente novamente." ? msg : "Não consegui processar a ficha colada. O texto continua no campo — toque em “Tentar novamente”.");
+      else toast.warning(faltas[0] ?? "Não foi possível identificar os dados necessários.");
+    } catch (error) {
+      console.error("[ficha] falha isolada no processamento", error);
+      if (processamentoAtual.current === idProcessamento) {
+        setPendencias([
+          "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
+        ]);
+        toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
+      }
     } finally {
-      setLendo(false);
+      if (processamentoAtual.current === idProcessamento) setLendo(false);
     }
   }
 
@@ -199,19 +237,31 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           value={colado}
           onChange={(e) => setColado(e.target.value)}
           onPaste={(e) => {
-            const texto = e.clipboardData?.getData("text/plain") ?? "";
-            if (texto.trim().length >= 5) {
-              e.preventDefault();
-              setColado(texto);
-              void usarFichaColada(texto);
-            } else {
-              // navegadores sem clipboardData (alguns mobile): usa o valor após a colagem
-              setTimeout(() => {
-                const el = e.target as HTMLTextAreaElement;
-                const v = el.value;
-                setColado(v);
-                void usarFichaColada(v);
+            try {
+              const campo = e.currentTarget;
+              const texto = e.clipboardData?.getData("text/plain");
+              if (typeof texto === "string" && texto.length > 0) {
+                e.preventDefault();
+                setColado(texto);
+                if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
+                agendamentoColagem.current = setTimeout(() => void usarFichaColada(texto), 150);
+                return;
+              }
+              // Guarda o elemento agora: alguns navegadores invalidam o evento após a colagem.
+              window.setTimeout(() => {
+                const valor = campo.value ?? "";
+                setColado(valor);
+                if (agendamentoColagem.current) clearTimeout(agendamentoColagem.current);
+                agendamentoColagem.current = setTimeout(() => void usarFichaColada(valor), 150);
               }, 60);
+            } catch (error) {
+              console.error("[ficha] falha ao receber conteúdo colado", error);
+              setPendencias([
+                "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
+              ]);
+              toast.error(
+                "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
+              );
             }
           }}
         />
