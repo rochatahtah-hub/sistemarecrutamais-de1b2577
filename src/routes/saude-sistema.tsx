@@ -1,10 +1,13 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Activity, AlertTriangle, Database, ShieldAlert } from "lucide-react";
+import { Activity, AlertTriangle, Database, FileSpreadsheet, FileText, ShieldAlert } from "lucide-react";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { listarErrosSistema } from "@/lib/system-health";
+import { exportarSaudeExcel, exportarSaudePDF } from "@/lib/exportar-saude";
 
 export const Route = createFileRoute("/saude-sistema")({
   head: () => ({
@@ -30,11 +33,29 @@ function Pagina() {
     retry: false,
   });
   const erros = consulta.data ?? [];
+  const [exportando, setExportando] = useState<"pdf" | "excel" | null>(null);
   const total = useMemo(() => erros.reduce((soma, erro) => soma + erro.ocorrencias, 0), [erros]);
   const naoAutorizados = useMemo(
     () => erros.filter((erro) => erro.codigo_http === 401).reduce((soma, erro) => soma + erro.ocorrencias, 0),
     [erros],
   );
+
+  async function exportar(formato: "pdf" | "excel") {
+    if (erros.length === 0) {
+      toast.info("Não há erros registrados para exportar.");
+      return;
+    }
+    setExportando(formato);
+    try {
+      if (formato === "pdf") await exportarSaudePDF(erros);
+      else await exportarSaudeExcel(erros);
+      toast.success("Relatório de saúde do sistema gerado.");
+    } catch {
+      toast.error("Não foi possível gerar o relatório.");
+    } finally {
+      setExportando(null);
+    }
+  }
 
   if (!isAdmin) {
     return (
@@ -48,9 +69,19 @@ function Pagina() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="font-display text-2xl font-bold">Saúde do Sistema</h1>
-        <p className="text-sm text-muted-foreground">Falhas agrupadas por origem e atualizadas a cada minuto.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Saúde do Sistema</h1>
+          <p className="text-sm text-muted-foreground">Falhas agrupadas por origem e atualizadas a cada minuto.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => exportar("excel")} disabled={exportando !== null}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" /> {exportando === "excel" ? "Gerando..." : "Excel"}
+          </Button>
+          <Button size="sm" onClick={() => exportar("pdf")} disabled={exportando !== null}>
+            <FileText className="mr-2 h-4 w-4" /> {exportando === "pdf" ? "Gerando..." : "PDF"}
+          </Button>
+        </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         <Indicador icone={Activity} rotulo="Ocorrências" valor={total} />
