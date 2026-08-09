@@ -150,7 +150,7 @@ export interface NovaProgramacao {
   candidato: Candidato;
   data: string;
   empresa_id: string;
-  status: "PRESENCA" | "FALTA" | "CANCELAMENTO";
+  status: "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
   observacao?: string;
 }
 
