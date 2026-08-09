@@ -48,7 +48,7 @@ function Pagina() {
   const { data: perfis = [] } = useProgramadoras();
   const atualizar = useAtualizarPerfil();
 
-  const metaSalva = (config as unknown as { meta_presencas?: number } | undefined)?.meta_presencas;
+  const metaSalva = config?.metaPresencas;
   const [meta, setMeta] = useState<number>(0);
   useEffect(() => {
     if (typeof metaSalva === "number") setMeta(metaSalva);
