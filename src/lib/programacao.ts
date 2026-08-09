@@ -38,14 +38,24 @@ export function formatarTelefone(v: string) {
 export function useEmpresas() {
   return useQuery({
     queryKey: ["empresas-cadastro"],
-    queryFn: async (): Promise<Empresa[]> => {
-      const { data, error } = await supabase
-        .from("empresas")
-        .select("id,nome,ativo")
-        .order("nome");
-      if (error) throw error;
-      return data ?? [];
+    queryFn: async ({ signal }): Promise<Empresa[]> => {
+      try {
+        const { data, error } = await supabase
+          .from("empresas")
+          .select("id,nome,ativo")
+          .order("nome")
+          .abortSignal(signal);
+        if (error) {
+          console.warn("[empresas] consulta falhou", error.message);
+          return [];
+        }
+        return data ?? [];
+      } catch (e) {
+        console.warn("[empresas] consulta interrompida", e);
+        return [];
+      }
     },
+    retry: false,
     staleTime: 30_000,
   });
 }
@@ -74,16 +84,49 @@ export function useSalvarEmpresa() {
 
 /* ---------------- Candidatos ---------------- */
 
+/** Remove caracteres que quebram o filtro do PostgREST e limita o tamanho. */
+function termoSeguro(v: string) {
+  return (v ?? "")
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/[,()%*"\\]/g, " ")
+    .trim()
+    .slice(0, 80);
+}
+
 export function useCandidatos(busca = "") {
+  const termo = termoSeguro(busca);
   return useQuery({
-    queryKey: ["candidatos", busca],
-    queryFn: async (): Promise<Candidato[]> => {
-      let q = supabase.from("candidatos").select("id,nome,cpf,telefone").order("nome").limit(50);
-      if (busca.trim()) q = q.or(`nome.ilike.%${busca.trim()}%,cpf.ilike.%${soDigitos(busca)}%`);
-      const { data, error } = await q;
-      if (error) throw error;
-      return data ?? [];
+    queryKey: ["candidatos", termo],
+    queryFn: async ({ signal }): Promise<Candidato[]> => {
+      try {
+        let q = supabase
+          .from("candidatos")
+          .select("id,nome,cpf,telefone")
+          .order("nome")
+          .limit(50)
+          .abortSignal(signal);
+        if (termo) {
+          const digitos = soDigitos(termo);
+          q = q.or(
+            digitos
+              ? `nome.ilike.%${termo}%,cpf.ilike.%${digitos}%`
+              : `nome.ilike.%${termo}%`,
+          );
+        }
+        const { data, error } = await q;
+        if (error) {
+          console.warn("[candidatos] consulta falhou", error.message);
+          return [];
+        }
+        return data ?? [];
+      } catch (e) {
+        console.warn("[candidatos] consulta interrompida", e);
+        return [];
+      }
     },
+    retry: false,
+    placeholderData: (anterior) => anterior,
+    staleTime: 15_000,
   });
 }
 
