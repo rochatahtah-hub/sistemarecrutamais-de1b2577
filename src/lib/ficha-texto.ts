@@ -68,7 +68,15 @@ export function interpretarFicha(texto: string): DadosFicha {
   if (tel.startsWith("55") && tel.length > 11) tel = tel.slice(2);
   if (tel.length > 11) tel = tel.slice(0, 11);
   if (tel.length < 10 || tel.length > 11) {
-    const semCpf = cpf ? t.split(new RegExp(cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1[.\\s]?$2[.\\s]?$3[-.\\s]?$4"))).join(" ") : t;
+    const semCpf = cpf
+      ? t
+          .split(
+            new RegExp(
+              cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1[.\\s]?$2[.\\s]?$3[-.\\s]?$4"),
+            ),
+          )
+          .join(" ")
+      : t;
     const m = semCpf
       .match(/(?:\+?55\s?)?\(?\d{2}\)?[\s.-]?9?\d{4}[-\s.]?\d{4}/g)
       ?.map((c) => digitos(c).replace(/^55(?=\d{10,11}$)/, ""))
@@ -89,11 +97,11 @@ export function interpretarFicha(texto: string): DadosFicha {
   if (nome && (!/^[A-Za-zÀ-ÿ'´` .]+$/.test(nome) || nome.split(/\s+/).length < 2)) nome = "";
   if (!nome) {
     const linha = linhas.find(
-        (l) =>
-          /^[A-Za-zÀ-ÿ'´` ]{6,60}$/.test(l) &&
-          l.split(/\s+/).length >= 2 &&
-          !PALAVRAS_IGNORAR.test(l),
-      );
+      (l) =>
+        /^[A-Za-zÀ-ÿ'´` ]{6,60}$/.test(l) &&
+        l.split(/\s+/).length >= 2 &&
+        !PALAVRAS_IGNORAR.test(l),
+    );
     nome = linha ?? "";
   }
   nome = nome.replace(/\s{2,}/g, " ").trim();
