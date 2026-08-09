@@ -15,7 +15,7 @@ import {
   type Candidato,
 } from "@/lib/programacao";
 import { buscarBloqueio, type Bloqueio } from "@/lib/bloqueios";
-import { interpretarFicha } from "@/lib/ficha-texto";
+import { camposFaltantes, interpretarFicha } from "@/lib/ficha-texto";
 import { extrairFicha } from "@/lib/ficha.functions";
 
 interface Props {
@@ -35,6 +35,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [telefone, setTelefone] = useState("");
   const [lendo, setLendo] = useState(false);
   const [aviso, setAviso] = useState("");
+  const [pendencias, setPendencias] = useState<string[]>([]);
   const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
   const [liberado, setLiberado] = useState(false);
   const salvar = useSalvarCandidato();
@@ -46,6 +47,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     setCpf("");
     setTelefone("");
     setAviso("");
+    setPendencias([]);
     setBloqueio(null);
     setLiberado(false);
     setLendo(false);
@@ -89,17 +91,19 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     if (dados.telefone) setTelefone(formatarTelefone(dados.telefone));
   }
 
-  async function usarFichaColada() {
-    if (colado.trim().length < 5) {
+  async function usarFichaColada(textoBruto?: string) {
+    const texto = (textoBruto ?? colado).trim();
+    if (texto.length < 5) {
       toast.error("Cole o conteúdo da ficha primeiro.");
       return;
     }
     setLendo(true);
+    setPendencias([]);
     try {
-      let dados = interpretarFicha(colado);
-      if (!dados.cpf || !dados.nome) {
+      let dados = interpretarFicha(texto);
+      if (!dados.cpf || !dados.nome || !dados.telefone) {
         try {
-          const ia = await extrairFicha({ data: { texto: colado } });
+          const ia = await extrairFicha({ data: { texto } });
           dados = {
             nome: dados.nome || ia.nome,
             cpf: dados.cpf || ia.cpf,
@@ -110,14 +114,14 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         }
       }
       aplicarDados(dados);
-      if (!dados.cpf) {
-        toast.warning("Não encontrei o CPF na ficha. Confira e complete.");
-        return;
-      }
-      await conferirCPF(dados.cpf);
-      if (dados.cpf) toast.success("Ficha lida. Confira os dados.");
+      const faltas = camposFaltantes(dados);
+      setPendencias(faltas);
+      if (dados.cpf) await conferirCPF(dados.cpf);
+      if (faltas.length === 0) toast.success("Ficha lida. Confira os dados.");
+      else toast.warning(faltas[0]!);
     } catch (e) {
-      toast.error((e as Error).message || "Não consegui ler a ficha colada.");
+      const msg = (e as Error).message;
+      toast.error(msg && msg !== "Tente novamente." ? msg : "Não consegui processar a ficha colada. O texto continua no campo — toque em “Tentar novamente”.");
     } finally {
       setLendo(false);
     }
@@ -194,7 +198,22 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           placeholder="COLE A FICHA AQUI — o sistema identifica sozinho nome, CPF e telefone."
           value={colado}
           onChange={(e) => setColado(e.target.value)}
-          onPaste={() => setTimeout(() => void usarFichaColada(), 50)}
+          onPaste={(e) => {
+            const texto = e.clipboardData?.getData("text/plain") ?? "";
+            if (texto.trim().length >= 5) {
+              e.preventDefault();
+              setColado(texto);
+              void usarFichaColada(texto);
+            } else {
+              // navegadores sem clipboardData (alguns mobile): usa o valor após a colagem
+              setTimeout(() => {
+                const el = e.target as HTMLTextAreaElement;
+                const v = el.value;
+                setColado(v);
+                void usarFichaColada(v);
+              }, 60);
+            }
+          }}
         />
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" disabled={lendo} onClick={() => void usarFichaColada()}>
@@ -203,7 +222,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
             ) : (
               <ClipboardPaste className="mr-2 h-4 w-4" />
             )}
-            {lendo ? "Lendo ficha..." : "Ler ficha colada"}
+            {lendo ? "Lendo ficha..." : pendencias.length ? "Tentar novamente" : "Ler ficha colada"}
           </Button>
           <input
             ref={inputArquivo}
@@ -293,6 +312,19 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       </div>
 
       {aviso && <p className="text-sm font-medium text-primary">{aviso}</p>}
+
+      {pendencias.length > 0 && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
+          <ul className="space-y-1 text-sm">
+            {pendencias.map((p) => (
+              <li key={p}>• {p}</li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs text-muted-foreground">
+            O texto colado foi mantido. Complete o campo manualmente ou toque em “Tentar novamente”.
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <Button
