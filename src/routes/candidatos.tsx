@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatarCPF, formatarTelefone, useCandidatos, type Candidato } from "@/lib/programacao";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export const Route = createFileRoute("/candidatos")({
   head: () => ({
@@ -35,7 +36,8 @@ export const Route = createFileRoute("/candidatos")({
 function Pagina() {
   const [busca, setBusca] = useState("");
   const [candidato, setCandidato] = useState<Candidato | null>(null);
-  const { data: lista = [] } = useCandidatos(busca);
+  const buscaDebounced = useDebounce(busca, 350);
+  const { data: lista = [] } = useCandidatos(buscaDebounced);
 
   return (
     <div className="space-y-5">
@@ -65,7 +67,8 @@ function Pagina() {
             placeholder="Buscar por nome ou CPF"
             className="max-w-xs"
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            maxLength={80}
+            onChange={(e) => setBusca(e.target.value.slice(0, 80))}
           />
         </div>
         <div className="overflow-x-auto">
