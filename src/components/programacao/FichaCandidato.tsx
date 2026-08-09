@@ -38,6 +38,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const inputArquivo = useRef<HTMLInputElement>(null);
   const campoFicha = useRef<HTMLTextAreaElement>(null);
   const processamentoAtual = useRef(0);
+  const montado = useRef(true);
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -48,6 +49,14 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [liberado, setLiberado] = useState(false);
   const [previsualizando, setPrevisualizando] = useState(false);
   const salvar = useSalvarCandidato();
+
+  useEffect(() => {
+    montado.current = true;
+    return () => {
+      montado.current = false;
+      processamentoAtual.current += 1;
+    };
+  }, []);
 
   useEffect(() => {
     if (!resetSinal) return;
@@ -92,6 +101,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
       return;
     }
+    if (!montado.current) return;
     setLendo(true);
     setPendencias([]);
     try {
@@ -99,7 +109,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       if (!dados.cpf || !dados.nome || !dados.telefone) {
         try {
           const ia = await extrairFicha({ data: { texto: texto.slice(0, 20_000) } });
-          if (processamentoAtual.current !== idProcessamento) return;
+           if (!montado.current || processamentoAtual.current !== idProcessamento) return;
           dados = {
             nome: dados.nome || ia.nome,
             cpf: dados.cpf || ia.cpf,
@@ -109,7 +119,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           /* mantém a leitura local */
         }
       }
-      if (processamentoAtual.current !== idProcessamento) return;
+      if (!montado.current || processamentoAtual.current !== idProcessamento) return;
       aplicarDados(dados);
       const faltas = camposFaltantes(dados);
       setPendencias(faltas);
@@ -118,7 +128,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       else toast.warning("⚠ NÃO FOI POSSÍVEL IDENTIFICAR TODOS OS DADOS");
     } catch (error) {
       console.error("[ficha] falha isolada no processamento", error);
-      if (processamentoAtual.current === idProcessamento) {
+      if (montado.current && processamentoAtual.current === idProcessamento) {
         setPrevisualizando(false);
         setPendencias([
           "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
@@ -126,7 +136,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
       }
     } finally {
-      if (processamentoAtual.current === idProcessamento) setLendo(false);
+      if (montado.current && processamentoAtual.current === idProcessamento) setLendo(false);
     }
   }
 
@@ -157,6 +167,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         };
       }
       const dados = await extrairFicha({ data: payload });
+      if (!montado.current) return;
       aplicarDados(dados);
       const faltas = camposFaltantes(dados);
       setPendencias(faltas);
@@ -164,10 +175,12 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       if (faltas.length === 0) toast.success("✓ FICHA PROCESSADA");
       else toast.warning("⚠ NÃO FOI POSSÍVEL IDENTIFICAR TODOS OS DADOS");
     } catch (e) {
-      toast.error((e as Error).message || "Não consegui ler a ficha.");
+      if (montado.current) toast.error((e as Error).message || "Não consegui ler a ficha.");
     } finally {
-      setLendo(false);
-      if (inputArquivo.current) inputArquivo.current.value = "";
+      if (montado.current) {
+        setLendo(false);
+        if (inputArquivo.current) inputArquivo.current.value = "";
+      }
     }
   }
 
