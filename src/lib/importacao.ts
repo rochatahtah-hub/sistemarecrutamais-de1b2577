@@ -143,6 +143,51 @@ export function camposFaltando(mapa: Mapeamento) {
   return CAMPOS.filter((c) => c.obrigatorio && !mapa[c.campo]);
 }
 
+/**
+ * Localiza a linha de cabeçalho dentro da aba (planilhas reais costumam ter
+ * título, logotipo ou linhas em branco antes do cabeçalho) e devolve os
+ * registros já convertidos em objetos.
+ */
+export function lerAbaMatriz(matriz: unknown[][]): {
+  cabecalhos: string[];
+  linhas: Record<string, unknown>[];
+  mapa: Mapeamento;
+} {
+  let melhor = { indice: -1, pontos: 0, mapa: {} as Mapeamento, cabecalhos: [] as string[] };
+  const limite = Math.min(matriz.length, 20);
+  for (let i = 0; i < limite; i++) {
+    const bruta = (matriz[i] ?? []).map((c) => String(c ?? "").trim());
+    if (bruta.every((c) => !c)) continue;
+    const mapa = detectarColunas(bruta.filter(Boolean));
+    const pontos = Object.keys(mapa).length;
+    if (pontos > melhor.pontos) melhor = { indice: i, pontos, mapa, cabecalhos: bruta };
+    if (pontos >= CAMPOS.filter((c) => c.obrigatorio).length) break;
+  }
+  if (melhor.indice < 0) return { cabecalhos: [], linhas: [], mapa: {} };
+
+  // Nomes únicos para colunas vazias ou repetidas.
+  const usados = new Set<string>();
+  const cabecalhos = melhor.cabecalhos.map((h, idx) => {
+    let nome = h || `Coluna ${idx + 1}`;
+    while (usados.has(nome)) nome = `${nome} (${idx + 1})`;
+    usados.add(nome);
+    return nome;
+  });
+
+  const linhas: Record<string, unknown>[] = [];
+  for (let i = melhor.indice + 1; i < matriz.length; i++) {
+    const linha = matriz[i] ?? [];
+    if (linha.every((c) => c === null || c === undefined || String(c).trim() === "")) continue;
+    const obj: Record<string, unknown> = {};
+    cabecalhos.forEach((h, idx) => {
+      obj[h] = linha[idx] ?? "";
+    });
+    linhas.push(obj);
+  }
+
+  return { cabecalhos, linhas, mapa: detectarColunas(cabecalhos) };
+}
+
 export function converterData(valor: unknown): string | null {
   if (valor === null || valor === undefined || valor === "") return null;
   if (valor instanceof Date && !Number.isNaN(valor.getTime())) {
