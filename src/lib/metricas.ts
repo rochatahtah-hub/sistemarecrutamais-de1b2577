@@ -2,6 +2,8 @@ import type { Metas, VagaRegistro } from "./tipos";
 
 export interface Agregado {
   vagas: number;
+  pendentes: number;
+  confirmadas: number;
   presencas: number;
   faltas: number;
   cancelamentos: number;
@@ -12,6 +14,8 @@ export interface Agregado {
 
 export const AGREGADO_ZERO: Agregado = {
   vagas: 0,
+  pendentes: 0,
+  confirmadas: 0,
   presencas: 0,
   faltas: 0,
   cancelamentos: 0,
@@ -27,6 +31,7 @@ function pct(parte: number, total: number) {
 
 export function agregar(registros: VagaRegistro[]): Agregado {
   let vagas = 0;
+  let pendentes = 0;
   let presencas = 0;
   let faltas = 0;
   let cancelamentos = 0;
@@ -36,15 +41,19 @@ export function agregar(registros: VagaRegistro[]): Agregado {
     if (r.status === "PRESENCA") presencas += q;
     else if (r.status === "FALTA") faltas += q;
     else if (r.status === "CANCELAMENTO") cancelamentos += q;
+    else if (r.status === "AGUARDANDO") pendentes += q;
   }
+  const confirmadas = presencas + faltas + cancelamentos;
   return {
     vagas,
+    pendentes,
+    confirmadas,
     presencas,
     faltas,
     cancelamentos,
-    pctPresenca: pct(presencas, vagas),
-    pctFalta: pct(faltas, vagas),
-    pctCancelamento: pct(cancelamentos, vagas),
+    pctPresenca: pct(presencas, confirmadas),
+    pctFalta: pct(faltas, confirmadas),
+    pctCancelamento: pct(cancelamentos, confirmadas),
   };
 }
 
