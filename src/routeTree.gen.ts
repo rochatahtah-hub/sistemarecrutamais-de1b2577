@@ -15,7 +15,9 @@ import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
+import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
@@ -55,9 +57,19 @@ const ConfirmacoesRoute = ConfirmacoesRouteImport.update({
   path: '/confirmacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoricoRoute = HistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetasRoute = MetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MinhaProgramacaoRoute = MinhaProgramacaoRouteImport.update({
@@ -108,7 +120,9 @@ export interface FileRoutesByFullPath {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
@@ -125,7 +139,9 @@ export interface FileRoutesByTo {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
@@ -143,7 +159,9 @@ export interface FileRoutesById {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/relatorios': typeof RelatoriosRoute
@@ -162,7 +180,9 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/historico'
     | '/importar'
+    | '/metas'
     | '/minha-programacao'
     | '/programadoras'
     | '/relatorios'
@@ -179,7 +199,9 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/historico'
     | '/importar'
+    | '/metas'
     | '/minha-programacao'
     | '/programadoras'
     | '/relatorios'
@@ -196,7 +218,9 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/historico'
     | '/importar'
+    | '/metas'
     | '/minha-programacao'
     | '/programadoras'
     | '/relatorios'
@@ -214,7 +238,9 @@ export interface RootRouteChildren {
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
+  HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
+  MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
   RelatoriosRoute: typeof RelatoriosRoute
@@ -269,11 +295,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfirmacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/historico': {
+      id: '/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof HistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/importar': {
       id: '/importar'
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metas': {
+      id: '/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof MetasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/minha-programacao': {
@@ -342,7 +382,9 @@ const rootRouteChildren: RootRouteChildren = {
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,
+  HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
+  MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
   ProgramadorasRoute: ProgramadorasRoute,
   RelatoriosRoute: RelatoriosRoute,

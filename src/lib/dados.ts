@@ -60,6 +60,10 @@ export function useVagas() {
 export interface Configuracoes {
   metas: Metas;
   mapeamento: MapeamentoStatus;
+  metaPresencas: number;
+  inatividadeHoras: number;
+  expedienteInicio: string;
+  expedienteFim: string;
 }
 
 export async function buscarConfiguracoes(): Promise<Configuracoes> {
@@ -69,6 +73,10 @@ export async function buscarConfiguracoes(): Promise<Configuracoes> {
   return {
     metas: (mapa.get("metas") as Metas | undefined) ?? METAS_PADRAO,
     mapeamento: (mapa.get("mapeamento_status") as MapeamentoStatus | undefined) ?? MAPEAMENTO_PADRAO,
+    metaPresencas: (mapa.get("meta_presencas") as number | undefined) ?? 0,
+    inatividadeHoras: (mapa.get("inatividade_horas") as number | undefined) ?? 2,
+    expedienteInicio: (mapa.get("expediente_inicio") as string | undefined) ?? "08:00",
+    expedienteFim: (mapa.get("expediente_fim") as string | undefined) ?? "18:00",
   };
 }
 
