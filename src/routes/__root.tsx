@@ -138,26 +138,51 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <FiltrosProvider>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full bg-background">
-            <AppSidebar />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/85 px-3 backdrop-blur md:px-6">
-                <SidebarTrigger />
-                <span className="font-display text-sm font-semibold tracking-tight">
-                  Central de Gestão de Vagas
-                </span>
-              </header>
-              <main className="min-w-0 flex-1 p-3 md:p-6">
-                {/* Required: nested routes render here. */}
-                <Outlet />
-              </main>
-            </div>
-          </div>
-        </SidebarProvider>
-      </FiltrosProvider>
+      <AuthProvider>
+        <FiltrosProvider>
+          <Protegido />
+        </FiltrosProvider>
+      </AuthProvider>
       <Toaster position="top-right" richColors />
     </QueryClientProvider>
+  );
+}
+
+/** Gate de autenticação: rotas do sistema exigem login individual. */
+function Protegido() {
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const { carregando, session } = useAuth();
+  const naTelaDeLogin = pathname === "/auth";
+
+  useEffect(() => {
+    if (!carregando && !session && !naTelaDeLogin) {
+      void navigate({ to: "/auth", replace: true });
+    }
+  }, [carregando, session, naTelaDeLogin, navigate]);
+
+  if (naTelaDeLogin) return <Outlet />;
+
+  if (carregando || !session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <TopBar />
+          <main className="min-w-0 flex-1 p-3 md:p-6">
+            {/* Required: nested routes render here. */}
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
