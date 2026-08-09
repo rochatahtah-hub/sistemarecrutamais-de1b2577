@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Save } from "lucide-react";
+import { Save, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfiguracoes, useSalvarConfiguracao } from "@/lib/dados";
+import { useAuth } from "@/lib/auth";
 import {
   MAPEAMENTO_PADRAO,
   METAS_PADRAO,
@@ -42,6 +43,7 @@ const GRUPOS: { chave: keyof MapeamentoStatus; titulo: string; ajuda: string }[]
 function Pagina() {
   const { data: config } = useConfiguracoes();
   const salvar = useSalvarConfiguracao();
+  const { isAdmin } = useAuth();
 
   const [metas, setMetas] = useState<Metas>(METAS_PADRAO);
   const [mapeamento, setMapeamento] = useState<MapeamentoStatus>(MAPEAMENTO_PADRAO);
@@ -69,6 +71,18 @@ function Pagina() {
     } catch (e) {
       toast.error((e as Error).message);
     }
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="surface-panel rounded-xl p-8 text-center">
+        <ShieldAlert className="mx-auto h-8 w-8 text-muted-foreground" />
+        <h1 className="mt-3 font-display text-xl font-bold">Área administrativa</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Entre pelo botão 🔐 ADMINISTRADOR com o PIN para acessar as configurações do sistema.
+        </p>
+      </div>
+    );
   }
 
   return (

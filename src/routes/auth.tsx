@@ -50,6 +50,7 @@ function Pagina() {
   const [abrirPin, setAbrirPin] = useState(false);
   const [pin, setPin] = useState("");
   const [jaTemPin, setJaTemPin] = useState(true);
+  const [erroPin, setErroPin] = useState("");
 
   useEffect(() => {
     if (!carregando && session) void navigate({ to: "/", replace: true });
@@ -57,6 +58,7 @@ function Pagina() {
 
   async function abrirAcessoAdmin() {
     setPin("");
+    setErroPin("");
     setAbrirPin(true);
     try {
       const r = await consultarPin({});
@@ -67,7 +69,9 @@ function Pagina() {
   }
 
   async function entrarComoAdmin() {
+    if (enviando) return;
     setEnviando(true);
+    setErroPin("");
     try {
       const tokens = await acessoAdmin({ data: { pin } });
       const { error } = await supabase.auth.setSession({
@@ -79,9 +83,22 @@ function Pagina() {
         tokens.primeiroAcesso ? "PIN cadastrado e acesso liberado." : "Acesso administrativo liberado.",
       );
       setAbrirPin(false);
+      setPin("");
       void navigate({ to: "/", replace: true });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Não foi possível acessar como administrador.");
+      const msg =
+        e instanceof Error && e.message
+          ? e.message
+          : "Não foi possível acessar como administrador. Tente novamente.";
+      setErroPin(msg);
+      setPin("");
+      toast.error(msg);
+      try {
+        const r = await consultarPin({});
+        setJaTemPin(r.definido);
+      } catch {
+        /* mantém o estado atual do PIN */
+      }
     } finally {
       setEnviando(false);
     }
@@ -263,6 +280,11 @@ function Pagina() {
                 if (e.key === "Enter") void entrarComoAdmin();
               }}
             />
+            {erroPin ? (
+              <p role="alert" className="text-xs font-medium text-destructive">
+                {erroPin}
+              </p>
+            ) : null}
           </div>
           <DialogFooter>
             <Button

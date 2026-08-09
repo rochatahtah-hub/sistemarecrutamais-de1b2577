@@ -53,8 +53,8 @@ export const entrarComPin = createServerFn({ method: "POST" })
         .eq("id", true);
       throw new Error(
         falhas >= MAX_FALHAS
-          ? `PIN incorreto. Acesso bloqueado por ${ESPERA_MIN} minutos.`
-          : `PIN incorreto. Tentativas restantes: ${MAX_FALHAS - falhas}.`,
+          ? `PIN incorreto. Tente novamente em ${ESPERA_MIN} minutos.`
+          : `PIN incorreto. Tente novamente. (tentativas restantes: ${MAX_FALHAS - falhas})`,
       );
     }
 
