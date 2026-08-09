@@ -111,6 +111,7 @@ export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="AGUARDANDO">Aguardando confirmação</SelectItem>
               <SelectItem value="PRESENCA">Presença</SelectItem>
               <SelectItem value="FALTA">Falta</SelectItem>
               <SelectItem value="CANCELAMENTO">Cancelamento</SelectItem>

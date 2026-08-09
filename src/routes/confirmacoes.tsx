@@ -42,10 +42,11 @@ export const Route = createFileRoute("/confirmacoes")({
   component: Pagina,
 });
 
-type Aba = "TODAS" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
+type Aba = "TODAS" | "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
 
 const ABAS: { valor: Aba; label: string }[] = [
   { valor: "TODAS", label: "Todas as confirmações" },
+  { valor: "AGUARDANDO", label: "Aguardando confirmação" },
   { valor: "PRESENCA", label: "Presenças" },
   { valor: "FALTA", label: "Faltas" },
   { valor: "CANCELAMENTO", label: "Cancelamentos" },
@@ -71,6 +72,7 @@ function Pagina() {
 
   const cards = [
     { label: "Vagas", valor: fmtNum(total.vagas), pct: "" },
+    { label: "Aguardando", valor: fmtNum(total.pendentes), pct: "" },
     { label: "Presenças", valor: fmtNum(total.presencas), pct: fmtPct(total.pctPresenca) },
     { label: "Faltas", valor: fmtNum(total.faltas), pct: fmtPct(total.pctFalta) },
     {
@@ -99,7 +101,7 @@ function Pagina() {
       <FiltrosBar registros={registros} />
       <PlanilhaAtivaBanner />
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {cards.map((c) => (
           <div key={c.label} className="surface-panel rounded-xl p-4">
             <p className="text-xs uppercase text-muted-foreground">{c.label}</p>

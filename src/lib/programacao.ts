@@ -150,7 +150,7 @@ export interface NovaProgramacao {
   candidato: Candidato;
   data: string;
   empresa_id: string;
-  status: "PRESENCA" | "FALTA" | "CANCELAMENTO";
+  status: "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
   observacao?: string;
 }
 
@@ -345,6 +345,30 @@ export function useExcluirProgramacao() {
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("vagas").delete().eq("id", id);
       if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries(),
+  });
+}
+
+/** Confirma posteriormente a situação de uma vaga programada. */
+export function useConfirmarProgramacao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (p: {
+      id: string;
+      status: "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
+    }) => {
+      const { error } = await supabase.from("vagas").update({ status: p.status }).eq("id", p.id);
+      if (error) throw error;
+      const { data: sessao } = await supabase.auth.getUser();
+      const uid = sessao.user?.id;
+      if (!uid || p.status !== "PRESENCA") return { metaAtingida: false, mensagem: "" };
+      const { data: perfil } = await supabase
+        .from("profiles")
+        .select("nome,meta_quinzena")
+        .eq("id", uid)
+        .maybeSingle();
+      return verificarMeta(uid, perfil?.nome ?? "Programadora", perfil?.meta_quinzena ?? 0);
     },
     onSuccess: () => qc.invalidateQueries(),
   });
