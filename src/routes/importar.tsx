@@ -110,8 +110,19 @@ function Pagina() {
   async function aoSelecionar(file: File) {
     try {
       const XLSX = await import("xlsx");
-      const buffer = await file.arrayBuffer();
-      const wb = XLSX.read(buffer, { cellDates: true });
+      let buffer: ArrayBuffer;
+      try {
+        buffer = await file.arrayBuffer();
+      } catch {
+        // Navegadores antigos / Safari: fallback com FileReader
+        buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+          const fr = new FileReader();
+          fr.onload = () => resolve(fr.result as ArrayBuffer);
+          fr.onerror = () => reject(new Error("Não consegui abrir o arquivo neste navegador."));
+          fr.readAsArrayBuffer(file);
+        });
+      }
+      const wb = XLSX.read(new Uint8Array(buffer), { type: "array", cellDates: true });
       if (wb.SheetNames.length === 0) throw new Error("Planilha vazia");
       const lidas: AbaLida[] = wb.SheetNames.map((nome) => {
         if (!abaDeRecrutador(nome)) {
@@ -124,17 +135,18 @@ function Pagina() {
           };
         }
         const sheet = wb.Sheets[nome];
-        const json = sheet
-          ? XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" })
+        const matriz = sheet
+          ? XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: "", blankrows: false })
           : [];
-        const heads = json.length ? Object.keys(json[0]!) : [];
-        const mapa = detectarColunas(heads);
+        const { cabecalhos: heads, linhas: json, mapa } = lerAbaMatriz(matriz);
         const faltando = camposFaltando(mapa);
         const motivo =
           json.length === 0
-            ? "Aba sem linhas de dados"
+            ? "Aba sem linhas de dados abaixo do cabeçalho"
             : faltando.length > 0
-              ? `Colunas obrigatórias não encontradas: ${faltando.map((c) => c.label).join(", ")}`
+              ? `Colunas obrigatórias não encontradas: ${faltando
+                  .map((c) => c.label)
+                  .join(", ")}. Cabeçalho lido: ${heads.slice(0, 12).join(" | ") || "vazio"}`
               : null;
         return { nome, cabecalhos: heads, linhas: json, mapa, motivo };
       });
