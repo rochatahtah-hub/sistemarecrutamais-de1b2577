@@ -280,6 +280,11 @@ function Pagina() {
                 if (e.key === "Enter") void entrarComoAdmin();
               }}
             />
+            {erroPin ? (
+              <p role="alert" className="text-xs font-medium text-destructive">
+                {erroPin}
+              </p>
+            ) : null}
           </div>
           <DialogFooter>
             <Button
