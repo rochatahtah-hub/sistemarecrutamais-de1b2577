@@ -38,6 +38,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const inputArquivo = useRef<HTMLInputElement>(null);
   const campoFicha = useRef<HTMLTextAreaElement>(null);
   const processamentoAtual = useRef(0);
+  const montado = useRef(true);
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -48,6 +49,14 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [liberado, setLiberado] = useState(false);
   const [previsualizando, setPrevisualizando] = useState(false);
   const salvar = useSalvarCandidato();
+
+  useEffect(() => {
+    montado.current = true;
+    return () => {
+      montado.current = false;
+      processamentoAtual.current += 1;
+    };
+  }, []);
 
   useEffect(() => {
     if (!resetSinal) return;
@@ -92,6 +101,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
       return;
     }
+    if (!montado.current) return;
     setLendo(true);
     setPendencias([]);
     try {
@@ -99,7 +109,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       if (!dados.cpf || !dados.nome || !dados.telefone) {
         try {
           const ia = await extrairFicha({ data: { texto: texto.slice(0, 20_000) } });
-          if (processamentoAtual.current !== idProcessamento) return;
+           if (!montado.current || processamentoAtual.current !== idProcessamento) return;
           dados = {
             nome: dados.nome || ia.nome,
             cpf: dados.cpf || ia.cpf,
@@ -109,7 +119,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           /* mantém a leitura local */
         }
       }
-      if (processamentoAtual.current !== idProcessamento) return;
+      if (!montado.current || processamentoAtual.current !== idProcessamento) return;
       aplicarDados(dados);
       const faltas = camposFaltantes(dados);
       setPendencias(faltas);
@@ -118,7 +128,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       else toast.warning("⚠ NÃO FOI POSSÍVEL IDENTIFICAR TODOS OS DADOS");
     } catch (error) {
       console.error("[ficha] falha isolada no processamento", error);
-      if (processamentoAtual.current === idProcessamento) {
+      if (montado.current && processamentoAtual.current === idProcessamento) {
         setPrevisualizando(false);
         setPendencias([
           "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
@@ -126,7 +136,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
       }
     } finally {
-      if (processamentoAtual.current === idProcessamento) setLendo(false);
+      if (montado.current && processamentoAtual.current === idProcessamento) setLendo(false);
     }
   }
 
@@ -157,6 +167,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         };
       }
       const dados = await extrairFicha({ data: payload });
+      if (!montado.current) return;
       aplicarDados(dados);
       const faltas = camposFaltantes(dados);
       setPendencias(faltas);
@@ -164,10 +175,12 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       if (faltas.length === 0) toast.success("✓ FICHA PROCESSADA");
       else toast.warning("⚠ NÃO FOI POSSÍVEL IDENTIFICAR TODOS OS DADOS");
     } catch (e) {
-      toast.error((e as Error).message || "Não consegui ler a ficha.");
+      if (montado.current) toast.error((e as Error).message || "Não consegui ler a ficha.");
     } finally {
-      setLendo(false);
-      if (inputArquivo.current) inputArquivo.current.value = "";
+      if (montado.current) {
+        setLendo(false);
+        if (inputArquivo.current) inputArquivo.current.value = "";
+      }
     }
   }
 
@@ -199,7 +212,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" translate="no">
       <div className="space-y-2">
         <Label htmlFor="ficha-colada">Cole a ficha aqui</Label>
         <Textarea
@@ -209,13 +222,13 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           placeholder="COLE A FICHA AQUI — o texto ficará no campo até você clicar em Processar ficha."
         />
         <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" disabled={lendo} onClick={() => void usarFichaColada()}>
+          <Button type="button" disabled={lendo} onClick={() => void usarFichaColada()} aria-busy={lendo}>
             {lendo ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <ClipboardPaste className="mr-2 h-4 w-4" />
             )}
-            {lendo ? "Processando..." : "Processar ficha"}
+            <span>{lendo ? "Processando..." : "Processar ficha"}</span>
           </Button>
           <input
             ref={inputArquivo}
@@ -271,7 +284,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       <div className="grid gap-3 md:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="f-nome">Nome</Label>
-          <Input id="f-nome" value={nome} onChange={(e) => setNome(e.target.value)} />
+          <Input id="f-nome" value={nome} maxLength={160} onChange={(e) => setNome(e.target.value.slice(0, 160))} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="f-cpf">CPF</Label>

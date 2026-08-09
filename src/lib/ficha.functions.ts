@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export interface FichaExtraida {
   nome: string;
@@ -11,6 +12,7 @@ export interface FichaExtraida {
  * Nenhum outro dado da ficha e armazenado ou retornado.
  */
 export const extrairFicha = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { arquivoBase64?: string; mimeType?: string; texto?: string }) => {
     if (!input.arquivoBase64 && !input.texto) throw new Error("Envie a ficha do candidato.");
     if (input.arquivoBase64 && input.arquivoBase64.length > 8_000_000)

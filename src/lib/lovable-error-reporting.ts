@@ -25,6 +25,12 @@ declare global {
 
 export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
+  void import("./system-health").then(({ registrarErroSistema }) =>
+    registrarErroSistema(error, {
+      componente: typeof context["boundary"] === "string" ? context["boundary"] : "Aplicação",
+      operacao: "error boundary",
+    }),
+  );
   window.__lovableEvents?.captureException?.(
     error,
     {

@@ -189,9 +189,9 @@ function Dashboard() {
           </p>
         ) : (
           <ul className="grid gap-2 md:grid-cols-2">
-            {alertas.slice(0, 8).map((a, i) => (
+            {alertas.slice(0, 8).map((a) => (
               <li
-                key={i}
+                key={`${a.severidade}-${a.titulo}-${a.descricao}`}
                 className={`flex gap-3 rounded-lg border p-3 ${
                   a.severidade === "critico"
                     ? "border-destructive/40 bg-destructive/10"

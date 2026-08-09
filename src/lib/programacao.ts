@@ -39,21 +39,13 @@ export function useEmpresas() {
   return useQuery({
     queryKey: ["empresas-cadastro"],
     queryFn: async ({ signal }): Promise<Empresa[]> => {
-      try {
-        const { data, error } = await supabase
+      const { data, error } = await supabase
           .from("empresas")
           .select("id,nome,ativo")
           .order("nome")
           .abortSignal(signal);
-        if (error) {
-          console.warn("[empresas] consulta falhou", error.message);
-          return [];
-        }
-        return data ?? [];
-      } catch (e) {
-        console.warn("[empresas] consulta interrompida", e);
-        return [];
-      }
+      if (error) throw error;
+      return data ?? [];
     },
     retry: false,
     staleTime: 30_000,
@@ -98,8 +90,7 @@ export function useCandidatos(busca = "") {
   return useQuery({
     queryKey: ["candidatos", termo],
     queryFn: async ({ signal }): Promise<Candidato[]> => {
-      try {
-        let q = supabase
+      let q = supabase
           .from("candidatos")
           .select("id,nome,cpf,telefone")
           .order("nome")
@@ -113,16 +104,9 @@ export function useCandidatos(busca = "") {
               : `nome.ilike.%${termo}%`,
           );
         }
-        const { data, error } = await q;
-        if (error) {
-          console.warn("[candidatos] consulta falhou", error.message);
-          return [];
-        }
-        return data ?? [];
-      } catch (e) {
-        console.warn("[candidatos] consulta interrompida", e);
-        return [];
-      }
+      const { data, error } = await q;
+      if (error) throw error;
+      return data ?? [];
     },
     retry: false,
     placeholderData: (anterior) => anterior,
