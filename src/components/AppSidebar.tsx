@@ -10,6 +10,11 @@ import {
   Table2,
   Users,
   FileText,
+  CalendarCheck,
+  IdCard,
+  Target,
+  Archive,
+  UserCog,
 } from "lucide-react";
 
 import {
@@ -25,9 +30,15 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+const operacao = [
+  { title: "Minha Programação", url: "/minha-programacao", icon: CalendarCheck },
+  { title: "Cadastrar Candidato", url: "/candidatos", icon: IdCard },
+] as const;
+
 const analise = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
+  { title: "Programadoras", url: "/programadoras", icon: UserCog },
   { title: "Colaboradores", url: "/colaboradores", icon: Users },
   { title: "Empresas", url: "/empresas", icon: Building2 },
   { title: "Vagas", url: "/vagas", icon: Table2 },
@@ -37,6 +48,8 @@ const ferramentas = [
   { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
   { title: "Comparar períodos", url: "/comparar", icon: GitCompareArrows },
   { title: "Relatórios", url: "/relatorios", icon: FileText },
+  { title: "Histórico", url: "/historico", icon: Archive },
+  { title: "Metas", url: "/metas", icon: Target },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ] as const;
 
@@ -72,7 +85,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="min-w-0">
               <p className="truncate font-display text-sm font-semibold text-gradient-gold">
-                Gestão de Vagas
+                Programação & Vagas
               </p>
               <p className="truncate text-[11px] text-muted-foreground">Recrutamento & Seleção</p>
             </div>
@@ -80,6 +93,10 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Operação</SidebarGroupLabel>
+          <SidebarGroupContent>{renderItens(operacao)}</SidebarGroupContent>
+        </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Análise</SidebarGroupLabel>
           <SidebarGroupContent>{renderItens(analise)}</SidebarGroupContent>

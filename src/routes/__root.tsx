@@ -4,6 +4,8 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -12,9 +14,11 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { TopBar } from "@/components/TopBar";
 import { FiltrosProvider } from "@/lib/filtros";
+import { AuthProvider, useAuth } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -134,26 +138,51 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <FiltrosProvider>
-        <SidebarProvider>
-          <div className="flex min-h-screen w-full bg-background">
-            <AppSidebar />
-            <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/85 px-3 backdrop-blur md:px-6">
-                <SidebarTrigger />
-                <span className="font-display text-sm font-semibold tracking-tight">
-                  Central de Gestão de Vagas
-                </span>
-              </header>
-              <main className="min-w-0 flex-1 p-3 md:p-6">
-                {/* Required: nested routes render here. */}
-                <Outlet />
-              </main>
-            </div>
-          </div>
-        </SidebarProvider>
-      </FiltrosProvider>
+      <AuthProvider>
+        <FiltrosProvider>
+          <Protegido />
+        </FiltrosProvider>
+      </AuthProvider>
       <Toaster position="top-right" richColors />
     </QueryClientProvider>
+  );
+}
+
+/** Gate de autenticação: rotas do sistema exigem login individual. */
+function Protegido() {
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const { carregando, session } = useAuth();
+  const naTelaDeLogin = pathname === "/auth";
+
+  useEffect(() => {
+    if (!carregando && !session && !naTelaDeLogin) {
+      void navigate({ to: "/auth", replace: true });
+    }
+  }, [carregando, session, naTelaDeLogin, navigate]);
+
+  if (naTelaDeLogin) return <Outlet />;
+
+  if (carregando || !session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-sm text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <TopBar />
+          <main className="min-w-0 flex-1 p-3 md:p-6">
+            {/* Required: nested routes render here. */}
+            <Outlet />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }

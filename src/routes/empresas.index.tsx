@@ -8,6 +8,8 @@ import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { agregarPor } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
 import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { GerenciarEmpresas } from "@/components/programacao/GerenciarEmpresas";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/empresas/")({
   head: () => ({
@@ -31,12 +33,19 @@ function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { filtros } = useFiltros();
+  const { isAdmin } = useAuth();
   const linhas = useMemo(
     () => agregarPor(aplicarFiltros(registros, filtros), "empresa"),
     [registros, filtros],
   );
 
-  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Empresas" />;
+  if (!isLoading && registros.length === 0)
+    return (
+      <div className="space-y-4">
+        <SemPlanilha pagina="Empresas" />
+        {isAdmin && <GerenciarEmpresas />}
+      </div>
+    );
 
   return (
     <div className="space-y-4">
@@ -48,6 +57,7 @@ function Pagina() {
         destino="empresas"
         metaPresenca={(config?.metas ?? METAS_PADRAO).presenca}
       />
+      {isAdmin && <GerenciarEmpresas />}
     </div>
   );
 }
