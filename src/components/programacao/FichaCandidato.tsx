@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClipboardPaste, FileUp, Loader2, Search, ShieldAlert, ShieldCheck, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,10 +22,12 @@ interface Props {
   onCandidato: (c: Candidato | null) => void;
   candidato: Candidato | null;
   onBloqueio?: (b: Bloqueio | null) => void;
+  /** Ao mudar, limpa a ficha para um novo registro. */
+  resetSinal?: number;
 }
 
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
-export function FichaCandidato({ onCandidato, candidato, onBloqueio }: Props) {
+export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal = 0 }: Props) {
   const inputArquivo = useRef<HTMLInputElement>(null);
   const [colado, setColado] = useState("");
   const [nome, setNome] = useState("");
@@ -36,6 +38,19 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio }: Props) {
   const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
   const [liberado, setLiberado] = useState(false);
   const salvar = useSalvarCandidato();
+
+  useEffect(() => {
+    if (!resetSinal) return;
+    setColado("");
+    setNome("");
+    setCpf("");
+    setTelefone("");
+    setAviso("");
+    setBloqueio(null);
+    setLiberado(false);
+    setLendo(false);
+    if (inputArquivo.current) inputArquivo.current.value = "";
+  }, [resetSinal]);
 
   function definirBloqueio(b: Bloqueio | null) {
     setBloqueio(b);
