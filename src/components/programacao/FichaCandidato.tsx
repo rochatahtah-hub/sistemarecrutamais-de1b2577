@@ -81,7 +81,8 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   async function usarFichaColada(textoBruto?: string) {
     const idProcessamento = processamentoAtual.current + 1;
     processamentoAtual.current = idProcessamento;
-    const original = typeof textoBruto === "string" ? textoBruto : (campoFicha.current?.value ?? "");
+    const original =
+      typeof textoBruto === "string" ? textoBruto : (campoFicha.current?.value ?? "");
     if (typeof original !== "string") return;
     // O texto integral permanece no campo. Só uma cópia limitada entra no parser.
     const texto = original.slice(0, 50_000).trim();
@@ -305,9 +306,18 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         <div className="rounded-lg border bg-muted/30 p-4" aria-live="polite">
           <p className="mb-3 font-semibold text-primary">✓ FICHA PROCESSADA</p>
           <dl className="grid gap-2 text-sm sm:grid-cols-3">
-            <div><dt className="text-muted-foreground">Nome</dt><dd className="font-medium">{nome}</dd></div>
-            <div><dt className="text-muted-foreground">CPF</dt><dd className="font-medium">{formatarCPF(cpf)}</dd></div>
-            <div><dt className="text-muted-foreground">Telefone</dt><dd className="font-medium">{formatarTelefone(telefone)}</dd></div>
+            <div>
+              <dt className="text-muted-foreground">Nome</dt>
+              <dd className="font-medium">{nome}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">CPF</dt>
+              <dd className="font-medium">{formatarCPF(cpf)}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">Telefone</dt>
+              <dd className="font-medium">{formatarTelefone(telefone)}</dd>
+            </div>
           </dl>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button type="button" onClick={() => void confirmar()} disabled={salvar.isPending}>
