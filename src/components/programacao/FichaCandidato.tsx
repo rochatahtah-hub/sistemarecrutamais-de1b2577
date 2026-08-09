@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { ClipboardPaste, FileUp, Loader2, Search, ShieldAlert, ShieldCheck, UserCheck } from "lucide-react";
+import {
+  ClipboardPaste,
+  FileUp,
+  Loader2,
+  Search,
+  ShieldAlert,
+  ShieldCheck,
+  UserCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -93,7 +101,9 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       setBloqueio(null);
       setLiberado(false);
       onBloqueio?.(null);
-      setAviso("Não foi possível consultar o CPF agora. A ficha foi mantida para tentar novamente.");
+      setAviso(
+        "Não foi possível consultar o CPF agora. A ficha foi mantida para tentar novamente.",
+      );
       toast.error("Não foi possível consultar o CPF. Tente novamente.");
       return null;
     }
@@ -145,7 +155,9 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     } catch (error) {
       console.error("[ficha] falha isolada no processamento", error);
       if (processamentoAtual.current === idProcessamento) {
-        setPendencias(["Não foi possível processar esta ficha. Confira o conteúdo e tente novamente."]);
+        setPendencias([
+          "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
+        ]);
         toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
       }
     } finally {
@@ -244,8 +256,12 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
               }, 60);
             } catch (error) {
               console.error("[ficha] falha ao receber conteúdo colado", error);
-              setPendencias(["Não foi possível processar esta ficha. Confira o conteúdo e tente novamente."]);
-              toast.error("Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.");
+              setPendencias([
+                "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
+              ]);
+              toast.error(
+                "Não foi possível processar esta ficha. Confira o conteúdo e tente novamente.",
+              );
             }
           }}
         />
