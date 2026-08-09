@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_pin: {
+        Row: {
+          bloqueado_ate: string | null
+          falhas: number
+          id: boolean
+          pin_hash: string
+          updated_at: string
+        }
+        Insert: {
+          bloqueado_ate?: string | null
+          falhas?: number
+          id?: boolean
+          pin_hash: string
+          updated_at?: string
+        }
+        Update: {
+          bloqueado_ate?: string | null
+          falhas?: number
+          id?: boolean
+          pin_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       candidatos: {
         Row: {
           cpf: string
@@ -63,6 +87,39 @@ export type Database = {
           ativo?: boolean
           created_at?: string
           id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      colaboradores_bloqueados: {
+        Row: {
+          bloqueado_por: string | null
+          bloqueado_por_nome: string
+          cpf: string
+          created_at: string
+          id: string
+          motivo: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          bloqueado_por?: string | null
+          bloqueado_por_nome?: string
+          cpf: string
+          created_at?: string
+          id?: string
+          motivo?: string
+          nome?: string
+          updated_at?: string
+        }
+        Update: {
+          bloqueado_por?: string | null
+          bloqueado_por_nome?: string
+          cpf?: string
+          created_at?: string
+          id?: string
+          motivo?: string
           nome?: string
           updated_at?: string
         }

@@ -45,3 +45,62 @@ export async function acharUsuarioPorEmail(
   }
   return null;
 }
+
+/**
+ * Garante a conta administrativa principal e devolve os tokens de sessão.
+ * Só deve ser chamada após a validação do PIN administrativo.
+ */
+export async function criarSessaoAdminPrincipal() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const senha = process.env["ADMIN_MASTER_PASSWORD"]!;
+  const existente = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
+
+  let userId: string;
+  if (existente) {
+    userId = existente.id;
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      password: senha,
+      email_confirm: true,
+    });
+    if (error) throw new Error(error.message);
+  } else {
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email: EMAIL_ADMIN_PRINCIPAL,
+      password: senha,
+      email_confirm: true,
+      user_metadata: { nome: "Administrador Principal" },
+    });
+    if (error || !data.user) throw new Error(error?.message ?? "Falha ao criar administrador.");
+    userId = data.user.id;
+  }
+
+  const { data: perfil } = await supabaseAdmin
+    .from("profiles")
+    .select("id,nome")
+    .eq("id", userId)
+    .maybeSingle();
+  await supabaseAdmin.from("profiles").upsert(
+    {
+      id: userId,
+      nome: perfil?.nome ?? "Administrador Principal",
+      email: EMAIL_ADMIN_PRINCIPAL,
+      ativo: true,
+    },
+    { onConflict: "id" },
+  );
+  await supabaseAdmin
+    .from("user_roles")
+    .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
+
+  const { data: sessao, error: erroLogin } = await clientePublico().auth.signInWithPassword({
+    email: EMAIL_ADMIN_PRINCIPAL,
+    password: senha,
+  });
+  if (erroLogin || !sessao.session) {
+    throw new Error(erroLogin?.message ?? "Não foi possível iniciar a sessão do administrador.");
+  }
+  return {
+    access_token: sessao.session.access_token,
+    refresh_token: sessao.session.refresh_token,
+  };
+}

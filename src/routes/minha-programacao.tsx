@@ -36,6 +36,7 @@ import {
   useMinhasProgramacoes,
   type Candidato,
 } from "@/lib/programacao";
+import type { Bloqueio } from "@/lib/bloqueios";
 
 export const Route = createFileRoute("/minha-programacao")({
   head: () => ({
@@ -64,6 +65,7 @@ function Pagina() {
   const excluir = useExcluirProgramacao();
 
   const [candidato, setCandidato] = useState<Candidato | null>(null);
+  const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
   const [data, setData] = useState(hojeISO());
   const [empresaId, setEmpresaId] = useState("");
   const [status, setStatus] = useState<"PRESENCA" | "FALTA" | "CANCELAMENTO">("PRESENCA");
@@ -82,6 +84,10 @@ function Pagina() {
   const pctMeta = meta > 0 ? (presencas / meta) * 100 : 0;
 
   async function salvar() {
+    if (bloqueio) {
+      toast.error("🚫 COLABORADOR BLOQUEADO — não é possível fechar a vaga.");
+      return;
+    }
     if (!candidato) {
       toast.error("Selecione ou cadastre o candidato pela ficha.");
       return;
@@ -161,7 +167,11 @@ function Pagina() {
 
       <div className="surface-panel space-y-5 rounded-xl p-4">
         <h2 className="font-display text-lg font-semibold">Novo registro</h2>
-        <FichaCandidato candidato={candidato} onCandidato={setCandidato} />
+        <FichaCandidato
+          candidato={candidato}
+          onCandidato={setCandidato}
+          onBloqueio={setBloqueio}
+        />
 
         <div className="grid gap-3 md:grid-cols-4">
           <div className="space-y-1.5">
@@ -204,9 +214,13 @@ function Pagina() {
             </Select>
           </div>
           <div className="flex items-end">
-            <Button className="w-full" onClick={() => void salvar()} disabled={criar.isPending}>
+            <Button
+              className="w-full"
+              onClick={() => void salvar()}
+              disabled={criar.isPending || Boolean(bloqueio)}
+            >
               <Save className="mr-2 h-4 w-4" />
-              {criar.isPending ? "Salvando..." : "Salvar"}
+              {bloqueio ? "Bloqueado" : criar.isPending ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         </div>

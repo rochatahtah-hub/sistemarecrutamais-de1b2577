@@ -10,7 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { entrarAdminPrincipal } from "@/lib/admin.functions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { entrarComPin, pinDefinido } from "@/lib/pin.functions";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -33,26 +41,44 @@ export const Route = createFileRoute("/auth")({
 function Pagina() {
   const navigate = useNavigate();
   const { session, carregando } = useAuth();
-  const acessoAdmin = useServerFn(entrarAdminPrincipal);
+  const acessoAdmin = useServerFn(entrarComPin);
+  const consultarPin = useServerFn(pinDefinido);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [nome, setNome] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [abrirPin, setAbrirPin] = useState(false);
+  const [pin, setPin] = useState("");
+  const [jaTemPin, setJaTemPin] = useState(true);
 
   useEffect(() => {
     if (!carregando && session) void navigate({ to: "/", replace: true });
   }, [session, carregando, navigate]);
 
+  async function abrirAcessoAdmin() {
+    setPin("");
+    setAbrirPin(true);
+    try {
+      const r = await consultarPin({});
+      setJaTemPin(r.definido);
+    } catch {
+      setJaTemPin(true);
+    }
+  }
+
   async function entrarComoAdmin() {
     setEnviando(true);
     try {
-      const tokens = await acessoAdmin({});
+      const tokens = await acessoAdmin({ data: { pin } });
       const { error } = await supabase.auth.setSession({
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
       });
       if (error) throw error;
-      toast.success("Acesso administrativo liberado.");
+      toast.success(
+        tokens.primeiroAcesso ? "PIN cadastrado e acesso liberado." : "Acesso administrativo liberado.",
+      );
+      setAbrirPin(false);
       void navigate({ to: "/", replace: true });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível acessar como administrador.");
@@ -128,13 +154,13 @@ function Pagina() {
             variant="secondary"
             className="mb-4 w-full gap-2"
             disabled={enviando}
-            onClick={() => void entrarComoAdmin()}
+            onClick={() => void abrirAcessoAdmin()}
           >
             <ShieldCheck className="h-4 w-4" />
-            Entrar como Administrador Principal
+            🔐 ADMINISTRADOR
           </Button>
           <p className="mb-4 text-center text-xs text-muted-foreground">
-            rochatahtah@gmail.com — acesso direto, sem senha.
+            Acesso administrativo protegido por PIN.
           </p>
           <Tabs defaultValue="entrar">
             <TabsList className="grid w-full grid-cols-2">
@@ -212,6 +238,44 @@ function Pagina() {
           </Tabs>
         </div>
       </div>
+
+      <Dialog open={abrirPin} onOpenChange={setAbrirPin}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>🔐 Acesso do administrador</DialogTitle>
+            <DialogDescription>
+              {jaTemPin
+                ? "Informe o PIN administrativo (4 a 8 dígitos)."
+                : "Nenhum PIN cadastrado. Defina agora o PIN administrativo (4 a 8 dígitos) — ele será exigido nos próximos acessos."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="pin">PIN</Label>
+            <Input
+              id="pin"
+              type="password"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={8}
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void entrarComoAdmin();
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              className="w-full"
+              disabled={enviando || pin.length < 4}
+              onClick={() => void entrarComoAdmin()}
+            >
+              {enviando ? "Verificando..." : jaTemPin ? "Entrar" : "Definir PIN e entrar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
