@@ -105,24 +105,24 @@ function Pagina() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <CardIndicador titulo="Vagas programadas" valor={fmtNum(total)} icone={CalendarDays} />
+        <CardIndicador titulo="Vagas programadas" valor={fmtNum(total)} icon={CalendarDays} />
         <CardIndicador
           titulo="Presenças"
           valor={fmtNum(presencas)}
-          descricao={fmtPct(pct(presencas))}
-          icone={CheckCircle2}
+          detalhe={fmtPct(pct(presencas))}
+          icon={CheckCircle2}
         />
         <CardIndicador
           titulo="Faltas"
           valor={fmtNum(faltas)}
-          descricao={fmtPct(pct(faltas))}
-          icone={XCircle}
+          detalhe={fmtPct(pct(faltas))}
+          icon={XCircle}
         />
         <CardIndicador
           titulo="Cancelamentos"
           valor={fmtNum(cancelamentos)}
-          descricao={fmtPct(pct(cancelamentos))}
-          icone={Trash2}
+          detalhe={fmtPct(pct(cancelamentos))}
+          icon={Trash2}
         />
       </div>
 
