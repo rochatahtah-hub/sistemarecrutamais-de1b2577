@@ -34,6 +34,7 @@ import {
   processarLinhas,
   type Mapeamento,
   type LinhaProcessada,
+  lerAbaMatriz,
 } from "@/lib/importacao";
 import { fmtData, fmtNum } from "@/lib/metricas";
 import { MAPEAMENTO_PADRAO, STATUS_LABEL, normalizarTexto } from "@/lib/tipos";
