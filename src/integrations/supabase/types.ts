@@ -38,6 +38,54 @@ export type Database = {
         }
         Relationships: []
       }
+      alertas_operacao: {
+        Row: {
+          chave: string
+          created_at: string
+          detalhe: string
+          id: string
+          itens: Json
+          nivel: string
+          observacao: string
+          resolvido_em: string | null
+          resolvido_por: string | null
+          resolvido_por_nome: string
+          status: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          chave: string
+          created_at?: string
+          detalhe?: string
+          id?: string
+          itens?: Json
+          nivel?: string
+          observacao?: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          resolvido_por_nome?: string
+          status?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          chave?: string
+          created_at?: string
+          detalhe?: string
+          id?: string
+          itens?: Json
+          nivel?: string
+          observacao?: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          resolvido_por_nome?: string
+          status?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       candidatos: {
         Row: {
           cpf: string
