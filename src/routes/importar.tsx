@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+
+import { RequerAdmin } from "@/components/RequerAdmin";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2, FileSpreadsheet, Upload, X } from "lucide-react";
 import { toast } from "sonner";
@@ -65,7 +67,7 @@ export const Route = createFileRoute("/importar")({
       },
     ],
   }),
-  component: Pagina,
+  component: PaginaProtegida,
 });
 
 interface AbaLida {
@@ -571,5 +573,12 @@ function Pagina() {
         </div>
       </div>
     </div>
+  );
+}
+function PaginaProtegida() {
+  return (
+    <RequerAdmin area="Importar Excel">
+      <Pagina />
+    </RequerAdmin>
   );
 }

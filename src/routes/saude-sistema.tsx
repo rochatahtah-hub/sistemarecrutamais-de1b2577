@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+
+import { RequerAdmin } from "@/components/RequerAdmin";
 import { useQuery } from "@tanstack/react-query";
 import { Activity, AlertTriangle, Database, FileSpreadsheet, FileText, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/saude-sistema")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Pagina,
+  component: PaginaProtegida,
 });
 
 function Pagina() {
@@ -124,4 +126,11 @@ function Pagina() {
 
 function Indicador({ icone: Icone, rotulo, valor }: { icone: typeof Activity; rotulo: string; valor: number }) {
   return <div className="surface-panel flex items-center gap-3 p-4"><Icone className="h-5 w-5 text-primary" /><div><p className="text-xs text-muted-foreground">{rotulo}</p><p className="font-display text-xl font-bold">{valor}</p></div></div>;
+}
+function PaginaProtegida() {
+  return (
+    <RequerAdmin area="Saúde do Sistema">
+      <Pagina />
+    </RequerAdmin>
+  );
 }

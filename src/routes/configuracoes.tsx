@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+
+import { RequerAdmin } from "@/components/RequerAdmin";
 import { Save, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,7 +33,7 @@ export const Route = createFileRoute("/configuracoes")({
       },
     ],
   }),
-  component: Pagina,
+  component: PaginaProtegida,
 });
 
 const GRUPOS: { chave: keyof MapeamentoStatus; titulo: string; ajuda: string }[] = [
@@ -158,5 +160,12 @@ function Pagina() {
         </Button>
       </div>
     </div>
+  );
+}
+function PaginaProtegida() {
+  return (
+    <RequerAdmin area="Configurações">
+      <Pagina />
+    </RequerAdmin>
   );
 }
