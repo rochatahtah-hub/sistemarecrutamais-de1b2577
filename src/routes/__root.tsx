@@ -203,7 +203,7 @@ function Protegido() {
           <TopBar />
           <main className="min-w-0 flex-1 p-3 md:p-6">
             {/* Required: nested routes render here. */}
-            <SystemErrorBoundary componente="Conteúdo da página">
+            <SystemErrorBoundary key={pathname} componente="Conteúdo da página">
               <Outlet />
             </SystemErrorBoundary>
           </main>
