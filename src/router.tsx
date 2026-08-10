@@ -14,7 +14,9 @@ function statusDoErro(error: unknown): number | undefined {
 /** Item 17: nenhum erro de dados pode derrubar a aplicação. */
 function tratarErro(error: unknown, operacao: string) {
   if (typeof window === "undefined") return;
-  toast.error(mensagemErro(error));
+  const mensagem = mensagemErro(error);
+  // id fixo por mensagem: evita empilhar dezenas de avisos iguais
+  toast.error(mensagem, { id: `erro-${mensagem}` });
   void registrarErroSistema(error, { componente: "Dados", operacao });
 }
 
