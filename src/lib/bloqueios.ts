@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { soDigitos } from "./programacao";
+import { sincronizarSistema } from "./sincronizar";
 
 export interface Bloqueio {
   id: string;
@@ -81,8 +82,7 @@ export function useBloquearColaborador() {
       if (error) throw error;
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["bloqueados"] });
-      void qc.invalidateQueries({ queryKey: ["bloqueio"] });
+      sincronizarSistema(qc);
     },
   });
 }
@@ -95,8 +95,7 @@ export function useDesbloquearColaborador() {
       if (error) throw error;
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["bloqueados"] });
-      void qc.invalidateQueries({ queryKey: ["bloqueio"] });
+      sincronizarSistema(qc);
     },
   });
 }
