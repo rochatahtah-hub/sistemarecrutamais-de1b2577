@@ -106,7 +106,7 @@ function Pagina() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Confirmações</h1>
           <p className="text-sm text-muted-foreground">

@@ -85,7 +85,7 @@ function Painel({
 }) {
   return (
     <section className="surface-panel rounded-xl p-4">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
         <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           {titulo}
         </h2>

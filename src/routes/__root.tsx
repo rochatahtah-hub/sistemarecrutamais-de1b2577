@@ -20,6 +20,7 @@ import { TopBar } from "@/components/TopBar";
 import { FiltrosProvider } from "@/lib/filtros";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { SystemErrorBoundary } from "@/components/SystemErrorBoundary";
+import { VoltarAoTopo } from "@/components/VoltarAoTopo";
 import { registrarErroSistema } from "@/lib/system-health";
 
 function NotFoundComponent() {
@@ -206,6 +207,7 @@ function Protegido() {
               <Outlet />
             </SystemErrorBoundary>
           </main>
+          <VoltarAoTopo />
         </div>
       </div>
     </SidebarProvider>

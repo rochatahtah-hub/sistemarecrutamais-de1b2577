@@ -134,12 +134,12 @@ function Pagina() {
       </div>
 
       <div className="surface-panel space-y-3 rounded-xl p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <h2 className="font-display text-lg font-semibold">Lista de bloqueados</h2>
           <div className="relative">
             <Search className="pointer-events-none absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              className="w-64 pl-8"
+              className="w-full pl-8 sm:w-64"
               placeholder="Pesquisar por CPF ou nome"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}

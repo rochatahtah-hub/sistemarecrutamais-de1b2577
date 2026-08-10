@@ -61,11 +61,11 @@ function Pagina() {
       </div>
 
       <div className="surface-panel rounded-xl p-4">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <h2 className="font-display text-lg font-semibold">Candidatos cadastrados</h2>
           <Input
             placeholder="Buscar por nome ou CPF"
-            className="max-w-xs"
+            className="w-full sm:max-w-xs"
             value={busca}
             maxLength={80}
             onChange={(e) => setBusca(e.target.value.slice(0, 80))}

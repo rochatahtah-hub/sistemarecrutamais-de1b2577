@@ -308,7 +308,7 @@ function Pagina() {
 
       {arquivo && (
         <>
-          <div className="surface-panel flex flex-wrap items-center justify-between gap-3 rounded-xl p-4">
+          <div className="surface-panel grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between rounded-xl p-4">
             <div className="flex items-center gap-3">
               <FileSpreadsheet className="h-5 w-5 text-primary" />
               <div>
