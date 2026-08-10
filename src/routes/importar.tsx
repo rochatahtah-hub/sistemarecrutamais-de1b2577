@@ -229,6 +229,8 @@ function Pagina() {
           colaborador_id: idColab.get(l.colaborador) ?? null,
           empresa_id: idEmp.get(l.empresa) ?? null,
           descricao: l.descricao,
+          cargo: l.descricao,
+          situacao: situacaoPorStatus(l.status!),
           quantidade: l.quantidade,
           status: l.status!,
           observacao: l.observacao,
