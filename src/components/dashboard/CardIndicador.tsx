@@ -7,12 +7,14 @@ export function CardIndicador({
   detalhe,
   icon: Icon,
   tom = "neutro",
+  onClick,
 }: {
   titulo: string;
   valor: string;
   detalhe?: string;
   icon: LucideIcon;
   tom?: "ouro" | "positivo" | "negativo" | "neutro";
+  onClick?: () => void;
 }) {
   const cores = {
     ouro: "text-primary",
@@ -21,8 +23,8 @@ export function CardIndicador({
     neutro: "text-foreground",
   } as const;
 
-  return (
-    <div className="surface-panel rounded-xl p-4">
+  const conteudo = (
+    <>
       <div className="flex items-start justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {titulo}
@@ -31,6 +33,20 @@ export function CardIndicador({
       </div>
       <p className={cn("mt-2 font-display text-3xl font-bold leading-none", cores[tom])}>{valor}</p>
       {detalhe && <p className="mt-1.5 text-xs text-muted-foreground">{detalhe}</p>}
-    </div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="surface-panel rounded-xl p-4 text-left transition-colors hover:border-primary/40 hover:bg-secondary/40"
+      >
+        {conteudo}
+      </button>
+    );
+  }
+
+  return <div className="surface-panel rounded-xl p-4">{conteudo}</div>;
 }

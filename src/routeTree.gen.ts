@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
@@ -20,7 +21,9 @@ import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
+import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
+import { Route as RadarRouteImport } from './routes/radar'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as SaudeSistemaRouteImport } from './routes/saude-sistema'
 import { Route as VagasRouteImport } from './routes/vagas'
@@ -32,6 +35,11 @@ import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnaliseRoute = AnaliseRouteImport.update({
+  id: '/analise',
+  path: '/analise',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -84,9 +92,19 @@ const MinhaProgramacaoRoute = MinhaProgramacaoRouteImport.update({
   path: '/minha-programacao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PerformanceRoute = PerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgramadorasRoute = ProgramadorasRouteImport.update({
   id: '/programadoras',
   path: '/programadoras',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RadarRoute = RadarRouteImport.update({
+  id: '/radar',
+  path: '/radar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -127,6 +145,7 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analise': typeof AnaliseRoute
   '/auth': typeof AuthRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
@@ -137,7 +156,9 @@ export interface FileRoutesByFullPath {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
+  '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
@@ -148,6 +169,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analise': typeof AnaliseRoute
   '/auth': typeof AuthRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
@@ -158,7 +180,9 @@ export interface FileRoutesByTo {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
+  '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
@@ -170,6 +194,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/analise': typeof AnaliseRoute
   '/auth': typeof AuthRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
@@ -180,7 +205,9 @@ export interface FileRoutesById {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
+  '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
@@ -193,6 +220,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/analise'
     | '/auth'
     | '/bloqueios'
     | '/candidatos'
@@ -203,7 +231,9 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/performance'
     | '/programadoras'
+    | '/radar'
     | '/relatorios'
     | '/saude-sistema'
     | '/vagas'
@@ -214,6 +244,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/analise'
     | '/auth'
     | '/bloqueios'
     | '/candidatos'
@@ -224,7 +255,9 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/performance'
     | '/programadoras'
+    | '/radar'
     | '/relatorios'
     | '/saude-sistema'
     | '/vagas'
@@ -235,6 +268,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/analise'
     | '/auth'
     | '/bloqueios'
     | '/candidatos'
@@ -245,7 +279,9 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/performance'
     | '/programadoras'
+    | '/radar'
     | '/relatorios'
     | '/saude-sistema'
     | '/vagas'
@@ -257,6 +293,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnaliseRoute: typeof AnaliseRoute
   AuthRoute: typeof AuthRoute
   BloqueiosRoute: typeof BloqueiosRoute
   CandidatosRoute: typeof CandidatosRoute
@@ -267,7 +304,9 @@ export interface RootRouteChildren {
   ImportarRoute: typeof ImportarRoute
   MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
+  PerformanceRoute: typeof PerformanceRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
+  RadarRoute: typeof RadarRoute
   RelatoriosRoute: typeof RelatoriosRoute
   SaudeSistemaRoute: typeof SaudeSistemaRoute
   VagasRoute: typeof VagasRoute
@@ -284,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analise': {
+      id: '/analise'
+      path: '/analise'
+      fullPath: '/analise'
+      preLoaderRoute: typeof AnaliseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -356,11 +402,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MinhaProgramacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/performance': {
+      id: '/performance'
+      path: '/performance'
+      fullPath: '/performance'
+      preLoaderRoute: typeof PerformanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/programadoras': {
       id: '/programadoras'
       path: '/programadoras'
       fullPath: '/programadoras'
       preLoaderRoute: typeof ProgramadorasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/radar': {
+      id: '/radar'
+      path: '/radar'
+      fullPath: '/radar'
+      preLoaderRoute: typeof RadarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -417,6 +477,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnaliseRoute: AnaliseRoute,
   AuthRoute: AuthRoute,
   BloqueiosRoute: BloqueiosRoute,
   CandidatosRoute: CandidatosRoute,
@@ -427,7 +488,9 @@ const rootRouteChildren: RootRouteChildren = {
   ImportarRoute: ImportarRoute,
   MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
+  PerformanceRoute: PerformanceRoute,
   ProgramadorasRoute: ProgramadorasRoute,
+  RadarRoute: RadarRoute,
   RelatoriosRoute: RelatoriosRoute,
   SaudeSistemaRoute: SaudeSistemaRoute,
   VagasRoute: VagasRoute,

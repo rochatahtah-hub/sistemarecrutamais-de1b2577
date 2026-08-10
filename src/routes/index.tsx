@@ -1,16 +1,19 @@
 import { useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   AlertTriangle,
   Briefcase,
   Building2,
   CalendarX2,
   CheckCircle2,
+  Clock,
+  IdCard,
   Users,
   XCircle,
 } from "lucide-react";
 
 import { FiltrosBar } from "@/components/FiltrosBar";
+import { AtalhosPeriodo } from "@/components/AtalhosPeriodo";
 import { CardIndicador } from "@/components/dashboard/CardIndicador";
 import { TabelaDesempenho } from "@/components/dashboard/TabelaDesempenho";
 import {
@@ -36,6 +39,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useConfiguracoes, useVagas } from "@/lib/dados";
+import { useAuth } from "@/lib/auth";
+import { useCandidatos } from "@/lib/programacao";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import {
   agregar,
@@ -53,13 +58,13 @@ import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dashboard de Vagas | Gestão de Recrutamento" },
+      { title: "Dashboard | RECRUTA+" },
       {
         name: "description",
         content:
           "Indicadores de vagas fechadas, presenças, faltas e cancelamentos com rankings e gráficos.",
       },
-      { property: "og:title", content: "Dashboard de Vagas | Gestão de Recrutamento" },
+      { property: "og:title", content: "Dashboard | RECRUTA+" },
       {
         property: "og:description",
         content: "Acompanhe presenças, faltas e cancelamentos por colaborador, empresa e período.",
@@ -120,7 +125,10 @@ function ListaTop({ linhas, campo, sufixo }: { linhas: LinhaAgregada[]; campo: k
 function Dashboard() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
-  const { filtros } = useFiltros();
+  const { data: candidatos = [] } = useCandidatos("");
+  const { perfil } = useAuth();
+  const navigate = useNavigate();
+  const { filtros, setFiltros } = useFiltros();
   const [granularidade, setGranularidade] = useState<Granularidade>("dia");
   const [metricaEmpresa, setMetricaEmpresa] = useState<keyof LinhaAgregada>("presencas");
 
@@ -140,6 +148,11 @@ function Dashboard() {
     pctFalta: "% Faltas",
   };
 
+  const irPara = (status: string) => {
+    setFiltros({ status });
+    void navigate({ to: "/vagas" });
+  };
+
   if (!isLoading && registros.length === 0) {
     return <SemPlanilha pagina="O Dashboard" />;
   }
@@ -147,23 +160,42 @@ function Dashboard() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="font-display text-2xl font-bold">Dashboard</h1>
+        <h1 className="font-display text-2xl font-bold">
+          Olá, {perfil?.nome ?? "bem-vinda"}
+        </h1>
+        <p className="text-sm font-medium text-primary">Visão geral da operação</p>
         <p className="text-sm text-muted-foreground">
           {fmtNum(filtrados.length)} registros no filtro atual de {fmtNum(registros.length)} no total.
         </p>
       </div>
 
+      <AtalhosPeriodo />
       <FiltrosBar registros={registros} />
       <PlanilhaAtivaBanner />
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        <CardIndicador titulo="Vagas fechadas" valor={fmtNum(total.vagas)} icon={Briefcase} tom="ouro" />
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
+        <CardIndicador
+          titulo="Vagas programadas"
+          valor={fmtNum(total.vagas)}
+          detalhe={`${fmtNum(total.pendentes)} aguardando confirmação`}
+          icon={Clock}
+          onClick={() => irPara("todos")}
+        />
+        <CardIndicador
+          titulo="Vagas fechadas"
+          valor={fmtNum(total.confirmadas)}
+          detalhe="Confirmadas no período"
+          icon={Briefcase}
+          tom="ouro"
+          onClick={() => irPara("todos")}
+        />
         <CardIndicador
           titulo="Presenças"
           valor={fmtNum(total.presencas)}
           detalhe={`${fmtPct(total.pctPresenca)} do total`}
           icon={CheckCircle2}
           tom="positivo"
+          onClick={() => irPara("PRESENCA")}
         />
         <CardIndicador
           titulo="Faltas"
@@ -171,12 +203,43 @@ function Dashboard() {
           detalhe={`${fmtPct(total.pctFalta)} do total`}
           icon={XCircle}
           tom="negativo"
+          onClick={() => irPara("FALTA")}
         />
         <CardIndicador
           titulo="Cancelamentos"
           valor={fmtNum(total.cancelamentos)}
           detalhe={`${fmtPct(total.pctCancelamento)} do total`}
           icon={CalendarX2}
+          onClick={() => irPara("CANCELAMENTO")}
+        />
+        <CardIndicador
+          titulo="Taxa de presença"
+          valor={fmtPct(total.pctPresenca)}
+          detalhe={`Meta ${metas.presenca}%`}
+          icon={CheckCircle2}
+          tom="positivo"
+          onClick={() => irPara("PRESENCA")}
+        />
+        <CardIndicador
+          titulo="Taxa de falta"
+          valor={fmtPct(total.pctFalta)}
+          detalhe={`Meta máx. ${metas.falta}%`}
+          icon={XCircle}
+          tom="negativo"
+          onClick={() => irPara("FALTA")}
+        />
+        <CardIndicador
+          titulo="Taxa de cancelamento"
+          valor={fmtPct(total.pctCancelamento)}
+          detalhe={`Meta máx. ${metas.cancelamento}%`}
+          icon={CalendarX2}
+          onClick={() => irPara("CANCELAMENTO")}
+        />
+        <CardIndicador
+          titulo="Total de candidatos"
+          valor={fmtNum(candidatos.length)}
+          icon={IdCard}
+          onClick={() => void navigate({ to: "/candidatos" })}
         />
         <CardIndicador titulo="Colaboradores" valor={fmtNum(porColaborador.length)} icon={Users} />
         <CardIndicador titulo="Empresas" valor={fmtNum(porEmpresa.length)} icon={Building2} />
