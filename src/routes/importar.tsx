@@ -492,19 +492,23 @@ function Pagina() {
                     <TableRow>
                       <TableHead>Linha</TableHead>
                       <TableHead>Aba</TableHead>
-                      <TableHead>Problemas</TableHead>
+                      <TableHead>Coluna</TableHead>
+                      <TableHead>Problema encontrado</TableHead>
+                      <TableHead>Como corrigir</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {comProblema.slice(0, 200).map((l) => (
-                      <TableRow key={`${l.aba}-${l.linha}`}>
-                        <TableCell>{l.linha}</TableCell>
-                        <TableCell className="text-muted-foreground">{l.aba}</TableCell>
-                        <TableCell className="text-destructive">
-                          {l.problemas.join(" · ")}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {comProblema.slice(0, 200).flatMap((l) =>
+                      l.erros.map((e, i) => (
+                        <TableRow key={`${l.aba}-${l.linha}-${i}`}>
+                          <TableCell>{l.linha}</TableCell>
+                          <TableCell className="text-muted-foreground">{l.aba}</TableCell>
+                          <TableCell className="font-medium">{e.coluna}</TableCell>
+                          <TableCell className="text-destructive">{e.problema}</TableCell>
+                          <TableCell className="text-muted-foreground">{e.correcao}</TableCell>
+                        </TableRow>
+                      )),
+                    )}
                   </TableBody>
                 </Table>
               )}
