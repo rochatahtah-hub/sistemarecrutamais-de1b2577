@@ -87,16 +87,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gestão de Vagas — Dashboard de Recrutamento" },
+      { title: "RECRUTA+ — Gestão inteligente de recrutamento" },
       {
         name: "description",
         content:
-          "Central de gestão de vagas: importe sua planilha e acompanhe presenças, faltas e cancelamentos.",
+          "RECRUTA+: plataforma de gestão inteligente de recrutamento com dashboard, performance da equipe e radar da operação.",
       },
-      { property: "og:title", content: "Gestão de Vagas — Dashboard de Recrutamento" },
+      { property: "og:title", content: "RECRUTA+ — Gestão inteligente de recrutamento" },
       {
         property: "og:description",
-        content: "Indicadores, rankings e comparação de períodos para recrutamento e seleção.",
+        content: "Indicadores, rankings, análise inteligente e radar da operação de recrutamento.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -1,6 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  BarChart3,
   Building2,
   ClipboardCheck,
   FileSpreadsheet,
@@ -17,6 +16,9 @@ import {
   UserCog,
   ShieldOff,
   Activity,
+  Bot,
+  Radar,
+  Trophy,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -35,22 +37,28 @@ import {
 
 const operacao = [
   { title: "Minha Programação", url: "/minha-programacao", icon: CalendarCheck },
+  { title: "Programações da equipe", url: "/programadoras", icon: UserCog },
   { title: "Cadastrar Candidato", url: "/candidatos", icon: IdCard },
-] as const;
-
-const analise = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
-  { title: "Programadoras", url: "/programadoras", icon: UserCog },
-  { title: "Colaboradores", url: "/colaboradores", icon: Users },
-  { title: "Empresas", url: "/empresas", icon: Building2 },
   { title: "Vagas", url: "/vagas", icon: Table2 },
 ] as const;
 
+const gestao = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
+  { title: "Equipe", url: "/colaboradores", icon: Users },
+  { title: "Empresas", url: "/empresas", icon: Building2 },
+  { title: "Performance", url: "/performance", icon: Trophy },
+] as const;
+
+const inteligencia = [
+  { title: "Análise Inteligente", url: "/analise", icon: Bot },
+  { title: "Radar da Operação", url: "/radar", icon: Radar },
+  { title: "Comparar Períodos", url: "/comparar", icon: GitCompareArrows },
+] as const;
+
 const ferramentas = [
-  { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
-  { title: "Comparar períodos", url: "/comparar", icon: GitCompareArrows },
   { title: "Relatórios", url: "/relatorios", icon: FileText },
+  { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
   { title: "Histórico", url: "/historico", icon: Archive },
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
@@ -87,15 +95,17 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-1 py-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary">
-            <BarChart3 className="h-4 w-4 text-primary-foreground" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary font-display text-base font-bold leading-none text-primary-foreground">
+            R<span className="text-[11px]">+</span>
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate font-display text-sm font-semibold text-gradient-gold">
-                Programação & Vagas
+              <p className="truncate font-display text-base font-bold tracking-tight text-gradient-gold">
+                RECRUTA+
               </p>
-              <p className="truncate text-[11px] text-muted-foreground">Recrutamento & Seleção</p>
+              <p className="truncate text-[11px] text-muted-foreground">
+                Gestão inteligente de recrutamento.
+              </p>
             </div>
           )}
         </div>
@@ -106,11 +116,15 @@ export function AppSidebar() {
           <SidebarGroupContent>{renderItens(operacao)}</SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Análise</SidebarGroupLabel>
-          <SidebarGroupContent>{renderItens(analise)}</SidebarGroupContent>
+          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+          <SidebarGroupContent>{renderItens(gestao)}</SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
+          <SidebarGroupLabel>Inteligência</SidebarGroupLabel>
+          <SidebarGroupContent>{renderItens(inteligencia)}</SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Relatórios</SidebarGroupLabel>
           <SidebarGroupContent>{renderItens(itensFerramentas)}</SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

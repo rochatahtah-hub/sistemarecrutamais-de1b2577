@@ -23,6 +23,7 @@ import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
+import { Route as RadarRouteImport } from './routes/radar'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as SaudeSistemaRouteImport } from './routes/saude-sistema'
 import { Route as VagasRouteImport } from './routes/vagas'
@@ -101,6 +102,11 @@ const ProgramadorasRoute = ProgramadorasRouteImport.update({
   path: '/programadoras',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RadarRoute = RadarRouteImport.update({
+  id: '/radar',
+  path: '/radar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
+  '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
+  '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
+  '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/vagas': typeof VagasRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/minha-programacao'
     | '/performance'
     | '/programadoras'
+    | '/radar'
     | '/relatorios'
     | '/saude-sistema'
     | '/vagas'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/minha-programacao'
     | '/performance'
     | '/programadoras'
+    | '/radar'
     | '/relatorios'
     | '/saude-sistema'
     | '/vagas'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/minha-programacao'
     | '/performance'
     | '/programadoras'
+    | '/radar'
     | '/relatorios'
     | '/saude-sistema'
     | '/vagas'
@@ -294,6 +306,7 @@ export interface RootRouteChildren {
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
   PerformanceRoute: typeof PerformanceRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
+  RadarRoute: typeof RadarRoute
   RelatoriosRoute: typeof RelatoriosRoute
   SaudeSistemaRoute: typeof SaudeSistemaRoute
   VagasRoute: typeof VagasRoute
@@ -403,6 +416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgramadorasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/radar': {
+      id: '/radar'
+      path: '/radar'
+      fullPath: '/radar'
+      preLoaderRoute: typeof RadarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/relatorios': {
       id: '/relatorios'
       path: '/relatorios'
@@ -470,6 +490,7 @@ const rootRouteChildren: RootRouteChildren = {
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
   PerformanceRoute: PerformanceRoute,
   ProgramadorasRoute: ProgramadorasRoute,
+  RadarRoute: RadarRoute,
   RelatoriosRoute: RelatoriosRoute,
   SaudeSistemaRoute: SaudeSistemaRoute,
   VagasRoute: VagasRoute,

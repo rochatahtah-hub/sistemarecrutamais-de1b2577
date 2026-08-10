@@ -73,9 +73,19 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/85 px-3 backdrop-blur md:px-6">
       <SidebarTrigger />
-      <span className="font-display text-sm font-semibold tracking-tight">
-        Sistema de Programação e Controle de Vagas
-      </span>
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary font-display text-sm font-bold text-primary-foreground sm:flex">
+          R+
+        </span>
+        <span className="min-w-0 leading-tight">
+          <span className="block truncate font-display text-sm font-bold tracking-tight text-gradient-gold">
+            RECRUTA+
+          </span>
+          <span className="hidden truncate text-[11px] text-muted-foreground sm:block">
+            Gestão inteligente de recrutamento.
+          </span>
+        </span>
+      </div>
       <div className="ml-auto flex items-center gap-2">
         <DropdownMenu
           onOpenChange={(aberto) => {
