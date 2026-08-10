@@ -7,6 +7,32 @@ export const STATUS_LABEL: Record<string, string> = {
   CANCELAMENTO: "Cancelamento",
 };
 
+/** Situação da vaga (ciclo de vida), independente da confirmação do candidato. */
+export type SituacaoVaga = "ABERTA" | "EM_ANDAMENTO" | "CONFIRMADA" | "FECHADA" | "CANCELADA";
+
+export const SITUACAO_LABEL: Record<string, string> = {
+  ABERTA: "Aberta",
+  EM_ANDAMENTO: "Em andamento",
+  CONFIRMADA: "Confirmada",
+  FECHADA: "Fechada",
+  CANCELADA: "Cancelada",
+};
+
+export const SITUACOES: SituacaoVaga[] = [
+  "ABERTA",
+  "EM_ANDAMENTO",
+  "CONFIRMADA",
+  "FECHADA",
+  "CANCELADA",
+];
+
+/** Situação decorrente da confirmação registrada. */
+export function situacaoPorStatus(status: string): SituacaoVaga {
+  if (status === "CANCELAMENTO") return "CANCELADA";
+  if (status === "PRESENCA" || status === "FALTA") return "FECHADA";
+  return "EM_ANDAMENTO";
+}
+
 export interface VagaRegistro {
   id: string;
   data: string;
@@ -18,6 +44,12 @@ export interface VagaRegistro {
   quantidade: number;
   status: string;
   observacao: string;
+  cargo: string;
+  horario: string;
+  local: string;
+  responsavel: string;
+  situacao: string;
+  candidato: string;
 }
 
 export interface Metas {

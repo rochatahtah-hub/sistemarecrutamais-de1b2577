@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   MAPEAMENTO_PADRAO,
   METAS_PADRAO,
+  situacaoPorStatus,
   type MapeamentoStatus,
   type Metas,
   type VagaRegistro,
@@ -17,8 +18,14 @@ type LinhaVaga = {
   observacao: string | null;
   colaborador_id: string | null;
   empresa_id: string | null;
+  cargo: string | null;
+  horario: string | null;
+  local: string | null;
+  responsavel: string | null;
+  situacao: string | null;
   colaboradores: { nome: string } | null;
   empresas: { nome: string } | null;
+  candidatos: { nome: string } | null;
 };
 
 export async function buscarVagas(): Promise<VagaRegistro[]> {
@@ -28,7 +35,7 @@ export async function buscarVagas(): Promise<VagaRegistro[]> {
     const { data, error } = await supabase
       .from("vagas")
       .select(
-        "id,data,quantidade,status,descricao,observacao,colaborador_id,empresa_id,colaboradores(nome),empresas(nome)",
+        "id,data,quantidade,status,descricao,observacao,colaborador_id,empresa_id,cargo,horario,local,responsavel,situacao,colaboradores(nome),empresas(nome),candidatos(nome)",
       )
       .order("data", { ascending: false })
       .range(pagina * tamanho, pagina * tamanho + tamanho - 1);
@@ -46,6 +53,12 @@ export async function buscarVagas(): Promise<VagaRegistro[]> {
         quantidade: l.quantidade ?? 1,
         status: l.status,
         observacao: l.observacao ?? "",
+        cargo: l.cargo || l.descricao || "",
+        horario: l.horario ?? "",
+        local: l.local ?? "",
+        responsavel: l.responsavel ?? "",
+        situacao: l.situacao || "ABERTA",
+        candidato: l.candidatos?.nome ?? "",
       });
     }
     if (linhas.length < tamanho) break;
@@ -55,6 +68,47 @@ export async function buscarVagas(): Promise<VagaRegistro[]> {
 
 export function useVagas() {
   return useQuery({ queryKey: ["vagas"], queryFn: buscarVagas, staleTime: 30_000 });
+}
+
+/** Atualiza a ficha completa de uma vaga. */
+export function useAtualizarVaga() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dados: {
+      id: string;
+      cargo?: string;
+      horario?: string;
+      local?: string;
+      responsavel?: string;
+      situacao?: string;
+      quantidade?: number;
+      observacao?: string;
+    }) => {
+      const { id, ...campos } = dados;
+      const { error } = await supabase.from("vagas").update(campos).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries(),
+  });
+}
+
+/**
+ * Registra a confirmação (presença, falta, cancelamento) de uma vaga.
+ * É a fonte real dos indicadores: atualiza também a situação e recarrega
+ * dashboard, gráficos, relatórios e indicadores.
+ */
+export function useRegistrarConfirmacao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const { error } = await supabase
+        .from("vagas")
+        .update({ status, situacao: situacaoPorStatus(status) })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries(),
+  });
 }
 
 export interface Configuracoes {
