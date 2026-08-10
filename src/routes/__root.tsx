@@ -198,9 +198,13 @@ function Protegido() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
-        <AppSidebar />
+        <SystemErrorBoundary componente="Menu lateral">
+          <AppSidebar />
+        </SystemErrorBoundary>
         <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar />
+          <SystemErrorBoundary componente="Cabeçalho">
+            <TopBar />
+          </SystemErrorBoundary>
           <main className="min-w-0 flex-1 p-3 md:p-6">
             {/* Required: nested routes render here. */}
             <SystemErrorBoundary key={pathname} componente="Conteúdo da página">
