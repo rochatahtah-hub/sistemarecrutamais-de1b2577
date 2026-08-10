@@ -180,7 +180,7 @@ function Pagina() {
       </div>
 
       <div className="surface-panel rounded-xl p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold">Minha meta da quinzena</span>
