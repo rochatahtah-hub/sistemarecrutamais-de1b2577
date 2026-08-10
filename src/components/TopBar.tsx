@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, LogOut } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Bell, LogOut, Settings, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { BuscaGlobal } from "@/components/BuscaGlobal";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useConfiguracoes } from "@/lib/dados";
@@ -87,6 +89,7 @@ export function TopBar() {
         </span>
       </div>
       <div className="ml-auto flex items-center gap-2">
+        <BuscaGlobal />
         <DropdownMenu
           onOpenChange={(aberto) => {
             if (!aberto && naoLidas.length > 0) marcarLidas.mutate(naoLidas.map((n) => n.id));
@@ -102,6 +105,11 @@ export function TopBar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
             <DropdownMenuLabel>Notificações</DropdownMenuLabel>
+            <DropdownMenuLabel className="pt-0 text-xs font-normal text-muted-foreground">
+              {naoLidas.length > 0
+                ? `${naoLidas.length} alerta(s) pendente(s)`
+                : "Nenhum alerta pendente"}
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             {notificacoes.length === 0 && (
               <DropdownMenuItem disabled>Nenhuma notificação.</DropdownMenuItem>
@@ -118,6 +126,7 @@ export function TopBar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-2">
+              <User className="h-4 w-4" />
               <span className="max-w-[10rem] truncate text-sm">{perfil?.nome ?? "Conta"}</span>
               {isAdmin && <Badge variant="secondary">Admin</Badge>}
             </Button>
@@ -126,6 +135,12 @@ export function TopBar() {
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               {perfil?.email ?? user?.email}
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/configuracoes">
+                <Settings className="mr-2 h-4 w-4" /> Configurações
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnaliseRouteImport } from './routes/analise'
+import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
@@ -40,6 +41,11 @@ const IndexRoute = IndexRouteImport.update({
 const AnaliseRoute = AnaliseRouteImport.update({
   id: '/analise',
   path: '/analise',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditoriaRoute = AuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -146,6 +152,7 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
+  '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
@@ -170,6 +177,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
+  '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
+  '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/analise'
+    | '/auditoria'
     | '/auth'
     | '/bloqueios'
     | '/candidatos'
@@ -245,6 +255,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/analise'
+    | '/auditoria'
     | '/auth'
     | '/bloqueios'
     | '/candidatos'
@@ -269,6 +280,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/analise'
+    | '/auditoria'
     | '/auth'
     | '/bloqueios'
     | '/candidatos'
@@ -294,6 +306,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnaliseRoute: typeof AnaliseRoute
+  AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
   BloqueiosRoute: typeof BloqueiosRoute
   CandidatosRoute: typeof CandidatosRoute
@@ -330,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/analise'
       fullPath: '/analise'
       preLoaderRoute: typeof AnaliseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auditoria': {
+      id: '/auditoria'
+      path: '/auditoria'
+      fullPath: '/auditoria'
+      preLoaderRoute: typeof AuditoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -478,6 +498,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnaliseRoute: AnaliseRoute,
+  AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,
   BloqueiosRoute: BloqueiosRoute,
   CandidatosRoute: CandidatosRoute,
