@@ -86,6 +86,48 @@ export type Database = {
         }
         Relationships: []
       }
+      auditoria: {
+        Row: {
+          acao: string
+          campo: string
+          created_at: string
+          descricao: string
+          id: string
+          registro_id: string | null
+          tabela: string
+          usuario_id: string | null
+          usuario_nome: string
+          valor_anterior: string
+          valor_novo: string
+        }
+        Insert: {
+          acao: string
+          campo?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          registro_id?: string | null
+          tabela: string
+          usuario_id?: string | null
+          usuario_nome?: string
+          valor_anterior?: string
+          valor_novo?: string
+        }
+        Update: {
+          acao?: string
+          campo?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          registro_id?: string | null
+          tabela?: string
+          usuario_id?: string | null
+          usuario_nome?: string
+          valor_anterior?: string
+          valor_novo?: string
+        }
+        Relationships: []
+      }
       candidatos: {
         Row: {
           cpf: string
