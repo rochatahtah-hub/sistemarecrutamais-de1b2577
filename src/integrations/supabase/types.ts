@@ -449,52 +449,67 @@ export type Database = {
       vagas: {
         Row: {
           candidato_id: string | null
+          cargo: string
           colaborador_id: string | null
           created_at: string
           data: string
           descricao: string | null
           empresa_id: string | null
           hash_registro: string | null
+          horario: string
           id: string
           importacao_id: string | null
+          local: string
           observacao: string | null
           origem: string
           programadora_id: string | null
           quantidade: number
+          responsavel: string
+          situacao: string
           status: string
           updated_at: string
         }
         Insert: {
           candidato_id?: string | null
+          cargo?: string
           colaborador_id?: string | null
           created_at?: string
           data: string
           descricao?: string | null
           empresa_id?: string | null
           hash_registro?: string | null
+          horario?: string
           id?: string
           importacao_id?: string | null
+          local?: string
           observacao?: string | null
           origem?: string
           programadora_id?: string | null
           quantidade?: number
+          responsavel?: string
+          situacao?: string
           status: string
           updated_at?: string
         }
         Update: {
           candidato_id?: string | null
+          cargo?: string
           colaborador_id?: string | null
           created_at?: string
           data?: string
           descricao?: string | null
           empresa_id?: string | null
           hash_registro?: string | null
+          horario?: string
           id?: string
           importacao_id?: string | null
+          local?: string
           observacao?: string | null
           origem?: string
           programadora_id?: string | null
           quantidade?: number
+          responsavel?: string
+          situacao?: string
           status?: string
           updated_at?: string
         }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FileDown } from "lucide-react";
+import { FileDown, FileText } from "lucide-react";
 
 import { FiltrosBar } from "@/components/FiltrosBar";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,8 @@ import { useVagas } from "@/lib/dados";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { exportarExcel } from "@/lib/exportar";
 import { fmtData, fmtNum } from "@/lib/metricas";
-import { STATUS_LABEL } from "@/lib/tipos";
+import { SITUACAO_LABEL, STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
+import { FichaVaga } from "@/components/vagas/FichaVaga";
 import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/vagas")({
@@ -38,6 +39,7 @@ function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const [pagina, setPagina] = useState(0);
+  const [ficha, setFicha] = useState<VagaRegistro | null>(null);
   const porPagina = 50;
 
   const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
@@ -72,14 +74,16 @@ function Pagina() {
               <TableHead>Empresa</TableHead>
               <TableHead>Vaga</TableHead>
               <TableHead className="text-right">Qtd.</TableHead>
+              <TableHead>Situação</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Observação</TableHead>
+              <TableHead className="text-right">Ficha</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {visiveis.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={9} className="py-8 text-center text-muted-foreground">
                   Nenhum registro para os filtros selecionados.
                 </TableCell>
               </TableRow>
@@ -89,17 +93,30 @@ function Pagina() {
                 <TableCell className="whitespace-nowrap">{fmtData(r.data)}</TableCell>
                 <TableCell>{r.colaborador}</TableCell>
                 <TableCell>{r.empresa}</TableCell>
-                <TableCell>{r.descricao || "—"}</TableCell>
+                <TableCell>{r.cargo || r.descricao || "—"}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
+                <TableCell>{SITUACAO_LABEL[r.situacao] ?? r.situacao}</TableCell>
                 <TableCell>{STATUS_LABEL[r.status] ?? r.status}</TableCell>
                 <TableCell className="max-w-[260px] truncate text-muted-foreground">
                   {r.observacao || "—"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm" onClick={() => setFicha(r)}>
+                    <FileText className="mr-1 h-4 w-4" /> Abrir
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <FichaVaga
+        vaga={ficha}
+        registros={registros}
+        aberto={ficha !== null}
+        onFechar={() => setFicha(null)}
+      />
 
       {totalPaginas > 1 && (
         <div className="flex items-center justify-between">

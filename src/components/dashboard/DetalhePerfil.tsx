@@ -1,6 +1,14 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Briefcase, CalendarX2, CheckCircle2, Trophy, XCircle } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Briefcase,
+  CalendarX2,
+  CheckCircle2,
+  Trophy,
+  XCircle,
+} from "lucide-react";
 
 import { CardIndicador } from "./CardIndicador";
 import { GraficoEvolucao } from "./Graficos";
@@ -31,9 +39,10 @@ import {
   fmtNum,
   fmtPct,
   serieTemporal,
+  variacao,
   type Granularidade,
 } from "@/lib/metricas";
-import { STATUS_LABEL } from "@/lib/tipos";
+import { SITUACAO_LABEL, STATUS_LABEL } from "@/lib/tipos";
 import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa"; nome: string }) {
@@ -58,6 +67,32 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
     [meus, tipo],
   );
   const serie = useMemo(() => serieTemporal(meus, granularidade), [meus, granularidade]);
+
+  /** Comparação com a média geral e detecção de queda de desempenho. */
+  const geral = useMemo(() => agregar(filtrados), [filtrados]);
+  const fechadas = useMemo(
+    () => meus.filter((r) => r.situacao === "FECHADA" || r.status !== "AGUARDANDO").length,
+    [meus],
+  );
+  const queda = useMemo(() => {
+    if (serie.length < 2) return null;
+    const atual = serie[serie.length - 1]!;
+    const anterior = serie[serie.length - 2]!;
+    const delta = variacao(atual.pctPresenca, anterior.pctPresenca);
+    if (delta > -10) return null;
+    return { delta, atual, anterior };
+  }, [serie]);
+
+  const comparativos = [
+    { label: "Taxa de presença", meu: total.pctPresenca, media: geral.pctPresenca, bom: true },
+    { label: "Taxa de falta", meu: total.pctFalta, media: geral.pctFalta, bom: false },
+    {
+      label: "Taxa de cancelamento",
+      meu: total.pctCancelamento,
+      media: geral.pctCancelamento,
+      bom: false,
+    },
+  ];
 
   const ordenados = useMemo(() => [...meus].sort((a, b) => b.data.localeCompare(a.data)), [meus]);
   const paginados = ordenados.slice(pagina * porPagina, pagina * porPagina + porPagina);
@@ -88,6 +123,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <CardIndicador titulo="Total de vagas" valor={fmtNum(total.vagas)} icon={Briefcase} tom="ouro" />
+        <CardIndicador titulo="Vagas fechadas" valor={fmtNum(fechadas)} icon={Briefcase} />
         <CardIndicador
           titulo="Presenças"
           valor={fmtNum(total.presencas)}
@@ -109,6 +145,39 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
           icon={CalendarX2}
         />
       </div>
+
+      <section className="surface-panel rounded-xl p-4">
+        <h2 className="mb-4 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Desempenho {tipo === "empresa" ? "da empresa" : "do colaborador"} vs. média geral
+        </h2>
+        {queda && (
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm">
+            <AlertTriangle className="mt-0.5 h-4 w-4 text-destructive" />
+            <p>
+              <strong className="text-destructive">Queda significativa de desempenho:</strong>{" "}
+              presença caiu {fmtPct(Math.abs(queda.delta))} de {queda.anterior.periodo} (
+              {fmtPct(queda.anterior.pctPresenca)}) para {queda.atual.periodo} (
+              {fmtPct(queda.atual.pctPresenca)}).
+            </p>
+          </div>
+        )}
+        <div className="grid gap-3 sm:grid-cols-3">
+          {comparativos.map((c) => {
+            const dif = c.meu - c.media;
+            const positivo = c.bom ? dif >= 0 : dif <= 0;
+            return (
+              <div key={c.label} className="rounded-lg border border-border p-3">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{c.label}</p>
+                <p className="font-display text-xl font-bold">{fmtPct(c.meu)}</p>
+                <p className={positivo ? "text-xs text-success" : "text-xs text-destructive"}>
+                  {dif >= 0 ? "+" : "−"}
+                  {fmtPct(Math.abs(dif))} vs. média geral ({fmtPct(c.media)})
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       <div className="grid gap-4 xl:grid-cols-2">
         <section className="surface-panel rounded-xl p-4">
@@ -168,6 +237,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
                 <TableHead>{tipo === "colaborador" ? "Empresa" : "Colaborador"}</TableHead>
                 <TableHead>Vaga</TableHead>
                 <TableHead className="text-right">Qtd.</TableHead>
+                <TableHead>Situação</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Observação</TableHead>
               </TableRow>
@@ -177,8 +247,9 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
                 <TableRow key={r.id}>
                   <TableCell className="whitespace-nowrap">{fmtData(r.data)}</TableCell>
                   <TableCell>{tipo === "colaborador" ? r.empresa : r.colaborador}</TableCell>
-                  <TableCell>{r.descricao || "—"}</TableCell>
+                  <TableCell>{r.cargo || r.descricao || "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
+                  <TableCell>{SITUACAO_LABEL[r.situacao] ?? r.situacao}</TableCell>
                   <TableCell>{STATUS_LABEL[r.status] ?? r.status}</TableCell>
                   <TableCell className="max-w-[240px] truncate text-muted-foreground">
                     {r.observacao || "—"}

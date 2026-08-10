@@ -1,10 +1,18 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { FileDown } from "lucide-react";
+import { FileDown, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 import { FiltrosBar } from "@/components/FiltrosBar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -13,11 +21,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useVagas } from "@/lib/dados";
+import { useRegistrarConfirmacao, useVagas } from "@/lib/dados";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { exportarExcel } from "@/lib/exportar";
 import { agregar, fmtData, fmtNum, fmtPct } from "@/lib/metricas";
-import { STATUS_LABEL } from "@/lib/tipos";
+import { STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
+import { FichaVaga } from "@/components/vagas/FichaVaga";
 import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/confirmacoes")({
@@ -57,6 +66,8 @@ function Pagina() {
   const { filtros } = useFiltros();
   const [aba, setAba] = useState<Aba>("TODAS");
   const [pagina, setPagina] = useState(0);
+  const [ficha, setFicha] = useState<VagaRegistro | null>(null);
+  const registrar = useRegistrarConfirmacao();
   const porPagina = 50;
 
   const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
@@ -82,6 +93,15 @@ function Pagina() {
     },
   ];
 
+  async function confirmar(id: string, status: string) {
+    try {
+      await registrar.mutateAsync({ id, status });
+      toast.success("Confirmação registrada — dashboard, gráficos e relatórios atualizados.");
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
+
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Presenças, faltas e cancelamentos" />;
 
   return (
@@ -90,7 +110,8 @@ function Pagina() {
         <div>
           <h1 className="font-display text-2xl font-bold">Confirmações</h1>
           <p className="text-sm text-muted-foreground">
-            Dados lidos da área CONFIRMAÇÃO da planilha ativa.
+            Fonte real dos indicadores: cada confirmação registrada aqui atualiza automaticamente a
+            vaga, a empresa, o colaborador, o dashboard, os gráficos e os relatórios.
           </p>
         </div>
         <Button variant="outline" onClick={() => void exportarExcel(lista, "confirmacoes")}>
@@ -140,12 +161,13 @@ function Pagina() {
               <TableHead className="text-right">Qtd.</TableHead>
               <TableHead>Confirmação</TableHead>
               <TableHead>Observação</TableHead>
+              <TableHead className="text-right">Ficha</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {visiveis.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                   Nenhum registro para os filtros selecionados.
                 </TableCell>
               </TableRow>
@@ -155,17 +177,43 @@ function Pagina() {
                 <TableCell className="whitespace-nowrap">{fmtData(r.data)}</TableCell>
                 <TableCell>{r.colaborador}</TableCell>
                 <TableCell>{r.empresa}</TableCell>
-                <TableCell>{r.descricao || "—"}</TableCell>
+                <TableCell>{r.candidato || r.descricao || "—"}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
-                <TableCell>{STATUS_LABEL[r.status] ?? r.status}</TableCell>
+                <TableCell>
+                  <Select
+                    value={r.status}
+                    onValueChange={(v) => void confirmar(r.id, v)}
+                  >
+                    <SelectTrigger className="w-[210px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["AGUARDANDO", "PRESENCA", "FALTA", "CANCELAMENTO"].map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {STATUS_LABEL[s]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
                 <TableCell className="max-w-[260px] truncate text-muted-foreground">
                   {r.observacao || "—"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="sm" onClick={() => setFicha(r)}>
+                    <FileText className="mr-1 h-4 w-4" /> Abrir
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <FichaVaga
+        vaga={ficha}
+        registros={registros}
+        aberto={ficha !== null}
+        onFechar={() => setFicha(null)}
+      />
 
       {totalPaginas > 1 && (
         <div className="flex items-center justify-between">

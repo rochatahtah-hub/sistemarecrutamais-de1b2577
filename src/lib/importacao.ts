@@ -217,6 +217,13 @@ export function converterData(valor: unknown): string | null {
   return null;
 }
 
+/** Erro detalhado de uma célula: onde está, o que houve e como corrigir. */
+export interface ProblemaLinha {
+  coluna: string;
+  problema: string;
+  correcao: string;
+}
+
 export interface LinhaProcessada {
   linha: number;
   aba: string;
@@ -229,6 +236,7 @@ export interface LinhaProcessada {
   observacao: string;
   hash: string;
   problemas: string[];
+  erros: ProblemaLinha[];
   duplicada: boolean;
 }
 
@@ -244,26 +252,49 @@ export function processarLinhas(
       const coluna = mapa[campo];
       return coluna ? bruta[coluna] : undefined;
     };
-    const problemas: string[] = [];
+    const erros: ProblemaLinha[] = [];
+    const nomeColuna = (campo: CampoDestino) => mapa[campo] || `(coluna de ${campo} não encontrada)`;
+    const anotar = (campo: CampoDestino, problema: string, correcao: string) =>
+      erros.push({ coluna: nomeColuna(campo), problema, correcao });
 
     const data = converterData(pegar("data"));
-    if (!data) problemas.push("Data inválida ou ausente");
+    if (!data)
+      anotar(
+        "data",
+        "Data inválida ou ausente",
+        "Preencha a data no formato DD/MM/AAAA ou como data do Excel.",
+      );
 
     const colaborador =
       String(pegar("colaborador") ?? "").trim() || (opcoes.colaboradorPadrao ?? "").trim();
-    if (!colaborador) problemas.push("Colaborador não identificado");
+    if (!colaborador)
+      anotar(
+        "colaborador",
+        "Colaborador não identificado",
+        "Informe o nome do colaborador na coluna ou renomeie a aba com o nome do recrutador.",
+      );
 
     const empresa = String(pegar("empresa") ?? "").trim();
-    if (!empresa) problemas.push("Empresa não identificada");
+    if (!empresa)
+      anotar("empresa", "Empresa não identificada", "Preencha o nome da empresa nesta linha.");
 
     const statusBruto = pegar("status");
     const status = resolverStatus(statusBruto, mapeamentoStatus);
-    if (!status) problemas.push(`Status desconhecido: "${String(statusBruto ?? "")}"`);
+    if (!status)
+      anotar(
+        "status",
+        `Confirmação desconhecida: "${String(statusBruto ?? "")}"`,
+        "Use PRESENÇA, FALTA, CANCELAMENTO ou deixe em branco para aguardar confirmação.",
+      );
 
     const qtdBruta = pegar("quantidade");
     let quantidade = qtdBruta === undefined || qtdBruta === "" ? 1 : Number(qtdBruta);
     if (!Number.isFinite(quantidade) || quantidade <= 0) {
-      problemas.push("Quantidade inválida");
+      anotar(
+        "quantidade",
+        `Quantidade inválida: "${String(qtdBruta ?? "")}"`,
+        "Use um número inteiro maior que zero (ex.: 1).",
+      );
       quantidade = 1;
     }
 
@@ -285,7 +316,8 @@ export function processarLinhas(
       status,
       observacao,
       hash,
-      problemas,
+      problemas: erros.map((e) => `${e.coluna}: ${e.problema}`),
+      erros,
       duplicada,
     };
   });

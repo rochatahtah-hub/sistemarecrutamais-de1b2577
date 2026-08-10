@@ -37,7 +37,12 @@ import {
   lerAbaMatriz,
 } from "@/lib/importacao";
 import { fmtData, fmtNum } from "@/lib/metricas";
-import { MAPEAMENTO_PADRAO, STATUS_LABEL, normalizarTexto } from "@/lib/tipos";
+import {
+  MAPEAMENTO_PADRAO,
+  STATUS_LABEL,
+  normalizarTexto,
+  situacaoPorStatus,
+} from "@/lib/tipos";
 import { PlanilhaAtivaBanner } from "@/components/PlanilhaAtiva";
 
 /** Aba que representa a área "CONFIRMAÇÃO" (não é o nome de um colaborador). */
@@ -229,6 +234,8 @@ function Pagina() {
           colaborador_id: idColab.get(l.colaborador) ?? null,
           empresa_id: idEmp.get(l.empresa) ?? null,
           descricao: l.descricao,
+          cargo: l.descricao,
+          situacao: situacaoPorStatus(l.status!),
           quantidade: l.quantidade,
           status: l.status!,
           observacao: l.observacao,
@@ -492,19 +499,23 @@ function Pagina() {
                     <TableRow>
                       <TableHead>Linha</TableHead>
                       <TableHead>Aba</TableHead>
-                      <TableHead>Problemas</TableHead>
+                      <TableHead>Coluna</TableHead>
+                      <TableHead>Problema encontrado</TableHead>
+                      <TableHead>Como corrigir</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {comProblema.slice(0, 200).map((l) => (
-                      <TableRow key={`${l.aba}-${l.linha}`}>
-                        <TableCell>{l.linha}</TableCell>
-                        <TableCell className="text-muted-foreground">{l.aba}</TableCell>
-                        <TableCell className="text-destructive">
-                          {l.problemas.join(" · ")}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {comProblema.slice(0, 200).flatMap((l) =>
+                      l.erros.map((e, i) => (
+                        <TableRow key={`${l.aba}-${l.linha}-${i}`}>
+                          <TableCell>{l.linha}</TableCell>
+                          <TableCell className="text-muted-foreground">{l.aba}</TableCell>
+                          <TableCell className="font-medium">{e.coluna}</TableCell>
+                          <TableCell className="text-destructive">{e.problema}</TableCell>
+                          <TableCell className="text-muted-foreground">{e.correcao}</TableCell>
+                        </TableRow>
+                      )),
+                    )}
                   </TableBody>
                 </Table>
               )}
