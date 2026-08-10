@@ -127,6 +127,9 @@ export function BuscaGlobal() {
       >
         <Search className="h-4 w-4" />
         <span className="hidden sm:inline">Buscar...</span>
+        <kbd className="hidden rounded border border-border px-1.5 text-[10px] text-muted-foreground lg:inline">
+          Ctrl K
+        </kbd>
       </Button>
       <CommandDialog open={aberto} onOpenChange={setAberto}>
         <CommandInput
