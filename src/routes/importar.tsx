@@ -37,7 +37,12 @@ import {
   lerAbaMatriz,
 } from "@/lib/importacao";
 import { fmtData, fmtNum } from "@/lib/metricas";
-import { MAPEAMENTO_PADRAO, STATUS_LABEL, normalizarTexto } from "@/lib/tipos";
+import {
+  MAPEAMENTO_PADRAO,
+  STATUS_LABEL,
+  normalizarTexto,
+  situacaoPorStatus,
+} from "@/lib/tipos";
 import { PlanilhaAtivaBanner } from "@/components/PlanilhaAtiva";
 
 /** Aba que representa a área "CONFIRMAÇÃO" (não é o nome de um colaborador). */
