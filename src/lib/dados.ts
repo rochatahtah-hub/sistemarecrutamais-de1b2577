@@ -8,6 +8,7 @@ import {
   type Metas,
   type VagaRegistro,
 } from "./tipos";
+import { sincronizarSistema } from "./sincronizar";
 
 type LinhaVaga = {
   id: string;
@@ -88,7 +89,7 @@ export function useAtualizarVaga() {
       const { error } = await supabase.from("vagas").update(campos).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -107,7 +108,7 @@ export function useRegistrarConfirmacao() {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -151,7 +152,7 @@ export function useSalvarConfiguracao() {
         .upsert({ chave, valor: valor as never, updated_at: new Date().toISOString() }, { onConflict: "chave" });
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["configuracoes"] }),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -208,7 +209,7 @@ export function useRetirarPlanilha() {
         if (error) throw error;
       }
     },
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 

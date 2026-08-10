@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AlertaRadar } from "./inteligencia";
+import { sincronizarSistema } from "./sincronizar";
 
 export interface AlertaSalvo {
   id: string;
@@ -49,7 +50,7 @@ export function useSincronizarAlertas() {
       );
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["alertas-operacao"] }),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -81,6 +82,6 @@ export function useDefinirStatusAlerta() {
         .eq("chave", chave);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["alertas-operacao"] }),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }

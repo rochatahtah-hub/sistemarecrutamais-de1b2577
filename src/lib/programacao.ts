@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { quinzenaAtual, dentroDaQuinzena } from "./quinzena";
+import { sincronizarSistema } from "./sincronizar";
 
 export interface Empresa {
   id: string;
@@ -68,8 +69,7 @@ export function useSalvarEmpresa() {
       if (error) throw error;
     },
     onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ["empresas-cadastro"] });
-      void qc.invalidateQueries({ queryKey: ["vagas"] });
+      sincronizarSistema(qc);
     },
   });
 }
@@ -151,7 +151,7 @@ export function useSalvarCandidato() {
       if (error) throw error;
       return { candidato: data as Candidato, jaExistia: false };
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["candidatos"] }),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -224,7 +224,7 @@ export function useCriarProgramacao() {
 
       return verificarMeta(uid, nome, perfil?.meta_quinzena ?? 0);
     },
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -310,7 +310,7 @@ export function useAtualizarPerfil() {
       const { error } = await supabase.from("profiles").update(campos).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["programadoras"] }),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -373,7 +373,7 @@ export function useExcluirProgramacao() {
       const { error } = await supabase.from("vagas").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -401,7 +401,7 @@ export function useConfirmarProgramacao() {
         .maybeSingle();
       return verificarMeta(uid, perfil?.nome ?? "Programadora", perfil?.meta_quinzena ?? 0);
     },
-    onSuccess: () => qc.invalidateQueries(),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -441,7 +441,7 @@ export function useMarcarNotificacoesLidas() {
       const { error } = await supabase.from("notificacoes").update({ lida: true }).in("id", ids);
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["notificacoes"] }),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
@@ -482,7 +482,7 @@ export function useFecharQuinzena() {
       );
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["quinzenas-historico"] }),
+    onSuccess: () => sincronizarSistema(qc),
   });
 }
 
