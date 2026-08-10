@@ -36,6 +36,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+const ADMIN_ONLY = new Set([
+  "/programadoras",
+  "/importar",
+  "/metas",
+  "/bloqueios",
+  "/auditoria",
+  "/configuracoes",
+  "/saude-sistema",
+]);
+
 const operacao = [
   { title: "Minha Programação", url: "/minha-programacao", icon: CalendarCheck },
   { title: "Programações da equipe", url: "/programadoras", icon: UserCog },
@@ -75,12 +85,13 @@ export function AppSidebar() {
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
     : ferramentas;
+  const permitido = (url: string) => isAdmin || !ADMIN_ONLY.has(url);
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
   const renderItens = (itens: ReadonlyArray<{ title: string; url: string; icon: typeof Users }>) => (
     <SidebarMenu>
-      {itens.map((item) => (
+      {itens.filter((item) => permitido(item.url)).map((item) => (
         <SidebarMenuItem key={item.url}>
           <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
             <Link to={item.url} className="flex items-center gap-2">

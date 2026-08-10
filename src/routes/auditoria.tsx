@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+
+import { RequerAdmin } from "@/components/RequerAdmin";
 import { History, Search } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +41,7 @@ export const Route = createFileRoute("/auditoria")({
       },
     ],
   }),
-  component: Pagina,
+  component: PaginaProtegida,
 });
 
 const CAMPO_LABEL: Record<string, string> = {
@@ -236,5 +238,13 @@ function Pagina() {
         )}
       </div>
     </div>
+  );
+}
+
+function PaginaProtegida() {
+  return (
+    <RequerAdmin area="Histórico de Alterações">
+      <Pagina />
+    </RequerAdmin>
   );
 }

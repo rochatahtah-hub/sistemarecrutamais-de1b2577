@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+
+import { RequerAdmin } from "@/components/RequerAdmin";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +37,7 @@ export const Route = createFileRoute("/programadoras")({
       },
     ],
   }),
-  component: Pagina,
+  component: PaginaProtegida,
 });
 
 function quando(iso: string | null) {
@@ -185,5 +187,13 @@ function Pagina() {
         </Table>
       </div>
     </div>
+  );
+}
+
+function PaginaProtegida() {
+  return (
+    <RequerAdmin area="Programações da equipe">
+      <Pagina />
+    </RequerAdmin>
   );
 }

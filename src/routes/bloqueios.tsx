@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+
+import { RequerAdmin } from "@/components/RequerAdmin";
 import { useServerFn } from "@tanstack/react-start";
 import { KeyRound, Search, ShieldAlert, ShieldOff, Unlock } from "lucide-react";
 import { toast } from "sonner";
@@ -40,7 +42,7 @@ export const Route = createFileRoute("/bloqueios")({
       },
     ],
   }),
-  component: Pagina,
+  component: PaginaProtegida,
 });
 
 function Pagina() {
@@ -216,5 +218,13 @@ function Pagina() {
         </div>
       </div>
     </div>
+  );
+}
+
+function PaginaProtegida() {
+  return (
+    <RequerAdmin area="Bloqueios">
+      <Pagina />
+    </RequerAdmin>
   );
 }
