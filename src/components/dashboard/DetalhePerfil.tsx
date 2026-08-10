@@ -203,6 +203,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
             {tipo === "colaborador" ? "Empresas atendidas" : "Colaboradores responsáveis"}
           </h2>
           <div className="max-h-[320px] overflow-y-auto pr-1">
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -221,6 +222,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
                 ))}
               </TableBody>
             </Table>
+            </div>
           </div>
         </section>
       </div>

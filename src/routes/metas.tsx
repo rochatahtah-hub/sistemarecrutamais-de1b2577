@@ -127,6 +127,7 @@ function Pagina() {
 
       <div className="surface-panel rounded-xl p-4">
         <h2 className="mb-3 font-display text-lg font-semibold">Metas individuais</h2>
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -162,6 +163,7 @@ function Pagina() {
             ))}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );

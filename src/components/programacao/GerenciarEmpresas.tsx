@@ -57,6 +57,7 @@ export function GerenciarEmpresas() {
           <Plus className="mr-2 h-4 w-4" /> Adicionar
         </Button>
       </div>
+      <div className="overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -85,6 +86,7 @@ export function GerenciarEmpresas() {
           )}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }
