@@ -385,7 +385,11 @@ export function useConfirmarProgramacao() {
       id: string;
       status: "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
     }) => {
-      const { error } = await supabase.from("vagas").update({ status: p.status }).eq("id", p.id);
+      const { situacaoPorStatus } = await import("./tipos");
+      const { error } = await supabase
+        .from("vagas")
+        .update({ status: p.status, situacao: situacaoPorStatus(p.status) })
+        .eq("id", p.id);
       if (error) throw error;
       const { data: sessao } = await supabase.auth.getUser();
       const uid = sessao.user?.id;
