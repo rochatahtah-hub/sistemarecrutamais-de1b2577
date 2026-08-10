@@ -19,6 +19,7 @@ import {
   Bot,
   Radar,
   Trophy,
+  History,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -60,6 +61,7 @@ const ferramentas = [
   { title: "Relatórios", url: "/relatorios", icon: FileText },
   { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
   { title: "Histórico", url: "/historico", icon: Archive },
+  { title: "Histórico de Alterações", url: "/auditoria", icon: History },
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
