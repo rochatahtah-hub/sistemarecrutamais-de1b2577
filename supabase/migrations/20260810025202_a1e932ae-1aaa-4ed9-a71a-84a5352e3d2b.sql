@@ -1,0 +1,15 @@
+ALTER TABLE public.vagas
+  ADD COLUMN IF NOT EXISTS cargo text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS horario text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS local text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS responsavel text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS situacao text NOT NULL DEFAULT 'ABERTA';
+
+UPDATE public.vagas
+SET situacao = CASE
+  WHEN status = 'CANCELAMENTO' THEN 'CANCELADA'
+  WHEN status IN ('PRESENCA', 'FALTA') THEN 'FECHADA'
+  ELSE 'ABERTA'
+END;
+
+CREATE INDEX IF NOT EXISTS idx_vagas_situacao ON public.vagas (situacao);
