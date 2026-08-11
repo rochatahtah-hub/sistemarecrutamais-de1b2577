@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as CompararRouteImport } from './routes/comparar'
@@ -52,6 +53,11 @@ const AuditoriaRoute = AuditoriaRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BackupsRoute = BackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BloqueiosRoute = BloqueiosRouteImport.update({
@@ -161,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/analise'
     | '/auditoria'
     | '/auth'
+    | '/backups'
     | '/bloqueios'
     | '/candidatos'
     | '/comparar'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/analise'
     | '/auditoria'
     | '/auth'
+    | '/backups'
     | '/bloqueios'
     | '/candidatos'
     | '/comparar'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/analise'
     | '/auditoria'
     | '/auth'
+    | '/backups'
     | '/bloqueios'
     | '/candidatos'
     | '/comparar'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   AnaliseRoute: typeof AnaliseRoute
   AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
+  BackupsRoute: typeof BackupsRoute
   BloqueiosRoute: typeof BloqueiosRoute
   CandidatosRoute: typeof CandidatosRoute
   CompararRoute: typeof CompararRoute
@@ -371,6 +384,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/backups': {
+      id: '/backups'
+      path: '/backups'
+      fullPath: '/backups'
+      preLoaderRoute: typeof BackupsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bloqueios': {
@@ -521,6 +541,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnaliseRoute: AnaliseRoute,
   AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,
+  BackupsRoute: BackupsRoute,
   BloqueiosRoute: BloqueiosRoute,
   CandidatosRoute: CandidatosRoute,
   CompararRoute: CompararRoute,
