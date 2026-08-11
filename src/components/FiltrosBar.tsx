@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useFiltros } from "@/lib/filtros";
+import { usePrivacidade } from "@/lib/privacidade";
 import type { VagaRegistro } from "@/lib/tipos";
 
 const MESES = [
@@ -126,7 +127,7 @@ export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
             <SelectContent>
               <SelectItem value="todos">Todos</SelectItem>
               {colaboradores.map((c) => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
+                <SelectItem key={c} value={c}>{priv.nome(c)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -138,7 +139,7 @@ export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
             <SelectContent>
               <SelectItem value="todas">Todas</SelectItem>
               {empresas.map((e) => (
-                <SelectItem key={e} value={e}>{e}</SelectItem>
+                <SelectItem key={e} value={e}>{priv.empresa(e)}</SelectItem>
               ))}
             </SelectContent>
           </Select>
