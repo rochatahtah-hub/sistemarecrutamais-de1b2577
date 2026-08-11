@@ -110,6 +110,7 @@ export function FichaVaga({
     { label: "Cancelamentos", valor: fmtNum(total.cancelamentos) },
     { label: "Aguardando", valor: fmtNum(total.pendentes) },
   ];
+  const valorProtegido = (valor: string) => (priv.privado ? priv.texto(valor) : valor);
 
   return (
     <Dialog open={aberto} onOpenChange={(v) => !v && onFechar()}>
@@ -129,7 +130,7 @@ export function FichaVaga({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fv-cargo">Cargo</Label>
-            <Input id="fv-cargo" value={cargo} onChange={(e) => setCargo(e.target.value)} />
+            <Input id="fv-cargo" value={valorProtegido(cargo)} readOnly={priv.privado} onChange={(e) => setCargo(e.target.value)} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fv-qtd">Quantidade de vagas</Label>
@@ -149,20 +150,22 @@ export function FichaVaga({
             <Label htmlFor="fv-hora">Horário</Label>
             <Input
               id="fv-hora"
-              value={horario}
+              value={valorProtegido(horario)}
+              readOnly={priv.privado}
               placeholder="ex.: 08:00 às 17:00"
               onChange={(e) => setHorario(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fv-local">Local</Label>
-            <Input id="fv-local" value={local} onChange={(e) => setLocal(e.target.value)} />
+            <Input id="fv-local" value={valorProtegido(local)} readOnly={priv.privado} onChange={(e) => setLocal(e.target.value)} />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fv-resp">Responsável</Label>
             <Input
               id="fv-resp"
-              value={responsavel}
+              value={priv.nome(responsavel)}
+              readOnly={priv.privado}
               onChange={(e) => setResponsavel(e.target.value)}
             />
           </div>
@@ -203,7 +206,8 @@ export function FichaVaga({
           <Textarea
             id="fv-obs"
             rows={3}
-            value={observacao}
+            value={valorProtegido(observacao)}
+            readOnly={priv.privado}
             onChange={(e) => setObservacao(e.target.value)}
           />
         </div>
@@ -241,7 +245,7 @@ export function FichaVaga({
           <Button variant="outline" onClick={onFechar}>
             Fechar
           </Button>
-          <Button onClick={() => void salvar()} disabled={atualizar.isPending}>
+          <Button onClick={() => void salvar()} disabled={atualizar.isPending || priv.privado}>
             <Save className="mr-2 h-4 w-4" /> Salvar ficha
           </Button>
         </div>

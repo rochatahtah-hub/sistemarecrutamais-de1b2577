@@ -67,7 +67,9 @@ function Pagina() {
     if (!valor) return "—";
     if (campo === "cpf") return priv.cpf(valor);
     if (campo === "telefone") return priv.telefone(valor);
+    if (campo === "empresa" || campo === "empresa_id") return priv.empresa(valor);
     if (campo === "nome" || campo === "responsavel") return priv.nome(valor);
+    if (["cargo", "local", "observacao", "descricao"].includes(campo) && priv.privado) return priv.texto(valor);
     return valor;
   };
   const [busca, setBusca] = useState("");
@@ -200,7 +202,7 @@ function Pagina() {
                 <TableCell>{r.usuario_nome ? priv.nome(r.usuario_nome) : "Sistema"}</TableCell>
                 <TableCell>
                   <span className="font-medium">{TABELA_LABEL[r.tabela] ?? r.tabela}</span>
-                  {r.descricao ? ` · ${priv.privado ? priv.nome(r.descricao) : r.descricao}` : ""}
+                  {r.descricao ? ` · ${priv.privado ? priv.texto(r.descricao) : r.descricao}` : ""}
                 </TableCell>
                 <TableCell>{r.campo ? (CAMPO_LABEL[r.campo] ?? r.campo) : "—"}</TableCell>
                 <TableCell className="max-w-[200px] truncate text-muted-foreground">

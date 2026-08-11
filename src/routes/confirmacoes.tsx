@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Sigiloso } from "@/lib/privacidade";
+import { Sigiloso, usePrivacidade } from "@/lib/privacidade";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileDown, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -63,6 +63,7 @@ const ABAS: { valor: Aba; label: string }[] = [
 ];
 
 function Pagina() {
+  const priv = usePrivacidade();
   const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const [aba, setAba] = useState<Aba>("TODAS");
@@ -182,7 +183,7 @@ function Pagina() {
                 <TableCell>
                   <Sigiloso valor={r.empresa} tipo="empresa" />
                 </TableCell>
-                <TableCell>{r.candidato || r.descricao || "—"}</TableCell>
+                <TableCell>{priv.nome(r.candidato || r.descricao || "—")}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
                 <TableCell>
                   <Select
@@ -200,7 +201,7 @@ function Pagina() {
                   </Select>
                 </TableCell>
                 <TableCell className="max-w-[260px] truncate text-muted-foreground">
-                  {r.observacao || "—"}
+                  {priv.privado ? priv.texto(r.observacao) : (r.observacao || "—")}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" onClick={() => setFicha(r)}>

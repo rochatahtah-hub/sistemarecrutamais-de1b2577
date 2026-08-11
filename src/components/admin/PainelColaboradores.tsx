@@ -55,7 +55,7 @@ export function PainelColaboradores() {
                   CPF {p.cpf(c.cpf)} · Tel {p.telefone(c.telefone ?? "")}
                 </p>
                 {bloqueio && (
-                  <p className="text-xs text-destructive">Motivo: {bloqueio.motivo}</p>
+                  <p className="text-xs text-destructive">Motivo: {p.privado ? p.texto(bloqueio.motivo) : bloqueio.motivo}</p>
                 )}
               </div>
               {bloqueio ? (

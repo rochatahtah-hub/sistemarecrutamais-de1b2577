@@ -167,7 +167,7 @@ function Pagina() {
                     {priv.privado ? priv.cpf(b.cpf) : formatarCPF(b.cpf)}
                   </TableCell>
                   <TableCell>{b.nome ? priv.nome(b.nome) : "—"}</TableCell>
-                  <TableCell>{b.motivo || "—"}</TableCell>
+                  <TableCell>{priv.privado ? priv.texto(b.motivo) : (b.motivo || "—")}</TableCell>
                   <TableCell>{new Date(b.created_at).toLocaleDateString("pt-BR")}</TableCell>
                   <TableCell>{b.bloqueado_por_nome ? priv.nome(b.bloqueado_por_nome) : "—"}</TableCell>
                   <TableCell className="text-right">
