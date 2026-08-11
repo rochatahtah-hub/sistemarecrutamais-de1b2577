@@ -304,7 +304,7 @@ function Pagina() {
                   <TableCell>
                     {r.candidato_telefone ? priv.telefone(r.candidato_telefone) : "—"}
                   </TableCell>
-                  <TableCell>{r.empresa}</TableCell>
+                  <TableCell>{priv.empresa(r.empresa)}</TableCell>
                   <TableCell>
                     <Select
                       value={r.status}
