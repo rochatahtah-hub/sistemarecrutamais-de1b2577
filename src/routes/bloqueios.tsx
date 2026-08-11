@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { useAuth } from "@/lib/auth";
 import { formatarCPF } from "@/lib/programacao";
+import { usePrivacidade } from "@/lib/privacidade";
 import {
   useBloqueados,
   useBloquearColaborador,
