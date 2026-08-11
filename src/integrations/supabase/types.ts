@@ -564,33 +564,51 @@ export type Database = {
       }
       mensagens: {
         Row: {
+          anexo_mime: string
+          anexo_nome: string
+          anexo_path: string
+          anexo_tamanho: number
           autor_id: string | null
           conteudo: string
           conversa_id: string
           created_at: string
+          duracao_ms: number
           excluida: boolean
           id: string
           responde_a: string | null
+          tipo: string
           updated_at: string
         }
         Insert: {
+          anexo_mime?: string
+          anexo_nome?: string
+          anexo_path?: string
+          anexo_tamanho?: number
           autor_id?: string | null
           conteudo?: string
           conversa_id: string
           created_at?: string
+          duracao_ms?: number
           excluida?: boolean
           id?: string
           responde_a?: string | null
+          tipo?: string
           updated_at?: string
         }
         Update: {
+          anexo_mime?: string
+          anexo_nome?: string
+          anexo_path?: string
+          anexo_tamanho?: number
           autor_id?: string | null
           conteudo?: string
           conversa_id?: string
           created_at?: string
+          duracao_ms?: number
           excluida?: boolean
           id?: string
           responde_a?: string | null
+          tipo?: string
           updated_at?: string
         }
         Relationships: [
@@ -735,6 +753,48 @@ export type Database = {
           resumo?: Json
         }
         Relationships: []
+      }
+      reacoes_mensagem: {
+        Row: {
+          conversa_id: string
+          created_at: string
+          emoji: string
+          id: string
+          mensagem_id: string
+          user_id: string
+        }
+        Insert: {
+          conversa_id: string
+          created_at?: string
+          emoji: string
+          id?: string
+          mensagem_id: string
+          user_id: string
+        }
+        Update: {
+          conversa_id?: string
+          created_at?: string
+          emoji?: string
+          id?: string
+          mensagem_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reacoes_mensagem_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reacoes_mensagem_mensagem_id_fkey"
+            columns: ["mensagem_id"]
+            isOneToOne: false
+            referencedRelation: "mensagens"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_access_logs: {
         Row: {
