@@ -54,7 +54,7 @@ export function PainelEmailBackup() {
     setTestando(true);
     setLog("");
     try {
-      const r = await testar({ data: {} });
+      const r = await testar();
       if (r.enviado) {
         toast.success(`Backup enviado para ${r.destino}.`);
         setLog(`✅ Envio concluído para ${r.destino}.`);
