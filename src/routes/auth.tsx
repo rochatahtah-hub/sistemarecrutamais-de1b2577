@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
+import { CampoSenha } from "@/components/CampoSenha";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -200,9 +201,8 @@ function Pagina() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="senha">Senha</Label>
-                  <Input
+                  <CampoSenha
                     id="senha"
-                    type="password"
                     autoComplete="current-password"
                     required
                     value={senha}
@@ -234,9 +234,8 @@ function Pagina() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="senha2">Senha</Label>
-                  <Input
+                  <CampoSenha
                     id="senha2"
-                    type="password"
                     autoComplete="new-password"
                     minLength={6}
                     required
@@ -268,9 +267,8 @@ function Pagina() {
           </DialogHeader>
           <div className="space-y-1.5">
             <Label htmlFor="pin">PIN</Label>
-            <Input
+            <CampoSenha
               id="pin"
-              type="password"
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={8}
