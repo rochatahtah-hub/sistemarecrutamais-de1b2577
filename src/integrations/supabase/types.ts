@@ -359,6 +359,77 @@ export type Database = {
         }
         Relationships: []
       }
+      conversa_participantes: {
+        Row: {
+          admin: boolean
+          conversa_id: string
+          created_at: string
+          id: string
+          last_read_at: string
+          user_id: string
+        }
+        Insert: {
+          admin?: boolean
+          conversa_id: string
+          created_at?: string
+          id?: string
+          last_read_at?: string
+          user_id: string
+        }
+        Update: {
+          admin?: boolean
+          conversa_id?: string
+          created_at?: string
+          id?: string
+          last_read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversa_participantes_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversas: {
+        Row: {
+          chave_direta: string | null
+          created_at: string
+          criado_por: string | null
+          descricao: string
+          foto_url: string
+          id: string
+          nome: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          chave_direta?: string | null
+          created_at?: string
+          criado_por?: string | null
+          descricao?: string
+          foto_url?: string
+          id?: string
+          nome?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          chave_direta?: string | null
+          created_at?: string
+          criado_por?: string | null
+          descricao?: string
+          foto_url?: string
+          id?: string
+          nome?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       empresas: {
         Row: {
           ativo: boolean
@@ -491,6 +562,54 @@ export type Database = {
         }
         Relationships: []
       }
+      mensagens: {
+        Row: {
+          autor_id: string | null
+          conteudo: string
+          conversa_id: string
+          created_at: string
+          excluida: boolean
+          id: string
+          responde_a: string | null
+          updated_at: string
+        }
+        Insert: {
+          autor_id?: string | null
+          conteudo?: string
+          conversa_id: string
+          created_at?: string
+          excluida?: boolean
+          id?: string
+          responde_a?: string | null
+          updated_at?: string
+        }
+        Update: {
+          autor_id?: string | null
+          conteudo?: string
+          conversa_id?: string
+          created_at?: string
+          excluida?: boolean
+          id?: string
+          responde_a?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_conversa_id_fkey"
+            columns: ["conversa_id"]
+            isOneToOne: false
+            referencedRelation: "conversas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mensagens_responde_a_fkey"
+            columns: ["responde_a"]
+            isOneToOne: false
+            referencedRelation: "mensagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notificacoes: {
         Row: {
           chave: string | null
@@ -524,6 +643,27 @@ export type Database = {
           tipo?: string
           titulo?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      presenca_usuarios: {
+        Row: {
+          online: boolean
+          ultimo_visto: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          online?: boolean
+          ultimo_visto?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          online?: boolean
+          ultimo_visto?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -753,11 +893,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_conversa: {
+        Args: { _conversa: string; _user: string }
+        Returns: boolean
+      }
+      criador_conversa: {
+        Args: { _conversa: string; _user: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      participa_conversa: {
+        Args: { _conversa: string; _user: string }
         Returns: boolean
       }
       registrar_acesso: {
