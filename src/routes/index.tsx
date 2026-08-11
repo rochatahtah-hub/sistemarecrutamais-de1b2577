@@ -15,6 +15,7 @@ import {
 import { FiltrosBar } from "@/components/FiltrosBar";
 import { AtalhosPeriodo } from "@/components/AtalhosPeriodo";
 import { CardIndicador } from "@/components/dashboard/CardIndicador";
+import { ResumoAcessos } from "@/components/admin/ResumoAcessos";
 import { TabelaDesempenho } from "@/components/dashboard/TabelaDesempenho";
 import {
   GraficoBarraMetrica,
@@ -144,7 +145,7 @@ function Dashboard() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { data: candidatos = [] } = useCandidatos("");
-  const { perfil } = useAuth();
+  const { perfil, isAdmin } = useAuth();
   const priv = usePrivacidade();
   const navigate = useNavigate();
   const { filtros, setFiltros } = useFiltros();
@@ -202,6 +203,8 @@ function Dashboard() {
       <AtalhosPeriodo />
       <FiltrosBar registros={registros} />
       <PlanilhaAtivaBanner />
+
+      {isAdmin && <ResumoAcessos />}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
         <CardIndicador

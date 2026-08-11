@@ -30,6 +30,7 @@ import {
   listarUsuarios,
 } from "@/lib/usuarios.functions";
 import { usePrivacidade } from "@/lib/privacidade";
+import { dataHoraLogin, statusUltimoLogin } from "@/lib/acessos";
 
 function quando(valor: string | null) {
   if (!valor) return "—";
@@ -166,6 +167,12 @@ export function PainelUsuarios() {
               <p className="truncate text-xs text-muted-foreground">{p.privado ? "•••••••" : u.email}</p>
               <p className="text-[11px] text-muted-foreground">
                 Último acesso: {quando(u.ultimo_acesso)} · Última atividade: {quando(u.ultima_atividade)}
+              </p>
+              <p className="text-[11px]">
+                <span className="text-muted-foreground">Último login: </span>
+                <span className={u.ultimo_login ? "font-medium text-foreground" : "text-muted-foreground"}>
+                  {u.ultimo_login ? `${dataHoraLogin(u.ultimo_login)} · ${statusUltimoLogin(u.ultimo_login)}` : "Nunca acessou"}
+                </span>
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
