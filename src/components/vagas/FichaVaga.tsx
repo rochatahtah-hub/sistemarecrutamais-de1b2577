@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAtualizarVaga, useRegistrarConfirmacao } from "@/lib/dados";
+import { usePrivacidade } from "@/lib/privacidade";
 import { agregar, fmtData, fmtNum, fmtPct } from "@/lib/metricas";
 import { SITUACOES, SITUACAO_LABEL, STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
 
@@ -40,6 +41,7 @@ export function FichaVaga({
 }) {
   const atualizar = useAtualizarVaga();
   const confirmar = useRegistrarConfirmacao();
+  const priv = usePrivacidade();
   const [cargo, setCargo] = useState("");
   const [horario, setHorario] = useState("");
   const [local, setLocal] = useState("");
