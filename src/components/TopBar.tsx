@@ -90,10 +90,12 @@ export function TopBar() {
       const bucket = new Date();
       const chave = `inatividade-${bucket.toISOString().slice(0, 13)}`;
       const mensagem = `Você está há ${horas} hora(s) sem atualizar suas programações.`;
-      const { error } = await supabase.from("notificacoes").upsert(
-        { user_id: user.id, tipo: "inatividade", titulo: "Inatividade", mensagem, chave },
-        { onConflict: "user_id,chave", ignoreDuplicates: true },
-      );
+      const { error } = await supabase
+        .from("notificacoes")
+        .upsert(
+          { user_id: user.id, tipo: "inatividade", titulo: "Inatividade", mensagem, chave },
+          { onConflict: "user_id,chave", ignoreDuplicates: true },
+        );
       if (!error) {
         await supabase.from("notificacoes").upsert(
           {
@@ -135,7 +137,9 @@ export function TopBar() {
           title={privado ? "Modo Privacidade Ativado" : "Ativar Privacidade"}
           onClick={() => {
             alternar();
-            toast.success(privado ? "🔓 Modo Privacidade Desativado" : "🔒 Modo Privacidade Ativado");
+            toast.success(
+              privado ? "🔓 Modo Privacidade Desativado" : "🔒 Modo Privacidade Ativado",
+            );
           }}
         >
           {privado ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -212,7 +216,11 @@ export function TopBar() {
                   {isAdmin ? "Administrador" : "Programadora"}
                 </span>
               </span>
-              {isAdmin && <Badge variant="gold" className="hidden md:inline-flex">Admin</Badge>}
+              {isAdmin && (
+                <Badge variant="gold" className="hidden md:inline-flex">
+                  Admin
+                </Badge>
+              )}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-60 rounded-xl">

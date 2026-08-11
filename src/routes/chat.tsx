@@ -113,7 +113,12 @@ function ChatPage() {
                 className="pl-9"
               />
             </div>
-            <Button variant="outline" size="sm" className="w-full" onClick={() => setNovoGrupo(true)}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => setNovoGrupo(true)}
+            >
               <MessageSquarePlus className="mr-2 h-4 w-4" /> Novo grupo
             </Button>
           </div>

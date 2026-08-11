@@ -109,31 +109,35 @@ export function AppSidebar() {
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
-  const renderItens = (itens: ReadonlyArray<{ title: string; url: string; icon: typeof Users }>) => (
+  const renderItens = (
+    itens: ReadonlyArray<{ title: string; url: string; icon: typeof Users }>,
+  ) => (
     <SidebarMenu className="gap-0.5">
-      {itens.filter((item) => permitido(item.url)).map((item) => (
-        <SidebarMenuItem key={item.url}>
-          <SidebarMenuButton
-            asChild
-            isActive={isActive(item.url)}
-            tooltip={item.title}
-            className="group/nav relative h-9 overflow-hidden rounded-lg pl-3 text-[13px] font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground data-[active=true]:before:absolute data-[active=true]:before:left-0 data-[active=true]:before:top-1/2 data-[active=true]:before:h-5 data-[active=true]:before:w-[3px] data-[active=true]:before:-translate-y-1/2 data-[active=true]:before:rounded-r-full data-[active=true]:before:bg-sidebar-primary"
-          >
-            <Link to={item.url} className="flex items-center gap-2.5">
-              <item.icon
-                className={`h-4 w-4 shrink-0 transition-colors ${isActive(item.url) ? "text-sidebar-primary" : "text-sidebar-foreground/55 group-hover/nav:text-sidebar-foreground/85"}`}
-                strokeWidth={1.75}
-              />
-              {!collapsed && <span className="truncate">{item.title}</span>}
-              {item.url === "/chat" && naoLidas > 0 && (
-                <span className="ml-auto grid h-4 min-w-4 shrink-0 place-items-center rounded-full bg-gold px-1 text-[10px] font-bold leading-none text-primary">
-                  {naoLidas > 99 ? "99+" : naoLidas}
-                </span>
-              )}
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
+      {itens
+        .filter((item) => permitido(item.url))
+        .map((item) => (
+          <SidebarMenuItem key={item.url}>
+            <SidebarMenuButton
+              asChild
+              isActive={isActive(item.url)}
+              tooltip={item.title}
+              className="group/nav relative h-9 overflow-hidden rounded-lg pl-3 text-[13px] font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground data-[active=true]:before:absolute data-[active=true]:before:left-0 data-[active=true]:before:top-1/2 data-[active=true]:before:h-5 data-[active=true]:before:w-[3px] data-[active=true]:before:-translate-y-1/2 data-[active=true]:before:rounded-r-full data-[active=true]:before:bg-sidebar-primary"
+            >
+              <Link to={item.url} className="flex items-center gap-2.5">
+                <item.icon
+                  className={`h-4 w-4 shrink-0 transition-colors ${isActive(item.url) ? "text-sidebar-primary" : "text-sidebar-foreground/55 group-hover/nav:text-sidebar-foreground/85"}`}
+                  strokeWidth={1.75}
+                />
+                {!collapsed && <span className="truncate">{item.title}</span>}
+                {item.url === "/chat" && naoLidas > 0 && (
+                  <span className="ml-auto grid h-4 min-w-4 shrink-0 place-items-center rounded-full bg-gold px-1 text-[10px] font-bold leading-none text-primary">
+                    {naoLidas > 99 ? "99+" : naoLidas}
+                  </span>
+                )}
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        ))}
     </SidebarMenu>
   );
 
@@ -142,11 +146,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border/70">
         <div className="flex items-center gap-2.5 px-1 py-3">
           {collapsed ? (
-            <img
-              src={logoMarca.url}
-              alt="Recruta+"
-              className="h-9 w-9 shrink-0 object-contain"
-            />
+            <img src={logoMarca.url} alt="Recruta+" className="h-9 w-9 shrink-0 object-contain" />
           ) : (
             <img
               src={logoLockup.url}

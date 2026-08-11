@@ -82,7 +82,13 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <header className="flex items-center gap-3 border-b border-border px-3 py-2.5">
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={onVoltar} aria-label="Voltar">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={onVoltar}
+          aria-label="Voltar"
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <AvatarConversa resumo={resumo} privado={privado} />
@@ -102,7 +108,12 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
           </p>
         </div>
         {resumo.conversa.tipo === "grupo" ? (
-          <Button variant="ghost" size="icon" title="Informações do grupo" onClick={() => setInfoAberta(true)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Informações do grupo"
+            onClick={() => setInfoAberta(true)}
+          >
             <Info className="h-4 w-4" />
           </Button>
         ) : (
@@ -145,7 +156,9 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
                   {dia}
                 </p>
               )}
-              <div className={`group flex items-end gap-2 ${meu ? "justify-end" : "justify-start"}`}>
+              <div
+                className={`group flex items-end gap-2 ${meu ? "justify-end" : "justify-start"}`}
+              >
                 {!meu && (
                   <AvatarUsuario
                     nome={autor?.nome}
@@ -169,7 +182,9 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
                   {original && (
                     <div
                       className={`mb-1 border-l-2 pl-2 text-[11px] leading-snug ${
-                        meu ? "border-gold/60 text-primary-foreground/75" : "border-gold/60 text-muted-foreground"
+                        meu
+                          ? "border-gold/60 text-primary-foreground/75"
+                          : "border-gold/60 text-muted-foreground"
                       }`}
                     >
                       <span className="block font-semibold">
@@ -182,7 +197,9 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
                       </span>
                     </div>
                   )}
-                  <p className={`whitespace-pre-wrap break-words ${m.excluida ? "italic opacity-70" : ""}`}>
+                  <p
+                    className={`whitespace-pre-wrap break-words ${m.excluida ? "italic opacity-70" : ""}`}
+                  >
                     {m.excluida ? "Mensagem excluída" : m.conteudo}
                   </p>
                   <p
@@ -234,7 +251,12 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
               </p>
               <p className="truncate text-muted-foreground">{respondendo.conteudo}</p>
             </div>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setRespondendo(null)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setRespondendo(null)}
+            >
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>

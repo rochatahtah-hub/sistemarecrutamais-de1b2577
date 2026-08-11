@@ -119,7 +119,12 @@ export function DialogoNovoGrupo({ aberto, onOpenChange, onCriado }: Props) {
               className="hidden"
               onChange={(e) => escolherFoto(e.target.files?.[0])}
             />
-            <Button type="button" variant="outline" size="sm" onClick={() => inputFoto.current?.click()}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => inputFoto.current?.click()}
+            >
               <ImagePlus className="mr-2 h-4 w-4" /> Foto do grupo
             </Button>
           </div>

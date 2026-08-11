@@ -99,7 +99,11 @@ export function DialogoGerenciarGrupo({ resumo, aberto, onOpenChange, onSaiu }: 
           <div className="flex items-center gap-3">
             <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border border-gold/35 bg-primary/90 text-primary-foreground">
               {previa || fotoAtual ? (
-                <img src={previa ?? fotoAtual!} alt={resumo.titulo} className="h-full w-full object-cover" />
+                <img
+                  src={previa ?? fotoAtual!}
+                  alt={resumo.titulo}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <Users className="h-5 w-5" />
               )}

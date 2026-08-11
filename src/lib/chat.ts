@@ -131,7 +131,8 @@ export function useConversas() {
         );
         const eu = membros.find((p) => p.user_id === user.id);
         const outroId = membros.find((p) => p.user_id !== user.id)?.user_id ?? null;
-        const outro = conversa.tipo === "direta" && outroId ? (porUsuario.get(outroId) ?? null) : null;
+        const outro =
+          conversa.tipo === "direta" && outroId ? (porUsuario.get(outroId) ?? null) : null;
         const daConversa = msgs.filter((m) => m.conversa_id === conversa.id);
         const ultima = daConversa[0] ?? null;
         const lidoEm = eu ? new Date(eu.last_read_at).getTime() : 0;
@@ -143,9 +144,7 @@ export function useConversas() {
           participantes: membros,
           outro,
           titulo:
-            conversa.tipo === "grupo"
-              ? conversa.nome || "Grupo"
-              : (outro?.nome ?? "Conversa"),
+            conversa.tipo === "grupo" ? conversa.nome || "Grupo" : (outro?.nome ?? "Conversa"),
           ultima,
           naoLidas,
           souAdmin: !!eu?.admin,
@@ -190,7 +189,11 @@ export function useEnviarMensagem() {
   const qc = useQueryClient();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: async (dados: { conversaId: string; conteudo: string; respondeA?: string | null }) => {
+    mutationFn: async (dados: {
+      conversaId: string;
+      conteudo: string;
+      respondeA?: string | null;
+    }) => {
       if (!user) throw new Error("Sessão expirada.");
       const { error } = await supabase.from("mensagens").insert({
         conversa_id: dados.conversaId,
@@ -300,9 +303,11 @@ export function useCriarGrupo() {
       const conversaId = criada.data.id;
 
       const membros = Array.from(new Set([user.id, ...dados.membros]));
-      const { error } = await supabase.from("conversa_participantes").insert(
-        membros.map((id) => ({ conversa_id: conversaId, user_id: id, admin: id === user.id })),
-      );
+      const { error } = await supabase
+        .from("conversa_participantes")
+        .insert(
+          membros.map((id) => ({ conversa_id: conversaId, user_id: id, admin: id === user.id })),
+        );
       if (error) throw error;
 
       if (dados.foto) {
@@ -349,15 +354,11 @@ export function useAtualizarGrupo() {
 export function useGerenciarParticipantes() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (dados: {
-      conversaId: string;
-      adicionar?: string[];
-      remover?: string[];
-    }) => {
+    mutationFn: async (dados: { conversaId: string; adicionar?: string[]; remover?: string[] }) => {
       if (dados.adicionar?.length) {
-        const { error } = await supabase.from("conversa_participantes").insert(
-          dados.adicionar.map((id) => ({ conversa_id: dados.conversaId, user_id: id })),
-        );
+        const { error } = await supabase
+          .from("conversa_participantes")
+          .insert(dados.adicionar.map((id) => ({ conversa_id: dados.conversaId, user_id: id })));
         if (error) throw error;
       }
       if (dados.remover?.length) {
@@ -490,29 +491,25 @@ export function useChatRealtime() {
     if (!user) return;
     const canal = supabase
       .channel("chat-recruta")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "mensagens" },
-        (payload) => {
-          const nova = payload.new as Mensagem | null;
-          const conversaId = nova?.conversa_id ?? (payload.old as Mensagem | null)?.conversa_id;
-          if (conversaId) {
-            void qc.invalidateQueries({ queryKey: ["chat", "mensagens", conversaId] });
-          }
-          void qc.invalidateQueries({ queryKey: CHAVE_CONVERSAS });
-          if (
-            payload.eventType === "INSERT" &&
-            nova &&
-            nova.autor_id !== user.id &&
-            nova.conversa_id !== conversaAbertaGlobal
-          ) {
-            toast.message("💬 Nova mensagem", {
-              id: `chat-${nova.conversa_id}`,
-              description: "Você recebeu uma nova mensagem no chat interno.",
-            });
-          }
-        },
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "mensagens" }, (payload) => {
+        const nova = payload.new as Mensagem | null;
+        const conversaId = nova?.conversa_id ?? (payload.old as Mensagem | null)?.conversa_id;
+        if (conversaId) {
+          void qc.invalidateQueries({ queryKey: ["chat", "mensagens", conversaId] });
+        }
+        void qc.invalidateQueries({ queryKey: CHAVE_CONVERSAS });
+        if (
+          payload.eventType === "INSERT" &&
+          nova &&
+          nova.autor_id !== user.id &&
+          nova.conversa_id !== conversaAbertaGlobal
+        ) {
+          toast.message("💬 Nova mensagem", {
+            id: `chat-${nova.conversa_id}`,
+            description: "Você recebeu uma nova mensagem no chat interno.",
+          });
+        }
+      })
       .on("postgres_changes", { event: "*", schema: "public", table: "conversas" }, () => {
         void qc.invalidateQueries({ queryKey: CHAVE_CONVERSAS });
       })
