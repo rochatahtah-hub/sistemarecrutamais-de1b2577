@@ -132,8 +132,12 @@ export function TopBar() {
             )}
             {notificacoes.slice(0, 12).map((n) => (
               <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-0.5">
-                <span className="text-xs font-semibold">{n.titulo}</span>
-                <span className="text-xs text-muted-foreground">{n.mensagem}</span>
+                <span className="text-xs font-semibold">
+                  {privado ? "Alerta protegido" : n.titulo}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {privado ? "Conteúdo oculto pelo modo privacidade." : n.mensagem}
+                </span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -143,13 +147,15 @@ export function TopBar() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-2">
               <User className="h-4 w-4" />
-              <span className="max-w-[10rem] truncate text-sm">{perfil?.nome ?? "Conta"}</span>
+              <span className="max-w-[10rem] truncate text-sm">
+                {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
+              </span>
               {isAdmin && <Badge variant="secondary">Admin</Badge>}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              {perfil?.email ?? user?.email}
+              {privado ? "••••••" : (perfil?.email ?? user?.email)}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             {isAdmin && (

@@ -27,6 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useConfiguracoes, useImportacoes } from "@/lib/dados";
+import { usePrivacidade } from "@/lib/privacidade";
 import {
   CAMPOS,
   abaDeRecrutador,
@@ -79,6 +80,7 @@ interface AbaLida {
 }
 
 function Pagina() {
+  const priv = usePrivacidade();
   const qc = useQueryClient();
   const { data: config } = useConfiguracoes();
   const { data: importacoes = [] } = useImportacoes();
@@ -348,7 +350,7 @@ function Pagina() {
               {abasValidas.map((a) => (
                 <li key={`conf-${a.nome}`}>
                   <Badge variant="outline" className="border-primary/40 text-primary">
-                    {a.nome} · confirmação:{" "}
+                    {priv.nome(a.nome)} · confirmação:{" "}
                     {colunaConfirmacao(a.mapa) ?? a.mapa.status ?? "não encontrada"}
                   </Badge>
                 </li>
@@ -358,7 +360,7 @@ function Pagina() {
               {resumoAbas.map((a) => (
                 <li key={a.nome}>
                   <Badge variant="outline" className="border-success/40 text-success">
-                    {a.nome}: {fmtNum(a.linhas)} linhas
+                    {priv.nome(a.nome)}: {fmtNum(a.linhas)} linhas
                   </Badge>
                 </li>
               ))}
@@ -369,7 +371,7 @@ function Pagina() {
                   <p key={a.nome} className="flex items-start gap-2 text-sm text-destructive">
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>
-                      Aba <strong>{a.nome}</strong> ignorada — {a.motivo}
+                      Aba <strong>{priv.nome(a.nome)}</strong> ignorada — {a.motivo}
                     </span>
                   </p>
                 ))}
@@ -379,7 +381,7 @@ function Pagina() {
               {abasValidas.map((aba) => (
                 <details key={aba.nome} className="rounded-lg border border-border p-3">
                   <summary className="cursor-pointer text-sm font-medium">
-                    Mapeamento de colunas — {aba.nome}
+                    Mapeamento de colunas — {priv.nome(aba.nome)}
                   </summary>
                   <div className="mt-3 grid gap-3 md:grid-cols-3">
                     {CAMPOS.map((c) => (
@@ -464,10 +466,10 @@ function Pagina() {
                   {processadas.slice(0, 50).map((l) => (
                     <TableRow key={`${l.aba}-${l.linha}`}>
                       <TableCell className="text-muted-foreground">{l.linha}</TableCell>
-                      <TableCell className="text-muted-foreground">{l.aba}</TableCell>
+                      <TableCell className="text-muted-foreground">{priv.nome(l.aba)}</TableCell>
                       <TableCell>{l.data ? fmtData(l.data) : "—"}</TableCell>
-                      <TableCell>{l.colaborador || "—"}</TableCell>
-                      <TableCell>{l.empresa || "—"}</TableCell>
+                      <TableCell>{l.colaborador ? priv.nome(l.colaborador) : "—"}</TableCell>
+                      <TableCell>{l.empresa ? priv.empresa(l.empresa) : "—"}</TableCell>
                       <TableCell>{l.descricao || "—"}</TableCell>
                       <TableCell className="text-right">{l.quantidade}</TableCell>
                       <TableCell>{l.status ? STATUS_LABEL[l.status] : "—"}</TableCell>

@@ -51,7 +51,7 @@ export function PainelUsuarios() {
   const recarregar = async () => {
     await qc.invalidateQueries({ queryKey: ["admin-usuarios"] });
     await usuarios.refetch();
-    void qc.invalidateQueries({ queryKey: ["programadoras"] });
+    await qc.invalidateQueries({ queryKey: ["programadoras"] });
   };
 
   const [novo, setNovo] = useState({ nome: "", email: "", senha: "", admin: false });
@@ -73,7 +73,7 @@ export function PainelUsuarios() {
 
   const acao = useMutation({
     mutationFn: async (fn: () => Promise<unknown>) => fn(),
-    onSuccess: () => { void recarregar(); },
+    onSuccess: async () => { await recarregar(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -264,7 +264,7 @@ export function PainelUsuarios() {
             <DialogTitle>Alterar senha</DialogTitle>
           </DialogHeader>
           <div className="space-y-1.5">
-            <Label htmlFor="tr-senha">Nova senha de {trocaSenha?.nome}</Label>
+            <Label htmlFor="tr-senha">Nova senha de {p.nome(trocaSenha?.nome ?? "usuário")}</Label>
             <CampoSenha
               id="tr-senha"
               autoComplete="new-password"
@@ -295,7 +295,7 @@ export function PainelUsuarios() {
           <AlertDialogHeader>
             <AlertDialogTitle>Tem certeza que deseja remover este usuário?</AlertDialogTitle>
             <AlertDialogDescription>
-              O acesso de <strong>{excluindo?.nome}</strong> será excluído. As vagas, presenças, faltas,
+              O acesso de <strong>{p.nome(excluindo?.nome ?? "usuário")}</strong> será excluído. As vagas, presenças, faltas,
               cancelamentos e relatórios já registrados permanecem no sistema. Sempre que possível, prefira
               apenas <strong>desativar</strong> o usuário.
             </AlertDialogDescription>

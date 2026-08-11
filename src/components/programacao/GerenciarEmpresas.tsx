@@ -14,11 +14,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEmpresas, useSalvarEmpresa } from "@/lib/programacao";
+import { usePrivacidade } from "@/lib/privacidade";
 
 /** Cadastro e manutenção das empresas parceiras (visível para o admin). */
 export function GerenciarEmpresas() {
   const { data: empresas = [] } = useEmpresas();
   const salvar = useSalvarEmpresa();
+  const priv = usePrivacidade();
   const [nome, setNome] = useState("");
 
   const adicionar = () => {
@@ -68,7 +70,7 @@ export function GerenciarEmpresas() {
         <TableBody>
           {empresas.map((e) => (
             <TableRow key={e.id}>
-              <TableCell className="font-medium">{e.nome}</TableCell>
+              <TableCell className="font-medium">{priv.empresa(e.nome)}</TableCell>
               <TableCell className="text-right">
                 <Switch
                   checked={e.ativo}

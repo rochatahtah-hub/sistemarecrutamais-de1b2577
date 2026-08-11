@@ -55,7 +55,7 @@ export function PainelColaboradores() {
                   CPF {p.cpf(c.cpf)} · Tel {p.telefone(c.telefone ?? "")}
                 </p>
                 {bloqueio && (
-                  <p className="text-xs text-destructive">Motivo: {bloqueio.motivo}</p>
+                  <p className="text-xs text-destructive">Motivo: {p.privado ? p.texto(bloqueio.motivo) : bloqueio.motivo}</p>
                 )}
               </div>
               {bloqueio ? (
@@ -91,7 +91,7 @@ export function PainelColaboradores() {
       <Dialog open={Boolean(alvo)} onOpenChange={(o) => !o && setAlvo(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Bloquear {alvo?.nome}</DialogTitle>
+            <DialogTitle>Bloquear {p.nome(alvo?.nome ?? "colaborador")}</DialogTitle>
           </DialogHeader>
           <Textarea
             placeholder="Motivo do bloqueio"

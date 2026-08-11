@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { criarUsuario, definirPermissao, definirSenha } from "@/lib/admin.functions";
 import { useProgramadoras } from "@/lib/programacao";
+import { usePrivacidade } from "@/lib/privacidade";
 
 function useRoles() {
   return useQuery({
@@ -26,6 +27,7 @@ function useRoles() {
 
 export function GerenciarUsuarios() {
   const qc = useQueryClient();
+  const priv = usePrivacidade();
   const { data: perfis = [] } = useProgramadoras();
   const { data: roles = [] } = useRoles();
   const criar = useServerFn(criarUsuario);
@@ -102,8 +104,8 @@ export function GerenciarUsuarios() {
         {perfis.map((p) => (
           <div key={p.id} className="flex flex-wrap items-center gap-3 border-b border-border pb-3">
             <div className="min-w-[12rem] flex-1">
-              <p className="text-sm font-medium">{p.nome}</p>
-              <p className="text-xs text-muted-foreground">{p.email}</p>
+              <p className="text-sm font-medium">{priv.nome(p.nome)}</p>
+              <p className="text-xs text-muted-foreground">{priv.texto(p.email)}</p>
             </div>
             <label className="flex items-center gap-2 text-xs">
               <Switch

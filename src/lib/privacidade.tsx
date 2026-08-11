@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 const CHAVE = "recruta-mais:modo-privacidade";
 
@@ -52,10 +52,7 @@ export function mascararTelefone(valor: string) {
 }
 
 export function mascararEmpresa(valor: string) {
-  const limpo = valor.trim();
-  if (!limpo) return "EMPRESA •••";
-  const primeira = limpo.split(/\s+/)[0] ?? "";
-  return `${primeira.slice(0, 3).toUpperCase()}••• •••`;
+  return valor.trim() ? "Cliente •••" : "Cliente oculto";
 }
 
 export function mascararNumero(valor: number | string) {
@@ -89,6 +86,7 @@ export function mascararFrase(
 
 export function PrivacidadeProvider({ children }: { children: ReactNode }) {
   const [privado, setPrivado] = useState(false);
+  const clientes = useRef(new Map<string, string>());
 
   useEffect(() => {
     try {
@@ -115,6 +113,18 @@ export function PrivacidadeProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const empresa = useCallback((valor: string | null | undefined) => {
+    const nome = (valor ?? "").trim();
+    if (!privado) return nome;
+    if (!nome) return "Cliente oculto";
+    const chave = nome.toLocaleLowerCase("pt-BR");
+    const existente = clientes.current.get(chave);
+    if (existente) return existente;
+    const rotulo = `Cliente ${String(clientes.current.size + 1).padStart(2, "0")}`;
+    clientes.current.set(chave, rotulo);
+    return rotulo;
+  }, [privado]);
+
   const valor = useMemo<PrivacidadeCtx>(
     () => ({
       privado,
@@ -123,12 +133,12 @@ export function PrivacidadeProvider({ children }: { children: ReactNode }) {
       cpf: (v) => (privado ? mascararCpf(v ?? "") : (v ?? "")),
       telefone: (v) => (privado ? mascararTelefone(v ?? "") : (v ?? "")),
       texto: (v) => (privado ? "••••••" : (v ?? "")),
-      empresa: (v) => (privado ? mascararEmpresa(v ?? "") : (v ?? "")),
+      empresa,
       numero: (v) => (privado ? mascararNumero(v ?? "") : String(v ?? "")),
       frase: (v, nomes) =>
         privado ? mascararFrase(v ?? "", nomes?.empresas ?? [], nomes?.pessoas ?? []) : (v ?? ""),
     }),
-    [privado, alternar],
+    [privado, alternar, empresa],
   );
 
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>;

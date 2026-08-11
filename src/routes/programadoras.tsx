@@ -56,6 +56,7 @@ function Pagina() {
 
   const linhas = useMemo(() => {
     return perfis
+      .filter((p) => p.ativo)
       .map((p) => {
         const meus = registros.filter(
           (r) => r.colaborador === p.nome && r.data >= q.inicio && r.data <= q.fim,

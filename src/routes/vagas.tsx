@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Sigiloso } from "@/lib/privacidade";
+import { Sigiloso, usePrivacidade } from "@/lib/privacidade";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileDown, FileText } from "lucide-react";
 
@@ -37,6 +37,7 @@ export const Route = createFileRoute("/vagas")({
 });
 
 function Pagina() {
+  const priv = usePrivacidade();
   const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const [pagina, setPagina] = useState(0);
@@ -98,12 +99,12 @@ function Pagina() {
                 <TableCell>
                   <Sigiloso valor={r.empresa} tipo="empresa" />
                 </TableCell>
-                <TableCell>{r.cargo || r.descricao || "—"}</TableCell>
+                <TableCell>{priv.privado ? priv.texto(r.cargo || r.descricao) : (r.cargo || r.descricao || "—")}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
                 <TableCell>{SITUACAO_LABEL[r.situacao] ?? r.situacao}</TableCell>
                 <TableCell>{STATUS_LABEL[r.status] ?? r.status}</TableCell>
                 <TableCell className="max-w-[260px] truncate text-muted-foreground">
-                  {r.observacao || "—"}
+                  {priv.privado ? priv.texto(r.observacao) : (r.observacao || "—")}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" onClick={() => setFicha(r)}>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Sigiloso } from "@/lib/privacidade";
+import { Sigiloso, usePrivacidade } from "@/lib/privacidade";
 import { Link } from "@tanstack/react-router";
 import {
   AlertTriangle,
@@ -47,6 +47,7 @@ import { SITUACAO_LABEL, STATUS_LABEL } from "@/lib/tipos";
 import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa"; nome: string }) {
+  const priv = usePrivacidade();
   const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const [granularidade, setGranularidade] = useState<Granularidade>("quinzena");
@@ -263,12 +264,12 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
                       <Sigiloso valor={r.colaborador} />
                     )}
                   </TableCell>
-                  <TableCell>{r.cargo || r.descricao || "—"}</TableCell>
+                   <TableCell>{priv.privado ? priv.texto(r.cargo || r.descricao) : (r.cargo || r.descricao || "—")}</TableCell>
                   <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
                   <TableCell>{SITUACAO_LABEL[r.situacao] ?? r.situacao}</TableCell>
                   <TableCell>{STATUS_LABEL[r.status] ?? r.status}</TableCell>
                   <TableCell className="max-w-[240px] truncate text-muted-foreground">
-                    {r.observacao || "—"}
+                     {priv.privado ? priv.texto(r.observacao) : (r.observacao || "—")}
                   </TableCell>
                 </TableRow>
               ))}
