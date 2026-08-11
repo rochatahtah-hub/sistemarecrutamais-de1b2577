@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bell, Eye, EyeOff, LogOut, Settings, ShieldCheck, User } from "lucide-react";
+import { Bell, Camera, Eye, EyeOff, LogOut, Settings, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { BuscaGlobal } from "@/components/BuscaGlobal";
+import { AvatarUsuario } from "@/components/AvatarUsuario";
+import { DialogoFotoPerfil } from "@/components/DialogoFotoPerfil";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -56,12 +58,6 @@ const SECOES: Record<string, string> = {
   "/saude-sistema": "Saúde do Sistema",
 };
 
-function iniciais(nome?: string | null) {
-  const partes = (nome ?? "").trim().split(/\s+/).filter(Boolean);
-  if (partes.length === 0) return "R+";
-  return ((partes[0]?.[0] ?? "") + (partes[1]?.[0] ?? "")).toUpperCase() || "R+";
-}
-
 export function TopBar() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
@@ -70,6 +66,7 @@ export function TopBar() {
   const { data: config } = useConfiguracoes();
   const { data: notificacoes = [] } = useNotificacoes();
   const marcarLidas = useMarcarNotificacoesLidas();
+  const [fotoAberta, setFotoAberta] = useState(false);
 
   const naoLidas = useMemo(() => notificacoes.filter((n) => !n.lida), [notificacoes]);
   const secao = useMemo(() => {
@@ -200,9 +197,12 @@ export function TopBar() {
               variant="ghost"
               className="h-11 gap-2.5 rounded-xl border border-transparent pl-1.5 pr-2.5 hover:border-border hover:bg-card"
             >
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-[11px] font-bold text-primary-foreground">
-                {privado ? <User className="h-4 w-4" /> : iniciais(perfil?.nome)}
-              </span>
+              <AvatarUsuario
+                nome={perfil?.nome}
+                caminho={perfil?.avatar_url}
+                privado={privado}
+                className="h-8 w-8"
+              />
               <span className="hidden min-w-0 text-left leading-tight sm:block">
                 <span className="block max-w-[10rem] truncate text-[13px] font-semibold text-foreground">
                   {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
@@ -219,6 +219,9 @@ export function TopBar() {
               {privado ? "••••••" : (perfil?.email ?? user?.email)}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => setFotoAberta(true)}>
+              <Camera className="mr-2 h-4 w-4" /> Alterar foto de perfil
+            </DropdownMenuItem>
             {isAdmin && (
               <DropdownMenuItem asChild>
                 <Link to="/administracao">
@@ -244,6 +247,7 @@ export function TopBar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <DialogoFotoPerfil aberto={fotoAberta} onOpenChange={setFotoAberta} />
       </div>
     </header>
   );

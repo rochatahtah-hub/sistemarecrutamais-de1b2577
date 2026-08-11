@@ -25,6 +25,10 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { usePrivacidade } from "@/lib/privacidade";
+import { AvatarUsuario } from "@/components/AvatarUsuario";
+import logoLockup from "@/assets/recruta-lockup.png.asset.json";
+import logoMarca from "@/assets/recruta-mark.png.asset.json";
 
 import {
   Sidebar,
@@ -90,7 +94,8 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin } = useAuth();
+  const { isAdmin, perfil } = useAuth();
+  const { privado } = usePrivacidade();
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
     : ferramentas;
@@ -125,16 +130,36 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border [&>div]:malha-escura">
       <SidebarHeader className="border-b border-sidebar-border/70">
         <div className="flex items-center gap-2.5 px-1 py-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-base font-bold leading-none text-sidebar-primary-foreground shadow-[0_6px_18px_-8px_oklch(0.78_0.082_82/0.9)]">
-            R<span className="text-[11px]">+</span>
-          </div>
+          {collapsed ? (
+            <img
+              src={logoMarca.url}
+              alt="Recruta+"
+              className="h-9 w-9 shrink-0 object-contain"
+            />
+          ) : (
+            <img
+              src={logoLockup.url}
+              alt="Recruta+ — Gestão inteligente de recrutamento"
+              className="h-11 w-auto max-w-full object-contain object-left"
+            />
+          )}
+        </div>
+        <div
+          className={`mb-2 flex items-center gap-2.5 rounded-xl border border-sidebar-border/60 bg-sidebar-accent/40 ${collapsed ? "justify-center px-0 py-2" : "px-2.5 py-2"}`}
+        >
+          <AvatarUsuario
+            nome={perfil?.nome}
+            caminho={perfil?.avatar_url}
+            privado={privado}
+            className="h-8 w-8 text-[10px]"
+          />
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate text-[15px] font-semibold tracking-tight text-sidebar-foreground">
-                RECRUTA<span className="text-sidebar-primary">+</span>
+              <p className="truncate text-[12.5px] font-semibold leading-tight text-sidebar-foreground">
+                {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
               </p>
               <p className="truncate text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/45">
-                Gestão de recrutamento
+                {isAdmin ? "Administrador" : "Programadora"}
               </p>
             </div>
           )}

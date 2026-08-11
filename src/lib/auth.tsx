@@ -18,6 +18,7 @@ export interface Perfil {
   email: string | null;
   ativo: boolean;
   meta_quinzena: number;
+  avatar_url: string;
   ultimo_acesso: string | null;
   ultimo_preenchimento: string | null;
 }
@@ -45,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [p, r] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id,nome,email,ativo,meta_quinzena,ultimo_acesso,ultimo_preenchimento")
+        .select("id,nome,email,ativo,meta_quinzena,avatar_url,ultimo_acesso,ultimo_preenchimento")
         .eq("id", uid)
         .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
