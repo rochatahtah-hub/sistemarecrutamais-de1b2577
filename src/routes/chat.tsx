@@ -16,8 +16,8 @@ import {
   estaOnline,
   horaCurta,
   useAbrirConversaDireta,
-  useChatRealtime,
   useConversas,
+  useConversaAberta,
   usePresencaAtiva,
   usePresencas,
   useUsuariosChat,
@@ -50,7 +50,7 @@ function ChatPage() {
   const [novoGrupo, setNovoGrupo] = useState(false);
 
   usePresencaAtiva();
-  useChatRealtime(selecionada);
+  useConversaAberta(selecionada);
 
   const { data: conversas = [], isLoading } = useConversas();
   const { data: usuarios = [] } = useUsuariosChat();
