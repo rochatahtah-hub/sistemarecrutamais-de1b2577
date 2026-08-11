@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { Bell, LogOut, Settings, User } from "lucide-react";
+import { Bell, Eye, EyeOff, LogOut, Settings, ShieldCheck, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { BuscaGlobal } from "@/components/BuscaGlobal";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { usePrivacidade } from "@/lib/privacidade";
 import { useConfiguracoes } from "@/lib/dados";
 import { useMarcarNotificacoesLidas, useNotificacoes } from "@/lib/programacao";
 
@@ -31,6 +32,7 @@ function dentroDoExpediente(inicio: string, fim: string) {
 export function TopBar() {
   const navigate = useNavigate();
   const { perfil, user, isAdmin, sair } = useAuth();
+  const { privado, alternar } = usePrivacidade();
   const { data: config } = useConfiguracoes();
   const { data: notificacoes = [] } = useNotificacoes();
   const marcarLidas = useMarcarNotificacoesLidas();
@@ -90,6 +92,20 @@ export function TopBar() {
       </div>
       <div className="ml-auto flex items-center gap-2">
         <BuscaGlobal />
+        <Button
+          variant={privado ? "default" : "ghost"}
+          size="sm"
+          className="gap-2"
+          aria-pressed={privado}
+          title={privado ? "Modo Privacidade Ativado" : "Ativar Privacidade"}
+          onClick={() => {
+            alternar();
+            toast.success(privado ? "🔓 Modo Privacidade Desativado" : "🔒 Modo Privacidade Ativado");
+          }}
+        >
+          {privado ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          <span className="hidden sm:inline">{privado ? "Privacidade ativa" : "Privacidade"}</span>
+        </Button>
         <DropdownMenu
           onOpenChange={(aberto) => {
             if (!aberto && naoLidas.length > 0) marcarLidas.mutate(naoLidas.map((n) => n.id));
@@ -136,6 +152,13 @@ export function TopBar() {
               {perfil?.email ?? user?.email}
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {isAdmin && (
+              <DropdownMenuItem asChild>
+                <Link to="/administracao">
+                  <ShieldCheck className="mr-2 h-4 w-4" /> Central de Administração
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link to="/configuracoes">
                 <Settings className="mr-2 h-4 w-4" /> Configurações

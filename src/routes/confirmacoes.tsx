@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Sigiloso } from "@/lib/privacidade";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileDown, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -175,7 +176,9 @@ function Pagina() {
             {visiveis.map((r) => (
               <TableRow key={r.id}>
                 <TableCell className="whitespace-nowrap">{fmtData(r.data)}</TableCell>
-                <TableCell>{r.colaborador}</TableCell>
+                <TableCell>
+                  <Sigiloso valor={r.colaborador} />
+                </TableCell>
                 <TableCell>{r.empresa}</TableCell>
                 <TableCell>{r.candidato || r.descricao || "—"}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>

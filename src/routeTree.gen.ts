@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -38,6 +39,11 @@ import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/p
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdministracaoRoute = AdministracaoRouteImport.update({
+  id: '/administracao',
+  path: '/administracao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnaliseRoute = AnaliseRouteImport.update({
@@ -164,6 +170,7 @@ const ApiPublicHooksBackupAgendadoRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
@@ -219,6 +227,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/administracao'
     | '/analise'
     | '/auditoria'
     | '/auth'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/administracao'
     | '/analise'
     | '/auditoria'
     | '/auth'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/administracao'
     | '/analise'
     | '/auditoria'
     | '/auth'
@@ -330,6 +342,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdministracaoRoute: typeof AdministracaoRoute
   AnaliseRoute: typeof AnaliseRoute
   AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/administracao': {
+      id: '/administracao'
+      path: '/administracao'
+      fullPath: '/administracao'
+      preLoaderRoute: typeof AdministracaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analise': {
@@ -538,6 +558,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdministracaoRoute: AdministracaoRoute,
   AnaliseRoute: AnaliseRoute,
   AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,

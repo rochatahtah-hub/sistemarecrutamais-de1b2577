@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Sigiloso } from "@/lib/privacidade";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { RequerAdmin } from "@/components/RequerAdmin";
@@ -138,7 +139,9 @@ function Pagina() {
           <TableBody>
             {perfis.map((p) => (
               <TableRow key={p.id}>
-                <TableCell className="font-medium">{p.nome}</TableCell>
+                <TableCell className="font-medium">
+                  <Sigiloso valor={p.nome} />
+                </TableCell>
                 <TableCell className="text-right">
                   {isAdmin ? (
                     <Input

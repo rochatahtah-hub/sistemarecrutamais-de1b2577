@@ -21,6 +21,7 @@ import {
   Trophy,
   History,
   DatabaseBackup,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -39,6 +40,7 @@ import {
 
 const ADMIN_ONLY = new Set([
   "/programadoras",
+  "/administracao",
   "/importar",
   "/metas",
   "/bloqueios",
@@ -71,6 +73,7 @@ const inteligencia = [
 
 const ferramentas = [
   { title: "Relatórios", url: "/relatorios", icon: FileText },
+  { title: "Central de Administração", url: "/administracao", icon: ShieldCheck },
   { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
   { title: "Histórico", url: "/historico", icon: Archive },
   { title: "Histórico de Alterações", url: "/auditoria", icon: History },

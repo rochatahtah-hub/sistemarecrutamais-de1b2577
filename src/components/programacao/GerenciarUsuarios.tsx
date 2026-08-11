@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { CampoSenha } from "@/components/CampoSenha";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -78,9 +79,8 @@ export function GerenciarUsuarios() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="u-senha">Senha</Label>
-          <Input
+          <CampoSenha
             id="u-senha"
-            type="password"
             minLength={6}
             required
             value={senha}
@@ -120,8 +120,7 @@ export function GerenciarUsuarios() {
               Administrador
             </label>
             <div className="flex items-center gap-2">
-              <Input
-                type="password"
+              <CampoSenha
                 placeholder="Nova senha"
                 className="h-8 w-40"
                 value={novaSenha[p.id] ?? ""}

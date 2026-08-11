@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatarCPF, formatarTelefone, useCandidatos, type Candidato } from "@/lib/programacao";
+import { usePrivacidade } from "@/lib/privacidade";
 import { useDebounce } from "@/hooks/use-debounce";
 
 export const Route = createFileRoute("/candidatos")({
@@ -38,6 +39,7 @@ function Pagina() {
   const [candidato, setCandidato] = useState<Candidato | null>(null);
   const buscaDebounced = useDebounce(busca, 350);
   const { data: lista = [] } = useCandidatos(buscaDebounced);
+  const priv = usePrivacidade();
 
   return (
     <div className="space-y-5">
@@ -83,9 +85,15 @@ function Pagina() {
             <TableBody>
               {lista.map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.nome}</TableCell>
-                  <TableCell>{formatarCPF(c.cpf)}</TableCell>
-                  <TableCell>{c.telefone ? formatarTelefone(c.telefone) : "—"}</TableCell>
+                  <TableCell className="font-medium">{priv.nome(c.nome)}</TableCell>
+                  <TableCell>{priv.privado ? priv.cpf(c.cpf) : formatarCPF(c.cpf)}</TableCell>
+                  <TableCell>
+                    {c.telefone
+                      ? priv.privado
+                        ? priv.telefone(c.telefone)
+                        : formatarTelefone(c.telefone)
+                      : "—"}
+                  </TableCell>
                 </TableRow>
               ))}
               {lista.length === 0 && (

@@ -52,6 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ]);
     setPerfil((p.data as Perfil | null) ?? null);
     setIsAdmin((r.data ?? []).some((x) => x.role === "admin"));
+    // Usuário desativado não permanece com sessão ativa.
+    if (p.data && (p.data as Perfil).ativo === false) {
+      await supabase.auth.signOut();
+    }
   }, []);
 
   useEffect(() => {
