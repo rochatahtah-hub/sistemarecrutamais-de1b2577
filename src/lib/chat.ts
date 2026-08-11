@@ -338,6 +338,16 @@ export function formatarDuracao(ms: number) {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
+/** Texto curto de prévia de uma mensagem (usado em listas e respostas). */
+export function resumoMensagem(m: Mensagem) {
+  if (m.excluida) return "Mensagem excluída";
+  if (m.conteudo) return m.conteudo;
+  if (m.tipo === "imagem") return "📷 Imagem";
+  if (m.tipo === "audio") return "🎙️ Áudio";
+  if (m.tipo === "arquivo") return `📎 ${m.anexo_nome || "Arquivo"}`;
+  return "";
+}
+
 export function useExcluirMensagem() {
   const qc = useQueryClient();
   return useMutation({
