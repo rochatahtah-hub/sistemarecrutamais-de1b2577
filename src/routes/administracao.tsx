@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { DatabaseBackup, Settings2, ShieldCheck } from "lucide-react";
+import { DatabaseBackup, KeyRound, Settings2, ShieldCheck } from "lucide-react";
 
 import { PageHeader } from "@/components/PageHeader";
 import { RequerAdmin } from "@/components/RequerAdmin";
@@ -10,6 +10,7 @@ import { PainelColaboradores } from "@/components/admin/PainelColaboradores";
 import { PainelManutencao } from "@/components/admin/PainelManutencao";
 import { PainelEmailBackup } from "@/components/admin/PainelEmailBackup";
 import { PainelUsuarios } from "@/components/admin/PainelUsuarios";
+import { ResumoAcessos } from "@/components/admin/ResumoAcessos";
 import { GerenciarEmpresas } from "@/components/programacao/GerenciarEmpresas";
 
 export const Route = createFileRoute("/administracao")({
@@ -54,6 +55,11 @@ function Pagina() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="sm">
+              <Link to="/acessos">
+                <KeyRound className="mr-2 h-4 w-4" /> Histórico de acessos
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
               <Link to="/saude-sistema">
                 <ShieldCheck className="mr-2 h-4 w-4" /> Saúde do sistema
               </Link>
@@ -71,7 +77,8 @@ function Pagina() {
           <TabsTrigger value="manutencao">🛠️ Manutenção</TabsTrigger>
           <TabsTrigger value="email-backup">📧 Backups por e-mail</TabsTrigger>
         </TabsList>
-        <TabsContent value="usuarios" className="pt-4">
+        <TabsContent value="usuarios" className="space-y-4 pt-4">
+          <ResumoAcessos />
           <PainelUsuarios />
         </TabsContent>
         <TabsContent value="empresas" className="pt-4">
