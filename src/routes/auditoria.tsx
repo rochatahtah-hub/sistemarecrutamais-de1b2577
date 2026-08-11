@@ -61,6 +61,14 @@ const CAMPO_LABEL: Record<string, string> = {
 
 function Pagina() {
   const { data: registros = [], isLoading, isError, refetch } = useAuditoria();
+  const priv = usePrivacidade();
+  const sensivel = (campo: string, valor: string) => {
+    if (!valor) return "—";
+    if (campo === "cpf") return priv.cpf(valor);
+    if (campo === "telefone") return priv.telefone(valor);
+    if (campo === "nome" || campo === "responsavel") return priv.nome(valor);
+    return valor;
+  };
   const [busca, setBusca] = useState("");
   const [tabela, setTabela] = useState("TODAS");
   const [acao, setAcao] = useState("TODAS");
@@ -188,16 +196,18 @@ function Pagina() {
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {new Date(r.created_at).toLocaleString("pt-BR")}
                 </TableCell>
-                <TableCell>{r.usuario_nome || "Sistema"}</TableCell>
+                <TableCell>{r.usuario_nome ? priv.nome(r.usuario_nome) : "Sistema"}</TableCell>
                 <TableCell>
                   <span className="font-medium">{TABELA_LABEL[r.tabela] ?? r.tabela}</span>
-                  {r.descricao ? ` · ${r.descricao}` : ""}
+                  {r.descricao ? ` · ${priv.privado ? priv.nome(r.descricao) : r.descricao}` : ""}
                 </TableCell>
                 <TableCell>{r.campo ? (CAMPO_LABEL[r.campo] ?? r.campo) : "—"}</TableCell>
                 <TableCell className="max-w-[200px] truncate text-muted-foreground">
-                  {r.valor_anterior || "—"}
+                  {sensivel(r.campo, r.valor_anterior)}
                 </TableCell>
-                <TableCell className="max-w-[200px] truncate">{r.valor_novo || "—"}</TableCell>
+                <TableCell className="max-w-[200px] truncate">
+                  {sensivel(r.campo, r.valor_novo)}
+                </TableCell>
                 <TableCell>
                   <Badge variant={r.acao === "DELETE" ? "destructive" : "outline"}>
                     {ACAO_LABEL[r.acao] ?? r.acao}
