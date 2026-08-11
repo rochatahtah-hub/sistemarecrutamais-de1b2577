@@ -96,7 +96,18 @@ function Painel({
   );
 }
 
-function ListaTop({ linhas, campo, sufixo }: { linhas: LinhaAgregada[]; campo: keyof LinhaAgregada; sufixo: "num" | "pct" }) {
+function ListaTop({
+  linhas,
+  campo,
+  sufixo,
+  sensivel = false,
+}: {
+  linhas: LinhaAgregada[];
+  campo: keyof LinhaAgregada;
+  sufixo: "num" | "pct";
+  sensivel?: boolean;
+}) {
+  const priv = usePrivacidade();
   const ordenadas = [...linhas].sort((a, b) => Number(b[campo]) - Number(a[campo])).slice(0, 5);
   if (ordenadas.length === 0)
     return <p className="text-sm text-muted-foreground">Sem dados.</p>;
@@ -108,7 +119,7 @@ function ListaTop({ linhas, campo, sufixo }: { linhas: LinhaAgregada[]; campo: k
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-secondary text-[11px] font-semibold text-primary">
               {i + 1}
             </span>
-            <span className="truncate">{l.nome}</span>
+            <span className="truncate">{sensivel ? priv.nome(l.nome) : l.nome}</span>
           </span>
           <span className="shrink-0 tabular-nums font-semibold">
             {sufixo === "pct" ? fmtPct(Number(l[campo])) : fmtNum(Number(l[campo]))}
@@ -297,7 +308,7 @@ function Dashboard() {
           <GraficoEvolucao dados={serie} />
         </Painel>
         <Painel titulo="Desempenho por colaborador">
-          <GraficoBarrasStatus linhas={porColaborador.slice(0, 10)} />
+          <GraficoBarrasStatus linhas={porColaborador.slice(0, 10)} sensivel />
         </Painel>
         <Painel
           titulo="Ranking de empresas"
