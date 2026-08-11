@@ -230,7 +230,7 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
             )}
           </p>
         </div>
-        {resumo.conversa.tipo === "grupo" ? (
+        {resumo.conversa.tipo === "grupo" && (
           <Button
             variant="ghost"
             size="icon"
@@ -238,22 +238,6 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
             onClick={() => setInfoAberta(true)}
           >
             <Info className="h-4 w-4" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            title="Sair da conversa (chat temporário)"
-            onClick={() =>
-              sair.mutate(resumo.conversa.id, {
-                onSuccess: () => {
-                  toast.success("Você saiu da conversa.");
-                  onSaiu();
-                },
-              })
-            }
-          >
-            <LogOut className="h-4 w-4" />
           </Button>
         )}
       </header>
