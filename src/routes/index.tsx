@@ -23,6 +23,7 @@ import {
   GraficoEvolucao,
 } from "@/components/dashboard/Graficos";
 import { Button } from "@/components/ui/button";
+import { usePrivacidade } from "@/lib/privacidade";
 import {
   Select,
   SelectContent,
