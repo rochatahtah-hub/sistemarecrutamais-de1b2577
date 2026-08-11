@@ -59,7 +59,7 @@ const SECOES: Record<string, string> = {
 function iniciais(nome?: string | null) {
   const partes = (nome ?? "").trim().split(/\s+/).filter(Boolean);
   if (partes.length === 0) return "R+";
-  return (partes[0][0] + (partes[1]?.[0] ?? "")).toUpperCase();
+  return ((partes[0]?.[0] ?? "") + (partes[1]?.[0] ?? "")).toUpperCase() || "R+";
 }
 
 export function TopBar() {
