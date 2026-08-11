@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as CompararRouteImport } from './routes/comparar'
@@ -32,6 +33,7 @@ import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.i
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
+import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,6 +53,11 @@ const AuditoriaRoute = AuditoriaRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BackupsRoute = BackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BloqueiosRoute = BloqueiosRouteImport.update({
@@ -148,12 +155,19 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
   path: '/empresas/$nome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksBackupAgendadoRoute =
+  ApiPublicHooksBackupAgendadoRouteImport.update({
+    id: '/api/public/hooks/backup-agendado',
+    path: '/api/public/hooks/backup-agendado',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
@@ -173,12 +187,14 @@ export interface FileRoutesByFullPath {
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
@@ -198,6 +214,7 @@ export interface FileRoutesByTo {
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
+  '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -205,6 +222,7 @@ export interface FileRoutesById {
   '/analise': typeof AnaliseRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
+  '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
   '/comparar': typeof CompararRoute
@@ -224,6 +242,7 @@ export interface FileRoutesById {
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -232,6 +251,7 @@ export interface FileRouteTypes {
     | '/analise'
     | '/auditoria'
     | '/auth'
+    | '/backups'
     | '/bloqueios'
     | '/candidatos'
     | '/comparar'
@@ -251,12 +271,14 @@ export interface FileRouteTypes {
     | '/empresas/$nome'
     | '/colaboradores/'
     | '/empresas/'
+    | '/api/public/hooks/backup-agendado'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/analise'
     | '/auditoria'
     | '/auth'
+    | '/backups'
     | '/bloqueios'
     | '/candidatos'
     | '/comparar'
@@ -276,12 +298,14 @@ export interface FileRouteTypes {
     | '/empresas/$nome'
     | '/colaboradores'
     | '/empresas'
+    | '/api/public/hooks/backup-agendado'
   id:
     | '__root__'
     | '/'
     | '/analise'
     | '/auditoria'
     | '/auth'
+    | '/backups'
     | '/bloqueios'
     | '/candidatos'
     | '/comparar'
@@ -301,6 +325,7 @@ export interface FileRouteTypes {
     | '/empresas/$nome'
     | '/colaboradores/'
     | '/empresas/'
+    | '/api/public/hooks/backup-agendado'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -308,6 +333,7 @@ export interface RootRouteChildren {
   AnaliseRoute: typeof AnaliseRoute
   AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
+  BackupsRoute: typeof BackupsRoute
   BloqueiosRoute: typeof BloqueiosRoute
   CandidatosRoute: typeof CandidatosRoute
   CompararRoute: typeof CompararRoute
@@ -327,6 +353,7 @@ export interface RootRouteChildren {
   EmpresasNomeRoute: typeof EmpresasNomeRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
+  ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -357,6 +384,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/backups': {
+      id: '/backups'
+      path: '/backups'
+      fullPath: '/backups'
+      preLoaderRoute: typeof BackupsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bloqueios': {
@@ -492,6 +526,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasNomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/backup-agendado': {
+      id: '/api/public/hooks/backup-agendado'
+      path: '/api/public/hooks/backup-agendado'
+      fullPath: '/api/public/hooks/backup-agendado'
+      preLoaderRoute: typeof ApiPublicHooksBackupAgendadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -500,6 +541,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnaliseRoute: AnaliseRoute,
   AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,
+  BackupsRoute: BackupsRoute,
   BloqueiosRoute: BloqueiosRoute,
   CandidatosRoute: CandidatosRoute,
   CompararRoute: CompararRoute,
@@ -519,17 +561,8 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasNomeRoute: EmpresasNomeRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
+  ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

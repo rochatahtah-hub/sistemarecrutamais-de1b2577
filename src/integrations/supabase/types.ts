@@ -128,6 +128,108 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_agendamento: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          dia_mes: number
+          dia_semana: number
+          formato: string
+          frequencia: string
+          hora: number
+          id: boolean
+          proxima_execucao: string | null
+          retencao_dias: number
+          ultima_execucao: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          dia_mes?: number
+          dia_semana?: number
+          formato?: string
+          frequencia?: string
+          hora?: number
+          id?: boolean
+          proxima_execucao?: string | null
+          retencao_dias?: number
+          ultima_execucao?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          dia_mes?: number
+          dia_semana?: number
+          formato?: string
+          frequencia?: string
+          hora?: number
+          id?: boolean
+          proxima_execucao?: string | null
+          retencao_dias?: number
+          ultima_execucao?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      backups: {
+        Row: {
+          arquivo_nome: string
+          arquivo_path: string
+          concluido_em: string | null
+          created_at: string
+          criado_por: string | null
+          criado_por_nome: string
+          duracao_ms: number
+          erro: string
+          formato: string
+          id: string
+          origem: string
+          status: string
+          tamanho_bytes: number
+          total_registros: number
+          total_tabelas: number
+          updated_at: string
+        }
+        Insert: {
+          arquivo_nome?: string
+          arquivo_path?: string
+          concluido_em?: string | null
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          duracao_ms?: number
+          erro?: string
+          formato?: string
+          id?: string
+          origem?: string
+          status?: string
+          tamanho_bytes?: number
+          total_registros?: number
+          total_tabelas?: number
+          updated_at?: string
+        }
+        Update: {
+          arquivo_nome?: string
+          arquivo_path?: string
+          concluido_em?: string | null
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          duracao_ms?: number
+          erro?: string
+          formato?: string
+          id?: string
+          origem?: string
+          status?: string
+          tamanho_bytes?: number
+          total_registros?: number
+          total_tabelas?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       candidatos: {
         Row: {
           cpf: string

@@ -20,6 +20,7 @@ import {
   Radar,
   Trophy,
   History,
+  DatabaseBackup,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -44,6 +45,7 @@ const ADMIN_ONLY = new Set([
   "/auditoria",
   "/configuracoes",
   "/saude-sistema",
+  "/backups",
 ]);
 
 const operacao = [
@@ -74,6 +76,7 @@ const ferramentas = [
   { title: "Histórico de Alterações", url: "/auditoria", icon: History },
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
+  { title: "Backups", url: "/backups", icon: DatabaseBackup },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ] as const;
 
