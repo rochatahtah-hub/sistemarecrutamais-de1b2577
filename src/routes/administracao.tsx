@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PainelBanco } from "@/components/admin/PainelBanco";
 import { PainelColaboradores } from "@/components/admin/PainelColaboradores";
 import { PainelManutencao } from "@/components/admin/PainelManutencao";
+import { PainelEmailBackup } from "@/components/admin/PainelEmailBackup";
 import { PainelUsuarios } from "@/components/admin/PainelUsuarios";
 import { GerenciarEmpresas } from "@/components/programacao/GerenciarEmpresas";
 
@@ -68,6 +69,7 @@ function Pagina() {
           <TabsTrigger value="colaboradores">🧑‍🔧 Colaboradores</TabsTrigger>
           <TabsTrigger value="banco">🗄️ Banco de dados</TabsTrigger>
           <TabsTrigger value="manutencao">🛠️ Manutenção</TabsTrigger>
+          <TabsTrigger value="email-backup">📧 Backups por e-mail</TabsTrigger>
         </TabsList>
         <TabsContent value="usuarios" className="pt-4">
           <PainelUsuarios />
@@ -83,6 +85,9 @@ function Pagina() {
         </TabsContent>
         <TabsContent value="manutencao" className="pt-4">
           <PainelManutencao />
+        </TabsContent>
+        <TabsContent value="email-backup" className="pt-4">
+          <PainelEmailBackup />
         </TabsContent>
       </Tabs>
     </div>

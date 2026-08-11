@@ -97,18 +97,20 @@ export function TabelaDesempenho({
                   params={{ nome: encodeURIComponent(l.nome) }}
                   className="text-primary hover:underline"
                 >
-                  {destino === "colaboradores" ? priv.nome(l.nome) : l.nome}
+                  {destino === "colaboradores" ? priv.nome(l.nome) : priv.empresa(l.nome)}
                 </Link>
               </TableCell>
-              <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {priv.privado ? priv.numero(l.vagas) : fmtNum(l.vagas)}
+              </TableCell>
               <TableCell className="text-right tabular-nums text-success">
-                {fmtNum(l.presencas)}
+                {priv.privado ? priv.numero(l.presencas) : fmtNum(l.presencas)}
               </TableCell>
               <TableCell className="text-right tabular-nums text-destructive">
-                {fmtNum(l.faltas)}
+                {priv.privado ? priv.numero(l.faltas) : fmtNum(l.faltas)}
               </TableCell>
               <TableCell className="text-right tabular-nums text-warning">
-                {fmtNum(l.cancelamentos)}
+                {priv.privado ? priv.numero(l.cancelamentos) : fmtNum(l.cancelamentos)}
               </TableCell>
               <TableCell
                 className={cn(

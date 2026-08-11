@@ -23,7 +23,7 @@ import {
   GraficoEvolucao,
 } from "@/components/dashboard/Graficos";
 import { Button } from "@/components/ui/button";
-import { usePrivacidade } from "@/lib/privacidade";
+import { Sigiloso, usePrivacidade } from "@/lib/privacidade";
 import {
   Select,
   SelectContent,
@@ -120,12 +120,18 @@ function ListaTop({
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-secondary text-[11px] font-semibold text-primary">
               {i + 1}
             </span>
-            <span className="truncate">{sensivel ? priv.nome(l.nome) : l.nome}</span>
+            <span className="truncate">
+              {sensivel ? priv.nome(l.nome) : priv.empresa(l.nome)}
+            </span>
           </span>
           <span className="shrink-0 tabular-nums font-semibold">
-            {sufixo === "pct" ? fmtPct(Number(l[campo])) : fmtNum(Number(l[campo]))}
+            {priv.privado
+              ? priv.numero(Number(l[campo]))
+              : sufixo === "pct"
+                ? fmtPct(Number(l[campo]))
+                : fmtNum(Number(l[campo]))}
             <span className="ml-1 text-xs font-normal text-muted-foreground">
-              ({fmtNum(l.vagas)} vagas)
+              ({priv.privado ? priv.numero(l.vagas) : fmtNum(l.vagas)} vagas)
             </span>
           </span>
         </li>
@@ -397,18 +403,20 @@ function Dashboard() {
                         params={{ nome: encodeURIComponent(l.nome) }}
                         className="text-primary hover:underline"
                       >
-                        {l.nome}
+                        <Sigiloso valor={l.nome} tipo="empresa" />
                       </Link>
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      <Sigiloso valor={fmtNum(l.vagas)} tipo="numero" />
+                    </TableCell>
                     <TableCell className="text-right tabular-nums text-success">
-                      {fmtNum(l.presencas)}
+                      <Sigiloso valor={fmtNum(l.presencas)} tipo="numero" />
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-destructive">
-                      {fmtNum(l.faltas)}
+                      <Sigiloso valor={fmtNum(l.faltas)} tipo="numero" />
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-warning">
-                      {fmtNum(l.cancelamentos)}
+                      <Sigiloso valor={fmtNum(l.cancelamentos)} tipo="numero" />
                     </TableCell>
                   </TableRow>
                 ))}
