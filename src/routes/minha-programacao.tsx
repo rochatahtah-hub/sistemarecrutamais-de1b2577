@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from "@/lib/auth";
+import { usePrivacidade } from "@/lib/privacidade";
 import { fmtData, fmtNum, fmtPct } from "@/lib/metricas";
 import { STATUS_LABEL } from "@/lib/tipos";
 import { hojeISO, quinzenaAtual } from "@/lib/quinzena";
@@ -59,6 +60,7 @@ export const Route = createFileRoute("/minha-programacao")({
 
 function Pagina() {
   const { user, perfil } = useAuth();
+  const priv = usePrivacidade();
   const q = quinzenaAtual();
   const { data: empresas = [] } = useEmpresas();
   const { data: registros = [] } = useMinhasProgramacoes(user?.id);
