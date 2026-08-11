@@ -21,6 +21,7 @@ import {
   Trophy,
   History,
   DatabaseBackup,
+  KeyRound,
   ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
