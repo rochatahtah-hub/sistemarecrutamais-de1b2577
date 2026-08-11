@@ -25,14 +25,18 @@ export function CardIndicador({
 
   const conteudo = (
     <>
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {titulo}
         </p>
-        <Icon className={cn("h-4 w-4", cores[tom])} />
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-muted">
+          <Icon className={cn("h-4 w-4", cores[tom])} strokeWidth={1.75} />
+        </span>
       </div>
-      <p className={cn("mt-2 font-display text-3xl font-bold leading-none", cores[tom])}>{valor}</p>
-      {detalhe && <p className="mt-1.5 text-xs text-muted-foreground">{detalhe}</p>}
+      <p className={cn("mt-3 text-[28px] font-semibold leading-none tracking-tight", cores[tom])}>
+        {valor}
+      </p>
+      {detalhe && <p className="mt-2 text-xs text-muted-foreground">{detalhe}</p>}
     </>
   );
 
@@ -41,12 +45,12 @@ export function CardIndicador({
       <button
         type="button"
         onClick={onClick}
-        className="surface-panel rounded-xl p-4 text-left transition-colors hover:border-primary/40 hover:bg-secondary/40"
+        className="surface-panel rounded-xl p-5 text-left hover:border-gold/50 hover:shadow-md"
       >
         {conteudo}
       </button>
     );
   }
 
-  return <div className="surface-panel rounded-xl p-4">{conteudo}</div>;
+  return <div className="surface-panel rounded-xl p-5">{conteudo}</div>;
 }
