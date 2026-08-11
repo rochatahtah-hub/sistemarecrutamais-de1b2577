@@ -156,7 +156,7 @@ function Pagina() {
       </div>
 
       {isError && (
-        <div className="surface-panel rounded-xl p-6 text-center">
+        <div className="surface-panel rounded-2xl p-6 text-center">
           <p className="text-sm text-muted-foreground">
             Não foi possível carregar o histórico. Tente novamente.
           </p>
@@ -169,7 +169,7 @@ function Pagina() {
       <div className="surface-panel overflow-x-auto rounded-xl p-2">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/40">
+            <TableRow>
               <TableHead className="whitespace-nowrap">Data / hora</TableHead>
               <TableHead>Usuário</TableHead>
               <TableHead>Registro alterado</TableHead>

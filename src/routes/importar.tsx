@@ -336,7 +336,7 @@ function Pagina() {
             </div>
           </div>
 
-          <div className="surface-panel rounded-xl p-4">
+          <div className="surface-panel rounded-2xl p-4">
             <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Abas do arquivo
             </h2>
@@ -424,17 +424,17 @@ function Pagina() {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="surface-panel rounded-xl p-4">
+            <div className="surface-panel rounded-2xl p-4">
               <p className="text-xs uppercase text-muted-foreground">Registros válidos</p>
               <p className="font-display text-2xl font-bold text-success">{fmtNum(validas.length)}</p>
             </div>
-            <div className="surface-panel rounded-xl p-4">
+            <div className="surface-panel rounded-2xl p-4">
               <p className="text-xs uppercase text-muted-foreground">Com problemas</p>
               <p className="font-display text-2xl font-bold text-destructive">
                 {fmtNum(comProblema.length)}
               </p>
             </div>
-            <div className="surface-panel rounded-xl p-4">
+            <div className="surface-panel rounded-2xl p-4">
               <p className="text-xs uppercase text-muted-foreground">Duplicados no arquivo</p>
               <p className="font-display text-2xl font-bold text-warning">
                 {fmtNum(duplicadas.length)}
@@ -442,7 +442,7 @@ function Pagina() {
             </div>
           </div>
 
-          <Tabs defaultValue="previa" className="surface-panel rounded-xl p-4">
+          <Tabs defaultValue="previa" className="surface-panel rounded-2xl p-4">
             <TabsList>
               <TabsTrigger value="previa">Prévia</TabsTrigger>
               <TabsTrigger value="problemas">Problemas ({comProblema.length})</TabsTrigger>
@@ -528,7 +528,7 @@ function Pagina() {
         </>
       )}
 
-      <div className="surface-panel rounded-xl p-4">
+      <div className="surface-panel rounded-2xl p-4">
         <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Histórico de importações
         </h2>

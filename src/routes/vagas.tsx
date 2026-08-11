@@ -70,7 +70,7 @@ function Pagina() {
       <div className="overflow-x-auto rounded-xl border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/40">
+            <TableRow>
               <TableHead>Data</TableHead>
               <TableHead>Colaborador</TableHead>
               <TableHead>Empresa</TableHead>

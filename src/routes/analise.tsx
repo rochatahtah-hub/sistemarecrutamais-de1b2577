@@ -117,7 +117,7 @@ function Pagina() {
       <FiltrosBar registros={registros} />
 
       {insights.length === 0 ? (
-        <p className="surface-panel rounded-xl p-6 text-sm text-muted-foreground">
+        <p className="surface-panel rounded-2xl p-6 text-sm text-muted-foreground">
           Nenhuma variação relevante detectada com os dados e filtros atuais.
         </p>
       ) : (
@@ -130,7 +130,7 @@ function Pagina() {
             const itens = lista as Insight[];
             if (itens.length === 0) return null;
             return (
-              <section key={titulo as string} className="surface-panel rounded-xl p-4">
+              <section key={titulo as string} className="surface-panel rounded-2xl p-4">
                 <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                   {titulo as string} ({itens.length})
                 </h2>

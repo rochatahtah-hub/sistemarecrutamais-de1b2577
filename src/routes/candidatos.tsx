@@ -51,7 +51,7 @@ function Pagina() {
         </p>
       </div>
 
-      <div className="surface-panel rounded-xl p-4">
+      <div className="surface-panel rounded-2xl p-4">
         <FichaCandidato candidato={candidato} onCandidato={setCandidato} />
         {candidato && (
           <div className="mt-4">
@@ -62,7 +62,7 @@ function Pagina() {
         )}
       </div>
 
-      <div className="surface-panel rounded-xl p-4">
+      <div className="surface-panel rounded-2xl p-4">
         <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <h2 className="font-display text-lg font-semibold">Candidatos cadastrados</h2>
           <Input

@@ -114,7 +114,7 @@ export function PainelBanco() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.rotulo} className="surface-panel rounded-xl p-4">
+          <div key={c.rotulo} className="surface-panel rounded-2xl p-4">
             <p className="text-xs text-muted-foreground">{c.rotulo}</p>
             <p className="font-display text-2xl font-bold">{c.valor.toLocaleString("pt-BR")}</p>
           </div>

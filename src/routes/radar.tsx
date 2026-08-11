@@ -140,7 +140,7 @@ function Pagina() {
       </div>
 
       {visiveis.length === 0 ? (
-        <p className="surface-panel rounded-xl p-6 text-sm text-muted-foreground">
+        <p className="surface-panel rounded-2xl p-6 text-sm text-muted-foreground">
           {aba === "resolvidos"
             ? "Nenhum alerta resolvido até agora."
             : "Nenhuma situação de atenção pendente no período."}

@@ -382,7 +382,7 @@ function Pagina() {
         </p>
       </section>
 
-      <section className="surface-panel rounded-xl p-5">
+      <section className="surface-panel rounded-2xl p-5">
         <p className="mb-3 font-display text-lg font-semibold">Histórico de execuções</p>
         {historico.isLoading ? (
           <Skeleton className="h-40 w-full" />

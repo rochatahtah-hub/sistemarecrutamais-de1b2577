@@ -150,7 +150,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
         />
       </div>
 
-      <section className="surface-panel rounded-xl p-4">
+      <section className="surface-panel rounded-2xl p-4">
         <h2 className="mb-4 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Desempenho {tipo === "empresa" ? "da empresa" : "do colaborador"} vs. média geral
         </h2>
@@ -184,7 +184,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
       </section>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <section className="surface-panel rounded-xl p-4">
+        <section className="surface-panel rounded-2xl p-4">
           <div className="mb-4 flex items-center justify-between gap-2">
             <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Evolução
@@ -202,7 +202,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
           <GraficoEvolucao dados={serie} />
         </section>
 
-        <section className="surface-panel rounded-xl p-4">
+        <section className="surface-panel rounded-2xl p-4">
           <h2 className="mb-4 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             {tipo === "colaborador" ? "Empresas atendidas" : "Colaboradores responsáveis"}
           </h2>
@@ -236,14 +236,14 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
         </section>
       </div>
 
-      <section className="surface-panel rounded-xl p-4">
+      <section className="surface-panel rounded-2xl p-4">
         <h2 className="mb-4 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Vagas detalhadas ({fmtNum(ordenados.length)})
         </h2>
         <div className="overflow-x-auto rounded-lg border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="bg-secondary/40">
+              <TableRow>
                 <TableHead>Data</TableHead>
                 <TableHead>{tipo === "colaborador" ? "Empresa" : "Colaborador"}</TableHead>
                 <TableHead>Vaga</TableHead>
