@@ -56,16 +56,28 @@ export function DialogoNovoGrupo({ aberto, onOpenChange, onCriado }: Props) {
 
   function escolherFoto(file?: File | null) {
     if (!file) return;
-    if (!file.type.startsWith("image/")) return toast.error("Selecione um arquivo de imagem.");
-    if (file.size > 5 * 1024 * 1024) return toast.error("A imagem deve ter até 5 MB.");
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter até 5 MB.");
+      return;
+    }
     if (previa) URL.revokeObjectURL(previa);
     setFoto(file);
     setPrevia(URL.createObjectURL(file));
   }
 
   async function confirmar() {
-    if (!nome.trim()) return toast.error("Informe o nome do grupo.");
-    if (membros.length === 0) return toast.error("Selecione ao menos um participante.");
+    if (!nome.trim()) {
+      toast.error("Informe o nome do grupo.");
+      return;
+    }
+    if (membros.length === 0) {
+      toast.error("Selecione ao menos um participante.");
+      return;
+    }
     try {
       const id = await criar.mutateAsync({
         nome: nome.trim(),
