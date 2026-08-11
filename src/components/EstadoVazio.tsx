@@ -14,13 +14,15 @@ export function EstadoVazio({
   acao?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border px-4 py-10 text-center">
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-muted text-muted-foreground">
-        {icone ?? <Inbox className="h-6 w-6" />}
+    <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border bg-muted/25 px-4 py-14 text-center">
+      <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-border bg-card text-muted-foreground shadow-[var(--elev-1)]">
+        {icone ?? <Inbox className="h-6 w-6" strokeWidth={1.75} />}
       </span>
       <div className="max-w-md space-y-1">
-        <p className="font-display text-base font-semibold">{titulo}</p>
-        {descricao && <p className="text-sm text-muted-foreground">{descricao}</p>}
+        <p className="font-display text-lg font-semibold tracking-tight">{titulo}</p>
+        {descricao && (
+          <p className="text-sm leading-relaxed text-muted-foreground">{descricao}</p>
+        )}
       </div>
       {acao}
     </div>
