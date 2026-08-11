@@ -13,6 +13,10 @@ interface PrivacidadeCtx {
   telefone: (valor: string | null | undefined) => string;
   /** Mascara qualquer texto sensível genérico. */
   texto: (valor: string | null | undefined) => string;
+  /** Mascara nome de empresa/cliente: "Empresa Exemplo" -> "EMPRESA •••". */
+  empresa: (valor: string | null | undefined) => string;
+  /** Mascara quantidades sensíveis (presenças, faltas, cancelamentos). */
+  numero: (valor: number | string | null | undefined) => string;
 }
 
 const Ctx = createContext<PrivacidadeCtx | null>(null);
@@ -37,6 +41,18 @@ export function mascararTelefone(valor: string) {
   const digitos = valor.replace(/\D/g, "");
   if (!digitos) return "(••) •••••-••••";
   return `(••) •••••-${digitos.slice(-4)}`;
+}
+
+export function mascararEmpresa(valor: string) {
+  const limpo = valor.trim();
+  if (!limpo) return "EMPRESA •••";
+  const primeira = limpo.split(/\s+/)[0] ?? "";
+  return `${primeira.slice(0, 3).toUpperCase()}••• •••`;
+}
+
+export function mascararNumero(valor: number | string) {
+  const texto = String(valor ?? "");
+  return "•".repeat(Math.max(3, Math.min(5, texto.length)));
 }
 
 export function PrivacidadeProvider({ children }: { children: ReactNode }) {
@@ -75,6 +91,8 @@ export function PrivacidadeProvider({ children }: { children: ReactNode }) {
       cpf: (v) => (privado ? mascararCpf(v ?? "") : (v ?? "")),
       telefone: (v) => (privado ? mascararTelefone(v ?? "") : (v ?? "")),
       texto: (v) => (privado ? "••••••" : (v ?? "")),
+      empresa: (v) => (privado ? mascararEmpresa(v ?? "") : (v ?? "")),
+      numero: (v) => (privado ? mascararNumero(v ?? "") : String(v ?? "")),
     }),
     [privado, alternar],
   );
@@ -93,9 +111,10 @@ export function Sigiloso({
   valor,
   tipo = "nome",
 }: {
-  valor: string | null | undefined;
-  tipo?: "nome" | "cpf" | "telefone" | "texto";
+  valor: string | number | null | undefined;
+  tipo?: "nome" | "cpf" | "telefone" | "texto" | "empresa" | "numero";
 }) {
   const p = usePrivacidade();
-  return <>{p[tipo](valor)}</>;
+  if (tipo === "numero") return <>{p.numero(valor)}</>;
+  return <>{p[tipo](valor == null ? "" : String(valor))}</>;
 }
