@@ -158,6 +158,17 @@ function Dashboard() {
   const porEmpresa = useMemo(() => agregarPor(filtrados, "empresa"), [filtrados]);
   const serie = useMemo(() => serieTemporal(filtrados, granularidade), [filtrados, granularidade]);
   const alertas = useMemo(() => gerarAlertas(filtrados, metas), [filtrados, metas]);
+  const nomesSensiveis = useMemo(
+    () => ({
+      empresas: Array.from(new Set(registros.map((r) => r.empresa).filter(Boolean))) as string[],
+      pessoas: Array.from(
+        new Set(
+          registros.flatMap((r) => [r.colaborador, r.candidato].filter(Boolean) as string[]),
+        ),
+      ),
+    }),
+    [registros],
+  );
 
   const rotuloMetrica: Record<string, string> = {
     presencas: "Presenças",
@@ -286,8 +297,10 @@ function Dashboard() {
                   }`}
                 />
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold">{a.titulo}</p>
-                  <p className="text-xs text-muted-foreground">{a.descricao}</p>
+                  <p className="text-sm font-semibold">{priv.frase(a.titulo, nomesSensiveis)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {priv.frase(a.descricao, nomesSensiveis)}
+                  </p>
                 </div>
               </li>
             ))}

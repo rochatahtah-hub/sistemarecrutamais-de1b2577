@@ -10,6 +10,19 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { criarUsuario, definirPermissao, definirSenha } from "@/lib/admin.functions";
+import { excluirUsuario } from "@/lib/usuarios.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Trash2 } from "lucide-react";
 import { useProgramadoras } from "@/lib/programacao";
 import { usePrivacidade } from "@/lib/privacidade";
 
@@ -33,6 +46,7 @@ export function GerenciarUsuarios() {
   const criar = useServerFn(criarUsuario);
   const senhaFn = useServerFn(definirSenha);
   const permissaoFn = useServerFn(definirPermissao);
+  const excluirFn = useServerFn(excluirUsuario);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -40,6 +54,22 @@ export function GerenciarUsuarios() {
   const [admin, setAdmin] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [novaSenha, setNovaSenha] = useState<Record<string, string>>({});
+  const [excluindo, setExcluindo] = useState<string | null>(null);
+
+  async function excluir(id: string) {
+    setExcluindo(id);
+    try {
+      await excluirFn({ data: { userId: id } });
+      toast.success("Login excluído. O histórico foi preservado.");
+      void qc.invalidateQueries({ queryKey: ["programadoras"] });
+      void qc.invalidateQueries({ queryKey: ["user-roles"] });
+      void qc.invalidateQueries({ queryKey: ["usuarios"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao excluir o login.");
+    } finally {
+      setExcluindo(null);
+    }
+  }
 
   const ehAdmin = (id: string) => roles.some((r) => r.user_id === id && r.role === "admin");
 
@@ -144,6 +174,29 @@ export function GerenciarUsuarios() {
                 Definir senha
               </Button>
             </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="sm" variant="destructive" disabled={excluindo === p.id}>
+                  <Trash2 className="mr-1 h-4 w-4" />
+                  {excluindo === p.id ? "Excluindo..." : "Excluir login"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Excluir login de programador?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    O acesso de <strong>{priv.nome(p.nome)}</strong> será removido
+                    definitivamente. As vagas, candidatos e o histórico continuam no sistema.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => void excluir(p.id)}>
+                    Excluir login
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         ))}
         {perfis.length === 0 && (
