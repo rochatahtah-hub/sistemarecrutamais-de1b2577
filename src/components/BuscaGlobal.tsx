@@ -62,7 +62,7 @@ export function BuscaGlobal() {
         add({
           grupo: "Empresas",
           chave: r.empresa,
-          titulo: r.empresa,
+          titulo: priv.empresa(r.empresa),
           detalhe: "Abrir painel da empresa",
           ir: () => navigate({ to: "/empresas/$nome", params: { nome: r.empresa } }),
         });
@@ -82,7 +82,7 @@ export function BuscaGlobal() {
           grupo: "Candidatos",
           chave: candidato,
           titulo: priv.nome(candidato),
-          detalhe: `${r.empresa} · ${fmtData(r.data)}`,
+          detalhe: `${priv.empresa(r.empresa)} · ${fmtData(r.data)}`,
           ir: () => navigate({ to: "/candidatos" }),
         });
       }
@@ -91,7 +91,7 @@ export function BuscaGlobal() {
         add({
           grupo: "Vagas",
           chave: r.id,
-          titulo: `${cargo} — ${r.empresa}`,
+          titulo: `${cargo} — ${priv.empresa(r.empresa)}`,
           detalhe: `${fmtData(r.data)} · ${STATUS_LABEL[r.status] ?? r.status}`,
           ir: () => navigate({ to: "/vagas" }),
         });
@@ -100,7 +100,7 @@ export function BuscaGlobal() {
         add({
           grupo: "Confirmações",
           chave: `c-${r.id}`,
-          titulo: `${STATUS_LABEL[r.status] ?? r.status} — ${r.empresa}`,
+          titulo: `${STATUS_LABEL[r.status] ?? r.status} — ${priv.empresa(r.empresa)}`,
           detalhe: `${priv.nome(r.colaborador)} · ${fmtData(r.data)}`,
           ir: () => navigate({ to: "/confirmacoes" }),
         });

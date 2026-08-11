@@ -48,8 +48,9 @@ export function PainelUsuarios() {
   const excluirFn = useServerFn(excluirUsuario);
 
   const usuarios = useQuery({ queryKey: ["admin-usuarios"], queryFn: () => listar({}) });
-  const recarregar = () => {
-    void qc.invalidateQueries({ queryKey: ["admin-usuarios"] });
+  const recarregar = async () => {
+    await qc.invalidateQueries({ queryKey: ["admin-usuarios"] });
+    await usuarios.refetch();
     void qc.invalidateQueries({ queryKey: ["programadoras"] });
   };
 
@@ -72,7 +73,7 @@ export function PainelUsuarios() {
 
   const acao = useMutation({
     mutationFn: async (fn: () => Promise<unknown>) => fn(),
-    onSuccess: () => recarregar(),
+    onSuccess: () => { void recarregar(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -136,7 +137,7 @@ export function PainelUsuarios() {
             variant={filtro === f ? "default" : "outline"}
             onClick={() => setFiltro(f)}
           >
-            {f === "todos" ? "Todos" : f === "ativos" ? "Ativos" : "Desativados"}
+            {f === "todos" ? "Todos" : f === "ativos" ? "Ativos" : "Inativos"}
             {" "}
             (
             {f === "todos"
@@ -160,7 +161,7 @@ export function PainelUsuarios() {
               <div className="flex flex-wrap items-center gap-2">
                 <p className="truncate text-sm font-semibold">{p.nome(u.nome)}</p>
                 <Badge variant={u.admin ? "default" : "secondary"}>{u.admin ? "Administrador" : "Programadora"}</Badge>
-                <Badge variant={u.ativo ? "outline" : "destructive"}>{u.ativo ? "Ativo" : "Desativado"}</Badge>
+                <Badge variant={u.ativo ? "outline" : "destructive"}>{u.ativo ? "Ativo" : "Inativo"}</Badge>
               </div>
               <p className="truncate text-xs text-muted-foreground">{p.privado ? "•••••••" : u.email}</p>
               <p className="text-[11px] text-muted-foreground">
@@ -306,7 +307,12 @@ export function PainelUsuarios() {
                 excluindo &&
                 acao.mutate(async () => {
                   await excluirFn({ data: { userId: excluindo.id } });
-                  toast.success("Usuário removido.");
+                  qc.setQueryData(
+                    ["admin-usuarios"],
+                    (antigo: { id: string }[] | undefined) =>
+                      (antigo ?? []).filter((x) => x.id !== excluindo.id),
+                  );
+                  toast.success("Cadastro excluído. O histórico foi mantido.");
                   setExcluindo(null);
                 })
               }

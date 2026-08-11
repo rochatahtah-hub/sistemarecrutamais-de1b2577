@@ -148,11 +148,17 @@ export const excluirUsuario = createServerFn({ method: "POST" })
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
     if (error) {
-      throw new Error(`Não foi possível excluir o acesso: ${error.message}`);
+      // Plano B: bloqueia o login definitivamente e retira o cadastro da lista,
+      // preservando todo o histórico já registrado.
+      const { error: banErro } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+        ban_duration: "876000h",
+      });
+      if (banErro) throw new Error(`Não foi possível excluir o acesso: ${error.message}`);
     }
 
     // Remove o perfil caso o cascade não tenha sido aplicado.
-    await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
+    const { error: perfilErro } = await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
+    if (perfilErro) throw new Error(`Não foi possível remover o cadastro: ${perfilErro.message}`);
 
     const { data: restante } = await supabaseAdmin
       .from("profiles")
