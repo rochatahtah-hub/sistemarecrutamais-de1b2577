@@ -81,7 +81,7 @@ function ChatPage() {
 
   const atual = conversas.find((c) => c.conversa.id === selecionada) ?? null;
   if (selecionada && !atual && !isLoading) {
-    // Conversa encerrada (chat temporário) enquanto estava aberta.
+    // Conversa não está mais disponível para este usuário (ex.: saiu de um grupo).
     setSelecionada(null);
   }
 
@@ -96,7 +96,7 @@ function ChatPage() {
     <div className="space-y-5">
       <PageHeader
         titulo="Chat"
-        descricao="Comunicação interna em tempo real. As conversas são temporárias: quando o último participante sai, o histórico é apagado."
+        descricao="Comunicação interna em tempo real. Ao sair da tela, a conversa deixa de ficar ativa automaticamente — o histórico continua salvo."
       />
 
       <div className="grid h-[calc(100vh-15rem)] min-h-[520px] grid-cols-1 overflow-hidden rounded-xl border border-border bg-card md:grid-cols-[320px_1fr]">
