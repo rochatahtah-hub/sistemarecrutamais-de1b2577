@@ -40,6 +40,22 @@ export interface Mensagem {
   responde_a: string | null;
   excluida: boolean;
   created_at: string;
+  tipo: TipoMensagem;
+  anexo_path: string;
+  anexo_nome: string;
+  anexo_mime: string;
+  anexo_tamanho: number;
+  duracao_ms: number;
+}
+
+export type TipoMensagem = "texto" | "imagem" | "arquivo" | "audio";
+
+export interface Reacao {
+  id: string;
+  mensagem_id: string;
+  conversa_id: string;
+  user_id: string;
+  emoji: string;
 }
 
 export interface ResumoConversa {
