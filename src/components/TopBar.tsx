@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, Eye, EyeOff, LogOut, Settings, ShieldCheck, User } from "lucide-react";
 import { toast } from "sonner";
 
