@@ -15,23 +15,36 @@ async function exigirAdmin(context: Contexto) {
 /** Gera um backup manual no formato escolhido. */
 export const gerarBackup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { formato: "sql" | "csv" }) => ({
+  .inputValidator((d: { formato: "sql" | "csv"; enviarEmail?: boolean }) => ({
     formato: d.formato === "csv" ? ("csv" as const) : ("sql" as const),
+    enviarEmail: Boolean(d.enviarEmail),
   }))
   .handler(async ({ data, context }) => {
     await exigirAdmin(context as unknown as Contexto);
-    const { executarBackup } = await import("./backup.server");
+    const { executarBackup, enviarBackupEmail } = await import("./backup.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: perfil } = await context.supabase
       .from("profiles")
       .select("nome")
       .eq("id", context.userId)
       .maybeSingle();
-    return executarBackup({
+    const resultado = await executarBackup({
       formato: data.formato,
       origem: "manual",
       criadoPor: context.userId,
       criadoPorNome: perfil?.nome ?? "Administrador",
     });
+    if (!data.enviarEmail) return { ...resultado, envio: null };
+    const { data: agenda } = await supabaseAdmin
+      .from("backup_agendamento")
+      .select("email_destino")
+      .eq("id", true)
+      .maybeSingle();
+    const envio = await enviarBackupEmail(
+      resultado.id,
+      agenda?.email_destino ?? "rochatahtah@gmail.com",
+    );
+    return { ...resultado, envio };
   });
 
 /** Gera um link temporário de download para um backup concluído. */
