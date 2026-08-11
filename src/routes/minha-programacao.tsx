@@ -291,9 +291,17 @@ function Pagina() {
               {daQuinzena.map((r) => (
                 <TableRow key={r.id}>
                   <TableCell>{fmtData(r.data)}</TableCell>
-                  <TableCell className="font-medium">{r.candidato_nome}</TableCell>
-                  <TableCell>{r.candidato_cpf ? formatarCPF(r.candidato_cpf) : "—"}</TableCell>
-                  <TableCell>{r.candidato_telefone ?? "—"}</TableCell>
+                  <TableCell className="font-medium">{priv.nome(r.candidato_nome)}</TableCell>
+                  <TableCell>
+                    {r.candidato_cpf
+                      ? priv.privado
+                        ? priv.cpf(r.candidato_cpf)
+                        : formatarCPF(r.candidato_cpf)
+                      : "—"}
+                  </TableCell>
+                  <TableCell>
+                    {r.candidato_telefone ? priv.telefone(r.candidato_telefone) : "—"}
+                  </TableCell>
                   <TableCell>{r.empresa}</TableCell>
                   <TableCell>
                     <Select
