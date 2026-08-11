@@ -23,7 +23,7 @@ import {
   GraficoEvolucao,
 } from "@/components/dashboard/Graficos";
 import { Button } from "@/components/ui/button";
-import { usePrivacidade } from "@/lib/privacidade";
+import { Sigiloso, usePrivacidade } from "@/lib/privacidade";
 import {
   Select,
   SelectContent,
@@ -120,12 +120,18 @@ function ListaTop({
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-secondary text-[11px] font-semibold text-primary">
               {i + 1}
             </span>
-            <span className="truncate">{sensivel ? priv.nome(l.nome) : l.nome}</span>
+            <span className="truncate">
+              {sensivel ? priv.nome(l.nome) : priv.empresa(l.nome)}
+            </span>
           </span>
           <span className="shrink-0 tabular-nums font-semibold">
-            {sufixo === "pct" ? fmtPct(Number(l[campo])) : fmtNum(Number(l[campo]))}
+            {priv.privado
+              ? priv.numero(Number(l[campo]))
+              : sufixo === "pct"
+                ? fmtPct(Number(l[campo]))
+                : fmtNum(Number(l[campo]))}
             <span className="ml-1 text-xs font-normal text-muted-foreground">
-              ({fmtNum(l.vagas)} vagas)
+              ({priv.privado ? priv.numero(l.vagas) : fmtNum(l.vagas)} vagas)
             </span>
           </span>
         </li>
