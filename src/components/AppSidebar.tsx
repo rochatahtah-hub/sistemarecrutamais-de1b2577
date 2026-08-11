@@ -23,9 +23,11 @@ import {
   DatabaseBackup,
   KeyRound,
   ShieldCheck,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
+import { useChatRealtime, useTotalNaoLidas } from "@/lib/chat";
 import { AvatarUsuario } from "@/components/AvatarUsuario";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
 import logoMarca from "@/assets/recruta-mark.png.asset.json";
@@ -80,6 +82,8 @@ const analises = [
   { title: "Relatórios", url: "/relatorios", icon: FileText },
 ] as const;
 
+const comunicacao = [{ title: "Chat", url: "/chat", icon: MessageCircle }] as const;
+
 const ferramentas = [
   { title: "Central de Administração", url: "/administracao", icon: ShieldCheck },
   { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
@@ -96,6 +100,8 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { isAdmin, perfil } = useAuth();
   const { privado } = usePrivacidade();
+  useChatRealtime(pathname.startsWith("/chat") ? undefined : null);
+  const naoLidas = useTotalNaoLidas();
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
     : ferramentas;
@@ -119,6 +125,11 @@ export function AppSidebar() {
                 strokeWidth={1.75}
               />
               {!collapsed && <span className="truncate">{item.title}</span>}
+              {item.url === "/chat" && naoLidas > 0 && (
+                <span className="ml-auto grid h-4 min-w-4 shrink-0 place-items-center rounded-full bg-gold px-1 text-[10px] font-bold leading-none text-primary">
+                  {naoLidas > 99 ? "99+" : naoLidas}
+                </span>
+              )}
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -170,6 +181,7 @@ export function AppSidebar() {
           [
             ["Principal", principal],
             ["Gestão", gestao],
+            ["Comunicação", comunicacao],
             ["Análises", analises],
             ["Sistema", itensFerramentas],
           ] as const
