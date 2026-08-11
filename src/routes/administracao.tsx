@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PainelBanco } from "@/components/admin/PainelBanco";
 import { PainelColaboradores } from "@/components/admin/PainelColaboradores";
 import { PainelManutencao } from "@/components/admin/PainelManutencao";
+import { PainelEmailBackup } from "@/components/admin/PainelEmailBackup";
 import { PainelUsuarios } from "@/components/admin/PainelUsuarios";
 import { GerenciarEmpresas } from "@/components/programacao/GerenciarEmpresas";
 
