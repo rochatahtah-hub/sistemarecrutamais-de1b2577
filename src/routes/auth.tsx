@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BarChart3, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
