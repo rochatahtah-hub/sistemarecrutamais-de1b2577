@@ -15,6 +15,7 @@ import {
 import { FiltrosBar } from "@/components/FiltrosBar";
 import { AtalhosPeriodo } from "@/components/AtalhosPeriodo";
 import { CardIndicador } from "@/components/dashboard/CardIndicador";
+import { ResumoAcessos } from "@/components/admin/ResumoAcessos";
 import { TabelaDesempenho } from "@/components/dashboard/TabelaDesempenho";
 import {
   GraficoBarraMetrica,
