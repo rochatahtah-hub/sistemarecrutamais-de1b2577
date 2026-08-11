@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatarCPF, formatarTelefone, useCandidatos, type Candidato } from "@/lib/programacao";
+import { usePrivacidade } from "@/lib/privacidade";
 import { useDebounce } from "@/hooks/use-debounce";
 
 export const Route = createFileRoute("/candidatos")({
@@ -38,6 +39,7 @@ function Pagina() {
   const [candidato, setCandidato] = useState<Candidato | null>(null);
   const buscaDebounced = useDebounce(busca, 350);
   const { data: lista = [] } = useCandidatos(buscaDebounced);
+  const priv = usePrivacidade();
 
   return (
     <div className="space-y-5">

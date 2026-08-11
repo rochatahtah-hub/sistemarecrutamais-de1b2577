@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fmtNum, fmtPct, type LinhaAgregada } from "@/lib/metricas";
+import { usePrivacidade } from "@/lib/privacidade";
 import { cn } from "@/lib/utils";
 
 type Coluna = keyof LinhaAgregada;
@@ -38,6 +39,7 @@ export function TabelaDesempenho({
     coluna: "vagas",
     asc: false,
   });
+  const priv = usePrivacidade();
 
   const ordenadas = useMemo(() => {
     const copia = [...linhas];
@@ -95,7 +97,7 @@ export function TabelaDesempenho({
                   params={{ nome: encodeURIComponent(l.nome) }}
                   className="text-primary hover:underline"
                 >
-                  {destino === "colaboradores" ? mascarar(l.nome) : l.nome}
+                  {destino === "colaboradores" ? priv.nome(l.nome) : l.nome}
                 </Link>
               </TableCell>
               <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
