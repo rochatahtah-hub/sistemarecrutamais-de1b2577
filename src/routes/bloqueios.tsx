@@ -162,11 +162,13 @@ function Pagina() {
             <TableBody>
               {lista.map((b) => (
                 <TableRow key={b.id}>
-                  <TableCell className="font-medium">{formatarCPF(b.cpf)}</TableCell>
-                  <TableCell>{b.nome || "—"}</TableCell>
+                  <TableCell className="font-medium">
+                    {priv.privado ? priv.cpf(b.cpf) : formatarCPF(b.cpf)}
+                  </TableCell>
+                  <TableCell>{b.nome ? priv.nome(b.nome) : "—"}</TableCell>
                   <TableCell>{b.motivo || "—"}</TableCell>
                   <TableCell>{new Date(b.created_at).toLocaleDateString("pt-BR")}</TableCell>
-                  <TableCell>{b.bloqueado_por_nome || "—"}</TableCell>
+                  <TableCell>{b.bloqueado_por_nome ? priv.nome(b.bloqueado_por_nome) : "—"}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="outline"
