@@ -649,6 +649,16 @@ export function useChatRealtime() {
       .on("postgres_changes", { event: "*", schema: "public", table: "presenca_usuarios" }, () => {
         void qc.invalidateQueries({ queryKey: ["chat", "presenca"] });
       })
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "reacoes_mensagem" },
+        (payload) => {
+          const linha = (payload.new ?? payload.old) as Reacao | null;
+          if (linha?.conversa_id) {
+            void qc.invalidateQueries({ queryKey: ["chat", "reacoes", linha.conversa_id] });
+          }
+        },
+      )
       .subscribe();
 
     return () => {
