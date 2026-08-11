@@ -533,6 +533,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          last_login_at: string | null
           meta_quinzena: number
           nome: string
           ultimo_acesso: string | null
@@ -544,6 +545,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id: string
+          last_login_at?: string | null
           meta_quinzena?: number
           nome?: string
           ultimo_acesso?: string | null
@@ -555,6 +557,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          last_login_at?: string | null
           meta_quinzena?: number
           nome?: string
           ultimo_acesso?: string | null
@@ -587,6 +590,39 @@ export type Database = {
           id?: string
           inicio?: string
           resumo?: Json
+        }
+        Relationships: []
+      }
+      user_access_logs: {
+        Row: {
+          created_at: string
+          id: string
+          login_at: string
+          navegador: string
+          sistema_operacional: string
+          user_agent: string
+          user_id: string | null
+          usuario_nome: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          login_at?: string
+          navegador?: string
+          sistema_operacional?: string
+          user_agent?: string
+          user_id?: string | null
+          usuario_nome?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          login_at?: string
+          navegador?: string
+          sistema_operacional?: string
+          user_agent?: string
+          user_id?: string | null
+          usuario_nome?: string
         }
         Relationships: []
       }
@@ -720,6 +756,14 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      registrar_acesso: {
+        Args: {
+          _navegador?: string
+          _sistema_operacional?: string
+          _user_agent?: string
+        }
+        Returns: string
       }
       registrar_erro_sistema: {
         Args: {
