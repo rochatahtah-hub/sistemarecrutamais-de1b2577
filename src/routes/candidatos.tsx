@@ -83,9 +83,15 @@ function Pagina() {
             <TableBody>
               {lista.map((c) => (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.nome}</TableCell>
-                  <TableCell>{formatarCPF(c.cpf)}</TableCell>
-                  <TableCell>{c.telefone ? formatarTelefone(c.telefone) : "—"}</TableCell>
+                  <TableCell className="font-medium">{priv.nome(c.nome)}</TableCell>
+                  <TableCell>{priv.privado ? priv.cpf(c.cpf) : formatarCPF(c.cpf)}</TableCell>
+                  <TableCell>
+                    {c.telefone
+                      ? priv.privado
+                        ? priv.telefone(c.telefone)
+                        : formatarTelefone(c.telefone)
+                      : "—"}
+                  </TableCell>
                 </TableRow>
               ))}
               {lista.length === 0 && (

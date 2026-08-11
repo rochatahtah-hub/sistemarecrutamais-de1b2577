@@ -95,7 +95,7 @@ export function TabelaDesempenho({
                   params={{ nome: encodeURIComponent(l.nome) }}
                   className="text-primary hover:underline"
                 >
-                  {l.nome}
+                  {destino === "colaboradores" ? mascarar(l.nome) : l.nome}
                 </Link>
               </TableCell>
               <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
