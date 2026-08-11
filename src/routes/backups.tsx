@@ -3,7 +3,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CalendarClock, DatabaseBackup, Download, Loader2, Trash2 } from "lucide-react";
+import { CalendarClock, DatabaseBackup, Download, Loader2, Mail, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
@@ -70,7 +70,7 @@ function fmtTamanho(bytes: number) {
 
 function fmtData(valor: string | null) {
   if (!valor) return "—";
-  return new Date(valor).toLocaleString("pt-BR");
+  return new Date(valor).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
 }
 
 interface Agenda {
@@ -83,6 +83,10 @@ interface Agenda {
   retencao_dias: number;
   ultima_execucao: string | null;
   proxima_execucao: string | null;
+  email_destino: string;
+  ultimo_envio_em: string | null;
+  ultimo_envio_status: string;
+  ultimo_envio_erro: string;
 }
 
 function Pagina() {
@@ -123,10 +127,15 @@ function Pagina() {
   const salvar = useServerFn(salvarAgendamento);
 
   const mGerar = useMutation({
-    mutationFn: () => gerar({ data: { formato } }),
+    mutationFn: () => gerar({ data: { formato, enviarEmail: true } }),
     onSuccess: (r) => {
-      toast.success(`Backup gerado: ${r.nome}`);
+      toast.success(`Backup gerado: ${r.nome}`, {
+        description: r.envio?.enviado
+          ? `Enviado para ${agendaEmail}`
+          : "Envio por e-mail pendente: configure o domínio de e-mail do projeto.",
+      });
       void qc.invalidateQueries({ queryKey: ["backups"] });
+      void qc.invalidateQueries({ queryKey: ["backup-agendamento"] });
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -156,7 +165,12 @@ function Pagina() {
     retencao_dias: 30,
     ultima_execucao: null,
     proxima_execucao: null,
+    email_destino: "rochatahtah@gmail.com",
+    ultimo_envio_em: null,
+    ultimo_envio_status: "",
+    ultimo_envio_erro: "",
   };
+  const agendaEmail = agenda.email_destino;
 
   const mSalvar = useMutation({
     mutationFn: (novo: Partial<Agenda>) => {
@@ -170,11 +184,12 @@ function Pagina() {
           dia_mes: merged.dia_mes,
           formato: merged.formato,
           retencao_dias: merged.retencao_dias,
+          email_destino: merged.email_destino,
         },
       });
     },
     onSuccess: () => {
-      toast.success("Agendamento atualizado.");
+      toast.success("Agendamento salvo. Rotina automática programada.");
       void qc.invalidateQueries({ queryKey: ["backup-agendamento"] });
     },
     onError: (e) => toast.error((e as Error).message),
@@ -203,7 +218,7 @@ function Pagina() {
               ) : (
                 <DatabaseBackup className="mr-2 h-4 w-4" />
               )}
-              Gerar backup agora
+              Fazer backup agora
             </Button>
           </div>
         }
@@ -216,10 +231,21 @@ function Pagina() {
               <CalendarClock className="h-5 w-5" />
             </span>
             <div>
-              <p className="font-display text-lg font-semibold">Exportação automática</p>
+              <p className="font-display text-lg font-semibold">
+                {agenda.ativo ? "🟢 BACKUP ATIVO" : "🔴 BACKUP DESATIVADO"}
+              </p>
               <p className="text-sm text-muted-foreground">
                 Última execução: {fmtData(agenda.ultima_execucao)} · Próxima:{" "}
-                {agenda.ativo ? fmtData(agenda.proxima_execucao) : "desativada"}
+                {agenda.ativo ? fmtData(agenda.proxima_execucao) : "desativada"} (horário de
+                Brasília)
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Envio por e-mail: {agendaEmail} ·{" "}
+                {agenda.ultimo_envio_status === "enviado"
+                  ? `enviado em ${fmtData(agenda.ultimo_envio_em)}`
+                  : agenda.ultimo_envio_status === "falhou"
+                    ? `falhou (${agenda.ultimo_envio_erro})`
+                    : "aguardando configuração do domínio de e-mail"}
               </p>
             </div>
           </div>
@@ -253,7 +279,7 @@ function Pagina() {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Hora (UTC)</Label>
+            <Label>Hora (Brasília)</Label>
             <Input
               type="number"
               min={0}
@@ -332,10 +358,27 @@ function Pagina() {
               }}
             />
           </div>
+
+          <div className="space-y-1.5">
+            <Label className="flex items-center gap-1.5">
+              <Mail className="h-3.5 w-3.5" /> Enviar para
+            </Label>
+            <Input
+              type="email"
+              defaultValue={agenda.email_destino}
+              onBlur={(e) => {
+                const email_destino = e.target.value.trim();
+                if (email_destino && email_destino !== agenda.email_destino) {
+                  mSalvar.mutate({ email_destino });
+                }
+              }}
+            />
+          </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          A rotina é verificada de hora em hora. Backups mais antigos que a retenção são apagados
-          automaticamente. Use retenção 0 para nunca apagar.
+          A rotina roda no servidor (não depende do navegador estar aberto) e é verificada de hora
+          em hora. Backups mais antigos que a retenção são apagados automaticamente; use retenção 0
+          para nunca apagar.
         </p>
       </section>
 
@@ -358,6 +401,7 @@ function Pagina() {
                   <TableHead>Tamanho</TableHead>
                   <TableHead>Registros</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>E-mail</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -380,6 +424,17 @@ function Pagina() {
                         <Badge variant="destructive" title={b.erro}>
                           Falhou
                         </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {b.envio_status === "enviado" ? (
+                        <Badge variant="secondary">Enviado</Badge>
+                      ) : b.envio_status ? (
+                        <Badge variant="outline" title={b.envio_email}>
+                          Pendente
+                        </Badge>
+                      ) : (
+                        "—"
                       )}
                     </TableCell>
                     <TableCell className="text-right">

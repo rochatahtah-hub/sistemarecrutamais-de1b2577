@@ -7,6 +7,7 @@ import { Activity, AlertTriangle, Database, FileSpreadsheet, FileText, ShieldAle
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { listarErrosSistema } from "@/lib/system-health";
 import { exportarSaudeExcel, exportarSaudePDF } from "@/lib/exportar-saude";
@@ -35,6 +36,19 @@ function Pagina() {
     retry: false,
   });
   const erros = consulta.data ?? [];
+  const backup = useQuery({
+    queryKey: ["saude-backup"],
+    enabled: isAdmin,
+    retry: false,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("backup_agendamento")
+        .select("ativo,ultima_execucao,proxima_execucao,ultimo_envio_status,email_destino")
+        .eq("id", true)
+        .maybeSingle();
+      return data ?? null;
+    },
+  });
   const [exportando, setExportando] = useState<"pdf" | "excel" | null>(null);
   const total = useMemo(() => erros.reduce((soma, erro) => soma + erro.ocorrencias, 0), [erros]);
   const naoAutorizados = useMemo(
@@ -89,6 +103,22 @@ function Pagina() {
         <Indicador icone={Activity} rotulo="Ocorrências" valor={total} />
         <Indicador icone={ShieldAlert} rotulo="Erros 401" valor={naoAutorizados} />
         <Indicador icone={Database} rotulo="Falhas distintas" valor={erros.length} />
+      </div>
+      <div className="surface-panel p-4">
+        <p className="font-display text-sm font-semibold">
+          {backup.data?.ativo ? "🟢 Backup automático ativo" : "🔴 Backup automático desativado"}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Última execução:{" "}
+          {backup.data?.ultima_execucao
+            ? new Date(backup.data.ultima_execucao).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
+            : "—"}{" "}
+          · Próxima:{" "}
+          {backup.data?.ativo && backup.data.proxima_execucao
+            ? new Date(backup.data.proxima_execucao).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })
+            : "—"}{" "}
+          (horário de Brasília) · Envio: {backup.data?.email_destino ?? "—"}
+        </p>
       </div>
       <div className="surface-panel overflow-hidden">
         {consulta.isPending ? (

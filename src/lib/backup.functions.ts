@@ -15,23 +15,36 @@ async function exigirAdmin(context: Contexto) {
 /** Gera um backup manual no formato escolhido. */
 export const gerarBackup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { formato: "sql" | "csv" }) => ({
+  .inputValidator((d: { formato: "sql" | "csv"; enviarEmail?: boolean }) => ({
     formato: d.formato === "csv" ? ("csv" as const) : ("sql" as const),
+    enviarEmail: Boolean(d.enviarEmail),
   }))
   .handler(async ({ data, context }) => {
     await exigirAdmin(context as unknown as Contexto);
-    const { executarBackup } = await import("./backup.server");
+    const { executarBackup, enviarBackupEmail } = await import("./backup.server");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: perfil } = await context.supabase
       .from("profiles")
       .select("nome")
       .eq("id", context.userId)
       .maybeSingle();
-    return executarBackup({
+    const resultado = await executarBackup({
       formato: data.formato,
       origem: "manual",
       criadoPor: context.userId,
       criadoPorNome: perfil?.nome ?? "Administrador",
     });
+    if (!data.enviarEmail) return { ...resultado, envio: null };
+    const { data: agenda } = await supabaseAdmin
+      .from("backup_agendamento")
+      .select("email_destino")
+      .eq("id", true)
+      .maybeSingle();
+    const envio = await enviarBackupEmail(
+      resultado.id,
+      agenda?.email_destino ?? "rochatahtah@gmail.com",
+    );
+    return { ...resultado, envio };
   });
 
 /** Gera um link temporário de download para um backup concluído. */
@@ -86,6 +99,7 @@ export const salvarAgendamento = createServerFn({ method: "POST" })
     dia_mes: number;
     formato: "sql" | "csv";
     retencao_dias: number;
+    email_destino?: string;
   }) => ({
     ativo: Boolean(d.ativo),
     frequencia: (["diaria", "semanal", "mensal"] as const).includes(d.frequencia)
@@ -96,6 +110,7 @@ export const salvarAgendamento = createServerFn({ method: "POST" })
     dia_mes: Math.min(28, Math.max(1, Number(d.dia_mes) || 1)),
     formato: d.formato === "csv" ? ("csv" as const) : ("sql" as const),
     retencao_dias: Math.min(365, Math.max(0, Number(d.retencao_dias) || 0)),
+    email_destino: (d.email_destino ?? "rochatahtah@gmail.com").trim().slice(0, 200),
   }))
   .handler(async ({ data, context }) => {
     await exigirAdmin(context as unknown as Contexto);

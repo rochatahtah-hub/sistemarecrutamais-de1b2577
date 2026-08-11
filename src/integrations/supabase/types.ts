@@ -134,6 +134,7 @@ export type Database = {
           created_at: string
           dia_mes: number
           dia_semana: number
+          email_destino: string
           formato: string
           frequencia: string
           hora: number
@@ -141,6 +142,9 @@ export type Database = {
           proxima_execucao: string | null
           retencao_dias: number
           ultima_execucao: string | null
+          ultimo_envio_em: string | null
+          ultimo_envio_erro: string
+          ultimo_envio_status: string
           updated_at: string
         }
         Insert: {
@@ -148,6 +152,7 @@ export type Database = {
           created_at?: string
           dia_mes?: number
           dia_semana?: number
+          email_destino?: string
           formato?: string
           frequencia?: string
           hora?: number
@@ -155,6 +160,9 @@ export type Database = {
           proxima_execucao?: string | null
           retencao_dias?: number
           ultima_execucao?: string | null
+          ultimo_envio_em?: string | null
+          ultimo_envio_erro?: string
+          ultimo_envio_status?: string
           updated_at?: string
         }
         Update: {
@@ -162,6 +170,7 @@ export type Database = {
           created_at?: string
           dia_mes?: number
           dia_semana?: number
+          email_destino?: string
           formato?: string
           frequencia?: string
           hora?: number
@@ -169,6 +178,9 @@ export type Database = {
           proxima_execucao?: string | null
           retencao_dias?: number
           ultima_execucao?: string | null
+          ultimo_envio_em?: string | null
+          ultimo_envio_erro?: string
+          ultimo_envio_status?: string
           updated_at?: string
         }
         Relationships: []
@@ -182,6 +194,9 @@ export type Database = {
           criado_por: string | null
           criado_por_nome: string
           duracao_ms: number
+          envio_em: string | null
+          envio_email: string
+          envio_status: string
           erro: string
           formato: string
           id: string
@@ -200,6 +215,9 @@ export type Database = {
           criado_por?: string | null
           criado_por_nome?: string
           duracao_ms?: number
+          envio_em?: string | null
+          envio_email?: string
+          envio_status?: string
           erro?: string
           formato?: string
           id?: string
@@ -218,6 +236,9 @@ export type Database = {
           criado_por?: string | null
           criado_por_nome?: string
           duracao_ms?: number
+          envio_em?: string | null
+          envio_email?: string
+          envio_status?: string
           erro?: string
           formato?: string
           id?: string
