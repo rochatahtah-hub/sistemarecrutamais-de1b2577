@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Search, ShieldOff, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
@@ -9,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useBloqueados, useBloquearColaborador, useDesbloquearColaborador } from "@/lib/bloqueios";
 import { useCandidatos } from "@/lib/programacao";
@@ -24,13 +22,6 @@ export function PainelColaboradores() {
   const bloquear = useBloquearColaborador();
   const desbloquear = useDesbloquearColaborador();
   const [alvo, setAlvo] = useState<{ cpf: string; nome: string; motivo: string } | null>(null);
-
-  const historico = useQuery({
-    queryKey: ["admin-historico-colab", alvo?.cpf ?? ""],
-    enabled: false,
-    queryFn: async () => [] as unknown[],
-  });
-  void historico;
 
   const bloqueioDe = (cpf: string) => bloqueados.find((b) => b.cpf === cpf.replace(/\D/g, ""));
 
