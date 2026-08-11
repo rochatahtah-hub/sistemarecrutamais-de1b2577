@@ -141,20 +141,23 @@ export const excluirUsuario = createServerFn({ method: "POST" })
       .eq("id", data.userId)
       .maybeSingle();
 
-    // Libera vínculos que não são removidos automaticamente antes de excluir o acesso.
-    await supabaseAdmin.from("vagas").update({ programadora_id: null }).eq("programadora_id", data.userId);
-    await supabaseAdmin.from("candidatos").update({ criado_por: null }).eq("criado_por", data.userId);
-    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
+    // Libera todos os vínculos históricos antes de excluir a identidade de acesso.
+    const operacoes = await Promise.all([
+      supabaseAdmin.from("vagas").update({ programadora_id: null }).eq("programadora_id", data.userId),
+      supabaseAdmin.from("candidatos").update({ criado_por: null }).eq("criado_por", data.userId),
+      supabaseAdmin.from("alertas_operacao").update({ resolvido_por: null }).eq("resolvido_por", data.userId),
+      supabaseAdmin.from("auditoria").update({ usuario_id: null }).eq("usuario_id", data.userId),
+      supabaseAdmin.from("backups").update({ criado_por: null }).eq("criado_por", data.userId),
+      supabaseAdmin.from("colaboradores_bloqueados").update({ bloqueado_por: null }).eq("bloqueado_por", data.userId),
+      supabaseAdmin.from("erros_sistema").update({ user_id: null }).eq("user_id", data.userId),
+      supabaseAdmin.from("notificacoes").update({ user_id: null }).eq("user_id", data.userId),
+      supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId),
+    ]);
+    const erroVinculo = operacoes.find((resultado) => resultado.error)?.error;
+    if (erroVinculo) throw new Error(`Não foi possível preservar os vínculos históricos: ${erroVinculo.message}`);
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
-    if (error) {
-      // Plano B: bloqueia o login definitivamente e retira o cadastro da lista,
-      // preservando todo o histórico já registrado.
-      const { error: banErro } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
-        ban_duration: "876000h",
-      });
-      if (banErro) throw new Error(`Não foi possível excluir o acesso: ${error.message}`);
-    }
+    if (error) throw new Error(`Não foi possível excluir o acesso: ${error.message}`);
 
     // Remove o perfil caso o cascade não tenha sido aplicado.
     const { error: perfilErro } = await supabaseAdmin.from("profiles").delete().eq("id", data.userId);

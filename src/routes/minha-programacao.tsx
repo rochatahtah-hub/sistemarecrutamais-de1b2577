@@ -149,7 +149,7 @@ function Pagina() {
       <div>
         <h1 className="font-display text-2xl font-bold">Minha programação</h1>
         <p className="text-sm text-muted-foreground">
-          {perfil?.nome ?? "Programadora"} · {q.rotulo} ({fmtData(q.inicio)} a {fmtData(q.fim)})
+          {priv.nome(perfil?.nome ?? "Programadora")} · {q.rotulo} ({fmtData(q.inicio)} a {fmtData(q.fim)})
         </p>
       </div>
 
@@ -235,7 +235,7 @@ function Pagina() {
                   .filter((e) => e.ativo)
                   .map((e) => (
                     <SelectItem key={e.id} value={e.id}>
-                      {e.nome}
+                      {priv.empresa(e.nome)}
                     </SelectItem>
                   ))}
               </SelectContent>
