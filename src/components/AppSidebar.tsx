@@ -99,13 +99,21 @@ export function AppSidebar() {
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
   const renderItens = (itens: ReadonlyArray<{ title: string; url: string; icon: typeof Users }>) => (
-    <SidebarMenu>
+    <SidebarMenu className="gap-0.5">
       {itens.filter((item) => permitido(item.url)).map((item) => (
         <SidebarMenuItem key={item.url}>
-          <SidebarMenuButton asChild isActive={isActive(item.url)} tooltip={item.title}>
-            <Link to={item.url} className="flex items-center gap-2">
-              <item.icon className="h-4 w-4 shrink-0" />
-              {!collapsed && <span>{item.title}</span>}
+          <SidebarMenuButton
+            asChild
+            isActive={isActive(item.url)}
+            tooltip={item.title}
+            className="h-9 rounded-lg text-[13px] font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground"
+          >
+            <Link to={item.url} className="flex items-center gap-2.5">
+              <item.icon
+                className={`h-4 w-4 shrink-0 ${isActive(item.url) ? "text-sidebar-primary" : "text-sidebar-foreground/60"}`}
+                strokeWidth={1.75}
+              />
+              {!collapsed && <span className="truncate">{item.title}</span>}
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -114,39 +122,47 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader>
-        <div className="flex items-center gap-2 px-1 py-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary font-display text-base font-bold leading-none text-primary-foreground">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border/70">
+        <div className="flex items-center gap-2.5 px-1 py-2.5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-base font-bold leading-none text-sidebar-primary-foreground">
             R<span className="text-[11px]">+</span>
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate font-display text-base font-bold tracking-tight text-gradient-gold">
-                RECRUTA+
+              <p className="truncate text-[15px] font-semibold tracking-tight text-sidebar-foreground">
+                RECRUTA<span className="text-sidebar-primary">+</span>
               </p>
-              <p className="truncate text-[11px] text-muted-foreground">
+              <p className="truncate text-[11px] text-sidebar-foreground/55">
                 Gestão inteligente de recrutamento.
               </p>
             </div>
           )}
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="gap-1 px-1 py-2">
         <SidebarGroup>
-          <SidebarGroupLabel>Operação</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
+            Operação
+          </SidebarGroupLabel>
           <SidebarGroupContent>{renderItens(operacao)}</SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
+            Gestão
+          </SidebarGroupLabel>
           <SidebarGroupContent>{renderItens(gestao)}</SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Inteligência</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
+            Inteligência
+          </SidebarGroupLabel>
           <SidebarGroupContent>{renderItens(inteligencia)}</SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Relatórios</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
+            Relatórios
+          </SidebarGroupLabel>
           <SidebarGroupContent>{renderItens(itensFerramentas)}</SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
