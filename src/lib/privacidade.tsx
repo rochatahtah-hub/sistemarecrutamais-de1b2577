@@ -137,7 +137,9 @@ export function PrivacidadeProvider({ children }: { children: ReactNode }) {
       empresa,
       numero: (v) => (privado ? mascararNumero(v ?? "") : String(v ?? "")),
       frase: (v, nomes) =>
-        privado ? mascararFrase(v ?? "", nomes?.empresas ?? [], nomes?.pessoas ?? []) : (v ?? ""),
+        privado
+          ? mascararFrase(v ?? "", nomes?.empresas ?? [], nomes?.pessoas ?? [], empresa)
+          : (v ?? ""),
     }),
     [privado, alternar, empresa],
   );
