@@ -73,10 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!ativo) return;
         void carregarPerfil(s.user.id);
         if (evento === "SIGNED_IN") {
-          void supabase
-            .from("profiles")
-            .update({ ultimo_acesso: new Date().toISOString() })
-            .eq("id", s.user.id);
+          void import("./acessos").then((m) => m.registrarAcesso());
         }
       }, 0);
     });
