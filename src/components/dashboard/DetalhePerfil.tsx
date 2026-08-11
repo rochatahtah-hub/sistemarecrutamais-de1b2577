@@ -219,7 +219,10 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
                 {relacionados.map((l) => (
                   <TableRow key={l.chave}>
                     <TableCell className="font-medium">
-                      {tipo === "colaborador" ? l.nome : <Sigiloso valor={l.nome} />}
+                      <Sigiloso
+                        valor={l.nome}
+                        tipo={tipo === "colaborador" ? "empresa" : "nome"}
+                      />
                     </TableCell>
                     <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
                     <TableCell className="text-right tabular-nums">{fmtPct(l.pctPresenca)}</TableCell>
@@ -254,7 +257,11 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
                 <TableRow key={r.id}>
                   <TableCell className="whitespace-nowrap">{fmtData(r.data)}</TableCell>
                   <TableCell>
-                    {tipo === "colaborador" ? r.empresa : <Sigiloso valor={r.colaborador} />}
+                    {tipo === "colaborador" ? (
+                      <Sigiloso valor={r.empresa} tipo="empresa" />
+                    ) : (
+                      <Sigiloso valor={r.colaborador} />
+                    )}
                   </TableCell>
                   <TableCell>{r.cargo || r.descricao || "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
