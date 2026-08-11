@@ -69,10 +69,11 @@ export function mascararFrase(
   texto: string,
   empresas: string[] = [],
   pessoas: string[] = [],
+  rotularEmpresa: (nome: string) => string = mascararEmpresa,
 ) {
   let saida = texto;
   const alvos = [
-    ...empresas.map((n) => ({ n, mascarar: mascararEmpresa })),
+    ...empresas.map((n) => ({ n, mascarar: rotularEmpresa })),
     ...pessoas.map((n) => ({ n, mascarar: mascararNome })),
   ]
     .filter((a) => a.n && a.n.trim().length >= 3)
