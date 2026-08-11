@@ -12,6 +12,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useVagas } from "@/lib/dados";
+import { usePrivacidade } from "@/lib/privacidade";
 import { fmtData } from "@/lib/metricas";
 import { STATUS_LABEL } from "@/lib/tipos";
 
@@ -28,6 +29,7 @@ export function BuscaGlobal() {
   const [aberto, setAberto] = useState(false);
   const [termo, setTermo] = useState("");
   const navigate = useNavigate();
+  const priv = usePrivacidade();
   const { data: registros = [] } = useVagas();
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export function BuscaGlobal() {
         add({
           grupo: "Colaboradores",
           chave: r.colaborador,
-          titulo: r.colaborador,
+          titulo: priv.nome(r.colaborador),
           detalhe: "Abrir perfil do colaborador",
           ir: () => navigate({ to: "/colaboradores/$nome", params: { nome: r.colaborador } }),
         });
@@ -79,7 +81,7 @@ export function BuscaGlobal() {
         add({
           grupo: "Candidatos",
           chave: candidato,
-          titulo: candidato,
+          titulo: priv.nome(candidato),
           detalhe: `${r.empresa} · ${fmtData(r.data)}`,
           ir: () => navigate({ to: "/candidatos" }),
         });
@@ -99,13 +101,13 @@ export function BuscaGlobal() {
           grupo: "Confirmações",
           chave: `c-${r.id}`,
           titulo: `${STATUS_LABEL[r.status] ?? r.status} — ${r.empresa}`,
-          detalhe: `${r.colaborador} · ${fmtData(r.data)}`,
+          detalhe: `${priv.nome(r.colaborador)} · ${fmtData(r.data)}`,
           ir: () => navigate({ to: "/confirmacoes" }),
         });
       }
     }
     return saida;
-  }, [termo, registros, navigate]);
+  }, [termo, registros, navigate, priv]);
 
   const grupos = useMemo(() => {
     const mapa = new Map<string, Resultado[]>();
