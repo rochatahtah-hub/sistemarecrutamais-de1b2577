@@ -334,10 +334,10 @@ export function useAtualizarGrupo() {
       descricao?: string;
       foto?: File | null;
     }) => {
-      const patch: Record<string, string> = {};
-      if (dados.nome !== undefined) patch['nome'] = dados.nome;
-      if (dados.descricao !== undefined) patch['descricao'] = dados.descricao;
-      if (dados.foto) patch['foto_url'] = await enviarFotoGrupo(dados.conversaId, dados.foto);
+      const patch: { nome?: string; descricao?: string; foto_url?: string } = {};
+      if (dados.nome !== undefined) patch.nome = dados.nome;
+      if (dados.descricao !== undefined) patch.descricao = dados.descricao;
+      if (dados.foto) patch.foto_url = await enviarFotoGrupo(dados.conversaId, dados.foto);
       if (Object.keys(patch).length === 0) return;
       const { error } = await supabase.from("conversas").update(patch).eq("id", dados.conversaId);
       if (error) throw error;
