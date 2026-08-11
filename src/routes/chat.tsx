@@ -21,6 +21,7 @@ import {
   usePresencaAtiva,
   usePresencas,
   useUsuariosChat,
+  resumoMensagem,
 } from "@/lib/chat";
 
 export const Route = createFileRoute("/chat")({
@@ -157,11 +158,7 @@ function ChatPage() {
                     </span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
                       <span className="truncate text-xs text-muted-foreground">
-                        {c.ultima
-                          ? c.ultima.excluida
-                            ? "Mensagem excluída"
-                            : c.ultima.conteudo
-                          : "Sem mensagens"}
+                        {c.ultima ? resumoMensagem(c.ultima) : "Sem mensagens"}
                       </span>
                       {c.naoLidas > 0 && (
                         <span className="grid h-5 min-w-5 shrink-0 place-items-center rounded-full bg-gold px-1.5 text-[10px] font-bold text-primary">
