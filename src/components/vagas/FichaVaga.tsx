@@ -166,11 +166,20 @@ export function FichaVaga({
           </div>
           <div className="space-y-1.5">
             <Label>Colaborador responsável</Label>
-            <Input value={vaga.colaborador} readOnly />
+            <Input value={priv.nome(vaga.colaborador)} readOnly />
           </div>
           <div className="space-y-1.5">
             <Label>Candidato</Label>
-            <Input value={vaga.candidato || vaga.descricao || "—"} readOnly />
+            <Input
+              value={
+                vaga.candidato
+                  ? priv.nome(vaga.candidato)
+                  : vaga.descricao
+                    ? priv.texto(vaga.descricao)
+                    : "—"
+              }
+              readOnly
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Situação</Label>
