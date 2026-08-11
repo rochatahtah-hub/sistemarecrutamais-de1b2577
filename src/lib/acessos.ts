@@ -73,9 +73,9 @@ export function dataHoraLogin(valor: string | null | undefined) {
 }
 
 export interface FiltroAcessos {
-  usuarioId?: string;
-  inicio?: string;
-  fim?: string;
+  usuarioId?: string | undefined;
+  inicio?: string | undefined;
+  fim?: string | undefined;
 }
 
 /** Histórico de acessos (RLS: admin vê todos, usuário comum vê apenas os próprios). */
