@@ -95,7 +95,9 @@ function Pagina() {
                 <TableCell>
                   <Sigiloso valor={r.colaborador} />
                 </TableCell>
-                <TableCell>{r.empresa}</TableCell>
+                <TableCell>
+                  <Sigiloso valor={r.empresa} tipo="empresa" />
+                </TableCell>
                 <TableCell>{r.cargo || r.descricao || "—"}</TableCell>
                 <TableCell className="text-right tabular-nums">{r.quantidade}</TableCell>
                 <TableCell>{SITUACAO_LABEL[r.situacao] ?? r.situacao}</TableCell>

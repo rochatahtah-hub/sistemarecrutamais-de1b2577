@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { gerarInsights, type Insight } from "@/lib/inteligencia";
+import { usePrivacidade } from "@/lib/privacidade";
 import { METAS_PADRAO } from "@/lib/tipos";
 
 export const Route = createFileRoute("/analise")({
@@ -38,7 +39,14 @@ const ESCOPO: Record<Insight["escopo"], string> = {
   periodo: "Período",
 };
 
-function CartaoInsight({ insight }: { insight: Insight }) {
+function CartaoInsight({
+  insight,
+  nomes,
+}: {
+  insight: Insight;
+  nomes: { empresas: string[]; pessoas: string[] };
+}) {
+  const priv = usePrivacidade();
   const cor =
     insight.severidade === "critico"
       ? "border-destructive/40 bg-destructive/10"
@@ -57,11 +65,11 @@ function CartaoInsight({ insight }: { insight: Insight }) {
       <Icone className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
       <div className="min-w-0 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-semibold">{insight.titulo}</p>
+          <p className="text-sm font-semibold">{priv.frase(insight.titulo, nomes)}</p>
           <Badge variant="secondary">{ESCOPO[insight.escopo]}</Badge>
           <Badge variant="outline">{insight.indicador}</Badge>
         </div>
-        <p className="text-xs text-muted-foreground">{insight.descricao}</p>
+        <p className="text-xs text-muted-foreground">{priv.frase(insight.descricao, nomes)}</p>
       </div>
     </li>
   );
@@ -75,6 +83,17 @@ function Pagina() {
   const insights = useMemo(
     () => gerarInsights(aplicarFiltros(registros, filtros), metas),
     [registros, filtros, metas],
+  );
+  const nomes = useMemo(
+    () => ({
+      empresas: Array.from(new Set(registros.map((r) => r.empresa).filter(Boolean))),
+      pessoas: Array.from(
+        new Set(
+          registros.flatMap((r) => [r.colaborador, r.candidato].filter(Boolean) as string[]),
+        ),
+      ),
+    }),
+    [registros],
   );
 
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="A Análise Inteligente" />;
@@ -117,7 +136,7 @@ function Pagina() {
                 </h2>
                 <ul className="grid gap-2 md:grid-cols-2">
                   {itens.map((i) => (
-                    <CartaoInsight key={i.id} insight={i} />
+                    <CartaoInsight key={i.id} insight={i} nomes={nomes} />
                   ))}
                 </ul>
               </section>

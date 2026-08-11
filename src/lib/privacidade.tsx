@@ -17,6 +17,14 @@ interface PrivacidadeCtx {
   empresa: (valor: string | null | undefined) => string;
   /** Mascara quantidades sensíveis (presenças, faltas, cancelamentos). */
   numero: (valor: number | string | null | undefined) => string;
+  /**
+   * Mascara nomes de clientes e colaboradores dentro de frases livres
+   * (insights, alertas, descrições).
+   */
+  frase: (
+    texto: string | null | undefined,
+    nomes?: { empresas?: string[]; pessoas?: string[] },
+  ) => string;
 }
 
 const Ctx = createContext<PrivacidadeCtx | null>(null);
@@ -53,6 +61,30 @@ export function mascararEmpresa(valor: string) {
 export function mascararNumero(valor: number | string) {
   const texto = String(valor ?? "");
   return "•".repeat(Math.max(3, Math.min(5, texto.length)));
+}
+
+function escaparRegex(valor: string) {
+  return valor.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Substitui, dentro de um texto, os nomes de empresas e pessoas informados. */
+export function mascararFrase(
+  texto: string,
+  empresas: string[] = [],
+  pessoas: string[] = [],
+) {
+  let saida = texto;
+  const alvos = [
+    ...empresas.map((n) => ({ n, mascarar: mascararEmpresa })),
+    ...pessoas.map((n) => ({ n, mascarar: mascararNome })),
+  ]
+    .filter((a) => a.n && a.n.trim().length >= 3)
+    .sort((a, b) => b.n.length - a.n.length);
+
+  for (const alvo of alvos) {
+    saida = saida.replace(new RegExp(escaparRegex(alvo.n), "gi"), alvo.mascarar(alvo.n));
+  }
+  return saida;
 }
 
 export function PrivacidadeProvider({ children }: { children: ReactNode }) {
@@ -93,6 +125,8 @@ export function PrivacidadeProvider({ children }: { children: ReactNode }) {
       texto: (v) => (privado ? "••••••" : (v ?? "")),
       empresa: (v) => (privado ? mascararEmpresa(v ?? "") : (v ?? "")),
       numero: (v) => (privado ? mascararNumero(v ?? "") : String(v ?? "")),
+      frase: (v, nomes) =>
+        privado ? mascararFrase(v ?? "", nomes?.empresas ?? [], nomes?.pessoas ?? []) : (v ?? ""),
     }),
     [privado, alternar],
   );

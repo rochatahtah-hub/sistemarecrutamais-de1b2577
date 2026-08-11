@@ -141,8 +141,25 @@ export const excluirUsuario = createServerFn({ method: "POST" })
       .eq("id", data.userId)
       .maybeSingle();
 
+    // Libera vínculos que não são removidos automaticamente antes de excluir o acesso.
+    await supabaseAdmin.from("vagas").update({ programadora_id: null }).eq("programadora_id", data.userId);
+    await supabaseAdmin.from("candidatos").update({ criado_por: null }).eq("criado_por", data.userId);
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
+
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
-    if (error) throw new Error(error.message);
+    if (error) {
+      throw new Error(`Não foi possível excluir o acesso: ${error.message}`);
+    }
+
+    // Remove o perfil caso o cascade não tenha sido aplicado.
+    await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
+
+    const { data: restante } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("id", data.userId)
+      .maybeSingle();
+    if (restante) throw new Error("O acesso foi removido, mas o cadastro permaneceu. Tente novamente.");
 
     await supabaseAdmin.from("auditoria").insert({
       tabela: "usuarios",

@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { gerarRadar, type AlertaRadar } from "@/lib/inteligencia";
+import { usePrivacidade } from "@/lib/privacidade";
 import {
   useAlertasSalvos,
   useDefinirStatusAlerta,
@@ -49,6 +50,7 @@ function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { perfil } = useAuth();
+  const priv = usePrivacidade();
   const { filtros, setFiltros } = useFiltros();
   const navigate = useNavigate();
   const [aberto, setAberto] = useState<string | null>(null);
@@ -58,6 +60,17 @@ function Pagina() {
   const alertas = useMemo(
     () => gerarRadar(aplicarFiltros(registros, filtros), metas),
     [registros, filtros, metas],
+  );
+  const nomes = useMemo(
+    () => ({
+      empresas: Array.from(new Set(registros.map((r) => r.empresa).filter(Boolean))),
+      pessoas: Array.from(
+        new Set(
+          registros.flatMap((r) => [r.colaborador, r.candidato].filter(Boolean) as string[]),
+        ),
+      ),
+    }),
+    [registros],
   );
 
   const { data: salvos = [] } = useAlertasSalvos();
@@ -147,7 +160,7 @@ function Pagina() {
                   <span className="text-lg leading-none">{CORES[a.nivel].ponto}</span>
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold">{a.titulo}</span>
+                      <span className="text-sm font-semibold">{priv.frase(a.titulo, nomes)}</span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
                           resolvido
@@ -158,7 +171,9 @@ function Pagina() {
                         {resolvido ? "Resolvido" : "Pendente"}
                       </span>
                     </span>
-                    <span className="block text-xs text-muted-foreground">{a.detalhe}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {priv.frase(a.detalhe, nomes)}
+                    </span>
                     {resolvido && salvo?.resolvido_em && (
                       <span className="block text-[11px] text-muted-foreground">
                         Resolvido por {salvo.resolvido_por_nome || "usuário"} em{" "}
@@ -174,7 +189,7 @@ function Pagina() {
                   <div className="mt-3 space-y-3 border-t border-border/60 pt-3">
                     <ul className="space-y-1 text-xs text-muted-foreground">
                       {a.itens.map((item) => (
-                        <li key={item}>• {item}</li>
+                        <li key={item}>• {priv.frase(item, nomes)}</li>
                       ))}
                     </ul>
                     <div className="flex flex-wrap gap-2">
