@@ -84,6 +84,17 @@ function Pagina() {
     () => gerarInsights(aplicarFiltros(registros, filtros), metas),
     [registros, filtros, metas],
   );
+  const nomes = useMemo(
+    () => ({
+      empresas: Array.from(new Set(registros.map((r) => r.empresa).filter(Boolean))),
+      pessoas: Array.from(
+        new Set(
+          registros.flatMap((r) => [r.colaborador, r.candidato].filter(Boolean) as string[]),
+        ),
+      ),
+    }),
+    [registros],
+  );
 
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="A Análise Inteligente" />;
 
@@ -125,7 +136,7 @@ function Pagina() {
                 </h2>
                 <ul className="grid gap-2 md:grid-cols-2">
                   {itens.map((i) => (
-                    <CartaoInsight key={i.id} insight={i} />
+                    <CartaoInsight key={i.id} insight={i} nomes={nomes} />
                   ))}
                 </ul>
               </section>
