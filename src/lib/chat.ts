@@ -470,11 +470,21 @@ export function usePresencaAtiva() {
  * Assina as mudanças do chat em tempo real e mantém as listas atualizadas.
  * `conversaAberta` evita notificar mensagens da conversa que já está na tela.
  */
-export function useChatRealtime(conversaAberta?: string | null) {
+let conversaAbertaGlobal: string | null = null;
+
+/** Registra qual conversa está aberta na tela (evita notificar o que já está visível). */
+export function useConversaAberta(id: string | null) {
+  useEffect(() => {
+    conversaAbertaGlobal = id;
+    return () => {
+      conversaAbertaGlobal = null;
+    };
+  }, [id]);
+}
+
+export function useChatRealtime() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const abertaRef = useRef<string | null>(conversaAberta ?? null);
-  abertaRef.current = conversaAberta ?? null;
 
   useEffect(() => {
     if (!user) return;
@@ -494,7 +504,7 @@ export function useChatRealtime(conversaAberta?: string | null) {
             payload.eventType === "INSERT" &&
             nova &&
             nova.autor_id !== user.id &&
-            nova.conversa_id !== abertaRef.current
+            nova.conversa_id !== conversaAbertaGlobal
           ) {
             toast.message("💬 Nova mensagem", {
               id: `chat-${nova.conversa_id}`,
