@@ -91,7 +91,7 @@ export function PainelColaboradores() {
       <Dialog open={Boolean(alvo)} onOpenChange={(o) => !o && setAlvo(null)}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Bloquear {alvo?.nome}</DialogTitle>
+            <DialogTitle>Bloquear {p.nome(alvo?.nome ?? "colaborador")}</DialogTitle>
           </DialogHeader>
           <Textarea
             placeholder="Motivo do bloqueio"

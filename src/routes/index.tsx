@@ -145,6 +145,7 @@ function Dashboard() {
   const { data: config } = useConfiguracoes();
   const { data: candidatos = [] } = useCandidatos("");
   const { perfil } = useAuth();
+  const priv = usePrivacidade();
   const navigate = useNavigate();
   const { filtros, setFiltros } = useFiltros();
   const [granularidade, setGranularidade] = useState<Granularidade>("dia");
@@ -179,7 +180,7 @@ function Dashboard() {
     <div className="space-y-4">
       <div>
         <h1 className="font-display text-2xl font-bold">
-          Olá, {perfil?.nome ?? "bem-vinda"}
+          Olá, {priv.nome(perfil?.nome ?? "bem-vinda")}
         </h1>
         <p className="text-sm font-medium text-primary">Visão geral da operação</p>
         <p className="text-sm text-muted-foreground">

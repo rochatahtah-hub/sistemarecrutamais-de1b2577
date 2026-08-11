@@ -24,6 +24,7 @@ import {
 import { buscarBloqueio, type Bloqueio } from "@/lib/bloqueios";
 import { camposFaltantes, interpretarFicha } from "@/lib/ficha-texto";
 import { extrairFicha } from "@/lib/ficha.functions";
+import { usePrivacidade } from "@/lib/privacidade";
 
 interface Props {
   onCandidato: (c: Candidato | null) => void;
@@ -35,6 +36,7 @@ interface Props {
 
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
 export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal = 0 }: Props) {
+  const priv = usePrivacidade();
   const inputArquivo = useRef<HTMLInputElement>(null);
   const campoFicha = useRef<HTMLTextAreaElement>(null);
   const processamentoAtual = useRef(0);
@@ -261,12 +263,12 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
             <ShieldAlert className="h-5 w-5" /> 🚫 COLABORADOR BLOQUEADO
           </p>
           <p className="mt-1 text-sm">
-            {bloqueio.nome || nome || "Colaborador"} · CPF {formatarCPF(bloqueio.cpf)}
+            {priv.nome(bloqueio.nome || nome || "Colaborador")} · CPF {priv.cpf(bloqueio.cpf)}
           </p>
           <p className="text-sm text-muted-foreground">
             Motivo: {bloqueio.motivo || "não informado"} · Bloqueado em{" "}
             {new Date(bloqueio.created_at).toLocaleDateString("pt-BR")} por{" "}
-            {bloqueio.bloqueado_por_nome || "administrador"}.
+            {priv.nome(bloqueio.bloqueado_por_nome || "administrador")}.
           </p>
           <p className="mt-2 text-sm font-semibold">
             Não é possível fechar a vaga, registrar presença ou concluir a programação. Procure o
@@ -333,15 +335,15 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
           <dl className="grid gap-2 text-sm sm:grid-cols-3">
             <div>
               <dt className="text-muted-foreground">Nome</dt>
-              <dd className="font-medium">{nome}</dd>
+              <dd className="font-medium">{priv.nome(nome)}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">CPF</dt>
-              <dd className="font-medium">{formatarCPF(cpf)}</dd>
+              <dd className="font-medium">{priv.privado ? priv.cpf(cpf) : formatarCPF(cpf)}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Telefone</dt>
-              <dd className="font-medium">{formatarTelefone(telefone)}</dd>
+              <dd className="font-medium">{priv.privado ? priv.telefone(telefone) : formatarTelefone(telefone)}</dd>
             </div>
           </dl>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -363,8 +365,8 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       <div className="flex flex-wrap items-center gap-3">
         {candidato && !bloqueio && (
           <span className="text-sm text-muted-foreground">
-            Selecionado: <strong className="text-foreground">{candidato.nome}</strong> ·{" "}
-            {formatarCPF(candidato.cpf)}
+            Selecionado: <strong className="text-foreground">{priv.nome(candidato.nome)}</strong> ·{" "}
+            {priv.privado ? priv.cpf(candidato.cpf) : formatarCPF(candidato.cpf)}
           </span>
         )}
       </div>
