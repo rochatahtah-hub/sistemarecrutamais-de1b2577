@@ -99,6 +99,7 @@ export const salvarAgendamento = createServerFn({ method: "POST" })
     dia_mes: number;
     formato: "sql" | "csv";
     retencao_dias: number;
+    email_destino?: string;
   }) => ({
     ativo: Boolean(d.ativo),
     frequencia: (["diaria", "semanal", "mensal"] as const).includes(d.frequencia)
@@ -109,6 +110,7 @@ export const salvarAgendamento = createServerFn({ method: "POST" })
     dia_mes: Math.min(28, Math.max(1, Number(d.dia_mes) || 1)),
     formato: d.formato === "csv" ? ("csv" as const) : ("sql" as const),
     retencao_dias: Math.min(365, Math.max(0, Number(d.retencao_dias) || 0)),
+    email_destino: (d.email_destino ?? "rochatahtah@gmail.com").trim().slice(0, 200),
   }))
   .handler(async ({ data, context }) => {
     await exigirAdmin(context as unknown as Contexto);
