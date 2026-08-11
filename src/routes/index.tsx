@@ -397,18 +397,20 @@ function Dashboard() {
                         params={{ nome: encodeURIComponent(l.nome) }}
                         className="text-primary hover:underline"
                       >
-                        {l.nome}
+                        <Sigiloso valor={l.nome} tipo="empresa" />
                       </Link>
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
+                    <TableCell className="text-right tabular-nums">
+                      <Sigiloso valor={fmtNum(l.vagas)} tipo="numero" />
+                    </TableCell>
                     <TableCell className="text-right tabular-nums text-success">
-                      {fmtNum(l.presencas)}
+                      <Sigiloso valor={fmtNum(l.presencas)} tipo="numero" />
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-destructive">
-                      {fmtNum(l.faltas)}
+                      <Sigiloso valor={fmtNum(l.faltas)} tipo="numero" />
                     </TableCell>
                     <TableCell className="text-right tabular-nums text-warning">
-                      {fmtNum(l.cancelamentos)}
+                      <Sigiloso valor={fmtNum(l.cancelamentos)} tipo="numero" />
                     </TableCell>
                   </TableRow>
                 ))}
