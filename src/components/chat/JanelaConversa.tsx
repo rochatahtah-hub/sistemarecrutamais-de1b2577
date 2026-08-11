@@ -39,6 +39,7 @@ import {
   useMarcarLida,
   useMensagens,
   usePresencas,
+  resumoMensagem,
   useReacoes,
   useReagir,
   useSairDaConversa,
@@ -324,7 +325,7 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
                             : (usuarios.get(original.autor_id ?? "")?.nome ?? "Usuário")}
                         </span>
                         <span className="line-clamp-2">
-                          {original.excluida ? "Mensagem excluída" : resumoTexto(original)}
+                          {original.excluida ? "Mensagem excluída" : resumoMensagem(original)}
                         </span>
                       </button>
                     )}
@@ -450,7 +451,7 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
                   ? "você mesmo"
                   : (usuarios.get(respondendo.autor_id ?? "")?.nome ?? "usuário")}
               </p>
-              <p className="truncate text-muted-foreground">{resumoTexto(respondendo)}</p>
+              <p className="truncate text-muted-foreground">{resumoMensagem(respondendo)}</p>
             </div>
             <Button
               variant="ghost"
@@ -584,13 +585,4 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
       )}
     </div>
   );
-}
-
-/** Texto curto para prévias de resposta e lista de conversas. */
-function resumoTexto(m: Mensagem) {
-  if (m.conteudo) return m.conteudo;
-  if (m.tipo === "imagem") return "📷 Imagem";
-  if (m.tipo === "audio") return "🎙️ Áudio";
-  if (m.tipo === "arquivo") return `📎 ${m.anexo_nome || "Arquivo"}`;
-  return "";
 }
