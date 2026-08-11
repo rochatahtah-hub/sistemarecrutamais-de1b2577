@@ -19,7 +19,7 @@ export const listarUsuarios = createServerFn({ method: "POST" })
     const [{ data: perfis }, { data: papeis }, auth] = await Promise.all([
       supabaseAdmin
         .from("profiles")
-        .select("id,nome,email,ativo,meta_quinzena,ultimo_acesso,ultimo_preenchimento,created_at")
+        .select("id,nome,email,ativo,meta_quinzena,ultimo_acesso,last_login_at,ultimo_preenchimento,created_at")
         .order("nome"),
       supabaseAdmin.from("user_roles").select("user_id,role"),
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 }),
@@ -38,6 +38,7 @@ export const listarUsuarios = createServerFn({ method: "POST" })
       ativo: p.ativo && !banidos.get(p.id),
       meta_quinzena: p.meta_quinzena,
       ultimo_acesso: p.ultimo_acesso,
+      ultimo_login: p.last_login_at,
       ultima_atividade: p.ultimo_preenchimento,
       criado_em: p.created_at,
       admin: (papeis ?? []).some((r) => r.user_id === p.id && r.role === "admin"),
