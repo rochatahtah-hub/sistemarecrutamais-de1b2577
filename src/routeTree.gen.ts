@@ -32,6 +32,7 @@ import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.i
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
+import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -148,6 +149,12 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
   path: '/empresas/$nome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksBackupAgendadoRoute =
+  ApiPublicHooksBackupAgendadoRouteImport.update({
+    id: '/api/public/hooks/backup-agendado',
+    path: '/api/public/hooks/backup-agendado',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -198,6 +206,7 @@ export interface FileRoutesByTo {
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
+  '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,6 +233,7 @@ export interface FileRoutesById {
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/empresas/$nome'
     | '/colaboradores/'
     | '/empresas/'
+    | '/api/public/hooks/backup-agendado'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -276,6 +287,7 @@ export interface FileRouteTypes {
     | '/empresas/$nome'
     | '/colaboradores'
     | '/empresas'
+    | '/api/public/hooks/backup-agendado'
   id:
     | '__root__'
     | '/'
@@ -301,6 +313,7 @@ export interface FileRouteTypes {
     | '/empresas/$nome'
     | '/colaboradores/'
     | '/empresas/'
+    | '/api/public/hooks/backup-agendado'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -327,6 +340,7 @@ export interface RootRouteChildren {
   EmpresasNomeRoute: typeof EmpresasNomeRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
+  ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -492,6 +506,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasNomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/backup-agendado': {
+      id: '/api/public/hooks/backup-agendado'
+      path: '/api/public/hooks/backup-agendado'
+      fullPath: '/api/public/hooks/backup-agendado'
+      preLoaderRoute: typeof ApiPublicHooksBackupAgendadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -519,17 +540,8 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasNomeRoute: EmpresasNomeRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
+  ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
