@@ -117,7 +117,7 @@ export function FichaVaga({
         <DialogHeader>
           <DialogTitle className="font-display">Ficha completa da vaga</DialogTitle>
           <DialogDescription>
-            {vaga.empresa} · {fmtData(vaga.data)} ·{" "}
+            {priv.empresa(vaga.empresa)} · {fmtData(vaga.data)} ·{" "}
             {SITUACAO_LABEL[vaga.situacao] ?? vaga.situacao}
           </DialogDescription>
         </DialogHeader>
@@ -125,7 +125,7 @@ export function FichaVaga({
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Empresa</Label>
-            <Input value={vaga.empresa} readOnly />
+            <Input value={priv.empresa(vaga.empresa)} readOnly />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fv-cargo">Cargo</Label>
