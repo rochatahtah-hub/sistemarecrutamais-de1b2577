@@ -42,7 +42,10 @@ export function GraficoBarrasStatus({
   sensivel?: boolean;
 }) {
   const priv = usePrivacidade();
-  const dados = sensivel ? linhas.map((l) => ({ ...l, nome: priv.nome(l.nome) })) : linhas;
+  const dados = linhas.map((l) => ({
+    ...l,
+    nome: sensivel ? priv.nome(l.nome) : priv.empresa(l.nome),
+  }));
   return (
     <ResponsiveContainer width="100%" height={320}>
       <BarChart data={dados} margin={{ top: 8, right: 8, left: -18, bottom: 8 }}>
@@ -71,7 +74,10 @@ export function GraficoBarraMetrica({
   sensivel?: boolean;
 }) {
   const priv = usePrivacidade();
-  const dados = sensivel ? linhas.map((l) => ({ ...l, nome: priv.nome(l.nome) })) : linhas;
+  const dados = linhas.map((l) => ({
+    ...l,
+    nome: sensivel ? priv.nome(l.nome) : priv.empresa(l.nome),
+  }));
   return (
     <ResponsiveContainer width="100%" height={320}>
       <BarChart data={dados} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
