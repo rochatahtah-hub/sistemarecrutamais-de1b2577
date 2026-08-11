@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Sigiloso } from "@/lib/privacidade";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { RequerAdmin } from "@/components/RequerAdmin";

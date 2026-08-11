@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Sigiloso } from "@/lib/privacidade";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 

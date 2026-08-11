@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Sigiloso } from "@/lib/privacidade";
 import { Link } from "@tanstack/react-router";
 import {
   AlertTriangle,

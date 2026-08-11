@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Sigiloso } from "@/lib/privacidade";
 import { createFileRoute } from "@tanstack/react-router";
 import { FileDown, FileText } from "lucide-react";
 import { toast } from "sonner";
