@@ -212,14 +212,22 @@ export async function aplicarRetencao(dias: number) {
   return antigos.length;
 }
 
-/** Calcula quando o agendamento deve rodar pela próxima vez. */
+/** Fuso de Brasília (sem horário de verão desde 2019). */
+const OFFSET_BRT = 3;
+
+/** Converte a hora escolhida em Brasília para a hora correspondente em UTC. */
+export function horaBrtParaUtc(hora: number): number {
+  return (Math.min(23, Math.max(0, hora)) + OFFSET_BRT) % 24;
+}
+
+/** Calcula quando o agendamento deve rodar pela próxima vez (hora informada em Brasília). */
 export function calcularProximaExecucao(
   agenda: { frequencia: string; hora: number; dia_semana: number; dia_mes: number },
   base = new Date(),
 ): string {
   const proxima = new Date(base);
   proxima.setUTCMinutes(0, 0, 0);
-  proxima.setUTCHours(agenda.hora);
+  proxima.setUTCHours(horaBrtParaUtc(agenda.hora));
   if (proxima <= base) proxima.setUTCDate(proxima.getUTCDate() + 1);
 
   if (agenda.frequencia === "semanal") {
@@ -232,6 +240,48 @@ export function calcularProximaExecucao(
     }
   }
   return proxima.toISOString();
+}
+
+/** Gera um link assinado de download válido por 7 dias. */
+async function linkTemporario(caminho: string, nome: string) {
+  const { data } = await supabaseAdmin.storage
+    .from("backups")
+    .createSignedUrl(caminho, 7 * 86_400, { download: nome });
+  return data?.signedUrl ?? "";
+}
+
+/**
+ * Envia o backup ao e-mail configurado. Enquanto não houver domínio de e-mail
+ * verificado no projeto, registra o link de download como notificação do administrador.
+ */
+export async function enviarBackupEmail(backupId: string, destino: string) {
+  const { data: backup } = await supabaseAdmin
+    .from("backups")
+    .select("arquivo_path,arquivo_nome,tamanho_bytes,status,formato")
+    .eq("id", backupId)
+    .maybeSingle();
+
+  if (!backup || backup.status !== "concluido" || !backup.arquivo_path) {
+    return { enviado: false, motivo: "backup indisponível" };
+  }
+
+  const link = await linkTemporario(backup.arquivo_path, backup.arquivo_nome);
+  const status = "pendente_dominio";
+
+  await supabaseAdmin
+    .from("backups")
+    .update({ envio_status: status, envio_email: destino, envio_em: new Date().toISOString() })
+    .eq("id", backupId);
+
+  await supabaseAdmin.from("notificacoes").insert({
+    tipo: "backup",
+    titulo: "Backup concluído",
+    mensagem: `Arquivo ${backup.arquivo_nome} pronto para ${destino}. Link de download (7 dias): ${link}`,
+    para_admin: true,
+    chave: `backup-${backupId}`,
+  });
+
+  return { enviado: false, motivo: "e-mail do projeto ainda não configurado", link, status };
 }
 
 /** Roda o agendamento se estiver ativo e vencido. Usado pela rotina automática. */
@@ -249,20 +299,45 @@ export async function rodarAgendamento() {
     return { executado: false, motivo: "ainda não é hora", proxima: agenda.proxima_execucao };
   }
 
-  const resultado = await executarBackup({
-    formato: (agenda.formato as FormatoBackup) ?? "sql",
-    origem: "agendado",
-    criadoPorNome: "Rotina automática",
-  });
-  const removidos = await aplicarRetencao(agenda.retencao_dias);
+  try {
+    const resultado = await executarBackup({
+      formato: (agenda.formato as FormatoBackup) ?? "sql",
+      origem: "agendado",
+      criadoPorNome: "Rotina automática",
+    });
+    const removidos = await aplicarRetencao(agenda.retencao_dias);
+    const envio = await enviarBackupEmail(resultado.id, agenda.email_destino);
 
-  await supabaseAdmin
-    .from("backup_agendamento")
-    .update({
-      ultima_execucao: agora.toISOString(),
-      proxima_execucao: calcularProximaExecucao(agenda, agora),
-    })
-    .eq("id", true);
+    await supabaseAdmin
+      .from("backup_agendamento")
+      .update({
+        ultima_execucao: agora.toISOString(),
+        proxima_execucao: calcularProximaExecucao(agenda, agora),
+        ultimo_envio_em: new Date().toISOString(),
+        ultimo_envio_status: envio.enviado ? "enviado" : "pendente_dominio",
+        ultimo_envio_erro: envio.enviado ? "" : String(envio.motivo ?? ""),
+      })
+      .eq("id", true);
 
-  return { executado: true, ...resultado, removidos };
+    return { executado: true, ...resultado, removidos, envio };
+  } catch (e) {
+    const mensagem = (e as Error).message;
+    await supabaseAdmin
+      .from("backup_agendamento")
+      .update({
+        ultima_execucao: agora.toISOString(),
+        proxima_execucao: calcularProximaExecucao(agenda, agora),
+        ultimo_envio_status: "falhou",
+        ultimo_envio_erro: mensagem.slice(0, 500),
+      })
+      .eq("id", true);
+    await supabaseAdmin.from("notificacoes").insert({
+      tipo: "backup",
+      titulo: "Falha no backup automático",
+      mensagem: mensagem.slice(0, 400),
+      para_admin: true,
+      chave: `backup-falha-${agora.toISOString().slice(0, 13)}`,
+    });
+    throw e;
+  }
 }
