@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
@@ -80,6 +81,11 @@ const BloqueiosRoute = BloqueiosRouteImport.update({
 const CandidatosRoute = CandidatosRouteImport.update({
   id: '/candidatos',
   path: '/candidatos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompararRoute = CompararRouteImport.update({
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
+  '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
+  '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
@@ -243,6 +251,7 @@ export interface FileRoutesById {
   '/backups': typeof BackupsRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
+  '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
@@ -274,6 +283,7 @@ export interface FileRouteTypes {
     | '/backups'
     | '/bloqueios'
     | '/candidatos'
+    | '/chat'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
@@ -303,6 +313,7 @@ export interface FileRouteTypes {
     | '/backups'
     | '/bloqueios'
     | '/candidatos'
+    | '/chat'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/backups'
     | '/bloqueios'
     | '/candidatos'
+    | '/chat'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
@@ -362,6 +374,7 @@ export interface RootRouteChildren {
   BackupsRoute: typeof BackupsRoute
   BloqueiosRoute: typeof BloqueiosRoute
   CandidatosRoute: typeof CandidatosRoute
+  ChatRoute: typeof ChatRoute
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
@@ -445,6 +458,13 @@ declare module '@tanstack/react-router' {
       path: '/candidatos'
       fullPath: '/candidatos'
       preLoaderRoute: typeof CandidatosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comparar': {
@@ -586,6 +606,7 @@ const rootRouteChildren: RootRouteChildren = {
   BackupsRoute: BackupsRoute,
   BloqueiosRoute: BloqueiosRoute,
   CandidatosRoute: CandidatosRoute,
+  ChatRoute: ChatRoute,
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,
