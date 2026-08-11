@@ -138,7 +138,9 @@ function Pagina() {
           <TableBody>
             {perfis.map((p) => (
               <TableRow key={p.id}>
-                <TableCell className="font-medium">{p.nome}</TableCell>
+                <TableCell className="font-medium">
+                  <Sigiloso valor={p.nome} />
+                </TableCell>
                 <TableCell className="text-right">
                   {isAdmin ? (
                     <Input

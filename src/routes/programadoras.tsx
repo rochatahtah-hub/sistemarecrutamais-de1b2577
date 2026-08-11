@@ -120,8 +120,10 @@ function Pagina() {
               <TableRow key={l.id}>
                 <TableCell>{i + 1}</TableCell>
                 <TableCell className="font-medium">
-                  {l.nome}
-                  <span className="block text-xs text-muted-foreground">{l.email}</span>
+                  <Sigiloso valor={l.nome} />
+                  <span className="block text-xs text-muted-foreground">
+                    <Sigiloso valor={l.email} tipo="texto" />
+                  </span>
                 </TableCell>
                 <TableCell className="text-right">{fmtNum(l.total)}</TableCell>
                 <TableCell className="text-right">{fmtNum(l.pendentes)}</TableCell>

@@ -75,7 +75,9 @@ function Pagina() {
                 {l.indice.toFixed(1).replace(".", ",")}
               </span>
             </div>
-            <p className="mt-2 truncate font-semibold">{l.nome}</p>
+            <p className="mt-2 truncate font-semibold">
+              <Sigiloso valor={l.nome} />
+            </p>
             <p className="text-xs text-muted-foreground">
               {fmtNum(l.vagas)} vagas · {fmtPct(l.pctPresenca)} presença ·{" "}
               {fmtPct(l.taxaConfirmacao)} conversão
@@ -119,7 +121,7 @@ function Pagina() {
                     params={{ nome: encodeURIComponent(l.nome) }}
                     className="text-primary hover:underline"
                   >
-                    {l.nome}
+                    <Sigiloso valor={l.nome} />
                   </Link>
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{fmtNum(l.vagas)}</TableCell>
