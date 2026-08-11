@@ -144,7 +144,7 @@ function Dashboard() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { data: candidatos = [] } = useCandidatos("");
-  const { perfil } = useAuth();
+  const { perfil, isAdmin } = useAuth();
   const priv = usePrivacidade();
   const navigate = useNavigate();
   const { filtros, setFiltros } = useFiltros();
@@ -202,6 +202,8 @@ function Dashboard() {
       <AtalhosPeriodo />
       <FiltrosBar registros={registros} />
       <PlanilhaAtivaBanner />
+
+      {isAdmin && <ResumoAcessos />}
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
         <CardIndicador
