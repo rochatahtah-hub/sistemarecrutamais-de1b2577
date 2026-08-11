@@ -19,6 +19,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { TopBar } from "@/components/TopBar";
 import { FiltrosProvider } from "@/lib/filtros";
 import { AuthProvider, useAuth } from "@/lib/auth";
+import { PrivacidadeProvider } from "@/lib/privacidade";
 import { SystemErrorBoundary } from "@/components/SystemErrorBoundary";
 import { VoltarAoTopo } from "@/components/VoltarAoTopo";
 import { registrarErroSistema } from "@/lib/system-health";
@@ -163,9 +164,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <FiltrosProvider>
-          <Protegido />
-        </FiltrosProvider>
+        <PrivacidadeProvider>
+          <FiltrosProvider>
+            <Protegido />
+          </FiltrosProvider>
+        </PrivacidadeProvider>
       </AuthProvider>
       <Toaster position="top-right" richColors />
     </QueryClientProvider>
