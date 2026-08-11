@@ -6,7 +6,6 @@ import {
   CornerUpLeft,
   Info,
   Loader2,
-  LogOut,
   Mic,
   Paperclip,
   Send,
@@ -42,7 +41,6 @@ import {
   resumoMensagem,
   useReacoes,
   useReagir,
-  useSairDaConversa,
   type Mensagem,
   type ResumoConversa,
 } from "@/lib/chat";
@@ -68,7 +66,6 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
   const excluir = useExcluirMensagem();
   const marcarLida = useMarcarLida();
   const reagir = useReagir();
-  const sair = useSairDaConversa();
   const gravador = useGravadorAudio();
 
   const [texto, setTexto] = useState("");
