@@ -48,6 +48,7 @@ export const Route = createFileRoute("/bloqueios")({
 
 function Pagina() {
   const { isAdmin } = useAuth();
+  const priv = usePrivacidade();
   const [busca, setBusca] = useState("");
   const { data: lista = [], isLoading } = useBloqueados(busca);
   const bloquear = useBloquearColaborador();
