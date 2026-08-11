@@ -30,6 +30,7 @@ const MESES = [
 
 export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
   const { filtros, setFiltros, limpar } = useFiltros();
+  const priv = usePrivacidade();
 
   const colaboradores = Array.from(new Set(registros.map((r) => r.colaborador))).sort();
   const empresas = Array.from(new Set(registros.map((r) => r.empresa))).sort();
