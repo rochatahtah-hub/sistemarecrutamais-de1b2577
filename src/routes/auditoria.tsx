@@ -95,7 +95,7 @@ function Pagina() {
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / porPagina));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         <History className="h-6 w-6 text-primary" />
         <div className="min-w-0">
@@ -106,7 +106,7 @@ function Pagina() {
         </div>
       </div>
 
-      <div className="surface-panel grid gap-3 rounded-xl p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+      <div className="surface-panel grid gap-3 rounded-2xl p-4 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
         <div className="relative min-w-0">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -166,7 +166,7 @@ function Pagina() {
         </div>
       )}
 
-      <div className="surface-panel overflow-x-auto rounded-xl p-2">
+      <div className="surface-panel overflow-x-auto rounded-2xl p-2">
         <Table>
           <TableHeader>
             <TableRow>

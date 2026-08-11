@@ -85,8 +85,8 @@ export function PainelManutencao() {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="surface-panel space-y-3 rounded-xl p-4">
+    <div className="space-y-6">
+      <div className="surface-panel space-y-3 rounded-2xl p-4">
         <div className="flex items-center gap-2">
           {problemas === 0 ? (
             <CheckCircle2 className="h-5 w-5 text-emerald-500" />
@@ -115,7 +115,7 @@ export function PainelManutencao() {
 
       <div className="grid gap-3 md:grid-cols-3">
         {acoes.map((a) => (
-          <div key={a.titulo} className="surface-panel flex flex-col gap-2 rounded-xl p-4">
+          <div key={a.titulo} className="surface-panel flex flex-col gap-2 rounded-2xl p-4">
             <h4 className="font-display text-sm font-semibold">{a.titulo}</h4>
             <p className="flex-1 text-xs text-muted-foreground">{a.texto}</p>
             <Button

@@ -103,7 +103,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Este perfil" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2">
         <Link to={tipo === "colaborador" ? "/colaboradores" : "/empresas"}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Voltar

@@ -94,7 +94,7 @@ export function GerenciarUsuarios() {
 
   return (
     <div className="space-y-5">
-      <form className="surface-panel grid gap-3 rounded-xl p-4 md:grid-cols-5" onSubmit={cadastrar}>
+      <form className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-5" onSubmit={cadastrar}>
         <div className="space-y-1.5 md:col-span-1">
           <Label htmlFor="u-nome">Nome</Label>
           <Input id="u-nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
@@ -129,7 +129,7 @@ export function GerenciarUsuarios() {
         </div>
       </form>
 
-      <div className="surface-panel space-y-3 rounded-xl p-4">
+      <div className="surface-panel space-y-3 rounded-2xl p-4">
         <h2 className="font-display text-sm font-semibold">Usuários e permissões</h2>
         {perfis.map((p) => (
           <div key={p.id} className="flex flex-wrap items-center gap-3 border-b border-border pb-3">

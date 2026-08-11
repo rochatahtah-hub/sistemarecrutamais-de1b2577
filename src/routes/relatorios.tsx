@@ -63,7 +63,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Relatórios" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold">Relatórios</h1>
         <p className="text-sm text-muted-foreground">

@@ -88,7 +88,7 @@ function Pagina() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold">Configurações</h1>
         <p className="text-sm text-muted-foreground">
@@ -96,7 +96,7 @@ function Pagina() {
         </p>
       </div>
 
-      <div className="surface-panel space-y-4 rounded-xl p-5">
+      <div className="surface-panel space-y-4 rounded-2xl p-5">
         <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-primary">
           Metas percentuais
         </h2>
@@ -125,7 +125,7 @@ function Pagina() {
         </Button>
       </div>
 
-      <div className="surface-panel space-y-4 rounded-xl p-5">
+      <div className="surface-panel space-y-4 rounded-2xl p-5">
         <div>
           <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-primary">
             Mapeamento de status

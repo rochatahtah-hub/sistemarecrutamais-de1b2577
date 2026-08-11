@@ -276,7 +276,7 @@ function Pagina() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold">Importar dados</h1>
         <p className="text-sm text-muted-foreground">
@@ -290,7 +290,7 @@ function Pagina() {
       <PlanilhaAtivaBanner />
 
       {!arquivo && (
-        <label className="surface-panel flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-dashed p-10 text-center transition-colors hover:border-primary/50">
+        <label className="surface-panel flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-dashed p-10 text-center transition-colors hover:border-primary/50">
           <Upload className="h-8 w-8 text-primary" />
           <div>
             <p className="font-semibold">Clique para selecionar sua planilha</p>
@@ -310,7 +310,7 @@ function Pagina() {
 
       {arquivo && (
         <>
-          <div className="surface-panel grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between rounded-xl p-4">
+          <div className="surface-panel grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <FileSpreadsheet className="h-5 w-5 text-primary" />
               <div>

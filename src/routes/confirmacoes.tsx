@@ -107,7 +107,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Presenças, faltas e cancelamentos" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Confirmações</h1>

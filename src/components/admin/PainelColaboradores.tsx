@@ -26,8 +26,8 @@ export function PainelColaboradores() {
   const bloqueioDe = (cpf: string) => bloqueados.find((b) => b.cpf === cpf.replace(/\D/g, ""));
 
   return (
-    <div className="space-y-4">
-      <div className="surface-panel flex items-center gap-2 rounded-xl p-4">
+    <div className="space-y-6">
+      <div className="surface-panel flex items-center gap-2 rounded-2xl p-4">
         <Search className="h-4 w-4 text-muted-foreground" />
         <Input
           value={busca}
@@ -44,7 +44,7 @@ export function PainelColaboradores() {
           return (
             <div
               key={c.id}
-              className="surface-panel flex flex-wrap items-center justify-between gap-3 rounded-xl p-4"
+              className="surface-panel flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4"
             >
               <div className="min-w-0">
                 <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">

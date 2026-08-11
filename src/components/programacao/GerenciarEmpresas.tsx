@@ -41,7 +41,7 @@ export function GerenciarEmpresas() {
   };
 
   return (
-    <div className="surface-panel space-y-4 rounded-xl p-4">
+    <div className="surface-panel space-y-4 rounded-2xl p-4">
       <div className="flex items-center gap-2">
         <Building2 className="h-4 w-4 text-primary" />
         <h2 className="font-display text-lg font-semibold">Gerenciar empresas</h2>

@@ -205,7 +205,7 @@ function Pagina() {
         )}
       </div>
 
-      <div className="surface-panel space-y-5 rounded-xl p-4">
+      <div className="surface-panel space-y-5 rounded-2xl p-4">
         <h2 className="font-display text-lg font-semibold">Novo registro</h2>
         <FichaCandidato
           candidato={candidato}

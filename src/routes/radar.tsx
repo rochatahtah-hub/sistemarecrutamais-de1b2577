@@ -108,7 +108,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="O Radar da Operação" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl font-bold">
           <Radar className="h-6 w-6 text-primary" /> Radar da operação

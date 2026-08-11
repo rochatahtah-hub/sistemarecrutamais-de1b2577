@@ -77,8 +77,8 @@ export function PainelEmailBackup() {
   };
 
   return (
-    <div className="space-y-4">
-      <section className="surface-panel space-y-4 rounded-xl p-4">
+    <div className="space-y-6">
+      <section className="surface-panel space-y-4 rounded-2xl p-4">
         <h2 className="flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           <Mail className="h-4 w-4 text-primary" /> E-mail para recebimento dos backups
         </h2>
@@ -126,7 +126,7 @@ export function PainelEmailBackup() {
         )}
       </section>
 
-      <section className="surface-panel space-y-2 rounded-xl border border-warning/40 p-4">
+      <section className="surface-panel space-y-2 rounded-2xl border border-warning/40 p-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold">
           <Info className="h-4 w-4 text-warning" /> Domínio de envio (configuração separada)
         </h3>

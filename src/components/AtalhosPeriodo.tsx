@@ -35,7 +35,7 @@ export function AtalhosPeriodo() {
   };
 
   return (
-    <div className="surface-panel flex flex-wrap items-end gap-3 rounded-xl p-3">
+    <div className="surface-panel flex flex-wrap items-end gap-3 rounded-2xl p-3">
       <div className="flex flex-wrap items-center gap-1.5">
         <CalendarRange className="mr-1 h-4 w-4 text-primary" />
         {ATALHOS.map((a) => (

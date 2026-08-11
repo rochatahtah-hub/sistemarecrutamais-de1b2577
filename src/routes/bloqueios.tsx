@@ -103,7 +103,7 @@ function Pagina() {
         </p>
       </div>
 
-      <div className="surface-panel space-y-4 rounded-xl p-4">
+      <div className="surface-panel space-y-4 rounded-2xl p-4">
         <h2 className="font-display text-lg font-semibold">Bloquear colaborador</h2>
         <div className="grid gap-3 md:grid-cols-3">
           <div className="space-y-1.5">
@@ -135,7 +135,7 @@ function Pagina() {
         </Button>
       </div>
 
-      <div className="surface-panel space-y-3 rounded-xl p-4">
+      <div className="surface-panel space-y-3 rounded-2xl p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <h2 className="font-display text-lg font-semibold">Lista de bloqueados</h2>
           <div className="relative">
@@ -195,7 +195,7 @@ function Pagina() {
         </div>
       </div>
 
-      <div className="surface-panel space-y-3 rounded-xl p-4">
+      <div className="surface-panel space-y-3 rounded-2xl p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
           <KeyRound className="h-4 w-4 text-primary" /> PIN administrativo
         </h2>
