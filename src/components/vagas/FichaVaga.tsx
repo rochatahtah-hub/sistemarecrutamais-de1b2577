@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAtualizarVaga, useRegistrarConfirmacao } from "@/lib/dados";
+import { usePrivacidade } from "@/lib/privacidade";
 import { agregar, fmtData, fmtNum, fmtPct } from "@/lib/metricas";
 import { SITUACOES, SITUACAO_LABEL, STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
 
@@ -40,6 +41,7 @@ export function FichaVaga({
 }) {
   const atualizar = useAtualizarVaga();
   const confirmar = useRegistrarConfirmacao();
+  const priv = usePrivacidade();
   const [cargo, setCargo] = useState("");
   const [horario, setHorario] = useState("");
   const [local, setLocal] = useState("");
@@ -166,11 +168,20 @@ export function FichaVaga({
           </div>
           <div className="space-y-1.5">
             <Label>Colaborador responsável</Label>
-            <Input value={vaga.colaborador} readOnly />
+            <Input value={priv.nome(vaga.colaborador)} readOnly />
           </div>
           <div className="space-y-1.5">
             <Label>Candidato</Label>
-            <Input value={vaga.candidato || vaga.descricao || "—"} readOnly />
+            <Input
+              value={
+                vaga.candidato
+                  ? priv.nome(vaga.candidato)
+                  : vaga.descricao
+                    ? priv.texto(vaga.descricao)
+                    : "—"
+              }
+              readOnly
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Situação</Label>

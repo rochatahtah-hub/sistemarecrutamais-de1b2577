@@ -64,6 +64,17 @@ export const definirStatusUsuario = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     await supabaseAdmin.from("profiles").update({ ativo: data.ativo }).eq("id", data.userId);
+    await supabaseAdmin.from("auditoria").insert({
+      tabela: "usuarios",
+      registro_id: data.userId,
+      acao: "UPDATE",
+      descricao: "Status de acesso alterado",
+      campo: "ativo",
+      valor_anterior: data.ativo ? "false" : "true",
+      valor_novo: data.ativo ? "true" : "false",
+      usuario_id: context.userId,
+      usuario_nome: "Administrador",
+    });
     return { ok: true };
   });
 
@@ -79,6 +90,12 @@ export const atualizarUsuario = createServerFn({ method: "POST" })
     const email = normalizarEmail(data.email);
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("Informe um e-mail válido.");
 
+    const { data: anterior } = await supabaseAdmin
+      .from("profiles")
+      .select("nome,email")
+      .eq("id", data.userId)
+      .maybeSingle();
+
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       email,
       email_confirm: true,
@@ -89,6 +106,17 @@ export const atualizarUsuario = createServerFn({ method: "POST" })
       .from("profiles")
       .update({ nome: data.nome.trim(), email })
       .eq("id", data.userId);
+    await supabaseAdmin.from("auditoria").insert({
+      tabela: "usuarios",
+      registro_id: data.userId,
+      acao: "UPDATE",
+      descricao: `Cadastro de acesso atualizado: ${data.nome.trim()}`,
+      campo: "nome",
+      valor_anterior: `${anterior?.nome ?? ""} (${anterior?.email ?? ""})`,
+      valor_novo: `${data.nome.trim()} (${email})`,
+      usuario_id: context.userId,
+      usuario_nome: "Administrador",
+    });
     return { ok: true };
   });
 

@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 import type { LinhaAgregada, Agregado } from "@/lib/metricas";
+import { usePrivacidade } from "@/lib/privacidade";
 
 const COR_PRESENCA = "oklch(0.7 0.14 158)";
 const COR_FALTA = "oklch(0.62 0.2 25)";
@@ -33,10 +34,18 @@ const tooltipStyle = {
   labelStyle: { color: "oklch(0.79 0.135 85)" },
 };
 
-export function GraficoBarrasStatus({ linhas }: { linhas: LinhaAgregada[] }) {
+export function GraficoBarrasStatus({
+  linhas,
+  sensivel = false,
+}: {
+  linhas: LinhaAgregada[];
+  sensivel?: boolean;
+}) {
+  const priv = usePrivacidade();
+  const dados = sensivel ? linhas.map((l) => ({ ...l, nome: priv.nome(l.nome) })) : linhas;
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={linhas} margin={{ top: 8, right: 8, left: -18, bottom: 8 }}>
+      <BarChart data={dados} margin={{ top: 8, right: 8, left: -18, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.28 0.005 285)" vertical={false} />
         <XAxis dataKey="nome" tick={eixo} interval={0} angle={-25} textAnchor="end" height={70} />
         <YAxis tick={eixo} />
@@ -54,14 +63,18 @@ export function GraficoBarraMetrica({
   linhas,
   metrica,
   rotulo,
+  sensivel = false,
 }: {
   linhas: LinhaAgregada[];
   metrica: keyof LinhaAgregada;
   rotulo: string;
+  sensivel?: boolean;
 }) {
+  const priv = usePrivacidade();
+  const dados = sensivel ? linhas.map((l) => ({ ...l, nome: priv.nome(l.nome) })) : linhas;
   return (
     <ResponsiveContainer width="100%" height={320}>
-      <BarChart data={linhas} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+      <BarChart data={dados} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.28 0.005 285)" horizontal={false} />
         <XAxis type="number" tick={eixo} />
         <YAxis type="category" dataKey="nome" tick={eixo} width={130} />

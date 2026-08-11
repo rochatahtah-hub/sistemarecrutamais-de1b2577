@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Plus, Trash2 } from "lucide-react";
@@ -57,6 +57,18 @@ export function PainelUsuarios() {
   const [editando, setEditando] = useState<{ id: string; nome: string; email: string } | null>(null);
   const [trocaSenha, setTrocaSenha] = useState<{ id: string; nome: string; senha: string } | null>(null);
   const [excluindo, setExcluindo] = useState<{ id: string; nome: string } | null>(null);
+  const [filtro, setFiltro] = useState<"todos" | "ativos" | "desativados">("todos");
+  const [busca, setBusca] = useState("");
+
+  const lista = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    return (usuarios.data ?? []).filter((u) => {
+      if (filtro === "ativos" && !u.ativo) return false;
+      if (filtro === "desativados" && u.ativo) return false;
+      if (!termo) return true;
+      return `${u.nome} ${u.email ?? ""}`.toLowerCase().includes(termo);
+    });
+  }, [usuarios.data, filtro, busca]);
 
   const acao = useMutation({
     mutationFn: async (fn: () => Promise<unknown>) => fn(),
@@ -116,8 +128,33 @@ export function PainelUsuarios() {
 
       {usuarios.isLoading && <Skeleton className="h-48 w-full" />}
 
+      <div className="flex flex-wrap items-center gap-2">
+        {(["todos", "ativos", "desativados"] as const).map((f) => (
+          <Button
+            key={f}
+            size="sm"
+            variant={filtro === f ? "default" : "outline"}
+            onClick={() => setFiltro(f)}
+          >
+            {f === "todos" ? "Todos" : f === "ativos" ? "Ativos" : "Desativados"}
+            {" "}
+            (
+            {f === "todos"
+              ? (usuarios.data ?? []).length
+              : (usuarios.data ?? []).filter((u) => (f === "ativos" ? u.ativo : !u.ativo)).length}
+            )
+          </Button>
+        ))}
+        <Input
+          className="h-9 w-full sm:w-64"
+          placeholder="Buscar por nome ou e-mail"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
+      </div>
+
       <div className="space-y-3">
-        {(usuarios.data ?? []).map((u) => (
+        {lista.map((u) => (
           <div key={u.id} className="surface-panel grid gap-3 rounded-xl p-4 md:grid-cols-[minmax(0,1fr)_auto]">
             <div className="min-w-0 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -171,8 +208,10 @@ export function PainelUsuarios() {
             </div>
           </div>
         ))}
-        {usuarios.data?.length === 0 && (
-          <p className="py-6 text-center text-sm text-muted-foreground">Nenhum usuário cadastrado.</p>
+        {!usuarios.isLoading && lista.length === 0 && (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            Nenhum usuário encontrado para este filtro.
+          </p>
         )}
       </div>
 
