@@ -110,7 +110,9 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
       </Button>
 
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-2xl font-bold">{nome}</h1>
+        <h1 className="font-display text-2xl font-bold">
+          <Sigiloso valor={nome} tipo={tipo === "empresa" ? "empresa" : "nome"} />
+        </h1>
         <Badge variant="outline" className="border-primary/40 text-primary">
           <Trophy className="mr-1 h-3 w-3" />
           {ranking.posicao > 0
