@@ -20,6 +20,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { entrarComPin, pinDefinido } from "@/lib/pin.functions";
+import logoLockup from "@/assets/recruta-lockup.png.asset.json";
+import logoMarca from "@/assets/recruta-mark.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -154,14 +156,11 @@ function Pagina() {
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
       <aside className="malha-escura hidden flex-col justify-between p-12 text-sidebar-foreground lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-xl bg-sidebar-primary text-lg font-bold text-sidebar-primary-foreground shadow-[0_10px_28px_-12px_oklch(0.78_0.082_82/0.9)]">
-            R+
-          </div>
-          <p className="text-lg font-semibold tracking-tight">
-            RECRUTA<span className="text-sidebar-primary">+</span>
-          </p>
-        </div>
+        <img
+          src={logoLockup.url}
+          alt="RECRUTA+ — Gestão inteligente de recrutamento"
+          className="h-14 w-auto select-none object-contain object-left opacity-95"
+        />
         <div className="max-w-md">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-sidebar-primary">
             Plataforma corporativa
@@ -187,9 +186,11 @@ function Pagina() {
       <main className="flex items-center justify-center px-4 py-10 sm:px-8">
         <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center lg:hidden">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <BarChart3 className="h-6 w-6 text-primary-foreground" />
-          </div>
+          <img
+            src={logoMarca.url}
+            alt="RECRUTA+"
+            className="h-14 w-auto select-none object-contain"
+          />
           <h1 className="mt-3 text-2xl font-semibold tracking-tight">
             Sistema de Programação
           </h1>
