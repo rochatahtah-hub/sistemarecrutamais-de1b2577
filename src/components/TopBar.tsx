@@ -39,6 +39,7 @@ const SECOES: Record<string, string> = {
   "/candidatos": "Cadastrar Candidato",
   "/vagas": "Vagas",
   "/confirmacoes": "Confirmações",
+  "/chat": "Chat",
   "/colaboradores": "Equipe",
   "/empresas": "Empresas",
   "/performance": "Performance",
