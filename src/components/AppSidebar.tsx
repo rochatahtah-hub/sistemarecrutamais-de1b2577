@@ -48,6 +48,7 @@ const ADMIN_ONLY = new Set([
   "/configuracoes",
   "/saude-sistema",
   "/backups",
+  "/acessos",
 ]);
 
 const operacao = [
@@ -80,6 +81,7 @@ const ferramentas = [
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
   { title: "Backups", url: "/backups", icon: DatabaseBackup },
+  { title: "Histórico de Acessos", url: "/acessos", icon: KeyRound },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ] as const;
 
