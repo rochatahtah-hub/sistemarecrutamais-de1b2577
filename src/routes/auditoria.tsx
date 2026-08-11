@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { ACAO_LABEL, TABELA_LABEL, useAuditoria } from "@/lib/auditoria";
 import { fmtNum } from "@/lib/metricas";
+import { usePrivacidade } from "@/lib/privacidade";
 
 export const Route = createFileRoute("/auditoria")({
   head: () => ({
