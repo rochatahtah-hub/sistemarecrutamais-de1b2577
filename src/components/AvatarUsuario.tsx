@@ -10,11 +10,11 @@ export function iniciaisNome(nome?: string | null) {
 }
 
 interface Props {
-  nome?: string | null;
-  caminho?: string | null;
-  privado?: boolean;
-  className?: string;
-  textoClassName?: string;
+  nome?: string | null | undefined;
+  caminho?: string | null | undefined;
+  privado?: boolean | undefined;
+  className?: string | undefined;
+  textoClassName?: string | undefined;
 }
 
 /** Avatar circular padrão do Recruta+: foto do usuário ou iniciais em dourado. */
