@@ -52,37 +52,37 @@ const ADMIN_ONLY = new Set([
   "/acessos",
 ]);
 
-const operacao = [
+const principal = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Minha Programação", url: "/minha-programacao", icon: CalendarCheck },
-  { title: "Programações da equipe", url: "/programadoras", icon: UserCog },
-  { title: "Cadastrar Candidato", url: "/candidatos", icon: IdCard },
   { title: "Vagas", url: "/vagas", icon: Table2 },
+  { title: "Cadastrar Candidato", url: "/candidatos", icon: IdCard },
+  { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
 ] as const;
 
 const gestao = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
+  { title: "Programações da equipe", url: "/programadoras", icon: UserCog },
   { title: "Equipe", url: "/colaboradores", icon: Users },
   { title: "Empresas", url: "/empresas", icon: Building2 },
-  { title: "Performance", url: "/performance", icon: Trophy },
+  { title: "Metas", url: "/metas", icon: Target },
+  { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
 ] as const;
 
-const inteligencia = [
+const analises = [
+  { title: "Performance", url: "/performance", icon: Trophy },
   { title: "Análise Inteligente", url: "/analise", icon: Bot },
   { title: "Radar da Operação", url: "/radar", icon: Radar },
   { title: "Comparar Períodos", url: "/comparar", icon: GitCompareArrows },
+  { title: "Relatórios", url: "/relatorios", icon: FileText },
 ] as const;
 
 const ferramentas = [
-  { title: "Relatórios", url: "/relatorios", icon: FileText },
   { title: "Central de Administração", url: "/administracao", icon: ShieldCheck },
   { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
   { title: "Histórico", url: "/historico", icon: Archive },
   { title: "Histórico de Alterações", url: "/auditoria", icon: History },
-  { title: "Metas", url: "/metas", icon: Target },
-  { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
-  { title: "Backups", url: "/backups", icon: DatabaseBackup },
   { title: "Histórico de Acessos", url: "/acessos", icon: KeyRound },
+  { title: "Backups", url: "/backups", icon: DatabaseBackup },
   { title: "Configurações", url: "/configuracoes", icon: Settings },
 ] as const;
 
@@ -106,11 +106,11 @@ export function AppSidebar() {
             asChild
             isActive={isActive(item.url)}
             tooltip={item.title}
-            className="h-9 rounded-lg text-[13px] font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground"
+            className="group/nav relative h-9 overflow-hidden rounded-lg pl-3 text-[13px] font-medium text-sidebar-foreground/70 transition-all duration-200 hover:bg-sidebar-accent/70 hover:text-sidebar-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground data-[active=true]:before:absolute data-[active=true]:before:left-0 data-[active=true]:before:top-1/2 data-[active=true]:before:h-5 data-[active=true]:before:w-[3px] data-[active=true]:before:-translate-y-1/2 data-[active=true]:before:rounded-r-full data-[active=true]:before:bg-sidebar-primary"
           >
             <Link to={item.url} className="flex items-center gap-2.5">
               <item.icon
-                className={`h-4 w-4 shrink-0 ${isActive(item.url) ? "text-sidebar-primary" : "text-sidebar-foreground/60"}`}
+                className={`h-4 w-4 shrink-0 transition-colors ${isActive(item.url) ? "text-sidebar-primary" : "text-sidebar-foreground/55 group-hover/nav:text-sidebar-foreground/85"}`}
                 strokeWidth={1.75}
               />
               {!collapsed && <span className="truncate">{item.title}</span>}
@@ -122,10 +122,10 @@ export function AppSidebar() {
   );
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border [&>div]:malha-escura">
       <SidebarHeader className="border-b border-sidebar-border/70">
-        <div className="flex items-center gap-2.5 px-1 py-2.5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-base font-bold leading-none text-sidebar-primary-foreground">
+        <div className="flex items-center gap-2.5 px-1 py-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sidebar-primary text-base font-bold leading-none text-sidebar-primary-foreground shadow-[0_6px_18px_-8px_oklch(0.78_0.082_82/0.9)]">
             R<span className="text-[11px]">+</span>
           </div>
           {!collapsed && (
@@ -133,38 +133,29 @@ export function AppSidebar() {
               <p className="truncate text-[15px] font-semibold tracking-tight text-sidebar-foreground">
                 RECRUTA<span className="text-sidebar-primary">+</span>
               </p>
-              <p className="truncate text-[11px] text-sidebar-foreground/55">
-                Gestão inteligente de recrutamento.
+              <p className="truncate text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/45">
+                Gestão de recrutamento
               </p>
             </div>
           )}
         </div>
       </SidebarHeader>
-      <SidebarContent className="gap-1 px-1 py-2">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
-            Operação
-          </SidebarGroupLabel>
-          <SidebarGroupContent>{renderItens(operacao)}</SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
-            Gestão
-          </SidebarGroupLabel>
-          <SidebarGroupContent>{renderItens(gestao)}</SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
-            Inteligência
-          </SidebarGroupLabel>
-          <SidebarGroupContent>{renderItens(inteligencia)}</SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/45">
-            Relatórios
-          </SidebarGroupLabel>
-          <SidebarGroupContent>{renderItens(itensFerramentas)}</SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="gap-0.5 px-1 py-2">
+        {(
+          [
+            ["Principal", principal],
+            ["Gestão", gestao],
+            ["Análises", analises],
+            ["Sistema", itensFerramentas],
+          ] as const
+        ).map(([rotulo, itens]) => (
+          <SidebarGroup key={rotulo}>
+            <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/40">
+              {rotulo}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>{renderItens(itens)}</SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
     </Sidebar>
   );

@@ -196,7 +196,7 @@ function Pagina() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <PageHeader
         titulo="Backups e Exportações"
         descricao="Cópias completas dos dados do sistema, sob o seu controle."
@@ -224,7 +224,7 @@ function Pagina() {
         }
       />
 
-      <section className="surface-panel space-y-4 rounded-xl p-5">
+      <section className="surface-panel space-y-4 rounded-2xl p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/10 text-primary">
@@ -382,7 +382,7 @@ function Pagina() {
         </p>
       </section>
 
-      <section className="surface-panel rounded-xl p-5">
+      <section className="surface-panel rounded-2xl p-5">
         <p className="mb-3 font-display text-lg font-semibold">Histórico de execuções</p>
         {historico.isLoading ? (
           <Skeleton className="h-40 w-full" />

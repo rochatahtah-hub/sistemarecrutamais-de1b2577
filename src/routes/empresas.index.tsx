@@ -41,7 +41,7 @@ function Pagina() {
 
   if (!isLoading && registros.length === 0)
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <SemPlanilha pagina="Empresas" />
         {isAdmin && <GerenciarEmpresas />}
       </div>

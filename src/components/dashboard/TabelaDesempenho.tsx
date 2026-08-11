@@ -63,19 +63,24 @@ export function TabelaDesempenho({
     <div className="overflow-x-auto rounded-xl border border-border">
       <Table>
         <TableHeader>
-          <TableRow className="bg-secondary/40">
+          <TableRow>
             {COLUNAS.map((c) => (
               <TableHead
                 key={c.chave}
                 onClick={() => alternar(c.chave)}
                 className={cn(
-                  "cursor-pointer select-none whitespace-nowrap text-xs",
+                  "cursor-pointer select-none whitespace-nowrap transition-colors hover:text-foreground",
                   c.tipo !== "texto" && "text-right",
                 )}
               >
-                <span className="inline-flex items-center gap-1">
+                <span className="inline-flex items-center gap-1.5">
                   {c.label}
-                  <ArrowUpDown className="h-3 w-3 opacity-50" />
+                  <ArrowUpDown
+                    className={cn(
+                      "h-3 w-3 transition-opacity",
+                      ordem.coluna === c.chave ? "text-gold opacity-100" : "opacity-40",
+                    )}
+                  />
                 </span>
               </TableHead>
             ))}
@@ -90,12 +95,12 @@ export function TabelaDesempenho({
             </TableRow>
           )}
           {ordenadas.map((l) => (
-            <TableRow key={l.chave} className="hover:bg-secondary/30">
+            <TableRow key={l.chave}>
               <TableCell className="font-medium">
                 <Link
                   to={destino === "colaboradores" ? "/colaboradores/$nome" : "/empresas/$nome"}
                   params={{ nome: encodeURIComponent(l.nome) }}
-                  className="text-primary hover:underline"
+                  className="font-medium text-foreground underline-offset-4 transition-colors hover:text-gold hover:underline"
                 >
                   {destino === "colaboradores" ? priv.nome(l.nome) : priv.empresa(l.nome)}
                 </Link>

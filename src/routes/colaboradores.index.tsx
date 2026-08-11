@@ -39,7 +39,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Colaboradores" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold">Desempenho dos colaboradores</h1>
       <FiltrosBar registros={registros} />
       <PlanilhaAtivaBanner />

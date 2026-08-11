@@ -67,7 +67,7 @@ export function PainelBanco() {
   if (isLoading) return <Skeleton className="h-64 w-full" />;
   if (isError || !data) {
     return (
-      <div className="surface-panel flex items-center gap-3 rounded-xl p-6 text-destructive">
+      <div className="surface-panel flex items-center gap-3 rounded-2xl p-6 text-destructive">
         <XCircle className="h-5 w-5" /> 🔴 Não foi possível consultar o banco de dados.
       </div>
     );
@@ -92,8 +92,8 @@ export function PainelBanco() {
   ];
 
   return (
-    <div className="space-y-4">
-      <div className="surface-panel flex flex-wrap items-center justify-between gap-3 rounded-xl p-4">
+    <div className="space-y-6">
+      <div className="surface-panel flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <Database className="h-5 w-5 text-primary" />
           <div>
@@ -114,14 +114,14 @@ export function PainelBanco() {
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          <div key={c.rotulo} className="surface-panel rounded-xl p-4">
+          <div key={c.rotulo} className="surface-panel rounded-2xl p-4">
             <p className="text-xs text-muted-foreground">{c.rotulo}</p>
             <p className="font-display text-2xl font-bold">{c.valor.toLocaleString("pt-BR")}</p>
           </div>
         ))}
       </div>
 
-      <div className="surface-panel space-y-2 rounded-xl p-4">
+      <div className="surface-panel space-y-2 rounded-2xl p-4">
         <h3 className="font-display text-sm font-semibold">Erros recentes</h3>
         {data.erros.length === 0 && <p className="text-sm text-muted-foreground">Nenhum erro registrado.</p>}
         {data.erros.map((e, i) => (

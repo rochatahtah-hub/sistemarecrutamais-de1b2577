@@ -37,17 +37,25 @@ export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
   const anos = Array.from(new Set(registros.map((r) => r.data.slice(0, 4)))).sort().reverse();
 
   return (
-    <div className="surface-panel rounded-xl p-3 md:p-4">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
+    <div className="surface-panel rounded-2xl">
+      <div className="painel-cabecalho">
+        <p className="rotulo-secao">Filtros</p>
+        <Button variant="ghost" size="sm" onClick={limpar} className="gap-2">
+          <Eraser className="h-3.5 w-3.5" /> Limpar filtros
+        </Button>
+      </div>
+      <div className="grid grid-cols-2 gap-3 p-4 md:grid-cols-4 xl:grid-cols-8 md:gap-4 md:p-5">
         <div className="col-span-2 md:col-span-2 xl:col-span-2">
-          <Label className="mb-1.5 block text-xs text-muted-foreground">Pesquisar</Label>
+          <Label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-muted-foreground">
+            Pesquisar
+          </Label>
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               value={filtros.busca}
               onChange={(e) => setFiltros({ busca: e.target.value })}
               placeholder="Colaborador, empresa ou vaga"
-              className="pl-8"
+              className="pl-9"
             />
           </div>
         </div>
@@ -146,11 +154,6 @@ export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
           </Select>
         </div>
 
-        <div className="col-span-2 flex items-end md:col-span-1">
-          <Button variant="outline" className="w-full" onClick={limpar}>
-            <Eraser className="mr-2 h-4 w-4" /> Limpar filtros
-          </Button>
-        </div>
       </div>
     </div>
   );

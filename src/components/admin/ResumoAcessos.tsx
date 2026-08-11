@@ -34,14 +34,14 @@ export function ResumoAcessos() {
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((c) => (
-        <div key={c.rotulo} className="surface-panel rounded-xl p-4">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <c.icone className="h-4 w-4 text-primary" /> {c.rotulo}
+        <div key={c.rotulo} className="surface-panel rounded-2xl p-5">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <c.icone className="h-4 w-4 text-gold" strokeWidth={1.75} /> {c.rotulo}
           </div>
-          <p className="mt-2 truncate text-xl font-semibold">{c.valor}</p>
-          <p className="text-[11px] text-muted-foreground">{c.detalhe}</p>
+          <p className="mt-3 truncate text-xl font-semibold tracking-tight">{c.valor}</p>
+          <p className="mt-1 text-[11px] text-muted-foreground">{c.detalhe}</p>
         </div>
       ))}
     </div>

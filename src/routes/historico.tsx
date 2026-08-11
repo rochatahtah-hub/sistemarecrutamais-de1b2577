@@ -77,7 +77,7 @@ function Pagina() {
         </p>
       </div>
 
-      <div className="surface-panel overflow-x-auto rounded-xl p-4">
+      <div className="surface-panel overflow-x-auto rounded-2xl p-4">
         <Table>
           <TableHeader>
             <TableRow>

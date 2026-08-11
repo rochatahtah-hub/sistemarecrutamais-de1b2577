@@ -62,48 +62,58 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
   --color-success: var(--success);
   --color-warning: var(--warning);
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.875rem;
   /* Claro executivo: #F7F8FA / #FFFFFF / #0B1220 / #667085 / dourado #C9A45C */
-  --background: oklch(0.977 0.002 265);
+  --background: oklch(0.972 0.004 258);
   --foreground: oklch(0.205 0.032 265);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.205 0.032 265);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.205 0.032 265);
-  --primary: oklch(0.245 0.036 265);
+  --primary: oklch(0.232 0.038 264);
   --primary-foreground: oklch(0.985 0.002 265);
-  --secondary: oklch(0.957 0.004 265);
+  --secondary: oklch(0.955 0.006 258);
   --secondary-foreground: oklch(0.28 0.03 265);
-  --muted: oklch(0.962 0.003 265);
+  --muted: oklch(0.963 0.005 258);
   --muted-foreground: oklch(0.575 0.018 265);
   --accent: oklch(0.955 0.012 85);
   --accent-foreground: oklch(0.42 0.055 78);
   --destructive: oklch(0.578 0.196 26);
   --destructive-foreground: oklch(0.99 0.002 265);
-  --border: oklch(0.918 0.005 265);
-  --input: oklch(0.9 0.006 265);
+  --border: oklch(0.925 0.006 258);
+  --input: oklch(0.905 0.008 258);
   --ring: oklch(0.72 0.075 82);
   --gold: oklch(0.72 0.075 82);
+  --gold-soft: oklch(0.955 0.03 85);
   --success: oklch(0.6 0.13 155);
   --warning: oklch(0.75 0.14 72);
-  --chart-1: oklch(0.4 0.075 258);
-  --chart-2: oklch(0.6 0.13 155);
-  --chart-3: oklch(0.578 0.196 26);
-  --chart-4: oklch(0.72 0.075 82);
+  --chart-1: oklch(0.45 0.11 258);
+  --chart-2: oklch(0.62 0.13 158);
+  --chart-3: oklch(0.6 0.19 26);
+  --chart-4: oklch(0.75 0.1 82);
   --chart-5: oklch(0.68 0.02 265);
-  --sidebar: oklch(0.196 0.033 266);
+  --sidebar: oklch(0.187 0.031 266);
   --sidebar-foreground: oklch(0.9 0.008 265);
   --sidebar-primary: oklch(0.78 0.082 82);
   --sidebar-primary-foreground: oklch(0.18 0.03 265);
-  --sidebar-accent: oklch(0.26 0.032 266);
+  --sidebar-accent: oklch(0.255 0.032 266);
   --sidebar-accent-foreground: oklch(0.96 0.005 265);
-  --sidebar-border: oklch(0.29 0.028 266);
+  --sidebar-border: oklch(0.275 0.028 266);
   --sidebar-ring: oklch(0.78 0.082 82);
+
+  /* Elevação e movimento do design system */
+  --elev-1: 0 1px 2px oklch(0.205 0.032 265 / 0.05);
+  --elev-2:
+    0 1px 2px oklch(0.205 0.032 265 / 0.04), 0 12px 28px -20px oklch(0.205 0.032 265 / 0.35);
+  --elev-3:
+    0 2px 4px oklch(0.205 0.032 265 / 0.05), 0 24px 48px -28px oklch(0.205 0.032 265 / 0.45);
+  --ease-suave: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .dark {
@@ -121,6 +131,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
@@ -129,6 +140,25 @@
     font-family: var(--font-display);
     letter-spacing: -0.018em;
     font-weight: 600;
+  }
+
+  /* Barras de rolagem discretas, padrão SaaS */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--color-foreground) 18%, transparent) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklab, var(--color-foreground) 15%, transparent);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
   }
 }
 
@@ -140,12 +170,11 @@
 @utility surface-panel {
   background-color: var(--color-card);
   border: 1px solid var(--color-border);
-  box-shadow:
-    0 1px 2px color-mix(in oklab, var(--color-foreground) 5%, transparent),
-    0 8px 24px -18px color-mix(in oklab, var(--color-foreground) 30%, transparent);
+  box-shadow: var(--elev-2);
   transition:
-    box-shadow 180ms ease,
-    border-color 180ms ease;
+    box-shadow 220ms var(--ease-suave),
+    border-color 220ms var(--ease-suave),
+    transform 220ms var(--ease-suave);
 }
 
 @utility surface-dark {
@@ -159,4 +188,84 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-muted-foreground);
+}
+
+/* Cabeçalho de painel: título + ações, com divisor discreto. */
+@utility painel-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--color-border) 70%, transparent);
+}
+
+/* Elevação sutil no hover, para itens clicáveis. */
+@utility elevar-hover {
+  transition:
+    box-shadow 220ms var(--ease-suave),
+    transform 220ms var(--ease-suave),
+    border-color 220ms var(--ease-suave);
+  &:hover {
+    box-shadow: var(--elev-3);
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--color-gold) 45%, var(--color-border));
+  }
+}
+
+/* Filete dourado de destaque no topo de um card. */
+@utility filete-ouro {
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--color-gold) 85%, transparent),
+      transparent 70%
+    );
+  }
+}
+
+/* Fundo institucional escuro com textura de grade sutil. */
+@utility malha-escura {
+  background-color: var(--color-sidebar);
+  background-image:
+    radial-gradient(
+      120% 90% at 0% 0%,
+      color-mix(in oklab, var(--color-gold) 12%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      color-mix(in oklab, oklch(1 0 0) 4%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, oklch(1 0 0) 4%, transparent) 1px,
+      transparent 1px
+    );
+  background-size:
+    100% 100%,
+    32px 32px,
+    32px 32px;
+}
+
+@utility entrada-suave {
+  animation: entrada-suave 320ms var(--ease-suave) both;
+}
+
+@keyframes entrada-suave {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

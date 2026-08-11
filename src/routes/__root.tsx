@@ -208,11 +208,13 @@ function Protegido() {
           <SystemErrorBoundary componente="Cabeçalho">
             <TopBar />
           </SystemErrorBoundary>
-          <main className="min-w-0 flex-1 p-3 md:p-6">
+          <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
             {/* Required: nested routes render here. */}
-            <SystemErrorBoundary key={pathname} componente="Conteúdo da página">
-              <Outlet />
-            </SystemErrorBoundary>
+            <div className="mx-auto w-full max-w-[1500px]">
+              <SystemErrorBoundary key={pathname} componente="Conteúdo da página">
+                <Outlet />
+              </SystemErrorBoundary>
+            </div>
           </main>
           <VoltarAoTopo />
         </div>

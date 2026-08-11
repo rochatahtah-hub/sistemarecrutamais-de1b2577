@@ -276,7 +276,7 @@ function Pagina() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold">Importar dados</h1>
         <p className="text-sm text-muted-foreground">
@@ -290,7 +290,7 @@ function Pagina() {
       <PlanilhaAtivaBanner />
 
       {!arquivo && (
-        <label className="surface-panel flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-dashed p-10 text-center transition-colors hover:border-primary/50">
+        <label className="surface-panel flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-dashed p-10 text-center transition-colors hover:border-primary/50">
           <Upload className="h-8 w-8 text-primary" />
           <div>
             <p className="font-semibold">Clique para selecionar sua planilha</p>
@@ -310,7 +310,7 @@ function Pagina() {
 
       {arquivo && (
         <>
-          <div className="surface-panel grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between rounded-xl p-4">
+          <div className="surface-panel grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <FileSpreadsheet className="h-5 w-5 text-primary" />
               <div>
@@ -336,7 +336,7 @@ function Pagina() {
             </div>
           </div>
 
-          <div className="surface-panel rounded-xl p-4">
+          <div className="surface-panel rounded-2xl p-4">
             <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Abas do arquivo
             </h2>
@@ -424,17 +424,17 @@ function Pagina() {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div className="surface-panel rounded-xl p-4">
+            <div className="surface-panel rounded-2xl p-4">
               <p className="text-xs uppercase text-muted-foreground">Registros válidos</p>
               <p className="font-display text-2xl font-bold text-success">{fmtNum(validas.length)}</p>
             </div>
-            <div className="surface-panel rounded-xl p-4">
+            <div className="surface-panel rounded-2xl p-4">
               <p className="text-xs uppercase text-muted-foreground">Com problemas</p>
               <p className="font-display text-2xl font-bold text-destructive">
                 {fmtNum(comProblema.length)}
               </p>
             </div>
-            <div className="surface-panel rounded-xl p-4">
+            <div className="surface-panel rounded-2xl p-4">
               <p className="text-xs uppercase text-muted-foreground">Duplicados no arquivo</p>
               <p className="font-display text-2xl font-bold text-warning">
                 {fmtNum(duplicadas.length)}
@@ -442,7 +442,7 @@ function Pagina() {
             </div>
           </div>
 
-          <Tabs defaultValue="previa" className="surface-panel rounded-xl p-4">
+          <Tabs defaultValue="previa" className="surface-panel rounded-2xl p-4">
             <TabsList>
               <TabsTrigger value="previa">Prévia</TabsTrigger>
               <TabsTrigger value="problemas">Problemas ({comProblema.length})</TabsTrigger>
@@ -528,7 +528,7 @@ function Pagina() {
         </>
       )}
 
-      <div className="surface-panel rounded-xl p-4">
+      <div className="surface-panel rounded-2xl p-4">
         <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Histórico de importações
         </h2>

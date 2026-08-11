@@ -52,7 +52,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Vagas" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
         <h1 className="font-display text-2xl font-bold">Vagas</h1>
         <Button variant="outline" onClick={() => void exportarExcel(filtrados, "vagas")}>
@@ -70,7 +70,7 @@ function Pagina() {
       <div className="overflow-x-auto rounded-xl border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/40">
+            <TableRow>
               <TableHead>Data</TableHead>
               <TableHead>Colaborador</TableHead>
               <TableHead>Empresa</TableHead>

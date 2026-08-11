@@ -107,7 +107,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Presenças, faltas e cancelamentos" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">Confirmações</h1>
@@ -126,7 +126,7 @@ function Pagina() {
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {cards.map((c) => (
-          <div key={c.label} className="surface-panel rounded-xl p-4">
+          <div key={c.label} className="surface-panel rounded-2xl p-4">
             <p className="text-xs uppercase text-muted-foreground">{c.label}</p>
             <p className="font-display text-2xl font-bold">{c.valor}</p>
             {c.pct && <p className="text-xs text-muted-foreground">{c.pct}</p>}
@@ -155,7 +155,7 @@ function Pagina() {
       <div className="overflow-x-auto rounded-xl border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/40">
+            <TableRow>
               <TableHead>Data</TableHead>
               <TableHead>Colaborador</TableHead>
               <TableHead>Empresa</TableHead>

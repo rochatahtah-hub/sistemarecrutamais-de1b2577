@@ -181,7 +181,7 @@ function Pagina() {
         />
       </div>
 
-      <div className="surface-panel rounded-xl p-4">
+      <div className="surface-panel rounded-2xl p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-primary" />
@@ -205,7 +205,7 @@ function Pagina() {
         )}
       </div>
 
-      <div className="surface-panel space-y-5 rounded-xl p-4">
+      <div className="surface-panel space-y-5 rounded-2xl p-4">
         <h2 className="font-display text-lg font-semibold">Novo registro</h2>
         <FichaCandidato
           candidato={candidato}
@@ -272,7 +272,7 @@ function Pagina() {
         </p>
       </div>
 
-      <div className="surface-panel rounded-xl p-4">
+      <div className="surface-panel rounded-2xl p-4">
         <h2 className="mb-3 font-display text-lg font-semibold">
           Programações da quinzena atual ({fmtNum(daQuinzena.length)})
         </h2>

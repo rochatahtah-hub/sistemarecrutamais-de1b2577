@@ -63,7 +63,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Relatórios" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold">Relatórios</h1>
         <p className="text-sm text-muted-foreground">
@@ -74,7 +74,7 @@ function Pagina() {
       <FiltrosBar registros={registros} />
       <PlanilhaAtivaBanner />
 
-      <div className="surface-panel rounded-xl p-5">
+      <div className="surface-panel rounded-2xl p-5">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">Prévia do conteúdo</p>
         <p className="mt-1 font-display text-lg font-semibold">{periodo}</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-4">
@@ -103,7 +103,7 @@ function Pagina() {
         </div>
       </div>
 
-      <div className="surface-panel rounded-xl p-5 text-sm text-muted-foreground">
+      <div className="surface-panel rounded-2xl p-5 text-sm text-muted-foreground">
         <p className="mb-2 font-semibold text-foreground">O relatório em PDF inclui:</p>
         <ul className="list-inside list-disc space-y-1">
           <li>Capa com período analisado e data de emissão</li>

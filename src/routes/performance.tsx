@@ -53,7 +53,7 @@ function Pagina() {
   const podio = linhas.slice(0, 3);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl font-bold">
           <Trophy className="h-6 w-6 text-primary" /> Performance da equipe
@@ -69,7 +69,7 @@ function Pagina() {
 
       <div className="grid gap-3 md:grid-cols-3">
         {podio.map((l, i) => (
-          <div key={l.chave} className="surface-panel rounded-xl p-4">
+          <div key={l.chave} className="surface-panel rounded-2xl p-4">
             <div className="flex items-center justify-between">
               <span className="text-2xl">{MEDALHAS[i]}</span>
               <span className="font-display text-2xl font-bold text-primary">
@@ -93,7 +93,7 @@ function Pagina() {
       <div className="overflow-x-auto rounded-xl border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-secondary/40">
+            <TableRow>
               <TableHead>#</TableHead>
               <TableHead>Colaborador</TableHead>
               <TableHead className="text-right">Vagas fechadas</TableHead>
@@ -114,7 +114,7 @@ function Pagina() {
               </TableRow>
             )}
             {linhas.map((l, i) => (
-              <TableRow key={l.chave} className="hover:bg-secondary/30">
+              <TableRow key={l.chave}>
                 <TableCell className="tabular-nums text-muted-foreground">{i + 1}</TableCell>
                 <TableCell className="font-medium">
                   <Link

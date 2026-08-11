@@ -63,7 +63,7 @@ function Pagina() {
 
       <ResumoAcessos />
 
-      <div className="surface-panel grid gap-3 rounded-xl p-4 md:grid-cols-4">
+      <div className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-4">
         <div className="space-y-1.5">
           <Label htmlFor="f-usuario">Usuário</Label>
           <select
@@ -105,7 +105,7 @@ function Pagina() {
       {acessos.isLoading && <Skeleton className="h-64 w-full" />}
 
       {!acessos.isLoading && (
-        <div className="surface-panel overflow-x-auto rounded-xl">
+        <div className="surface-panel overflow-x-auto rounded-2xl">
           <table className="w-full text-sm">
             <thead className="text-left text-xs text-muted-foreground">
               <tr className="border-b border-border/60">

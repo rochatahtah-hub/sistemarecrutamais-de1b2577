@@ -78,22 +78,29 @@ export const Route = createFileRoute("/")({
 
 function Painel({
   titulo,
+  descricao,
   acao,
   children,
+  className,
 }: {
   titulo: string;
+  descricao?: string;
   acao?: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="surface-panel rounded-xl p-4">
-      <div className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
-        <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          {titulo}
-        </h2>
+    <section className={`surface-panel entrada-suave rounded-2xl ${className ?? ""}`}>
+      <div className="painel-cabecalho">
+        <div className="min-w-0">
+          <h2 className="truncate text-[15px] font-semibold tracking-tight text-foreground">
+            {titulo}
+          </h2>
+          {descricao && <p className="mt-0.5 text-xs text-muted-foreground">{descricao}</p>}
+        </div>
         {acao}
       </div>
-      {children}
+      <div className="p-5">{children}</div>
     </section>
   );
 }
@@ -114,14 +121,23 @@ function ListaTop({
   if (ordenadas.length === 0)
     return <p className="text-sm text-muted-foreground">Sem dados.</p>;
   return (
-    <ol className="space-y-2">
+    <ol className="space-y-1">
       {ordenadas.map((l, i) => (
-        <li key={l.chave} className="flex items-center justify-between gap-3 text-sm">
-          <span className="flex min-w-0 items-center gap-2">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-secondary text-[11px] font-semibold text-primary">
+        <li
+          key={l.chave}
+          className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-muted/60"
+        >
+          <span className="flex min-w-0 items-center gap-2.5">
+            <span
+              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold ${
+                i === 0
+                  ? "bg-gold-soft text-accent-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
               {i + 1}
             </span>
-            <span className="truncate">
+            <span className="truncate font-medium">
               {sensivel ? priv.nome(l.nome) : priv.empresa(l.nome)}
             </span>
           </span>
@@ -189,61 +205,80 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold">
-          Olá, {priv.nome(perfil?.nome ?? "bem-vinda")}
-        </h1>
-        <p className="text-sm font-medium text-primary">Visão geral da operação</p>
-        <p className="text-sm text-muted-foreground">
-          {fmtNum(filtrados.length)} registros no filtro atual de {fmtNum(registros.length)} no total.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <header className="entrada-suave grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/70 pb-6 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gold">
+            Visão geral da operação
+          </p>
+          <h1 className="mt-1.5 truncate text-[26px] font-semibold tracking-tight sm:text-[32px]">
+            Olá, {priv.nome(perfil?.nome ?? "bem-vinda")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {fmtNum(filtrados.length)} registros no filtro atual de {fmtNum(registros.length)} no
+            total.
+          </p>
+        </div>
+      </header>
 
-      <AtalhosPeriodo />
-      <FiltrosBar registros={registros} />
-      <PlanilhaAtivaBanner />
+      <div className="space-y-3">
+        <AtalhosPeriodo />
+        <FiltrosBar registros={registros} />
+        <PlanilhaAtivaBanner />
+      </div>
 
       {isAdmin && <ResumoAcessos />}
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
+      <section className="space-y-4">
+        <h2 className="rotulo-secao">Indicadores principais</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <CardIndicador
+            destaque
+            titulo="Vagas fechadas"
+            valor={fmtNum(total.confirmadas)}
+            detalhe="Confirmadas no período"
+            icon={Briefcase}
+            tom="ouro"
+            onClick={() => irPara("todos")}
+          />
+          <CardIndicador
+            destaque
+            titulo="Presenças"
+            valor={fmtNum(total.presencas)}
+            detalhe={`${fmtPct(total.pctPresenca)} do total`}
+            icon={CheckCircle2}
+            tom="positivo"
+            onClick={() => irPara("PRESENCA")}
+          />
+          <CardIndicador
+            destaque
+            titulo="Faltas"
+            valor={fmtNum(total.faltas)}
+            detalhe={`${fmtPct(total.pctFalta)} do total`}
+            icon={XCircle}
+            tom="negativo"
+            onClick={() => irPara("FALTA")}
+          />
+          <CardIndicador
+            destaque
+            titulo="Cancelamentos"
+            valor={fmtNum(total.cancelamentos)}
+            detalhe={`${fmtPct(total.pctCancelamento)} do total`}
+            icon={CalendarX2}
+            onClick={() => irPara("CANCELAMENTO")}
+          />
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="rotulo-secao">Indicadores complementares</h2>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <CardIndicador
           titulo="Vagas programadas"
           valor={fmtNum(total.vagas)}
           detalhe={`${fmtNum(total.pendentes)} aguardando confirmação`}
           icon={Clock}
           onClick={() => irPara("todos")}
-        />
-        <CardIndicador
-          titulo="Vagas fechadas"
-          valor={fmtNum(total.confirmadas)}
-          detalhe="Confirmadas no período"
-          icon={Briefcase}
-          tom="ouro"
-          onClick={() => irPara("todos")}
-        />
-        <CardIndicador
-          titulo="Presenças"
-          valor={fmtNum(total.presencas)}
-          detalhe={`${fmtPct(total.pctPresenca)} do total`}
-          icon={CheckCircle2}
-          tom="positivo"
-          onClick={() => irPara("PRESENCA")}
-        />
-        <CardIndicador
-          titulo="Faltas"
-          valor={fmtNum(total.faltas)}
-          detalhe={`${fmtPct(total.pctFalta)} do total`}
-          icon={XCircle}
-          tom="negativo"
-          onClick={() => irPara("FALTA")}
-        />
-        <CardIndicador
-          titulo="Cancelamentos"
-          valor={fmtNum(total.cancelamentos)}
-          detalhe={`${fmtPct(total.pctCancelamento)} do total`}
-          icon={CalendarX2}
-          onClick={() => irPara("CANCELAMENTO")}
         />
         <CardIndicador
           titulo="Taxa de presença"
@@ -276,27 +311,31 @@ function Dashboard() {
         />
         <CardIndicador titulo="Colaboradores" valor={fmtNum(porColaborador.length)} icon={Users} />
         <CardIndicador titulo="Empresas" valor={fmtNum(porEmpresa.length)} icon={Building2} />
-      </div>
+        </div>
+      </section>
 
-      <Painel titulo={`Atenção / Alertas (${alertas.length})`}>
+      <Painel
+        titulo="Atenção e alertas"
+        descricao={`${alertas.length} ponto(s) de atenção no período filtrado`}
+      >
         {alertas.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Nenhum alerta: todos os indicadores estão dentro das metas configuradas.
           </p>
         ) : (
-          <ul className="grid gap-2 md:grid-cols-2">
+          <ul className="grid gap-3 md:grid-cols-2">
             {alertas.slice(0, 8).map((a) => (
               <li
                 key={`${a.severidade}-${a.titulo}-${a.descricao}`}
-                className={`flex gap-3 rounded-lg border p-3 ${
+                className={`flex gap-3 rounded-xl border p-3.5 ${
                   a.severidade === "critico"
-                    ? "border-destructive/40 bg-destructive/10"
-                    : "border-primary/30 bg-primary/5"
+                    ? "border-destructive/25 bg-destructive/[0.06]"
+                    : "border-gold/30 bg-gold-soft/60"
                 }`}
               >
                 <AlertTriangle
                   className={`mt-0.5 h-4 w-4 shrink-0 ${
-                    a.severidade === "critico" ? "text-destructive" : "text-primary"
+                    a.severidade === "critico" ? "text-destructive" : "text-gold"
                   }`}
                 />
                 <div className="min-w-0">
@@ -311,12 +350,13 @@ function Dashboard() {
         )}
       </Painel>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Painel titulo="Distribuição geral">
-          <GraficoDistribuicao agregado={total} />
-        </Painel>
+      <section className="space-y-4">
+        <h2 className="rotulo-secao">Desempenho da operação</h2>
+        <div className="grid gap-4 xl:grid-cols-3">
         <Painel
+          className="xl:col-span-2"
           titulo="Evolução temporal"
+          descricao="Presenças, faltas e cancelamentos ao longo do tempo"
           acao={
             <Select value={granularidade} onValueChange={(v) => setGranularidade(v as Granularidade)}>
               <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
@@ -331,7 +371,10 @@ function Dashboard() {
         >
           <GraficoEvolucao dados={serie} />
         </Painel>
-        <Painel titulo="Desempenho por colaborador">
+        <Painel titulo="Distribuição geral" descricao="Composição dos resultados confirmados">
+          <GraficoDistribuicao agregado={total} />
+        </Painel>
+        <Painel className="xl:col-span-2" titulo="Desempenho por colaborador">
           <GraficoBarrasStatus linhas={porColaborador.slice(0, 10)} sensivel />
         </Painel>
         <Painel
@@ -358,9 +401,12 @@ function Dashboard() {
             rotulo={rotuloMetrica[metricaEmpresa as string] ?? ""}
           />
         </Painel>
-      </div>
+        </div>
+      </section>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="space-y-4">
+        <h2 className="rotulo-secao">Rankings de empresas</h2>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Painel titulo="Top empresas em presenças">
           <ListaTop linhas={porEmpresa} campo="presencas" sufixo="num" />
         </Painel>
@@ -373,7 +419,8 @@ function Dashboard() {
         <Painel titulo="Top empresas em cancelamentos">
           <ListaTop linhas={porEmpresa} campo="cancelamentos" sufixo="num" />
         </Painel>
-      </div>
+        </div>
+      </section>
 
       <Painel
         titulo="Desempenho dos colaboradores"
@@ -394,7 +441,7 @@ function Dashboard() {
         <div className="overflow-x-auto rounded-xl border border-border">
           <Table>
             <TableHeader>
-              <TableRow className="bg-secondary/40">
+              <TableRow>
                 <TableHead>Empresa</TableHead>
                 <TableHead className="text-right">Vagas fechadas</TableHead>
                 <TableHead className="text-right">Presenças</TableHead>
@@ -413,12 +460,12 @@ function Dashboard() {
               {[...porEmpresa]
                 .sort((a, b) => b.faltas - a.faltas || b.vagas - a.vagas)
                 .map((l) => (
-                  <TableRow key={l.chave} className="hover:bg-secondary/30">
+                  <TableRow key={l.chave}>
                     <TableCell className="font-medium">
                       <Link
                         to="/empresas/$nome"
                         params={{ nome: encodeURIComponent(l.nome) }}
-                        className="text-primary hover:underline"
+                        className="font-medium text-foreground underline-offset-4 transition-colors hover:text-gold hover:underline"
                       >
                         <Sigiloso valor={l.nome} tipo="empresa" />
                       </Link>

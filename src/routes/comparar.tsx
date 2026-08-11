@@ -109,7 +109,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="A comparação de períodos" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <PlanilhaAtivaBanner />
       <div>
         <h1 className="font-display text-2xl font-bold">Comparar períodos</h1>
@@ -123,7 +123,7 @@ function Pagina() {
           { titulo: "Período A", de: aDe, ate: aAte, setDe: setADe, setAte: setAAte },
           { titulo: "Período B", de: bDe, ate: bAte, setDe: setBDe, setAte: setBAte },
         ].map((p) => (
-          <div key={p.titulo} className="surface-panel space-y-3 rounded-xl p-4">
+          <div key={p.titulo} className="surface-panel space-y-3 rounded-2xl p-4">
             <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-primary">
               {p.titulo}
             </h2>
@@ -141,7 +141,7 @@ function Pagina() {
         ))}
       </div>
 
-      <div className="surface-panel overflow-x-auto rounded-xl p-4">
+      <div className="surface-panel overflow-x-auto rounded-2xl p-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -173,7 +173,7 @@ function Pagina() {
         </Table>
       </div>
 
-      <div className="surface-panel overflow-x-auto rounded-xl p-4">
+      <div className="surface-panel overflow-x-auto rounded-2xl p-4">
         <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
           Evolução por colaborador
         </h2>

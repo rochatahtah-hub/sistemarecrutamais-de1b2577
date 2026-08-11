@@ -20,12 +20,14 @@ import { fmtData, fmtNum } from "@/lib/metricas";
 /** Estado exibido quando não há planilha ativa no sistema. */
 export function SemPlanilha({ pagina }: { pagina?: string }) {
   return (
-    <div className="surface-panel mx-auto mt-10 max-w-xl rounded-xl p-8 text-center">
-      <FileSpreadsheet className="mx-auto h-8 w-8 text-primary" />
-      <h1 className="mt-3 font-display text-2xl font-bold text-gradient-gold">
+    <div className="surface-panel filete-ouro mx-auto mt-12 max-w-xl rounded-2xl p-10 text-center">
+      <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-gold/25 bg-gold-soft text-accent-foreground">
+        <FileSpreadsheet className="h-6 w-6" strokeWidth={1.75} />
+      </span>
+      <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight">
         Nenhuma planilha carregada.
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
         {pagina ? `${pagina} usa os dados da planilha ativa. ` : ""}
         Importe uma planilha Excel para alimentar todas as abas do sistema.
       </p>
@@ -46,10 +48,12 @@ export function PlanilhaAtivaBanner() {
   if (!ativa) return null;
 
   return (
-    <div className="surface-panel grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between rounded-xl p-4">
-      <div className="flex items-center gap-3">
-        <FileSpreadsheet className="h-5 w-5 text-primary" />
-        <div>
+    <div className="surface-panel grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl p-4 sm:flex sm:flex-wrap sm:justify-between">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-muted-foreground">
+          <FileSpreadsheet className="h-4.5 w-4.5" strokeWidth={1.75} />
+        </span>
+        <div className="min-w-0">
           <p className="text-sm font-semibold">Planilha ativa: {ativa.nome_arquivo}</p>
           <p className="text-xs text-muted-foreground">
             {fmtNum(ativa.registros)} registros alimentando todo o sistema

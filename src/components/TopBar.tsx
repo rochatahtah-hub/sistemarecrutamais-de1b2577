@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, Eye, EyeOff, LogOut, Settings, ShieldCheck, User } from "lucide-react";
 import { toast } from "sonner";
 
@@ -29,8 +29,42 @@ function dentroDoExpediente(inicio: string, fim: string) {
   return diaUtil && hhmm >= inicio && hhmm <= fim;
 }
 
+/** Nome da seção atual, apenas para exibição no topo. */
+const SECOES: Record<string, string> = {
+  "/": "Dashboard",
+  "/minha-programacao": "Minha Programação",
+  "/programadoras": "Programações da equipe",
+  "/candidatos": "Cadastrar Candidato",
+  "/vagas": "Vagas",
+  "/confirmacoes": "Confirmações",
+  "/colaboradores": "Equipe",
+  "/empresas": "Empresas",
+  "/performance": "Performance",
+  "/analise": "Análise Inteligente",
+  "/radar": "Radar da Operação",
+  "/comparar": "Comparar Períodos",
+  "/relatorios": "Relatórios",
+  "/administracao": "Central de Administração",
+  "/importar": "Importar Excel",
+  "/historico": "Histórico",
+  "/auditoria": "Histórico de Alterações",
+  "/acessos": "Histórico de Acessos",
+  "/backups": "Backups",
+  "/metas": "Metas",
+  "/bloqueios": "Bloqueios",
+  "/configuracoes": "Configurações",
+  "/saude-sistema": "Saúde do Sistema",
+};
+
+function iniciais(nome?: string | null) {
+  const partes = (nome ?? "").trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "R+";
+  return ((partes[0]?.[0] ?? "") + (partes[1]?.[0] ?? "")).toUpperCase() || "R+";
+}
+
 export function TopBar() {
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { perfil, user, isAdmin, sair } = useAuth();
   const { privado, alternar } = usePrivacidade();
   const { data: config } = useConfiguracoes();
@@ -38,6 +72,13 @@ export function TopBar() {
   const marcarLidas = useMarcarNotificacoesLidas();
 
   const naoLidas = useMemo(() => notificacoes.filter((n) => !n.lida), [notificacoes]);
+  const secao = useMemo(() => {
+    if (SECOES[pathname]) return SECOES[pathname];
+    const base = Object.keys(SECOES)
+      .filter((r) => r !== "/" && pathname.startsWith(r))
+      .sort((a, b) => b.length - a.length)[0];
+    return base ? SECOES[base] : "RECRUTA+";
+  }, [pathname]);
 
   // Alerta de inatividade dentro do horario de trabalho configurado.
   useEffect(() => {
@@ -75,20 +116,16 @@ export function TopBar() {
   }, [user, perfil, config]);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/85 px-3 backdrop-blur md:px-6">
-      <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-3 backdrop-blur-xl md:px-6">
+      <SidebarTrigger className="text-muted-foreground transition-colors hover:text-foreground" />
       <div className="flex min-w-0 items-center gap-2.5">
-        <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground sm:flex">
-          R+
+        <span className="hidden min-w-0 items-center gap-2 text-xs text-muted-foreground sm:flex">
+          RECRUTA<span className="-ml-2 text-gold">+</span>
+          <span className="text-border">/</span>
         </span>
-        <span className="min-w-0 leading-tight">
-          <span className="block truncate text-sm font-semibold tracking-tight text-foreground">
-            RECRUTA<span className="text-gold">+</span>
-          </span>
-          <span className="hidden truncate text-[11px] text-muted-foreground sm:block">
-            Gestão inteligente de recrutamento.
-          </span>
-        </span>
+        <h2 className="min-w-0 truncate text-[15px] font-semibold tracking-tight text-foreground">
+          {secao}
+        </h2>
       </div>
       <div className="ml-auto flex items-center gap-1.5">
         <BuscaGlobal />
@@ -115,45 +152,69 @@ export function TopBar() {
             <Button variant="ghost" size="icon" className="relative" aria-label="Notificações">
               <Bell className="h-4 w-4" />
               {naoLidas.length > 0 && (
-                <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" />
+                <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                  {naoLidas.length > 9 ? "9+" : naoLidas.length}
+                </span>
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Notificações</DropdownMenuLabel>
-            <DropdownMenuLabel className="pt-0 text-xs font-normal text-muted-foreground">
+          <DropdownMenuContent align="end" className="w-84 rounded-xl p-0">
+            <DropdownMenuLabel className="px-4 pt-3 text-sm">Notificações</DropdownMenuLabel>
+            <DropdownMenuLabel className="px-4 pb-3 pt-0 text-xs font-normal text-muted-foreground">
               {naoLidas.length > 0
                 ? `${naoLidas.length} alerta(s) pendente(s)`
                 : "Nenhum alerta pendente"}
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {notificacoes.length === 0 && (
-              <DropdownMenuItem disabled>Nenhuma notificação.</DropdownMenuItem>
-            )}
-            {notificacoes.slice(0, 12).map((n) => (
-              <DropdownMenuItem key={n.id} className="flex flex-col items-start gap-0.5">
-                <span className="text-xs font-semibold">
-                  {privado ? "Alerta protegido" : n.titulo}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {privado ? "Conteúdo oculto pelo modo privacidade." : n.mensagem}
-                </span>
-              </DropdownMenuItem>
-            ))}
+            <DropdownMenuSeparator className="m-0" />
+            <div className="max-h-96 overflow-y-auto py-1">
+              {notificacoes.length === 0 && (
+                <p className="px-4 py-6 text-center text-xs text-muted-foreground">
+                  Nenhuma notificação.
+                </p>
+              )}
+              {notificacoes.slice(0, 12).map((n) => (
+                <DropdownMenuItem
+                  key={n.id}
+                  className="flex items-start gap-3 rounded-none px-4 py-3"
+                >
+                  <span
+                    className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${n.lida ? "bg-border" : "bg-gold"}`}
+                  />
+                  <span className="min-w-0">
+                    <span className="block truncate text-xs font-semibold">
+                      {privado ? "Alerta protegido" : n.titulo}
+                    </span>
+                    <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">
+                      {privado ? "Conteúdo oculto pelo modo privacidade." : n.mensagem}
+                    </span>
+                  </span>
+                </DropdownMenuItem>
+              ))}
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-2">
-              <User className="h-4 w-4" />
-              <span className="max-w-[10rem] truncate text-sm">
-                {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
+            <Button
+              variant="ghost"
+              className="h-11 gap-2.5 rounded-xl border border-transparent pl-1.5 pr-2.5 hover:border-border hover:bg-card"
+            >
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-[11px] font-bold text-primary-foreground">
+                {privado ? <User className="h-4 w-4" /> : iniciais(perfil?.nome)}
               </span>
-              {isAdmin && <Badge variant="secondary">Admin</Badge>}
+              <span className="hidden min-w-0 text-left leading-tight sm:block">
+                <span className="block max-w-[10rem] truncate text-[13px] font-semibold text-foreground">
+                  {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
+                </span>
+                <span className="block text-[11px] text-muted-foreground">
+                  {isAdmin ? "Administrador" : "Programadora"}
+                </span>
+              </span>
+              {isAdmin && <Badge variant="gold" className="hidden md:inline-flex">Admin</Badge>}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-60 rounded-xl">
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               {privado ? "••••••" : (perfil?.email ?? user?.email)}
             </DropdownMenuLabel>

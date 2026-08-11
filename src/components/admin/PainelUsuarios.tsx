@@ -81,7 +81,7 @@ export function PainelUsuarios() {
   return (
     <div className="space-y-5">
       <form
-        className="surface-panel grid gap-3 rounded-xl p-4 md:grid-cols-5"
+        className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-5"
         onSubmit={(e) => {
           e.preventDefault();
           acao.mutate(
@@ -157,7 +157,7 @@ export function PainelUsuarios() {
 
       <div className="space-y-3">
         {lista.map((u) => (
-          <div key={u.id} className="surface-panel grid gap-3 rounded-xl p-4 md:grid-cols-[minmax(0,1fr)_auto]">
+          <div key={u.id} className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-[minmax(0,1fr)_auto]">
             <div className="min-w-0 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="truncate text-sm font-semibold">{p.nome(u.nome)}</p>

@@ -84,7 +84,7 @@ function Pagina() {
 
   if (!isAdmin) {
     return (
-      <div className="surface-panel rounded-xl p-8 text-center">
+      <div className="surface-panel rounded-2xl p-8 text-center">
         <ShieldAlert className="mx-auto h-8 w-8 text-muted-foreground" />
         <h1 className="mt-3 font-display text-xl font-bold">Área administrativa</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -103,7 +103,7 @@ function Pagina() {
         </p>
       </div>
 
-      <div className="surface-panel space-y-4 rounded-xl p-4">
+      <div className="surface-panel space-y-4 rounded-2xl p-4">
         <h2 className="font-display text-lg font-semibold">Bloquear colaborador</h2>
         <div className="grid gap-3 md:grid-cols-3">
           <div className="space-y-1.5">
@@ -135,7 +135,7 @@ function Pagina() {
         </Button>
       </div>
 
-      <div className="surface-panel space-y-3 rounded-xl p-4">
+      <div className="surface-panel space-y-3 rounded-2xl p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <h2 className="font-display text-lg font-semibold">Lista de bloqueados</h2>
           <div className="relative">
@@ -195,7 +195,7 @@ function Pagina() {
         </div>
       </div>
 
-      <div className="surface-panel space-y-3 rounded-xl p-4">
+      <div className="surface-panel space-y-3 rounded-2xl p-4">
         <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
           <KeyRound className="h-4 w-4 text-primary" /> PIN administrativo
         </h2>

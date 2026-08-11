@@ -108,7 +108,7 @@ function Pagina() {
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="O Radar da Operação" />;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl font-bold">
           <Radar className="h-6 w-6 text-primary" /> Radar da operação
@@ -140,7 +140,7 @@ function Pagina() {
       </div>
 
       {visiveis.length === 0 ? (
-        <p className="surface-panel rounded-xl p-6 text-sm text-muted-foreground">
+        <p className="surface-panel rounded-2xl p-6 text-sm text-muted-foreground">
           {aba === "resolvidos"
             ? "Nenhum alerta resolvido até agora."
             : "Nenhuma situação de atenção pendente no período."}

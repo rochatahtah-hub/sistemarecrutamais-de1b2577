@@ -75,7 +75,7 @@ function Pagina() {
         <p className="text-sm text-muted-foreground">{q.rotulo}</p>
       </div>
 
-      <div className="surface-panel space-y-4 rounded-xl p-4">
+      <div className="surface-panel space-y-4 rounded-2xl p-4">
         <div className="flex items-center gap-2">
           <Target className="h-4 w-4 text-primary" />
           <h2 className="font-display text-lg font-semibold">Meta geral da quinzena</h2>
@@ -126,7 +126,7 @@ function Pagina() {
         )}
       </div>
 
-      <div className="surface-panel rounded-xl p-4">
+      <div className="surface-panel rounded-2xl p-4">
         <h2 className="mb-3 font-display text-lg font-semibold">Metas individuais</h2>
         <div className="overflow-x-auto">
         <Table>
