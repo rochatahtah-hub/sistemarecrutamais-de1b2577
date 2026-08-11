@@ -209,13 +209,37 @@ export function useEnviarMensagem() {
       conversaId: string;
       conteudo: string;
       respondeA?: string | null;
+      tipo?: TipoMensagem;
+      arquivo?: File | Blob | null;
+      nomeArquivo?: string;
+      duracaoMs?: number;
     }) => {
       if (!user) throw new Error("Sessão expirada.");
+      let anexo = {
+        tipo: dados.tipo ?? "texto",
+        anexo_path: "",
+        anexo_nome: "",
+        anexo_mime: "",
+        anexo_tamanho: 0,
+        duracao_ms: dados.duracaoMs ?? 0,
+      };
+      if (dados.arquivo) {
+        const nome = dados.nomeArquivo ?? (dados.arquivo as File).name ?? "arquivo";
+        const caminho = await enviarAnexoChat(dados.conversaId, user.id, dados.arquivo, nome);
+        anexo = {
+          ...anexo,
+          anexo_path: caminho,
+          anexo_nome: nome,
+          anexo_mime: dados.arquivo.type || "application/octet-stream",
+          anexo_tamanho: dados.arquivo.size,
+        };
+      }
       const { error } = await supabase.from("mensagens").insert({
         conversa_id: dados.conversaId,
         autor_id: user.id,
         conteudo: dados.conteudo,
         responde_a: dados.respondeA ?? null,
+        ...anexo,
       });
       if (error) throw error;
     },
@@ -224,6 +248,94 @@ export function useEnviarMensagem() {
       void qc.invalidateQueries({ queryKey: CHAVE_CONVERSAS });
     },
   });
+}
+
+/** Sobe um anexo no bucket privado do chat, isolado por conversa. */
+export async function enviarAnexoChat(
+  conversaId: string,
+  userId: string,
+  arquivo: File | Blob,
+  nome: string,
+) {
+  const ext = (nome.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const base = `anexos/${conversaId}/${userId}-${Date.now()}`;
+  const caminho = ext ? `${base}.${ext}` : base;
+  const { error } = await supabase.storage
+    .from("chat")
+    .upload(caminho, arquivo, { contentType: arquivo.type || "application/octet-stream" });
+  if (error) throw error;
+  return caminho;
+}
+
+/* ---------------- Reações ---------------- */
+
+export function useReacoes(conversaId: string | null) {
+  return useQuery({
+    queryKey: ["chat", "reacoes", conversaId],
+    enabled: !!conversaId,
+    retry: false,
+    staleTime: 5_000,
+    queryFn: async ({ signal }): Promise<Reacao[]> => {
+      const { data, error } = await supabase
+        .from("reacoes_mensagem")
+        .select("id,mensagem_id,conversa_id,user_id,emoji")
+        .eq("conversa_id", conversaId!)
+        .abortSignal(signal);
+      if (error) throw error;
+      return (data ?? []) as Reacao[];
+    },
+  });
+}
+
+/** Aplica, troca ou remove (quando repetido) a reação do usuário atual. */
+export function useReagir() {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: async (dados: {
+      mensagemId: string;
+      conversaId: string;
+      emoji: string;
+      atual?: string | null;
+    }) => {
+      if (!user) throw new Error("Sessão expirada.");
+      if (dados.atual === dados.emoji) {
+        const { error } = await supabase
+          .from("reacoes_mensagem")
+          .delete()
+          .eq("mensagem_id", dados.mensagemId)
+          .eq("user_id", user.id);
+        if (error) throw error;
+        return;
+      }
+      const { error } = await supabase.from("reacoes_mensagem").upsert(
+        {
+          mensagem_id: dados.mensagemId,
+          conversa_id: dados.conversaId,
+          user_id: user.id,
+          emoji: dados.emoji,
+        },
+        { onConflict: "mensagem_id,user_id" },
+      );
+      if (error) throw error;
+    },
+    onSuccess: (_d, v) =>
+      void qc.invalidateQueries({ queryKey: ["chat", "reacoes", v.conversaId] }),
+  });
+}
+
+export function formatarTamanho(bytes: number) {
+  if (!bytes) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+export function formatarDuracao(ms: number) {
+  const total = Math.max(0, Math.round(ms / 1000));
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
 }
 
 export function useExcluirMensagem() {
