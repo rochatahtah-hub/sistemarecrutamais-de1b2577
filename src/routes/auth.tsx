@@ -152,13 +152,37 @@ function Pagina() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <div className="w-full max-w-md">
-        <div className="mb-6 flex flex-col items-center text-center">
+    <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
+      <aside className="surface-dark hidden flex-col justify-between p-12 lg:flex">
+        <div className="flex items-center gap-3">
+          <div className="grid h-11 w-11 place-items-center rounded-xl bg-sidebar-primary text-lg font-bold text-sidebar-primary-foreground">
+            R+
+          </div>
+          <p className="text-lg font-semibold tracking-tight">
+            RECRUTA<span className="text-sidebar-primary">+</span>
+          </p>
+        </div>
+        <div className="max-w-md">
+          <h2 className="text-3xl font-semibold leading-tight tracking-tight">
+            Gestão inteligente de recrutamento e seleção.
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-sidebar-foreground/65">
+            Programações, confirmações, metas e indicadores da operação reunidos em uma única
+            plataforma corporativa.
+          </p>
+        </div>
+        <p className="text-xs text-sidebar-foreground/45">
+          Ambiente privado · Acesso individual e monitorado
+        </p>
+      </aside>
+
+      <main className="flex items-center justify-center px-4 py-10 sm:px-8">
+        <div className="w-full max-w-md">
+        <div className="mb-6 flex flex-col items-center text-center lg:hidden">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
             <BarChart3 className="h-6 w-6 text-primary-foreground" />
           </div>
-          <h1 className="mt-3 font-display text-2xl font-bold text-gradient-gold">
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight">
             Sistema de Programação
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -166,7 +190,13 @@ function Pagina() {
           </p>
         </div>
 
-        <div className="surface-panel rounded-xl p-6">
+        <div className="surface-panel rounded-2xl p-7">
+          <div className="mb-6 hidden lg:block">
+            <h1 className="text-2xl font-semibold tracking-tight">Sistema de Programação</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Acesso individual das programadoras
+            </p>
+          </div>
           <Button
             type="button"
             variant="secondary"
@@ -253,7 +283,8 @@ function Pagina() {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
+        </div>
+      </main>
 
       <Dialog open={abrirPin} onOpenChange={setAbrirPin}>
         <DialogContent className="sm:max-w-sm">
