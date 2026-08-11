@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useVagas } from "@/lib/dados";
+import { Sigiloso } from "@/lib/privacidade";
 import { agregar, agregarPor, fmtNum, fmtPct, variacao } from "@/lib/metricas";
 import type { VagaRegistro } from "@/lib/tipos";
 import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
@@ -198,7 +199,9 @@ function Pagina() {
             )}
             {colaboradores.map((c) => (
               <TableRow key={c.nome}>
-                <TableCell className="font-medium">{c.nome}</TableCell>
+                <TableCell className="font-medium">
+                  <Sigiloso valor={c.nome} />
+                </TableCell>
                 <TableCell className="text-right tabular-nums">{fmtNum(c.vagasA)}</TableCell>
                 <TableCell className="text-right tabular-nums">{fmtNum(c.vagasB)}</TableCell>
                 <TableCell className="text-right">
