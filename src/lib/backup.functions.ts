@@ -88,6 +88,56 @@ export const excluirBackup = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Salva apenas o e-mail que recebe os backups (independente do domínio de envio). */
+export const salvarEmailBackup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { email: string }) => ({
+    email: String(d.email ?? "").trim().slice(0, 200),
+  }))
+  .handler(async ({ data, context }) => {
+    await exigirAdmin(context as unknown as Contexto);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      throw new Error("Informe um e-mail válido para receber os backups.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("backup_agendamento")
+      .upsert({ id: true, email_destino: data.email });
+    if (error) throw new Error(error.message);
+    return { ok: true, email: data.email };
+  });
+
+/** Testa o envio do backup mais recente para o e-mail configurado. */
+export const testarEnvioBackup = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await exigirAdmin(context as unknown as Contexto);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { enviarBackupEmail } = await import("./backup.server");
+    const { data: agenda } = await supabaseAdmin
+      .from("backup_agendamento")
+      .select("email_destino")
+      .eq("id", true)
+      .maybeSingle();
+    const destino = agenda?.email_destino || "rochatahtah@gmail.com";
+    const { data: ultimo } = await supabaseAdmin
+      .from("backups")
+      .select("id,arquivo_nome")
+      .eq("status", "concluido")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!ultimo) {
+      return {
+        destino,
+        enviado: false,
+        motivo: "Nenhum backup concluído para testar. Gere um backup primeiro.",
+      };
+    }
+    const envio = await enviarBackupEmail(ultimo.id, destino);
+    return { destino, arquivo: ultimo.arquivo_nome, ...envio };
+  });
+
 /** Salva o agendamento da exportação automática. */
 export const salvarAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
