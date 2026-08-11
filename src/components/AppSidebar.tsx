@@ -100,7 +100,7 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { isAdmin, perfil } = useAuth();
   const { privado } = usePrivacidade();
-  useChatRealtime(pathname.startsWith("/chat") ? undefined : null);
+  useChatRealtime();
   const naoLidas = useTotalNaoLidas();
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
