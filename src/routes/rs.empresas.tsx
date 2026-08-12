@@ -59,7 +59,7 @@ export const Route = createFileRoute("/rs/empresas")({
   component: PaginaProtegida,
 });
 
-const VAZIA = { nome: "", cnpj: "", contato: "", cidade: "", observacao: "", ativo: true };
+const VAZIA = { nome: "", contato: "", cidade: "", observacao: "", ativo: true };
 
 function Pagina() {
   const { pode } = usePermissoes();
@@ -95,7 +95,7 @@ function Pagina() {
 
   const lista = useMemo(() => {
     const termo = busca.trim().toLowerCase();
-    return empresas.filter((e) => !termo || `${e.nome} ${e.cnpj} ${e.cidade}`.toLowerCase().includes(termo));
+    return empresas.filter((e) => !termo || `${e.nome} ${e.cidade}`.toLowerCase().includes(termo));
   }, [empresas, busca]);
 
   const detalhe = empresas.find((e) => e.id === detalheId) ?? null;
@@ -173,7 +173,7 @@ function Pagina() {
                     <TableRow key={e.id} className="cursor-pointer" onClick={() => setDetalheId(e.id)}>
                       <TableCell>
                         <p className="font-medium">{e.nome}</p>
-                        <p className="text-xs text-muted-foreground">{e.cnpj || "Sem CNPJ"}</p>
+                        <p className="text-xs text-muted-foreground">{e.cidade || "Sem cidade"}</p>
                       </TableCell>
                       <TableCell>{e.cidade || "—"}</TableCell>
                       <TableCell>{i?.total ?? 0}</TableCell>
@@ -216,15 +216,9 @@ function Pagina() {
               <Label htmlFor="e-nome">Nome</Label>
               <Input id="e-nome" value={form.nome} onChange={(ev) => setForm({ ...form, nome: ev.target.value })} />
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="grid gap-1.5">
-                <Label htmlFor="e-cnpj">CNPJ</Label>
-                <Input id="e-cnpj" value={form.cnpj ?? ""} onChange={(ev) => setForm({ ...form, cnpj: ev.target.value })} />
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="e-cidade">Cidade</Label>
-                <Input id="e-cidade" value={form.cidade ?? ""} onChange={(ev) => setForm({ ...form, cidade: ev.target.value })} />
-              </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="e-cidade">Cidade</Label>
+              <Input id="e-cidade" value={form.cidade ?? ""} onChange={(ev) => setForm({ ...form, cidade: ev.target.value })} />
             </div>
             <div className="grid gap-1.5">
               <Label htmlFor="e-contato">Contato</Label>
