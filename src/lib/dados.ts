@@ -198,16 +198,18 @@ export function usePlanilhaAtiva() {
   });
 }
 
-/** Retira a planilha ativa: limpa toda a base usada pelo sistema. */
+/**
+ * Retira a planilha ativa: remove somente os registros importados de planilha.
+ * Os cadastros feitos diretamente no Recruta+ permanecem no banco.
+ */
 export function useRetirarPlanilha() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const tabelas = ["vagas", "colaboradores", "empresas", "importacoes"] as const;
-      for (const tabela of tabelas) {
-        const { error } = await supabase.from(tabela).delete().not("id", "is", null);
-        if (error) throw error;
-      }
+      const vagas = await supabase.from("vagas").delete().not("importacao_id", "is", null);
+      if (vagas.error) throw vagas.error;
+      const imp = await supabase.from("importacoes").delete().not("id", "is", null);
+      if (imp.error) throw imp.error;
     },
     onSuccess: () => sincronizarSistema(qc),
   });
