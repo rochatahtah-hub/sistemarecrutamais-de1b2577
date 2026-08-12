@@ -12,7 +12,7 @@ export const DIAS_SEMANA = [
   "Domingo",
 ] as const;
 
-export const PERIODOS = ["Manhã", "Tarde", "Noite", "Madrugada"] as const;
+export const PERIODOS = ["Manhã", "Tarde", "Noite", "Qualquer horário"] as const;
 
 export const STATUS_COLABORADOR = [
   "novo",
@@ -38,6 +38,7 @@ export interface ColaboradorDiaria {
   id: string;
   full_name: string;
   phone: string;
+  cpf_mascara: string;
   city: string;
   neighborhood: string;
   available_for_daily: boolean;
@@ -53,6 +54,7 @@ export interface ColaboradorDiaria {
 export interface NovoColaboradorDiaria {
   full_name: string;
   phone: string;
+  cpf: string;
   city: string;
   neighborhood: string;
   available_for_daily: boolean;
@@ -62,10 +64,35 @@ export interface NovoColaboradorDiaria {
 }
 
 const CAMPOS =
-  "id,full_name,phone,city,neighborhood,available_for_daily,available_days,available_periods,desired_role,status,observacao,consent_date,created_at";
+  "id,full_name,phone,cpf_mascara,city,neighborhood,available_for_daily,available_days,available_periods,desired_role,status,observacao,consent_date,created_at";
 
 export function soDigitosTelefone(valor: string) {
   return (valor ?? "").replace(/\D+/g, "").slice(0, 11);
+}
+
+export function soDigitosCpf(valor: string) {
+  return (valor ?? "").replace(/\D+/g, "").slice(0, 11);
+}
+
+export function formatarCpf(valor: string) {
+  const d = soDigitosCpf(valor);
+  return d
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})$/, "$1.$2.$3-$4");
+}
+
+/** Validação oficial de CPF (dígitos verificadores). */
+export function cpfValido(valor: string) {
+  const d = soDigitosCpf(valor);
+  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+  const digito = (base: string, pesoInicial: number) => {
+    let soma = 0;
+    for (let i = 0; i < base.length; i += 1) soma += Number(base[i]) * (pesoInicial - i);
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  };
+  return digito(d.slice(0, 9), 10) === Number(d[9]) && digito(d.slice(0, 10), 11) === Number(d[10]);
 }
 
 export function formatarTelefone(valor: string) {
@@ -79,12 +106,19 @@ export async function cadastrarColaboradorPublico(dados: NovoColaboradorDiaria) 
   const { error } = await supabase.from("daily_workers").insert({
     ...dados,
     phone: soDigitosTelefone(dados.phone),
+    cpf: soDigitosCpf(dados.cpf),
     status: "novo",
     consent_accepted: true,
     consent_date: new Date().toISOString(),
   });
   if (error) {
-    if (error.code === "23505") throw new Error("Este telefone já está cadastrado no nosso banco.");
+    if (error.code === "23505") {
+      throw new Error(
+        /cpf/i.test(error.message)
+          ? "Já encontramos um cadastro com este CPF."
+          : "Já encontramos um cadastro com este telefone.",
+      );
+    }
     throw new Error("Não foi possível concluir o cadastro. Tente novamente em instantes.");
   }
 }
@@ -148,15 +182,31 @@ export function useCriarColaboradorDiaria() {
       const { error } = await supabase.from("daily_workers").insert({
         ...dados,
         phone: soDigitosTelefone(dados.phone),
+        cpf: soDigitosCpf(dados.cpf),
         status: "disponivel",
         consent_accepted: true,
         consent_date: new Date().toISOString(),
       });
       if (error) {
-        if (error.code === "23505") throw new Error("Telefone já cadastrado.");
+        if (error.code === "23505") {
+          throw new Error(/cpf/i.test(error.message) ? "CPF já cadastrado." : "Telefone já cadastrado.");
+        }
         throw error;
       }
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["daily-workers"] }),
+  });
+}
+
+/** CPF completo — o banco só devolve para administradores (master/admin). */
+export function useCpfCompleto(id: string | null) {
+  return useQuery({
+    queryKey: ["daily-worker-cpf", id],
+    enabled: Boolean(id),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("cpf_colaborador_diaria", { _id: id! });
+      if (error) throw error;
+      return (data as string | null) ?? null;
+    },
   });
 }
