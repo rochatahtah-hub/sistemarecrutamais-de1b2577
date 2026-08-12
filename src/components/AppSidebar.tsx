@@ -98,14 +98,15 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, perfil } = useAuth();
+  const { isAdmin, perfil, somenteDashboard } = useAuth();
   const { privado } = usePrivacidade();
   useChatRealtime();
   const naoLidas = useTotalNaoLidas();
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
     : ferramentas;
-  const permitido = (url: string) => isAdmin || !ADMIN_ONLY.has(url);
+  const permitido = (url: string) =>
+    somenteDashboard ? url === "/" : isAdmin || !ADMIN_ONLY.has(url);
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
@@ -177,14 +178,15 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent className="gap-0.5 px-1 py-2">
-        {(
-          [
-            ["Principal", principal],
-            ["Gestão", gestao],
-            ["Comunicação", comunicacao],
-            ["Análises", analises],
-            ["Sistema", itensFerramentas],
-          ] as const
+        {(somenteDashboard
+          ? ([["Principal", principal]] as const)
+          : ([
+              ["Principal", principal],
+              ["Gestão", gestao],
+              ["Comunicação", comunicacao],
+              ["Análises", analises],
+              ["Sistema", itensFerramentas],
+            ] as const)
         ).map(([rotulo, itens]) => (
           <SidebarGroup key={rotulo}>
             <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/40">
