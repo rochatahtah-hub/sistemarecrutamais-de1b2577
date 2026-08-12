@@ -1,32 +1,31 @@
-# Tela de Backups (Exportar e Baixar)
+# Corrigir o portal público de diárias
 
-Nova área administrativa **Backups** para gerar, acompanhar e baixar cópias completas dos dados do sistema.
+## O que está acontecendo
 
-## O que o usuário verá
+Duas causas distintas, ambas confirmadas:
 
-- Item **Backups** no menu lateral (grupo Relatórios), visível apenas para administradores.
-- Botões: **Gerar backup SQL** e **Gerar backup CSV (.zip)**.
-- Tabela de histórico com: data/hora, tipo (SQL ou CSV), tamanho do arquivo, quantidade de tabelas/registros, status (Em andamento / Concluído / Falhou) e botão **Baixar**.
-- Aviso claro de que o backup contém dados sensíveis e o link de download expira.
+1. **O site publicado está desatualizado.** A página `/auth` do link publicado ainda mostra a aba "Criar acesso" e não tem o botão "Cadastre-se para trabalhar em diárias". As últimas alterações só existem no ambiente de desenvolvimento.
 
-## Como funciona
+2. **O cadastro público não consegue gravar no banco.** A tabela `daily_workers` está com as regras de acesso (RLS) corretas, mas **não possui nenhuma permissão de acesso concedida** — nem para visitantes anônimos, nem para usuários logados. Ou seja: mesmo abrindo o formulário, o envio falha com erro de permissão, e o Banco de Colaboradores não consegue listar os cadastros.
 
-- O backup cobre as 15 tabelas do sistema: vagas, candidatos, colaboradores, colaboradores_bloqueados, empresas, importacoes, configuracoes, metas/quinzenas_historico, notificacoes, alertas_operacao, auditoria, erros_sistema, profiles, user_roles, admin_pin (sem o hash do PIN).
-- **SQL**: um arquivo `.sql` com `INSERT`s por tabela, restaurável em qualquer Postgres.
-- **CSV**: um `.zip` com um `.csv` por tabela.
-- O arquivo é gravado num bucket privado de backups e o download é feito por link assinado temporário.
-- Cada execução grava uma linha na tabela de histórico com status, tamanho e contagens, então a tela mostra o progresso real e falhas.
+## O que será feito
+
+### 1. Liberar o acesso à tabela de cadastros de diárias
+Migração no banco concedendo:
+- inserção para visitantes não logados (o portal público);
+- leitura, inserção, edição e exclusão para usuários autenticados (Banco de Colaboradores);
+- acesso administrativo para rotinas internas.
+
+As regras de RLS existentes continuam valendo — ninguém anônimo passa a ler dados; apenas o envio do formulário volta a funcionar.
+
+### 2. Validar o fluxo ponta a ponta
+Abrir `/cadastro-diarias` sem login, enviar um cadastro de teste e confirmar que ele aparece em `/banco-colaboradores`. Remover o registro de teste em seguida.
+
+### 3. Publicar novamente
+Republicar o sistema para que o link `sistemarecrutamais.lovable.app` passe a exibir a tela de acesso atualizada (só "Entrar" + botão de diárias) e o portal funcionando.
 
 ## Detalhes técnicos
 
-1. Migração: tabela `public.backups` (tipo, status, arquivo_path, tamanho_bytes, total_tabelas, total_registros, erro, criado_por) + GRANTs + RLS restrita a admin via `has_role`.
-2. Bucket privado `backups` criado pela ferramenta de storage; políticas em `storage.objects` só para admin (download será por signed URL gerada no servidor).
-3. `src/lib/backup.server.ts`: leitura paginada de cada tabela com `supabaseAdmin`, geração do SQL/CSV e do zip.
-4. `src/lib/backup.functions.ts`: server functions com `requireSupabaseAuth` + checagem de role admin — `gerarBackup`, `listarBackups`, `urlDownloadBackup`.
-5. `src/routes/backups.tsx`: rota nova envolvida em `RequerAdmin`, usando `PageHeader`, tabela responsiva e React Query com refetch enquanto houver backup em andamento.
-6. Sidebar: novo item admin-only em `src/components/AppSidebar.tsx` + `ADMIN_ONLY`.
-7. `head()` próprio com título/descrição da tela.
-
-## Observação
-
-Este backup cobre os dados das tabelas do aplicativo. O dump completo do banco (incluindo usuários de autenticação) continua disponível em Cloud → Advanced settings → Export data.
+- Nova migração: `GRANT INSERT ON public.daily_workers TO anon;`, `GRANT SELECT, INSERT, UPDATE, DELETE ... TO authenticated;`, `GRANT ALL ... TO service_role;`
+- Nenhuma política de RLS será alterada ou afrouxada.
+- Nenhuma mudança de código de aplicação prevista, salvo algum ajuste de mensagem de erro caso o teste revele outro problema.
