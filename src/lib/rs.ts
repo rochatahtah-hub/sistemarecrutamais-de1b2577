@@ -44,6 +44,13 @@ export interface HistoricoRS {
   created_at: string;
 }
 
+export interface CargoRS {
+  id: string;
+  nome: string;
+  ativo: boolean;
+  created_at: string;
+}
+
 const CAMPOS_CANDIDATO =
   "id,nome,cpf,telefone,empresa_id,cargo,data_admissao,status,data_desligamento,motivo_desligamento,recrutador_nome,observacao,created_at,rs_empresas(nome)";
 
