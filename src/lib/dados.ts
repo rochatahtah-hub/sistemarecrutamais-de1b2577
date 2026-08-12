@@ -172,7 +172,9 @@ export function useImportacoes() {
 
 /** Planilha atualmente ativa (última importação concluída) + volume de registros. */
 export function usePlanilhaAtiva() {
+  const { podeOperar } = useAuth();
   return useQuery({
+    enabled: podeOperar,
     queryKey: ["planilha-ativa"],
     queryFn: async () => {
       const [imp, cont] = await Promise.all([
