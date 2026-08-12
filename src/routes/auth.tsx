@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { CampoSenha } from "@/components/CampoSenha";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import {
@@ -48,7 +48,6 @@ function Pagina() {
   const consultarPin = useServerFn(pinDefinido);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [nome, setNome] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [abrirPin, setAbrirPin] = useState(false);
   const [pin, setPin] = useState("");
@@ -124,35 +123,6 @@ function Pagina() {
     void navigate({ to: "/", replace: true });
   }
 
-  async function criar(e: React.FormEvent) {
-    e.preventDefault();
-    if (nome.trim().length < 2) {
-      toast.error("Informe o nome da programadora.");
-      return;
-    }
-    setEnviando(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: senha,
-      options: { data: { nome: nome.trim() }, emailRedirectTo: window.location.origin },
-    });
-    setEnviando(false);
-    if (error) {
-      toast.error(
-        error.message.includes("already registered")
-          ? "Este e-mail já possui acesso."
-          : `Não foi possível criar o acesso: ${error.message}`,
-      );
-      return;
-    }
-    if (!data.session) {
-      toast.success("Acesso criado. Confirme o e-mail para entrar.");
-      return;
-    }
-    toast.success("Acesso criado com sucesso!");
-    void navigate({ to: "/", replace: true });
-  }
-
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
       <aside className="malha-escura hidden flex-col justify-between p-12 text-sidebar-foreground lg:flex">
@@ -219,78 +189,32 @@ function Pagina() {
           <p className="mb-4 text-center text-xs text-muted-foreground">
             Acesso administrativo protegido por PIN.
           </p>
-          <Tabs defaultValue="entrar">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="entrar">Entrar</TabsTrigger>
-              <TabsTrigger value="criar">Criar acesso</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="entrar">
-              <form className="space-y-4 pt-4" onSubmit={entrar}>
-                <div className="space-y-1.5">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="senha">Senha</Label>
-                  <CampoSenha
-                    id="senha"
-                    autoComplete="current-password"
-                    required
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={enviando}>
-                  {enviando ? "Entrando..." : "Entrar"}
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="criar">
-              <form className="space-y-4 pt-4" onSubmit={criar}>
-                <div className="space-y-1.5">
-                  <Label htmlFor="nome">Nome da programadora</Label>
-                  <Input id="nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="email2">E-mail</Label>
-                  <Input
-                    id="email2"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="senha2">Senha</Label>
-                  <CampoSenha
-                    id="senha2"
-                    autoComplete="new-password"
-                    minLength={6}
-                    required
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={enviando}>
-                  {enviando ? "Criando..." : "Criar acesso"}
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  Não é necessária confirmação de e-mail: o acesso já fica ativo.
-                </p>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <form className="space-y-4 pt-4" onSubmit={entrar}>
+            <div className="space-y-1.5">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="senha">Senha</Label>
+              <CampoSenha
+                id="senha"
+                autoComplete="current-password"
+                required
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={enviando}>
+              {enviando ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
 
           <div className="mt-6 border-t border-border pt-6">
             <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
