@@ -26,6 +26,9 @@ import {
   MessageCircle,
   Database,
   UserPlus,
+  Briefcase,
+  BarChart3,
+  ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -75,6 +78,13 @@ const analises = [
 ] as const;
 
 const comunicacao = [{ title: "Chat", url: "/chat", icon: MessageCircle }] as const;
+
+const recrutamentoSelecao = [
+  { title: "Meus Candidatos", url: "/rs/candidatos", icon: IdCard },
+  { title: "Empresas CLT", url: "/rs/empresas", icon: Briefcase },
+  { title: "Dashboard R&S", url: "/rs/dashboard", icon: BarChart3 },
+  { title: "Levantamento R&S", url: "/rs/levantamento", icon: ClipboardList },
+] as const;
 
 const ferramentas = [
   { title: "Central de Administração", url: "/administracao", icon: ShieldCheck },
@@ -181,6 +191,7 @@ export function AppSidebar() {
           [
             ["Principal", principal],
             ["Gestão", gestao],
+            ["Recrutamento e Seleção", recrutamentoSelecao],
             ["Comunicação", comunicacao],
             ["Análises", analises],
             ["Sistema", itensFerramentas],
