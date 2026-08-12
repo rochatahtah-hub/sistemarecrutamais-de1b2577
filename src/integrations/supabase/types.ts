@@ -86,6 +86,33 @@ export type Database = {
         }
         Relationships: []
       }
+      app_user_connections: {
+        Row: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connection_key_ciphertext: string
+          connector_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connection_key_ciphertext?: string
+          connector_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       auditoria: {
         Row: {
           acao: string
@@ -193,6 +220,11 @@ export type Database = {
           created_at: string
           criado_por: string | null
           criado_por_nome: string
+          drive_em: string | null
+          drive_erro: string
+          drive_file_id: string
+          drive_link: string
+          drive_status: string
           duracao_ms: number
           envio_em: string | null
           envio_email: string
@@ -214,6 +246,11 @@ export type Database = {
           created_at?: string
           criado_por?: string | null
           criado_por_nome?: string
+          drive_em?: string | null
+          drive_erro?: string
+          drive_file_id?: string
+          drive_link?: string
+          drive_status?: string
           duracao_ms?: number
           envio_em?: string | null
           envio_email?: string
@@ -235,6 +272,11 @@ export type Database = {
           created_at?: string
           criado_por?: string | null
           criado_por_nome?: string
+          drive_em?: string | null
+          drive_erro?: string
+          drive_file_id?: string
+          drive_link?: string
+          drive_status?: string
           duracao_ms?: number
           envio_em?: string | null
           envio_email?: string
