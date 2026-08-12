@@ -116,7 +116,7 @@ function Pagina() {
           ...cargosCadastrados.filter((c) => c.ativo).map((c) => c.nome),
         ]),
       ].sort(),
-    [candidatos],
+    [candidatos, cargosCadastrados],
   );
 
   const lista = useMemo(() => {
