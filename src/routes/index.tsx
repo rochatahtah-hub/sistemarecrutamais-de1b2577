@@ -157,6 +157,13 @@ function ListaTop({
   );
 }
 
+/** Saudação dinâmica conforme o horário local do usuário. */
+function saudacaoPorHorario(hora = new Date().getHours()) {
+  if (hora < 12) return "Bom dia";
+  if (hora < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
 function Dashboard() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
