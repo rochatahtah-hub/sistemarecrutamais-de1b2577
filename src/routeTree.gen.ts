@@ -41,6 +41,7 @@ import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$n
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
 import { Route as RsCandidatosRouteImport } from './routes/rs.candidatos'
+import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
 import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 
 const IndexRoute = IndexRouteImport.update({
@@ -203,6 +204,11 @@ const RsCandidatosRoute = RsCandidatosRouteImport.update({
   path: '/rs/candidatos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RsEmpresasRoute = RsEmpresasRouteImport.update({
+  id: '/rs/empresas',
+  path: '/rs/empresas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksBackupAgendadoRoute =
   ApiPublicHooksBackupAgendadoRouteImport.update({
     id: '/api/public/hooks/backup-agendado',
@@ -241,6 +247,7 @@ export interface FileRoutesByFullPath {
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
+  '/rs/empresas': typeof RsEmpresasRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByTo {
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
+  '/rs/empresas': typeof RsEmpresasRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
+  '/rs/empresas': typeof RsEmpresasRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
+    | '/rs/empresas'
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
@@ -384,6 +394,7 @@ export interface FileRouteTypes {
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
+    | '/rs/empresas'
     | '/colaboradores'
     | '/empresas'
     | '/api/public/hooks/backup-agendado'
@@ -419,6 +430,7 @@ export interface FileRouteTypes {
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
+    | '/rs/empresas'
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
@@ -455,6 +467,7 @@ export interface RootRouteChildren {
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
   RsCandidatosRoute: typeof RsCandidatosRoute
+  RsEmpresasRoute: typeof RsEmpresasRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
@@ -686,6 +699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RsCandidatosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rs/empresas': {
+      id: '/rs/empresas'
+      path: '/rs/empresas'
+      fullPath: '/rs/empresas'
+      preLoaderRoute: typeof RsEmpresasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/backup-agendado': {
       id: '/api/public/hooks/backup-agendado'
       path: '/api/public/hooks/backup-agendado'
@@ -727,6 +747,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
   RsCandidatosRoute: RsCandidatosRoute,
+  RsEmpresasRoute: RsEmpresasRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
