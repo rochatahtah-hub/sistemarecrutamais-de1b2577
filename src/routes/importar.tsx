@@ -191,13 +191,11 @@ function Pagina() {
     }
     setSalvando(true);
     try {
-      // A planilha enviada passa a ser a ÚNICA fonte de dados: limpa tudo antes.
-      const limparVagas = await supabase.from("vagas").delete().not("id", "is", null);
+      // O banco é a fonte oficial: a importação substitui apenas os registros
+      // que vieram de planilhas anteriores e preserva tudo o que foi cadastrado
+      // diretamente no Recruta+ (vagas manuais, colaboradores e empresas).
+      const limparVagas = await supabase.from("vagas").delete().not("importacao_id", "is", null);
       if (limparVagas.error) throw limparVagas.error;
-      const limparColab = await supabase.from("colaboradores").delete().not("id", "is", null);
-      if (limparColab.error) throw limparColab.error;
-      const limparEmp = await supabase.from("empresas").delete().not("id", "is", null);
-      if (limparEmp.error) throw limparEmp.error;
 
       const nomesColab = Array.from(new Set(validas.map((l) => l.colaborador)));
       const nomesEmp = Array.from(new Set(validas.map((l) => l.empresa)));
@@ -243,6 +241,7 @@ function Pagina() {
           quantidade: l.quantidade,
           status: l.status!,
           observacao: l.observacao,
+          origem: "planilha",
           importacao_id: importacaoId,
           hash_registro: l.hash,
         }));
