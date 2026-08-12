@@ -178,11 +178,12 @@ function Panorama() {
           <p className="text-sm text-muted-foreground">Nenhum registro no banco ainda.</p>
         )}
         {(d.ultimosRegistros as Array<Record<string, unknown>>).map((r) => (
-          <div key={String(r.id)} className="flex flex-wrap justify-between gap-2 border-b border-border pb-2 text-xs">
+          <div key={String(r["id"])} className="flex flex-wrap justify-between gap-2 border-b border-border pb-2 text-xs">
             <span>
-              {r.data} · {r.cargo || "Sem cargo"} · <strong>{r.status}</strong>
+              {String(r["data"] ?? "—")} · {String(r["cargo"] || "Sem cargo")} ·{" "}
+              <strong>{String(r["status"] ?? "")}</strong>
             </span>
-            <span className="text-muted-foreground">{fmtData(r.updated_at)}</span>
+            <span className="text-muted-foreground">{fmtData(r["updated_at"])}</span>
           </div>
         ))}
       </div>
