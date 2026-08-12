@@ -972,6 +972,7 @@ export type Database = {
         Args: { _conversa: string; _user: string }
         Returns: boolean
       }
+      pode_operar: { Args: { _user_id: string }; Returns: boolean }
       registrar_acesso: {
         Args: {
           _navegador?: string
@@ -1008,6 +1009,7 @@ export type Database = {
           ultima_ocorrencia: string
         }[]
       }
+      somente_dashboard: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role:
