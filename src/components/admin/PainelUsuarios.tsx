@@ -22,7 +22,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { criarUsuario, definirPermissao, definirSenha } from "@/lib/admin.functions";
+import {
+  criarUsuario,
+  definirPermissao,
+  definirSenha,
+  type PapelUsuario,
+} from "@/lib/admin.functions";
+import { PAPEIS_ROTULO, SeletorPapel } from "@/components/SeletorPapel";
 import {
   atualizarUsuario,
   definirStatusUsuario,
@@ -55,7 +61,12 @@ export function PainelUsuarios() {
     await qc.invalidateQueries({ queryKey: ["programadoras"] });
   };
 
-  const [novo, setNovo] = useState({ nome: "", email: "", senha: "", admin: false });
+  const [novo, setNovo] = useState<{
+    nome: string;
+    email: string;
+    senha: string;
+    papel: PapelUsuario;
+  }>({ nome: "", email: "", senha: "", papel: "programadora" });
   const [editando, setEditando] = useState<{ id: string; nome: string; email: string } | null>(null);
   const [trocaSenha, setTrocaSenha] = useState<{ id: string; nome: string; senha: string } | null>(null);
   const [excluindo, setExcluindo] = useState<{ id: string; nome: string } | null>(null);
@@ -88,7 +99,7 @@ export function PainelUsuarios() {
             async () => {
               await criar({ data: novo });
               toast.success("Usuário cadastrado.");
-              setNovo({ nome: "", email: "", senha: "", admin: false });
+              setNovo({ nome: "", email: "", senha: "", papel: "programadora" });
             },
           );
         }}
@@ -119,9 +130,15 @@ export function PainelUsuarios() {
           />
         </div>
         <div className="flex items-end justify-between gap-3">
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={novo.admin} onCheckedChange={(v) => setNovo({ ...novo, admin: v })} /> Admin
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="nv-papel">Perfil</Label>
+            <SeletorPapel
+              id="nv-papel"
+              valor={novo.papel}
+              onChange={(papel) => setNovo({ ...novo, papel })}
+              className="h-9 w-40"
+            />
+          </div>
           <Button type="submit" disabled={acao.isPending}>
             <Plus className="mr-2 h-4 w-4" /> Criar
           </Button>
@@ -161,7 +178,7 @@ export function PainelUsuarios() {
             <div className="min-w-0 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="truncate text-sm font-semibold">{p.nome(u.nome)}</p>
-                <Badge variant={u.admin ? "default" : "secondary"}>{u.admin ? "Administrador" : "Programadora"}</Badge>
+                <Badge variant={u.admin ? "default" : "secondary"}>{PAPEIS_ROTULO[u.papel]}</Badge>
                 <Badge variant={u.ativo ? "outline" : "destructive"}>{u.ativo ? "Ativo" : "Inativo"}</Badge>
               </div>
               <p className="truncate text-xs text-muted-foreground">{p.privado ? "•••••••" : u.email}</p>
@@ -176,18 +193,16 @@ export function PainelUsuarios() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <label className="flex items-center gap-2 text-xs">
-                <Switch
-                  checked={u.admin}
-                  onCheckedChange={(v) =>
-                    acao.mutate(async () => {
-                      await permissaoFn({ data: { userId: u.id, admin: v } });
-                      toast.success("Permissão atualizada.");
-                    })
-                  }
-                />
-                Admin
-              </label>
+              <SeletorPapel
+                valor={u.papel}
+                className="h-8 w-40 text-xs"
+                onChange={(papel) =>
+                  acao.mutate(async () => {
+                    await permissaoFn({ data: { userId: u.id, papel } });
+                    toast.success("Permissão atualizada.");
+                  })
+                }
+              />
               <label className="flex items-center gap-2 text-xs">
                 <Switch
                   checked={u.ativo}
