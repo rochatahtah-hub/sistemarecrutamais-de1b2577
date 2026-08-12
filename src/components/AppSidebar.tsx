@@ -29,6 +29,7 @@ import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
 import { useChatRealtime, useTotalNaoLidas } from "@/lib/chat";
 import { AvatarUsuario } from "@/components/AvatarUsuario";
+import { PAPEIS_ROTULO } from "@/components/SeletorPapel";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
 import logoMarca from "@/assets/recruta-mark.png.asset.json";
 
