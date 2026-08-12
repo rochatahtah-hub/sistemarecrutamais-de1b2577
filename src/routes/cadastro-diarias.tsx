@@ -212,17 +212,28 @@ function Pagina() {
                 />
               </div>
 
-              <label className="flex items-start gap-3 rounded-xl border border-border/70 px-3.5 py-3 text-sm">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setConsentimento((v) => !v)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setConsentimento((v) => !v);
+                  }
+                }}
+                className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/70 px-3.5 py-3 text-left text-sm"
+              >
                 <Checkbox
                   checked={consentimento}
                   onCheckedChange={(v) => setConsentimento(v === true)}
                   className="mt-0.5"
                 />
                 <span className="text-muted-foreground">
-                  Autorizo o uso dos meus dados para contato sobre oportunidades de trabalho por diária e
-                  declaro que as informações acima são verdadeiras. *
+                  Li e concordo com o uso dos meus dados para cadastro e contato referente a oportunidades
+                  de trabalho/diárias. *
                 </span>
-              </label>
+              </div>
 
               <Button className="w-full" disabled={!valido || enviando} onClick={enviar}>
                 {enviando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
