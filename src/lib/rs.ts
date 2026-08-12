@@ -44,6 +44,13 @@ export interface HistoricoRS {
   created_at: string;
 }
 
+export interface CargoRS {
+  id: string;
+  nome: string;
+  ativo: boolean;
+  created_at: string;
+}
+
 const CAMPOS_CANDIDATO =
   "id,nome,cpf,telefone,empresa_id,cargo,data_admissao,status,data_desligamento,motivo_desligamento,recrutador_nome,observacao,created_at,rs_empresas(nome)";
 
@@ -144,6 +151,52 @@ export function useExcluirEmpresaCLT() {
 }
 
 /* ---------------- Candidatos CLT ---------------- */
+
+/* ---------------- Cargos CLT ---------------- */
+
+export function useCargosCLT() {
+  return useQuery({
+    queryKey: ["rs-cargos"],
+    queryFn: async (): Promise<CargoRS[]> => {
+      const { data, error } = await supabase
+        .from("rs_cargos")
+        .select("id,nome,ativo,created_at")
+        .order("nome");
+      if (error) throw error;
+      return (data ?? []) as CargoRS[];
+    },
+  });
+}
+
+export function useSalvarCargoCLT() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (c: { id?: string; nome: string; ativo?: boolean }) => {
+      const dados = { nome: c.nome.trim(), ativo: c.ativo ?? true };
+      if (!dados.nome) throw new Error("Informe o nome do cargo.");
+      const resp = c.id
+        ? await supabase.from("rs_cargos").update(dados).eq("id", c.id)
+        : await supabase.from("rs_cargos").insert(dados);
+      if (resp.error) {
+        if (resp.error.code === "23505") throw new Error("Esse cargo já está cadastrado.");
+        throw new Error(resp.error.message);
+      }
+      return dados.nome;
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["rs-cargos"] }),
+  });
+}
+
+export function useExcluirCargoCLT() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("rs_cargos").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["rs-cargos"] }),
+  });
+}
 
 export function useCandidatosCLT() {
   return useQuery({

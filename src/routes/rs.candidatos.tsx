@@ -4,6 +4,7 @@ import { IdCard, Pencil, Plus, Search, History } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
+import { CampoCargoRS } from "@/components/CampoCargoRS";
 import { EstadoVazio } from "@/components/EstadoVazio";
 import { RequerPermissao } from "@/components/RequerPermissao";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +46,7 @@ import {
   useEmpresasCLT,
   useHistoricoCandidatoCLT,
   useSalvarCandidatoCLT,
+  useCargosCLT,
   type CandidatoCLT,
   type EntradaCandidatoCLT,
 } from "@/lib/rs";
@@ -105,9 +107,16 @@ function Pagina() {
   const { data: historico = [] } = useHistoricoCandidatoCLT(fichaId);
   const ficha = candidatos.find((c) => c.id === fichaId) ?? null;
 
+  const { data: cargosCadastrados = [] } = useCargosCLT();
   const cargos = useMemo(
-    () => [...new Set(candidatos.map((c) => c.cargo).filter(Boolean))].sort(),
-    [candidatos],
+    () =>
+      [
+        ...new Set([
+          ...candidatos.map((c) => c.cargo).filter(Boolean),
+          ...cargosCadastrados.filter((c) => c.ativo).map((c) => c.nome),
+        ]),
+      ].sort(),
+    [candidatos, cargosCadastrados],
   );
 
   const lista = useMemo(() => {
@@ -326,10 +335,7 @@ function Pagina() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="rs-cargo">Cargo</Label>
-              <Input id="rs-cargo" value={form.cargo} onChange={(e) => setForm({ ...form, cargo: e.target.value })} />
-            </div>
+            <CampoCargoRS value={form.cargo} onChange={(v) => setForm({ ...form, cargo: v })} />
             <div className="grid gap-1.5">
               <Label htmlFor="rs-adm">Data de admissão/início</Label>
               <Input
