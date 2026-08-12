@@ -46,6 +46,7 @@ import {
   useEmpresasCLT,
   useHistoricoCandidatoCLT,
   useSalvarCandidatoCLT,
+  useCargosCLT,
   type CandidatoCLT,
   type EntradaCandidatoCLT,
 } from "@/lib/rs";
@@ -106,8 +107,15 @@ function Pagina() {
   const { data: historico = [] } = useHistoricoCandidatoCLT(fichaId);
   const ficha = candidatos.find((c) => c.id === fichaId) ?? null;
 
+  const { data: cargosCadastrados = [] } = useCargosCLT();
   const cargos = useMemo(
-    () => [...new Set(candidatos.map((c) => c.cargo).filter(Boolean))].sort(),
+    () =>
+      [
+        ...new Set([
+          ...candidatos.map((c) => c.cargo).filter(Boolean),
+          ...cargosCadastrados.filter((c) => c.ativo).map((c) => c.nome),
+        ]),
+      ].sort(),
     [candidatos],
   );
 
