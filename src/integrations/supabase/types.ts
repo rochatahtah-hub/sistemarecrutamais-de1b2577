@@ -1010,6 +1010,148 @@ export type Database = {
           },
         ]
       }
+      rs_candidatos: {
+        Row: {
+          cargo: string
+          cpf: string
+          created_at: string
+          data_admissao: string | null
+          data_desligamento: string | null
+          empresa_id: string | null
+          id: string
+          motivo_desligamento: string
+          nome: string
+          observacao: string
+          recrutador_id: string | null
+          recrutador_nome: string
+          status: string
+          telefone: string
+          updated_at: string
+        }
+        Insert: {
+          cargo?: string
+          cpf: string
+          created_at?: string
+          data_admissao?: string | null
+          data_desligamento?: string | null
+          empresa_id?: string | null
+          id?: string
+          motivo_desligamento?: string
+          nome: string
+          observacao?: string
+          recrutador_id?: string | null
+          recrutador_nome?: string
+          status?: string
+          telefone?: string
+          updated_at?: string
+        }
+        Update: {
+          cargo?: string
+          cpf?: string
+          created_at?: string
+          data_admissao?: string | null
+          data_desligamento?: string | null
+          empresa_id?: string | null
+          id?: string
+          motivo_desligamento?: string
+          nome?: string
+          observacao?: string
+          recrutador_id?: string | null
+          recrutador_nome?: string
+          status?: string
+          telefone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rs_candidatos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "rs_empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rs_empresas: {
+        Row: {
+          ativo: boolean
+          cidade: string
+          cnpj: string
+          contato: string
+          created_at: string
+          id: string
+          nome: string
+          observacao: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cidade?: string
+          cnpj?: string
+          contato?: string
+          created_at?: string
+          id?: string
+          nome: string
+          observacao?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cidade?: string
+          cnpj?: string
+          contato?: string
+          created_at?: string
+          id?: string
+          nome?: string
+          observacao?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rs_historico: {
+        Row: {
+          acao: string
+          campo: string
+          candidato_id: string
+          created_at: string
+          id: string
+          usuario_id: string | null
+          usuario_nome: string
+          valor_anterior: string
+          valor_novo: string
+        }
+        Insert: {
+          acao: string
+          campo?: string
+          candidato_id: string
+          created_at?: string
+          id?: string
+          usuario_id?: string | null
+          usuario_nome?: string
+          valor_anterior?: string
+          valor_novo?: string
+        }
+        Update: {
+          acao?: string
+          campo?: string
+          candidato_id?: string
+          created_at?: string
+          id?: string
+          usuario_id?: string | null
+          usuario_nome?: string
+          valor_anterior?: string
+          valor_novo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rs_historico_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "rs_candidatos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_access_logs: {
         Row: {
           created_at: string
