@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
@@ -291,6 +291,22 @@ function Pagina() {
               </form>
             </TabsContent>
           </Tabs>
+
+          <div className="mt-6 border-t border-border pt-6">
+            <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Ainda não possui acesso?
+            </p>
+            <Link
+              to="/cadastro-diarias"
+              className="inline-flex w-full items-center justify-center rounded-md border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary ring-offset-background transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              Cadastre-se para trabalhar em diárias
+            </Link>
+            <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+              Cadastro público para oportunidades de trabalho. Não cria uma conta
+              de acesso ao sistema.
+            </p>
+          </div>
         </div>
         </div>
       </main>
