@@ -14,6 +14,8 @@ export const PAPEIS_ROTULO: Record<PapelUsuario, string> = {
   supervisor: "Supervisor",
   coordenador: "Coordenador",
   comercial: "Comercial",
+  rs: "R&S",
+  coordenador_rs: "Coordenador de R&S",
 };
 
 export const PAPEIS_LISTA = Object.keys(PAPEIS_ROTULO) as PapelUsuario[];

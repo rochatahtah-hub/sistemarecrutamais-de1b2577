@@ -23,7 +23,14 @@ export interface Perfil {
   ultimo_preenchimento: string | null;
 }
 
-export type Papel = "admin" | "programadora" | "supervisor" | "coordenador" | "comercial";
+export type Papel =
+  | "admin"
+  | "programadora"
+  | "supervisor"
+  | "coordenador"
+  | "comercial"
+  | "rs"
+  | "coordenador_rs";
 
 interface AuthCtx {
   carregando: boolean;
