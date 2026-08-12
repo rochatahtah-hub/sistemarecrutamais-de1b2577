@@ -28,6 +28,7 @@ import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
+import { Route as PerfisRouteImport } from './routes/perfis'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RadarRouteImport } from './routes/radar'
@@ -135,6 +136,11 @@ const MinhaProgramacaoRoute = MinhaProgramacaoRouteImport.update({
   path: '/minha-programacao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PerfisRoute = PerfisRouteImport.update({
+  id: '/perfis',
+  path: '/perfis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerformanceRoute = PerformanceRouteImport.update({
   id: '/performance',
   path: '/performance',
@@ -212,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
@@ -277,6 +285,7 @@ export interface FileRoutesById {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
@@ -311,6 +320,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/perfis'
     | '/performance'
     | '/programadoras'
     | '/radar'
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/perfis'
     | '/performance'
     | '/programadoras'
     | '/radar'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/perfis'
     | '/performance'
     | '/programadoras'
     | '/radar'
@@ -408,6 +420,7 @@ export interface RootRouteChildren {
   ImportarRoute: typeof ImportarRoute
   MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
+  PerfisRoute: typeof PerfisRoute
   PerformanceRoute: typeof PerformanceRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
   RadarRoute: typeof RadarRoute
@@ -556,6 +569,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MinhaProgramacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/perfis': {
+      id: '/perfis'
+      path: '/perfis'
+      fullPath: '/perfis'
+      preLoaderRoute: typeof PerfisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/performance': {
       id: '/performance'
       path: '/performance'
@@ -656,6 +676,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportarRoute: ImportarRoute,
   MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
+  PerfisRoute: PerfisRoute,
   PerformanceRoute: PerformanceRoute,
   ProgramadorasRoute: ProgramadorasRoute,
   RadarRoute: RadarRoute,

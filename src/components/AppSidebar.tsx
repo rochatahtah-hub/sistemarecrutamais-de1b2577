@@ -24,10 +24,13 @@ import {
   KeyRound,
   ShieldCheck,
   MessageCircle,
+  Database,
+  UserPlus,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
 import { useChatRealtime, useTotalNaoLidas } from "@/lib/chat";
+import { usePermissoes, acaoDeEntrada, MODULO_POR_ROTA } from "@/lib/permissoes";
 import { AvatarUsuario } from "@/components/AvatarUsuario";
 import { PAPEIS_ROTULO } from "@/components/SeletorPapel";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
@@ -46,19 +49,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const ADMIN_ONLY = new Set([
-  "/programadoras",
-  "/administracao",
-  "/importar",
-  "/metas",
-  "/bloqueios",
-  "/auditoria",
-  "/configuracoes",
-  "/saude-sistema",
-  "/backups",
-  "/acessos",
-]);
-
 const principal = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Minha Programação", url: "/minha-programacao", icon: CalendarCheck },
@@ -73,6 +63,7 @@ const gestao = [
   { title: "Empresas", url: "/empresas", icon: Building2 },
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
+  { title: "Banco de Colaboradores", url: "/banco-colaboradores", icon: Database },
 ] as const;
 
 const analises = [
@@ -87,6 +78,7 @@ const comunicacao = [{ title: "Chat", url: "/chat", icon: MessageCircle }] as co
 
 const ferramentas = [
   { title: "Central de Administração", url: "/administracao", icon: ShieldCheck },
+  { title: "Perfis e Permissões", url: "/perfis", icon: UserPlus },
   { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
   { title: "Histórico", url: "/historico", icon: Archive },
   { title: "Histórico de Alterações", url: "/auditoria", icon: History },
@@ -99,15 +91,20 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, perfil, papeis, somenteDashboard } = useAuth();
+  const { isAdmin, perfil, papeis } = useAuth();
   const { privado } = usePrivacidade();
+  const { pode, carregando: carregandoPermissoes } = usePermissoes();
   useChatRealtime();
   const naoLidas = useTotalNaoLidas();
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
     : ferramentas;
-  const permitido = (url: string) =>
-    somenteDashboard ? url === "/" : isAdmin || !ADMIN_ONLY.has(url);
+  const permitido = (url: string) => {
+    if (carregandoPermissoes) return url === "/";
+    const modulo = MODULO_POR_ROTA[url];
+    if (!modulo) return true;
+    return pode(modulo, acaoDeEntrada(modulo));
+  };
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
@@ -179,23 +176,24 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent className="gap-0.5 px-1 py-2">
-        {(somenteDashboard
-          ? ([["Principal", principal]] as const)
-          : ([
-              ["Principal", principal],
-              ["Gestão", gestao],
-              ["Comunicação", comunicacao],
-              ["Análises", analises],
-              ["Sistema", itensFerramentas],
-            ] as const)
-        ).map(([rotulo, itens]) => (
-          <SidebarGroup key={rotulo}>
-            <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/40">
-              {rotulo}
-            </SidebarGroupLabel>
-            <SidebarGroupContent>{renderItens(itens)}</SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        {(
+          [
+            ["Principal", principal],
+            ["Gestão", gestao],
+            ["Comunicação", comunicacao],
+            ["Análises", analises],
+            ["Sistema", itensFerramentas],
+          ] as const
+        )
+          .filter(([, itens]) => itens.some((item) => permitido(item.url)))
+          .map(([rotulo, itens]) => (
+            <SidebarGroup key={rotulo}>
+              <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/40">
+                {rotulo}
+              </SidebarGroupLabel>
+              <SidebarGroupContent>{renderItens(itens)}</SidebarGroupContent>
+            </SidebarGroup>
+          ))}
       </SidebarContent>
     </Sidebar>
   );
