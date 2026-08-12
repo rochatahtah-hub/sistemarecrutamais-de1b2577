@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Bell, Camera, Eye, EyeOff, LogOut, Settings, ShieldCheck } from "lucide-react";
@@ -59,10 +59,35 @@ const SECOES: Record<string, string> = {
   "/saude-sistema": "Saúde do Sistema",
 };
 
+/** Som curto emitido apenas para o destinatário da notificação. */
+function tocarSomNotificacao() {
+  try {
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const ganho = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1180, ctx.currentTime + 0.12);
+    ganho.gain.setValueAtTime(0.0001, ctx.currentTime);
+    ganho.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.02);
+    ganho.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+    osc.connect(ganho).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.36);
+    osc.onended = () => void ctx.close();
+  } catch {
+    /* navegador sem permissão de áudio */
+  }
+}
+
 export function TopBar() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { perfil, user, isAdmin, sair } = useAuth();
+  const { perfil, user, isAdmin, podeOperar, sair } = useAuth();
   const { privado, alternar } = usePrivacidade();
   const { data: config } = useConfiguracoes();
   const { data: notificacoes = [] } = useNotificacoes();
@@ -70,6 +95,20 @@ export function TopBar() {
   const [fotoAberta, setFotoAberta] = useState(false);
 
   const naoLidas = useMemo(() => notificacoes.filter((n) => !n.lida), [notificacoes]);
+  const jaAvisadas = useRef<Set<string> | null>(null);
+
+  // Som apenas para quem recebeu a notificação, uma única vez por notificação.
+  useEffect(() => {
+    const ids = notificacoes.filter((n) => !n.lida).map((n) => n.id);
+    if (jaAvisadas.current === null) {
+      jaAvisadas.current = new Set(ids);
+      return;
+    }
+    const novas = ids.filter((id) => !jaAvisadas.current!.has(id));
+    for (const id of ids) jaAvisadas.current.add(id);
+    if (novas.length > 0) tocarSomNotificacao();
+  }, [notificacoes]);
+
   const secao = useMemo(() => {
     if (SECOES[pathname]) return SECOES[pathname];
     const base = Object.keys(SECOES)
@@ -80,7 +119,7 @@ export function TopBar() {
 
   // Alerta de inatividade dentro do horario de trabalho configurado.
   useEffect(() => {
-    if (!user || !perfil || !config) return;
+    if (!user || !perfil || !config || !podeOperar) return;
     const horas = config.inatividadeHoras || 2;
     const checar = async () => {
       if (!dentroDoExpediente(config.expedienteInicio, config.expedienteFim)) return;
@@ -113,7 +152,7 @@ export function TopBar() {
     void checar();
     const id = window.setInterval(() => void checar(), 15 * 60_000);
     return () => window.clearInterval(id);
-  }, [user, perfil, config]);
+  }, [user, perfil, config, podeOperar]);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-3 backdrop-blur-xl md:px-6">

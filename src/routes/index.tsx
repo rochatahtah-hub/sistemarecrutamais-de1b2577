@@ -157,11 +157,18 @@ function ListaTop({
   );
 }
 
+/** Saudação dinâmica conforme o horário local do usuário. */
+function saudacaoPorHorario(hora = new Date().getHours()) {
+  if (hora < 12) return "Bom dia";
+  if (hora < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
 function Dashboard() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
-  const { data: candidatos = [] } = useCandidatos("");
-  const { perfil, isAdmin } = useAuth();
+  const { perfil, isAdmin, podeOperar } = useAuth();
+  const { data: candidatos = [] } = useCandidatos("", podeOperar);
   const priv = usePrivacidade();
   const navigate = useNavigate();
   const { filtros, setFiltros } = useFiltros();
@@ -212,7 +219,7 @@ function Dashboard() {
             Visão geral da operação
           </p>
           <h1 className="mt-1.5 truncate text-[26px] font-semibold tracking-tight sm:text-[32px]">
-            Olá, {priv.nome(perfil?.nome ?? "bem-vinda")}
+            {saudacaoPorHorario()}, {priv.nome(perfil?.nome ?? "bem-vinda")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {fmtNum(filtrados.length)} registros no filtro atual de {fmtNum(registros.length)} no

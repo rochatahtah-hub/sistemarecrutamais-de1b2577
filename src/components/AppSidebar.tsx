@@ -29,6 +29,7 @@ import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
 import { useChatRealtime, useTotalNaoLidas } from "@/lib/chat";
 import { AvatarUsuario } from "@/components/AvatarUsuario";
+import { PAPEIS_ROTULO } from "@/components/SeletorPapel";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
 import logoMarca from "@/assets/recruta-mark.png.asset.json";
 
@@ -98,14 +99,15 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, perfil } = useAuth();
+  const { isAdmin, perfil, papeis, somenteDashboard } = useAuth();
   const { privado } = usePrivacidade();
   useChatRealtime();
   const naoLidas = useTotalNaoLidas();
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
     : ferramentas;
-  const permitido = (url: string) => isAdmin || !ADMIN_ONLY.has(url);
+  const permitido = (url: string) =>
+    somenteDashboard ? url === "/" : isAdmin || !ADMIN_ONLY.has(url);
 
   const isActive = (url: string) => (url === "/" ? pathname === "/" : pathname.startsWith(url));
 
@@ -170,21 +172,22 @@ export function AppSidebar() {
                 {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
               </p>
               <p className="truncate text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/45">
-                {isAdmin ? "Administrador" : "Programadora"}
+                {PAPEIS_ROTULO[papeis[0] ?? "programadora"]}
               </p>
             </div>
           )}
         </div>
       </SidebarHeader>
       <SidebarContent className="gap-0.5 px-1 py-2">
-        {(
-          [
-            ["Principal", principal],
-            ["Gestão", gestao],
-            ["Comunicação", comunicacao],
-            ["Análises", analises],
-            ["Sistema", itensFerramentas],
-          ] as const
+        {(somenteDashboard
+          ? ([["Principal", principal]] as const)
+          : ([
+              ["Principal", principal],
+              ["Gestão", gestao],
+              ["Comunicação", comunicacao],
+              ["Análises", analises],
+              ["Sistema", itensFerramentas],
+            ] as const)
         ).map(([rotulo, itens]) => (
           <SidebarGroup key={rotulo}>
             <SidebarGroupLabel className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/40">

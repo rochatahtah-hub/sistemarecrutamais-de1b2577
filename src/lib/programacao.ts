@@ -85,9 +85,10 @@ function termoSeguro(v: string) {
     .slice(0, 80);
 }
 
-export function useCandidatos(busca = "") {
+export function useCandidatos(busca = "", habilitado = true) {
   const termo = termoSeguro(busca);
   return useQuery({
+    enabled: habilitado,
     queryKey: ["candidatos", termo],
     queryFn: async ({ signal }): Promise<Candidato[]> => {
       let q = supabase

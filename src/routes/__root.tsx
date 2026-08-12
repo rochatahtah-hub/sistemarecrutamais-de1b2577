@@ -180,14 +180,20 @@ function RootComponent() {
 function Protegido() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { carregando, session } = useAuth();
+  const { carregando, session, somenteDashboard } = useAuth();
   const naTelaDeLogin = pathname === "/auth";
+  // Supervisor, coordenador e comercial só podem permanecer no Dashboard.
+  const bloqueado = somenteDashboard && pathname !== "/";
 
   useEffect(() => {
     if (!carregando && !session && !naTelaDeLogin) {
       void navigate({ to: "/auth", replace: true });
     }
   }, [carregando, session, naTelaDeLogin, navigate]);
+
+  useEffect(() => {
+    if (bloqueado) void navigate({ to: "/", replace: true });
+  }, [bloqueado, navigate]);
 
   if (naTelaDeLogin) return <Outlet />;
 
@@ -213,7 +219,13 @@ function Protegido() {
             {/* Required: nested routes render here. */}
             <div className="mx-auto w-full max-w-[1500px]">
               <SystemErrorBoundary key={pathname} componente="Conteúdo da página">
-                <Outlet />
+                {bloqueado ? (
+                  <p className="py-16 text-center text-sm text-muted-foreground">
+                    Redirecionando para o Dashboard...
+                  </p>
+                ) : (
+                  <Outlet />
+                )}
               </SystemErrorBoundary>
             </div>
           </main>

@@ -23,12 +23,19 @@ export interface Perfil {
   ultimo_preenchimento: string | null;
 }
 
+export type Papel = "admin" | "programadora" | "supervisor" | "coordenador" | "comercial";
+
 interface AuthCtx {
   carregando: boolean;
   session: Session | null;
   user: User | null;
   perfil: Perfil | null;
   isAdmin: boolean;
+  papeis: Papel[];
+  /** Perfis operacionais (admin e programadora) mantêm o sistema completo. */
+  podeOperar: boolean;
+  /** Supervisor, coordenador e comercial acessam apenas o Dashboard. */
+  somenteDashboard: boolean;
   recarregarPerfil: () => Promise<void>;
   sair: () => Promise<void>;
 }
@@ -40,6 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [papeis, setPapeis] = useState<Papel[]>([]);
   const [carregando, setCarregando] = useState(true);
 
   const carregarPerfil = useCallback(async (uid: string) => {
@@ -52,7 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
     setPerfil((p.data as Perfil | null) ?? null);
-    setIsAdmin((r.data ?? []).some((x) => x.role === "admin"));
+    const lista = (r.data ?? []).map((x) => x.role as Papel);
+    setPapeis(lista);
+    setIsAdmin(lista.includes("admin"));
     // Usuário desativado não permanece com sessão ativa.
     if (p.data && (p.data as Perfil).ativo === false) {
       await supabase.auth.signOut();
@@ -67,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!s) {
         setPerfil(null);
         setIsAdmin(false);
+        setPapeis([]);
         if (evento === "SIGNED_OUT") qc.clear();
         return;
       }
@@ -85,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(null);
         setPerfil(null);
         setIsAdmin(false);
+        setPapeis([]);
         setCarregando(false);
         return;
       }
@@ -101,13 +113,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [carregarPerfil, qc]);
 
-  const valor = useMemo<AuthCtx>(
-    () => ({
+  const valor = useMemo<AuthCtx>(() => {
+    const podeOperar = papeis.includes("admin") || papeis.includes("programadora");
+    return {
       carregando,
       session,
       user: session?.user ?? null,
       perfil,
       isAdmin,
+      papeis,
+      podeOperar,
+      somenteDashboard: !podeOperar && papeis.length > 0,
       recarregarPerfil: async () => {
         if (session) await carregarPerfil(session.user.id);
       },
@@ -116,9 +132,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         qc.clear();
         await supabase.auth.signOut();
       },
-    }),
-    [carregando, session, perfil, isAdmin, carregarPerfil, qc],
-  );
+    };
+  }, [carregando, session, perfil, isAdmin, papeis, carregarPerfil, qc]);
 
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>;
 }
