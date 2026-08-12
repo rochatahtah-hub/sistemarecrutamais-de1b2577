@@ -17,6 +17,7 @@ import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BancoColaboradoresRouteImport } from './routes/banco-colaboradores'
+import { Route as BancoDadosRouteImport } from './routes/banco-dados'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CadastroDiariasRouteImport } from './routes/cadastro-diarias'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
@@ -79,6 +80,11 @@ const BackupsRoute = BackupsRouteImport.update({
 const BancoColaboradoresRoute = BancoColaboradoresRouteImport.update({
   id: '/banco-colaboradores',
   path: '/banco-colaboradores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BancoDadosRoute = BancoDadosRouteImport.update({
+  id: '/banco-dados',
+  path: '/banco-dados',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BloqueiosRoute = BloqueiosRouteImport.update({
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
+  '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
   '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
+  '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
   '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
+  '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
   '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
@@ -309,6 +318,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/backups'
     | '/banco-colaboradores'
+    | '/banco-dados'
     | '/bloqueios'
     | '/cadastro-diarias'
     | '/candidatos'
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/backups'
     | '/banco-colaboradores'
+    | '/banco-dados'
     | '/bloqueios'
     | '/cadastro-diarias'
     | '/candidatos'
@@ -375,6 +386,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/backups'
     | '/banco-colaboradores'
+    | '/banco-dados'
     | '/bloqueios'
     | '/cadastro-diarias'
     | '/candidatos'
@@ -409,6 +421,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BackupsRoute: typeof BackupsRoute
   BancoColaboradoresRoute: typeof BancoColaboradoresRoute
+  BancoDadosRoute: typeof BancoDadosRoute
   BloqueiosRoute: typeof BloqueiosRoute
   CadastroDiariasRoute: typeof CadastroDiariasRoute
   CandidatosRoute: typeof CandidatosRoute
@@ -490,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/banco-colaboradores'
       fullPath: '/banco-colaboradores'
       preLoaderRoute: typeof BancoColaboradoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/banco-dados': {
+      id: '/banco-dados'
+      path: '/banco-dados'
+      fullPath: '/banco-dados'
+      preLoaderRoute: typeof BancoDadosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bloqueios': {
@@ -665,6 +685,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BackupsRoute: BackupsRoute,
   BancoColaboradoresRoute: BancoColaboradoresRoute,
+  BancoDadosRoute: BancoDadosRoute,
   BloqueiosRoute: BloqueiosRoute,
   CadastroDiariasRoute: CadastroDiariasRoute,
   CandidatosRoute: CandidatosRoute,

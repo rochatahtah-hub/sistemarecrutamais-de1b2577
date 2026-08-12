@@ -78,6 +78,7 @@ const comunicacao = [{ title: "Chat", url: "/chat", icon: MessageCircle }] as co
 
 const ferramentas = [
   { title: "Central de Administração", url: "/administracao", icon: ShieldCheck },
+  { title: "Banco de Dados", url: "/banco-dados", icon: Database },
   { title: "Perfis e Permissões", url: "/perfis", icon: UserPlus },
   { title: "Importar Excel", url: "/importar", icon: FileSpreadsheet },
   { title: "Histórico", url: "/historico", icon: Archive },

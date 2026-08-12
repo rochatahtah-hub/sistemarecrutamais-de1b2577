@@ -25,17 +25,23 @@ export function SemPlanilha({ pagina }: { pagina?: string }) {
         <FileSpreadsheet className="h-6 w-6" strokeWidth={1.75} />
       </span>
       <h1 className="mt-4 font-display text-2xl font-semibold tracking-tight">
-        Nenhuma planilha carregada.
+        Nenhum registro no banco de dados ainda.
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        {pagina ? `${pagina} usa os dados da planilha ativa. ` : ""}
-        Importe uma planilha Excel para alimentar todas as abas do sistema.
+        {pagina ? `${pagina} usa os dados oficiais do banco. ` : ""}
+        Cadastre programações pelo sistema ou importe uma planilha para começar — o banco de dados é
+        a fonte principal e continua funcionando mesmo sem planilha.
       </p>
-      <Button asChild className="mt-6">
-        <Link to="/importar">
-          <Upload className="mr-2 h-4 w-4" /> Importar planilha
-        </Link>
-      </Button>
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <Button asChild>
+          <Link to="/minha-programacao">Cadastrar programação</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/importar">
+            <Upload className="mr-2 h-4 w-4" /> Importar planilha
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }
