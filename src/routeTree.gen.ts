@@ -16,7 +16,9 @@ import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BackupsRouteImport } from './routes/backups'
+import { Route as BancoColaboradoresRouteImport } from './routes/banco-colaboradores'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
+import { Route as CadastroDiariasRouteImport } from './routes/cadastro-diarias'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CompararRouteImport } from './routes/comparar'
@@ -26,6 +28,7 @@ import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
+import { Route as PerfisRouteImport } from './routes/perfis'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RadarRouteImport } from './routes/radar'
@@ -73,9 +76,19 @@ const BackupsRoute = BackupsRouteImport.update({
   path: '/backups',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BancoColaboradoresRoute = BancoColaboradoresRouteImport.update({
+  id: '/banco-colaboradores',
+  path: '/banco-colaboradores',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BloqueiosRoute = BloqueiosRouteImport.update({
   id: '/bloqueios',
   path: '/bloqueios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroDiariasRoute = CadastroDiariasRouteImport.update({
+  id: '/cadastro-diarias',
+  path: '/cadastro-diarias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CandidatosRoute = CandidatosRouteImport.update({
@@ -121,6 +134,11 @@ const MetasRoute = MetasRouteImport.update({
 const MinhaProgramacaoRoute = MinhaProgramacaoRouteImport.update({
   id: '/minha-programacao',
   path: '/minha-programacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfisRoute = PerfisRouteImport.update({
+  id: '/perfis',
+  path: '/perfis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerformanceRoute = PerformanceRouteImport.update({
@@ -188,7 +206,9 @@ export interface FileRoutesByFullPath {
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
+  '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/bloqueios': typeof BloqueiosRoute
+  '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
@@ -198,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
@@ -218,7 +239,9 @@ export interface FileRoutesByTo {
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
+  '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/bloqueios': typeof BloqueiosRoute
+  '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
@@ -228,6 +251,7 @@ export interface FileRoutesByTo {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
@@ -249,7 +273,9 @@ export interface FileRoutesById {
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
+  '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/bloqueios': typeof BloqueiosRoute
+  '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
@@ -259,6 +285,7 @@ export interface FileRoutesById {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
@@ -281,7 +308,9 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/auth'
     | '/backups'
+    | '/banco-colaboradores'
     | '/bloqueios'
+    | '/cadastro-diarias'
     | '/candidatos'
     | '/chat'
     | '/comparar'
@@ -291,6 +320,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/perfis'
     | '/performance'
     | '/programadoras'
     | '/radar'
@@ -311,7 +341,9 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/auth'
     | '/backups'
+    | '/banco-colaboradores'
     | '/bloqueios'
+    | '/cadastro-diarias'
     | '/candidatos'
     | '/chat'
     | '/comparar'
@@ -321,6 +353,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/perfis'
     | '/performance'
     | '/programadoras'
     | '/radar'
@@ -341,7 +374,9 @@ export interface FileRouteTypes {
     | '/auditoria'
     | '/auth'
     | '/backups'
+    | '/banco-colaboradores'
     | '/bloqueios'
+    | '/cadastro-diarias'
     | '/candidatos'
     | '/chat'
     | '/comparar'
@@ -351,6 +386,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/perfis'
     | '/performance'
     | '/programadoras'
     | '/radar'
@@ -372,7 +408,9 @@ export interface RootRouteChildren {
   AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
   BackupsRoute: typeof BackupsRoute
+  BancoColaboradoresRoute: typeof BancoColaboradoresRoute
   BloqueiosRoute: typeof BloqueiosRoute
+  CadastroDiariasRoute: typeof CadastroDiariasRoute
   CandidatosRoute: typeof CandidatosRoute
   ChatRoute: typeof ChatRoute
   CompararRoute: typeof CompararRoute
@@ -382,6 +420,7 @@ export interface RootRouteChildren {
   ImportarRoute: typeof ImportarRoute
   MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
+  PerfisRoute: typeof PerfisRoute
   PerformanceRoute: typeof PerformanceRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
   RadarRoute: typeof RadarRoute
@@ -446,11 +485,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BackupsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/banco-colaboradores': {
+      id: '/banco-colaboradores'
+      path: '/banco-colaboradores'
+      fullPath: '/banco-colaboradores'
+      preLoaderRoute: typeof BancoColaboradoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bloqueios': {
       id: '/bloqueios'
       path: '/bloqueios'
       fullPath: '/bloqueios'
       preLoaderRoute: typeof BloqueiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro-diarias': {
+      id: '/cadastro-diarias'
+      path: '/cadastro-diarias'
+      fullPath: '/cadastro-diarias'
+      preLoaderRoute: typeof CadastroDiariasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/candidatos': {
@@ -514,6 +567,13 @@ declare module '@tanstack/react-router' {
       path: '/minha-programacao'
       fullPath: '/minha-programacao'
       preLoaderRoute: typeof MinhaProgramacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfis': {
+      id: '/perfis'
+      path: '/perfis'
+      fullPath: '/perfis'
+      preLoaderRoute: typeof PerfisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/performance': {
@@ -604,7 +664,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,
   BackupsRoute: BackupsRoute,
+  BancoColaboradoresRoute: BancoColaboradoresRoute,
   BloqueiosRoute: BloqueiosRoute,
+  CadastroDiariasRoute: CadastroDiariasRoute,
   CandidatosRoute: CandidatosRoute,
   ChatRoute: ChatRoute,
   CompararRoute: CompararRoute,
@@ -614,6 +676,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportarRoute: ImportarRoute,
   MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
+  PerfisRoute: PerfisRoute,
   PerformanceRoute: PerformanceRoute,
   ProgramadorasRoute: ProgramadorasRoute,
   RadarRoute: RadarRoute,
@@ -629,3 +692,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

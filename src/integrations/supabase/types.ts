@@ -430,6 +430,60 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_workers: {
+        Row: {
+          available_days: string[]
+          available_for_daily: boolean
+          available_periods: string[]
+          city: string
+          consent_accepted: boolean
+          consent_date: string | null
+          created_at: string
+          desired_role: string
+          full_name: string
+          id: string
+          neighborhood: string
+          observacao: string
+          phone: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          available_days?: string[]
+          available_for_daily?: boolean
+          available_periods?: string[]
+          city: string
+          consent_accepted?: boolean
+          consent_date?: string | null
+          created_at?: string
+          desired_role?: string
+          full_name: string
+          id?: string
+          neighborhood: string
+          observacao?: string
+          phone: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          available_days?: string[]
+          available_for_daily?: boolean
+          available_periods?: string[]
+          city?: string
+          consent_accepted?: boolean
+          consent_date?: string | null
+          created_at?: string
+          desired_role?: string
+          full_name?: string
+          id?: string
+          neighborhood?: string
+          observacao?: string
+          phone?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       empresas: {
         Row: {
           ativo: boolean
@@ -664,6 +718,104 @@ export type Database = {
         }
         Relationships: []
       }
+      perfil_permissoes: {
+        Row: {
+          acao: string
+          created_at: string
+          id: string
+          modulo: string
+          perfil_id: string
+          permitido: boolean
+          updated_at: string
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          id?: string
+          modulo: string
+          perfil_id: string
+          permitido?: boolean
+          updated_at?: string
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          id?: string
+          modulo?: string
+          perfil_id?: string
+          permitido?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perfil_permissoes_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "perfis_acesso"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      perfis_acesso: {
+        Row: {
+          chave: string
+          created_at: string
+          descricao: string
+          id: string
+          nome: string
+          sistema: boolean
+          updated_at: string
+        }
+        Insert: {
+          chave: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome: string
+          sistema?: boolean
+          updated_at?: string
+        }
+        Update: {
+          chave?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          nome?: string
+          sistema?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      permissoes_usuario: {
+        Row: {
+          acao: string
+          created_at: string
+          id: string
+          modulo: string
+          permitido: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          id?: string
+          modulo: string
+          permitido: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          id?: string
+          modulo?: string
+          permitido?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       presenca_usuarios: {
         Row: {
           online: boolean
@@ -693,8 +845,10 @@ export type Database = {
           email: string | null
           id: string
           last_login_at: string | null
+          master: boolean
           meta_quinzena: number
           nome: string
+          perfil_id: string | null
           ultimo_acesso: string | null
           ultimo_preenchimento: string | null
           updated_at: string
@@ -706,8 +860,10 @@ export type Database = {
           email?: string | null
           id: string
           last_login_at?: string | null
+          master?: boolean
           meta_quinzena?: number
           nome?: string
+          perfil_id?: string | null
           ultimo_acesso?: string | null
           ultimo_preenchimento?: string | null
           updated_at?: string
@@ -719,13 +875,23 @@ export type Database = {
           email?: string | null
           id?: string
           last_login_at?: string | null
+          master?: boolean
           meta_quinzena?: number
           nome?: string
+          perfil_id?: string | null
           ultimo_acesso?: string | null
           ultimo_preenchimento?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "perfis_acesso"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quinzenas_historico: {
         Row: {
@@ -961,6 +1127,7 @@ export type Database = {
         Args: { _conversa: string; _user: string }
         Returns: boolean
       }
+      eh_master: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -968,10 +1135,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      minhas_permissoes: {
+        Args: never
+        Returns: {
+          acao: string
+          modulo: string
+          permitido: boolean
+        }[]
+      }
       participa_conversa: {
         Args: { _conversa: string; _user: string }
         Returns: boolean
       }
+      perfil_do_usuario: { Args: { _user_id: string }; Returns: string }
       pode_operar: { Args: { _user_id: string }; Returns: boolean }
       registrar_acesso: {
         Args: {
@@ -1010,6 +1186,10 @@ export type Database = {
         }[]
       }
       somente_dashboard: { Args: { _user_id: string }; Returns: boolean }
+      tem_permissao: {
+        Args: { _acao: string; _modulo: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role:

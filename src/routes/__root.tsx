@@ -23,6 +23,10 @@ import { PrivacidadeProvider } from "@/lib/privacidade";
 import { SystemErrorBoundary } from "@/components/SystemErrorBoundary";
 import { VoltarAoTopo } from "@/components/VoltarAoTopo";
 import { registrarErroSistema } from "@/lib/system-health";
+import { acaoDeEntrada, moduloDaRota, usePermissoes } from "@/lib/permissoes";
+
+/** Rotas públicas: acessíveis sem login (portal de candidatura e tela de acesso). */
+const ROTAS_PUBLICAS = ["/auth", "/cadastro-diarias"];
 
 function NotFoundComponent() {
   return (
@@ -180,22 +184,31 @@ function RootComponent() {
 function Protegido() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { carregando, session, somenteDashboard } = useAuth();
+  const { carregando, session } = useAuth();
+  const { pode, carregando: carregandoPermissoes } = usePermissoes();
+  const rotaPublica = ROTAS_PUBLICAS.includes(pathname);
   const naTelaDeLogin = pathname === "/auth";
-  // Supervisor, coordenador e comercial só podem permanecer no Dashboard.
-  const bloqueado = somenteDashboard && pathname !== "/";
+  // Bloqueio por permissão: o módulo da rota precisa estar liberado para o perfil.
+  const modulo = moduloDaRota(pathname);
+  const bloqueado =
+    !!session &&
+    !rotaPublica &&
+    !carregandoPermissoes &&
+    !!modulo &&
+    modulo !== "dashboard" &&
+    !pode(modulo, acaoDeEntrada(modulo));
 
   useEffect(() => {
-    if (!carregando && !session && !naTelaDeLogin) {
+    if (!carregando && !session && !rotaPublica) {
       void navigate({ to: "/auth", replace: true });
     }
-  }, [carregando, session, naTelaDeLogin, navigate]);
+  }, [carregando, session, rotaPublica, navigate]);
 
   useEffect(() => {
     if (bloqueado) void navigate({ to: "/", replace: true });
   }, [bloqueado, navigate]);
 
-  if (naTelaDeLogin) return <Outlet />;
+  if (rotaPublica && (naTelaDeLogin || !session)) return <Outlet />;
 
   if (carregando || !session) {
     return (
