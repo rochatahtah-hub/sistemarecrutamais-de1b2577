@@ -7,9 +7,14 @@ import { Button } from "@/components/ui/button";
 import { CampoSenha } from "@/components/CampoSenha";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
-import { criarUsuario, definirPermissao, definirSenha } from "@/lib/admin.functions";
+import {
+  criarUsuario,
+  definirPermissao,
+  definirSenha,
+  type PapelUsuario,
+} from "@/lib/admin.functions";
+import { PAPEIS_ROTULO, SeletorPapel } from "@/components/SeletorPapel";
 import { excluirUsuario } from "@/lib/usuarios.functions";
 import {
   AlertDialog,
@@ -51,7 +56,7 @@ export function GerenciarUsuarios() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [admin, setAdmin] = useState(false);
+  const [papel, setPapel] = useState<PapelUsuario>("programadora");
   const [enviando, setEnviando] = useState(false);
   const [novaSenha, setNovaSenha] = useState<Record<string, string>>({});
   const [excluindo, setExcluindo] = useState<string | null>(null);
@@ -71,18 +76,21 @@ export function GerenciarUsuarios() {
     }
   }
 
-  const ehAdmin = (id: string) => roles.some((r) => r.user_id === id && r.role === "admin");
+  const papelDe = (id: string): PapelUsuario =>
+    (Object.keys(PAPEIS_ROTULO) as PapelUsuario[]).find((p) =>
+      roles.some((r) => r.user_id === id && r.role === p),
+    ) ?? "programadora";
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
     setEnviando(true);
     try {
-      await criar({ data: { nome, email, senha, admin } });
+      await criar({ data: { nome, email, senha, papel } });
       toast.success("Usuário cadastrado.");
       setNome("");
       setEmail("");
       setSenha("");
-      setAdmin(false);
+      setPapel("programadora");
       void qc.invalidateQueries({ queryKey: ["programadoras"] });
       void qc.invalidateQueries({ queryKey: ["user-roles"] });
     } catch (err) {
@@ -120,9 +128,10 @@ export function GerenciarUsuarios() {
           />
         </div>
         <div className="flex items-end justify-between gap-3">
-          <label className="flex items-center gap-2 text-sm">
-            <Switch checked={admin} onCheckedChange={setAdmin} /> Admin
-          </label>
+          <div className="space-y-1.5">
+            <Label htmlFor="u-papel">Perfil</Label>
+            <SeletorPapel id="u-papel" valor={papel} onChange={setPapel} className="h-9 w-40" />
+          </div>
           <Button type="submit" disabled={enviando}>
             {enviando ? "Salvando..." : "Cadastrar"}
           </Button>
@@ -137,20 +146,18 @@ export function GerenciarUsuarios() {
               <p className="text-sm font-medium">{priv.nome(p.nome)}</p>
               <p className="text-xs text-muted-foreground">{priv.texto(p.email)}</p>
             </div>
-            <label className="flex items-center gap-2 text-xs">
-              <Switch
-                checked={ehAdmin(p.id)}
-                onCheckedChange={(v) => {
-                  void permissaoFn({ data: { userId: p.id, admin: v } })
-                    .then(() => {
-                      toast.success("Permissão atualizada.");
-                      void qc.invalidateQueries({ queryKey: ["user-roles"] });
-                    })
-                    .catch((err: Error) => toast.error(err.message));
-                }}
-              />
-              Administrador
-            </label>
+            <SeletorPapel
+              valor={papelDe(p.id)}
+              className="h-8 w-44 text-xs"
+              onChange={(novo) => {
+                void permissaoFn({ data: { userId: p.id, papel: novo } })
+                  .then(() => {
+                    toast.success("Permissão atualizada.");
+                    void qc.invalidateQueries({ queryKey: ["user-roles"] });
+                  })
+                  .catch((err: Error) => toast.error(err.message));
+              }}
+            />
             <div className="flex items-center gap-2">
               <CampoSenha
                 placeholder="Nova senha"
