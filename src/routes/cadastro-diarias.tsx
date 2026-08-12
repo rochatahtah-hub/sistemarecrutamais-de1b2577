@@ -103,10 +103,10 @@ function Pagina() {
               <span className="grid h-14 w-14 place-items-center rounded-2xl border border-gold/25 bg-gold-soft text-accent-foreground">
                 <CheckCircle2 className="h-7 w-7" />
               </span>
-              <CardTitle>Cadastro enviado com sucesso!</CardTitle>
+              <CardTitle>Cadastro realizado com sucesso!</CardTitle>
               <CardDescription>
-                Seus dados foram registrados no nosso banco de colaboradores. Nossa equipe entrará em
-                contato pelo telefone informado quando houver uma oportunidade compatível.
+                Seus dados foram registrados no banco de colaboradores do Recruta+. Quando surgir uma
+                oportunidade compatível com sua disponibilidade, nossa equipe poderá entrar em contato.
               </CardDescription>
             </CardHeader>
           </Card>
