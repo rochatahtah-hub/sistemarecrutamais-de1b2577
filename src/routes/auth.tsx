@@ -48,7 +48,6 @@ function Pagina() {
   const consultarPin = useServerFn(pinDefinido);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [nome, setNome] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [abrirPin, setAbrirPin] = useState(false);
   const [pin, setPin] = useState("");
@@ -121,35 +120,6 @@ function Pagina() {
       return;
     }
     toast.success("Bem-vinda de volta!");
-    void navigate({ to: "/", replace: true });
-  }
-
-  async function criar(e: React.FormEvent) {
-    e.preventDefault();
-    if (nome.trim().length < 2) {
-      toast.error("Informe o nome da programadora.");
-      return;
-    }
-    setEnviando(true);
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: senha,
-      options: { data: { nome: nome.trim() }, emailRedirectTo: window.location.origin },
-    });
-    setEnviando(false);
-    if (error) {
-      toast.error(
-        error.message.includes("already registered")
-          ? "Este e-mail já possui acesso."
-          : `Não foi possível criar o acesso: ${error.message}`,
-      );
-      return;
-    }
-    if (!data.session) {
-      toast.success("Acesso criado. Confirme o e-mail para entrar.");
-      return;
-    }
-    toast.success("Acesso criado com sucesso!");
     void navigate({ to: "/", replace: true });
   }
 
