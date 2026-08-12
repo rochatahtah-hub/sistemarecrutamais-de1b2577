@@ -98,7 +98,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, perfil, somenteDashboard } = useAuth();
+  const { isAdmin, perfil, papeis, somenteDashboard } = useAuth();
   const { privado } = usePrivacidade();
   useChatRealtime();
   const naoLidas = useTotalNaoLidas();
@@ -171,7 +171,7 @@ export function AppSidebar() {
                 {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
               </p>
               <p className="truncate text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/45">
-                {isAdmin ? "Administrador" : "Programadora"}
+                {PAPEIS_ROTULO[papeis[0] ?? "programadora"]}
               </p>
             </div>
           )}
