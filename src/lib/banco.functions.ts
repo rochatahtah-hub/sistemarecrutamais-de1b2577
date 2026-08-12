@@ -3,6 +3,24 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ENTIDADES, entidadePorChave } from "@/lib/banco-entidades";
 
+type Valor = string | number | boolean | null;
+type Linha = Record<string, Valor>;
+
+function serializavel(linhas: unknown[]): Linha[] {
+  return (linhas ?? []).map((l) => {
+    const saida: Linha = {};
+    for (const [k, v] of Object.entries((l ?? {}) as Record<string, unknown>)) {
+      saida[k] =
+        v === null || v === undefined
+          ? null
+          : typeof v === "string" || typeof v === "number" || typeof v === "boolean"
+            ? v
+            : JSON.stringify(v);
+    }
+    return saida;
+  });
+}
+
 type Acao = "visualizar" | "criar" | "editar" | "excluir" | "exportar" | "administrar";
 
 interface Contexto {
@@ -122,7 +140,7 @@ export const listarRegistros = createServerFn({ method: "POST" })
 
     const { data: linhas, count, error } = await q;
     if (error) throw new Error(error.message);
-    return { linhas: (linhas ?? []) as Record<string, unknown>[], total: count ?? 0, porPagina };
+    return { linhas: serializavel((linhas ?? []) as unknown[]), total: (count ?? 0) as number, porPagina };
   });
 
 /** Atualiza campos permitidos de um registro, com auditoria. */
@@ -282,5 +300,5 @@ export const auditoriaBanco = createServerFn({ method: "POST" })
     if (ent) q = q.eq("tabela", ent.tabela);
     const { data: linhas, error } = await q;
     if (error) throw new Error(error.message);
-    return (linhas ?? []) as Record<string, unknown>[];
+    return serializavel((linhas ?? []) as unknown[]);
   });
