@@ -6,7 +6,9 @@ export type PapelUsuario =
   | "programadora"
   | "supervisor"
   | "coordenador"
-  | "comercial";
+  | "comercial"
+  | "rs"
+  | "coordenador_rs";
 
 const PAPEIS: PapelUsuario[] = [
   "admin",
@@ -14,6 +16,8 @@ const PAPEIS: PapelUsuario[] = [
   "supervisor",
   "coordenador",
   "comercial",
+  "rs",
+  "coordenador_rs",
 ];
 
 /** Cria um usuário com senha definida pelo administrador principal. */
@@ -78,7 +82,7 @@ export const definirSenha = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Define o papel único de um usuário (admin, programadora, supervisor, coordenador ou comercial). */
+/** Define o papel único de um usuário (admin, programadora, supervisor, coordenador, comercial, R&S ou coordenador de R&S). */
 export const definirPermissao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { userId: string; papel: PapelUsuario }) => d)
