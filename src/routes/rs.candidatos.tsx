@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
 import { CampoCargoRS } from "@/components/CampoCargoRS";
+import { GerenciarCargosRS } from "@/components/GerenciarCargosRS";
 import { EstadoVazio } from "@/components/EstadoVazio";
 import { RequerPermissao } from "@/components/RequerPermissao";
 import { Badge } from "@/components/ui/badge";
@@ -174,11 +175,14 @@ function Pagina() {
         descricao="Acompanhamento de candidatos CLT do recrutamento e seleção."
         icone={<IdCard className="h-5 w-5" />}
         acoes={
-          pode("rs_candidatos", "criar") && (
-            <Button onClick={abrirNovo}>
-              <Plus className="mr-2 h-4 w-4" /> Novo candidato
-            </Button>
-          )
+          <div className="flex flex-wrap gap-2">
+            <GerenciarCargosRS />
+            {pode("rs_candidatos", "criar") && (
+              <Button onClick={abrirNovo}>
+                <Plus className="mr-2 h-4 w-4" /> Novo candidato
+              </Button>
+            )}
+          </div>
         }
       />
 
