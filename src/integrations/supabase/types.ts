@@ -438,6 +438,8 @@ export type Database = {
           city: string
           consent_accepted: boolean
           consent_date: string | null
+          cpf: string
+          cpf_mascara: string | null
           created_at: string
           desired_role: string
           full_name: string
@@ -455,6 +457,8 @@ export type Database = {
           city: string
           consent_accepted?: boolean
           consent_date?: string | null
+          cpf?: string
+          cpf_mascara?: string | null
           created_at?: string
           desired_role?: string
           full_name: string
@@ -472,6 +476,8 @@ export type Database = {
           city?: string
           consent_accepted?: boolean
           consent_date?: string | null
+          cpf?: string
+          cpf_mascara?: string | null
           created_at?: string
           desired_role?: string
           full_name?: string
@@ -1123,6 +1129,7 @@ export type Database = {
         Args: { _conversa: string; _user: string }
         Returns: boolean
       }
+      cpf_colaborador_diaria: { Args: { _id: string }; Returns: string }
       criador_conversa: {
         Args: { _conversa: string; _user: string }
         Returns: boolean

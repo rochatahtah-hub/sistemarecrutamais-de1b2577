@@ -14,6 +14,8 @@ import {
   DIAS_SEMANA,
   PERIODOS,
   cadastrarColaboradorPublico,
+  cpfValido,
+  formatarCpf,
   formatarTelefone,
   soDigitosTelefone,
 } from "@/lib/diarias";
@@ -46,6 +48,7 @@ function alternar(lista: string[], valor: string) {
 function Pagina() {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [cpf, setCpf] = useState("");
   const [cidade, setCidade] = useState("");
   const [bairro, setBairro] = useState("");
   const [disponivel, setDisponivel] = useState(true);
@@ -59,6 +62,7 @@ function Pagina() {
   const valido =
     nome.trim().length >= 3 &&
     soDigitosTelefone(telefone).length >= 10 &&
+    cpfValido(cpf) &&
     cidade.trim().length >= 2 &&
     bairro.trim().length >= 2 &&
     consentimento;
@@ -70,6 +74,7 @@ function Pagina() {
       await cadastrarColaboradorPublico({
         full_name: nome.trim().slice(0, 120),
         phone: telefone,
+        cpf,
         city: cidade.trim().slice(0, 80),
         neighborhood: bairro.trim().slice(0, 80),
         available_for_daily: disponivel,
@@ -98,10 +103,10 @@ function Pagina() {
               <span className="grid h-14 w-14 place-items-center rounded-2xl border border-gold/25 bg-gold-soft text-accent-foreground">
                 <CheckCircle2 className="h-7 w-7" />
               </span>
-              <CardTitle>Cadastro enviado com sucesso!</CardTitle>
+              <CardTitle>Cadastro realizado com sucesso!</CardTitle>
               <CardDescription>
-                Seus dados foram registrados no nosso banco de colaboradores. Nossa equipe entrará em
-                contato pelo telefone informado quando houver uma oportunidade compatível.
+                Seus dados foram registrados no banco de colaboradores do Recruta+. Quando surgir uma
+                oportunidade compatível com sua disponibilidade, nossa equipe poderá entrar em contato.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -132,6 +137,19 @@ function Pagina() {
                     onChange={(e) => setTelefone(e.target.value)}
                     placeholder="(00) 00000-0000"
                   />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cpf">CPF *</Label>
+                  <Input
+                    id="cpf"
+                    inputMode="numeric"
+                    value={formatarCpf(cpf)}
+                    onChange={(e) => setCpf(e.target.value)}
+                    placeholder="000.000.000-00"
+                  />
+                  {cpf.length > 0 && !cpfValido(cpf) && (
+                    <p className="text-xs text-destructive">Informe um CPF válido.</p>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="cidade">Cidade *</Label>
@@ -194,17 +212,28 @@ function Pagina() {
                 />
               </div>
 
-              <label className="flex items-start gap-3 rounded-xl border border-border/70 px-3.5 py-3 text-sm">
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setConsentimento((v) => !v)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setConsentimento((v) => !v);
+                  }
+                }}
+                className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/70 px-3.5 py-3 text-left text-sm"
+              >
                 <Checkbox
                   checked={consentimento}
-                  onCheckedChange={(v) => setConsentimento(v === true)}
-                  className="mt-0.5"
+                  tabIndex={-1}
+                  className="pointer-events-none mt-0.5"
                 />
                 <span className="text-muted-foreground">
-                  Autorizo o uso dos meus dados para contato sobre oportunidades de trabalho por diária e
-                  declaro que as informações acima são verdadeiras. *
+                  Li e concordo com o uso dos meus dados para cadastro e contato referente a oportunidades
+                  de trabalho/diárias. *
                 </span>
-              </label>
+              </div>
 
               <Button className="w-full" disabled={!valido || enviando} onClick={enviar}>
                 {enviando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

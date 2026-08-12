@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Database, Download, Link2, Trash2, Users } from "lucide-react";
+import { Copy, Database, Download, Eye, Link2, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
@@ -37,6 +37,7 @@ import {
   formatarTelefone,
   useAtualizarColaboradorDiaria,
   useColaboradoresDiaria,
+  useCpfCompleto,
   useExcluirColaboradorDiaria,
   type StatusColaborador,
 } from "@/lib/diarias";
@@ -90,16 +91,19 @@ function Pagina() {
   const { data: lista = [], isLoading } = useColaboradoresDiaria(filtros);
   const atualizar = useAtualizarColaboradorDiaria();
   const excluir = useExcluirColaboradorDiaria();
+  const [cpfVisivel, setCpfVisivel] = useState<string | null>(null);
+  const { data: cpfCompleto } = useCpfCompleto(cpfVisivel);
 
   const linkPortal =
     typeof window === "undefined" ? "/cadastro-diarias" : `${window.location.origin}/cadastro-diarias`;
 
   function exportar() {
     const linhas = [
-      ["Nome", "Telefone", "Cidade", "Bairro", "Disponível", "Dias", "Períodos", "Função", "Status", "Cadastro"],
+      ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Dias", "Períodos", "Função", "Status", "Cadastro"],
       ...lista.map((c) => [
         c.full_name,
         formatarTelefone(c.phone),
+        c.cpf_mascara || "—",
         c.city,
         c.neighborhood,
         c.available_for_daily ? "Sim" : "Não",
@@ -207,6 +211,7 @@ function Pagina() {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Telefone</TableHead>
+                  <TableHead>CPF</TableHead>
                   <TableHead>Cidade / Bairro</TableHead>
                   <TableHead>Disponibilidade</TableHead>
                   <TableHead>Função</TableHead>
@@ -219,6 +224,28 @@ function Pagina() {
                   <TableRow key={c.id}>
                     <TableCell className="font-medium">{priv.nome(c.full_name)}</TableCell>
                     <TableCell>{priv.privado ? "•••••" : formatarTelefone(c.phone)}</TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {priv.privado ? (
+                        "•••••"
+                      ) : cpfVisivel === c.id && cpfCompleto ? (
+                        <span className="font-medium text-foreground">{cpfCompleto}</span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1">
+                          {c.cpf_mascara || "—"}
+                          {c.cpf_mascara && (
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6"
+                              title="Ver CPF completo (somente administradores)"
+                              onClick={() => setCpfVisivel(c.id)}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{c.city} / {c.neighborhood}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
