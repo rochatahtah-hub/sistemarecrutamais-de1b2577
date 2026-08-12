@@ -9,6 +9,7 @@ import {
   type VagaRegistro,
 } from "./tipos";
 import { sincronizarSistema } from "./sincronizar";
+import { useAuth } from "./auth";
 
 type LinhaVaga = {
   id: string;
