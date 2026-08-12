@@ -52,6 +52,14 @@ export const MODULOS: ModuloInfo[] = [
   { chave: "administracao", nome: "Central de Administração", acoes: ["visualizar", "administrar"] },
   { chave: "saude", nome: "Saúde do Sistema", acoes: ["visualizar", "exportar"] },
   { chave: "perfis", nome: "Perfis e Permissões", acoes: ["visualizar", "administrar"] },
+  {
+    chave: "rs_candidatos",
+    nome: "R&S — Meus Candidatos",
+    acoes: ["visualizar", "criar", "editar", "excluir", "exportar"],
+  },
+  { chave: "rs_empresas", nome: "R&S — Empresas CLT", acoes: ["visualizar", "criar", "editar", "excluir"] },
+  { chave: "rs_dashboard", nome: "R&S — Dashboard", acoes: ["visualizar", "exportar"] },
+  { chave: "rs_levantamento", nome: "R&S — Levantamento", acoes: ["visualizar", "exportar"] },
 ];
 
 export const ACAO_ROTULO: Record<Acao, string> = {
@@ -93,6 +101,10 @@ export const MODULO_POR_ROTA: Record<string, string> = {
   "/configuracoes": "configuracoes",
   "/saude-sistema": "saude",
   "/perfis": "perfis",
+  "/rs/candidatos": "rs_candidatos",
+  "/rs/empresas": "rs_empresas",
+  "/rs/dashboard": "rs_dashboard",
+  "/rs/levantamento": "rs_levantamento",
 };
 
 /** Ação mínima exigida para abrir cada módulo. */
