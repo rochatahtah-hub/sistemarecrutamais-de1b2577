@@ -41,6 +41,7 @@ import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$n
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
 import { Route as RsCandidatosRouteImport } from './routes/rs.candidatos'
+import { Route as RsDashboardRouteImport } from './routes/rs.dashboard'
 import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
 import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 
@@ -204,6 +205,11 @@ const RsCandidatosRoute = RsCandidatosRouteImport.update({
   path: '/rs/candidatos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RsDashboardRoute = RsDashboardRouteImport.update({
+  id: '/rs/dashboard',
+  path: '/rs/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RsEmpresasRoute = RsEmpresasRouteImport.update({
   id: '/rs/empresas',
   path: '/rs/empresas',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
+  '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
+  '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
@@ -320,6 +328,7 @@ export interface FileRoutesById {
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
+  '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
+    | '/rs/dashboard'
     | '/rs/empresas'
     | '/colaboradores/'
     | '/empresas/'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
+    | '/rs/dashboard'
     | '/rs/empresas'
     | '/colaboradores'
     | '/empresas'
@@ -430,6 +441,7 @@ export interface FileRouteTypes {
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
+    | '/rs/dashboard'
     | '/rs/empresas'
     | '/colaboradores/'
     | '/empresas/'
@@ -467,6 +479,7 @@ export interface RootRouteChildren {
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
   RsCandidatosRoute: typeof RsCandidatosRoute
+  RsDashboardRoute: typeof RsDashboardRoute
   RsEmpresasRoute: typeof RsEmpresasRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
@@ -699,6 +712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RsCandidatosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rs/dashboard': {
+      id: '/rs/dashboard'
+      path: '/rs/dashboard'
+      fullPath: '/rs/dashboard'
+      preLoaderRoute: typeof RsDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rs/empresas': {
       id: '/rs/empresas'
       path: '/rs/empresas'
@@ -747,6 +767,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
   RsCandidatosRoute: RsCandidatosRoute,
+  RsDashboardRoute: RsDashboardRoute,
   RsEmpresasRoute: RsEmpresasRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
