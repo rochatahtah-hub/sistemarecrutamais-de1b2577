@@ -1,10 +1,27 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export type PapelUsuario =
+  | "admin"
+  | "programadora"
+  | "supervisor"
+  | "coordenador"
+  | "comercial";
+
+const PAPEIS: PapelUsuario[] = [
+  "admin",
+  "programadora",
+  "supervisor",
+  "coordenador",
+  "comercial",
+];
+
 /** Cria um usuário com senha definida pelo administrador principal. */
 export const criarUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { nome: string; email: string; senha: string; admin?: boolean }) => d)
+  .inputValidator(
+    (d: { nome: string; email: string; senha: string; papel?: PapelUsuario }) => d,
+  )
   .handler(async ({ data, context }) => {
     const { data: ehAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
@@ -12,6 +29,9 @@ export const criarUsuario = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode cadastrar usuários.");
     if (!data.senha || data.senha.length < 6) throw new Error("A senha precisa ter 6+ caracteres.");
+    const papel: PapelUsuario = PAPEIS.includes(data.papel as PapelUsuario)
+      ? (data.papel as PapelUsuario)
+      : "programadora";
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { normalizarEmail } = await import("./admin.server");
@@ -31,7 +51,7 @@ export const criarUsuario = createServerFn({ method: "POST" })
     await supabaseAdmin
       .from("user_roles")
       .upsert(
-        { user_id: criado.user.id, role: data.admin ? "admin" : "programadora" },
+        { user_id: criado.user.id, role: papel },
         { onConflict: "user_id,role" },
       );
 
@@ -58,38 +78,32 @@ export const definirSenha = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Concede ou remove o perfil de administrador. */
+/** Define o papel único de um usuário (admin, programadora, supervisor, coordenador ou comercial). */
 export const definirPermissao = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { userId: string; admin: boolean }) => d)
+  .inputValidator((d: { userId: string; papel: PapelUsuario }) => d)
   .handler(async ({ data, context }) => {
     const { data: ehAdmin } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
       _role: "admin",
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode alterar permissões.");
+    if (!PAPEIS.includes(data.papel)) throw new Error("Perfil inválido.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { EMAIL_ADMIN_PRINCIPAL, acharUsuarioPorEmail } = await import("./admin.server");
     const principal = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
-    if (principal && principal.id === data.userId && !data.admin) {
+    if (principal && principal.id === data.userId && data.papel !== "admin") {
       throw new Error("O administrador principal não pode perder o acesso.");
     }
 
-    if (data.admin) {
-      await supabaseAdmin
-        .from("user_roles")
-        .upsert({ user_id: data.userId, role: "admin" }, { onConflict: "user_id,role" });
-      await supabaseAdmin
-        .from("user_roles")
-        .delete()
-        .eq("user_id", data.userId)
-        .eq("role", "programadora");
-    } else {
-      await supabaseAdmin
-        .from("user_roles")
-        .upsert({ user_id: data.userId, role: "programadora" }, { onConflict: "user_id,role" });
-      await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
-    }
+    await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: data.userId, role: data.papel }, { onConflict: "user_id,role" });
+    await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.userId)
+      .neq("role", data.papel);
     return { ok: true };
   });
