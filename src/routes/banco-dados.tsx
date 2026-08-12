@@ -177,7 +177,7 @@ function Panorama() {
         {d.ultimosRegistros.length === 0 && (
           <p className="text-sm text-muted-foreground">Nenhum registro no banco ainda.</p>
         )}
-        {d.ultimosRegistros.map((r) => (
+        {(d.ultimosRegistros as Array<Record<string, unknown>>).map((r) => (
           <div key={String(r.id)} className="flex flex-wrap justify-between gap-2 border-b border-border pb-2 text-xs">
             <span>
               {r.data} · {r.cargo || "Sem cargo"} · <strong>{r.status}</strong>
