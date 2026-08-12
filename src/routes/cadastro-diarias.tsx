@@ -226,8 +226,8 @@ function Pagina() {
               >
                 <Checkbox
                   checked={consentimento}
-                  onCheckedChange={(v) => setConsentimento(v === true)}
-                  className="mt-0.5"
+                  tabIndex={-1}
+                  className="pointer-events-none mt-0.5"
                 />
                 <span className="text-muted-foreground">
                   Li e concordo com o uso dos meus dados para cadastro e contato referente a oportunidades
