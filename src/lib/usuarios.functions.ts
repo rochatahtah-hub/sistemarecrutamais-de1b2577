@@ -42,14 +42,9 @@ export const listarUsuarios = createServerFn({ method: "POST" })
       ultima_atividade: p.ultimo_preenchimento,
       criado_em: p.created_at,
       admin: (papeis ?? []).some((r) => r.user_id === p.id && r.role === "admin"),
-      papel:
-        ((papeis ?? []).find((r) => r.user_id === p.id)?.role as
-          | "admin"
-          | "programadora"
-          | "supervisor"
-          | "coordenador"
-          | "comercial"
-          | undefined) ?? "programadora",
+      papel: (["admin", "programadora", "supervisor", "coordenador", "comercial"] as const).find(
+        (papel) => (papeis ?? []).some((r) => r.user_id === p.id && r.role === papel),
+      ) ?? "programadora",
     }));
   });
 
