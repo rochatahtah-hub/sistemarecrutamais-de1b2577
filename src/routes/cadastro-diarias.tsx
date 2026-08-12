@@ -14,6 +14,8 @@ import {
   DIAS_SEMANA,
   PERIODOS,
   cadastrarColaboradorPublico,
+  cpfValido,
+  formatarCpf,
   formatarTelefone,
   soDigitosTelefone,
 } from "@/lib/diarias";
@@ -46,6 +48,7 @@ function alternar(lista: string[], valor: string) {
 function Pagina() {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [cpf, setCpf] = useState("");
   const [cidade, setCidade] = useState("");
   const [bairro, setBairro] = useState("");
   const [disponivel, setDisponivel] = useState(true);
@@ -59,6 +62,7 @@ function Pagina() {
   const valido =
     nome.trim().length >= 3 &&
     soDigitosTelefone(telefone).length >= 10 &&
+    cpfValido(cpf) &&
     cidade.trim().length >= 2 &&
     bairro.trim().length >= 2 &&
     consentimento;
@@ -70,6 +74,7 @@ function Pagina() {
       await cadastrarColaboradorPublico({
         full_name: nome.trim().slice(0, 120),
         phone: telefone,
+        cpf,
         city: cidade.trim().slice(0, 80),
         neighborhood: bairro.trim().slice(0, 80),
         available_for_daily: disponivel,
@@ -132,6 +137,19 @@ function Pagina() {
                     onChange={(e) => setTelefone(e.target.value)}
                     placeholder="(00) 00000-0000"
                   />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cpf">CPF *</Label>
+                  <Input
+                    id="cpf"
+                    inputMode="numeric"
+                    value={formatarCpf(cpf)}
+                    onChange={(e) => setCpf(e.target.value)}
+                    placeholder="000.000.000-00"
+                  />
+                  {cpf.length > 0 && !cpfValido(cpf) && (
+                    <p className="text-xs text-destructive">Informe um CPF válido.</p>
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="cidade">Cidade *</Label>
