@@ -149,7 +149,7 @@ function Pagina() {
           </div>
         </div>
         <p className="text-xs text-sidebar-foreground/45">
-            Ambiente privado · Acesso individual e monitorado · F9
+            Ambiente privado · Acesso individual e monitorado
         </p>
       </aside>
 
