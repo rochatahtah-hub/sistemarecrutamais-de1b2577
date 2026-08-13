@@ -1,0 +1,1 @@
+GRANT SELECT ON public.daily_workers TO authenticated;
