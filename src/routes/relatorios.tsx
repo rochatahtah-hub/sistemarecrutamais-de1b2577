@@ -10,7 +10,7 @@ import { aplicarFiltros, descreverPeriodo, useFiltros } from "@/lib/filtros";
 import { exportarExcel, exportarPdf } from "@/lib/exportar";
 import { agregar, fmtNum, fmtPct } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
@@ -72,7 +72,6 @@ function Pagina() {
       </div>
 
       <FiltrosBar registros={registros} />
-      <PlanilhaAtivaBanner />
 
       <div className="surface-panel rounded-2xl p-5">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">Prévia do conteúdo</p>

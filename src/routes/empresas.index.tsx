@@ -7,7 +7,7 @@ import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { agregarPor } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 import { GerenciarEmpresas } from "@/components/programacao/GerenciarEmpresas";
 import { useAuth } from "@/lib/auth";
 
@@ -51,7 +51,6 @@ function Pagina() {
     <div className="space-y-4">
       <h1 className="font-display text-2xl font-bold">Desempenho das empresas</h1>
       <FiltrosBar registros={registros} />
-      <PlanilhaAtivaBanner />
       <TabelaDesempenho
         linhas={linhas}
         destino="empresas"

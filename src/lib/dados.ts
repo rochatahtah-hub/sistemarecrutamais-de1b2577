@@ -171,7 +171,7 @@ export function useImportacoes() {
   });
 }
 
-/** Planilha atualmente ativa (última importação concluída) + volume de registros. */
+/** Última importação registrada (histórico). O banco é a fonte oficial dos dados. */
 export function usePlanilhaAtiva() {
   const { podeOperar } = useAuth();
   return useQuery({
@@ -185,12 +185,15 @@ export function usePlanilhaAtiva() {
           .order("data_importacao", { ascending: false })
           .limit(1)
           .maybeSingle(),
-        supabase.from("vagas").select("id", { count: "exact", head: true }),
+        supabase
+          .from("vagas")
+          .select("id", { count: "exact", head: true })
+          .not("importacao_id", "is", null),
       ]);
       if (imp.error) throw imp.error;
       if (cont.error) throw cont.error;
+      if (!imp.data) return null;
       const registros = cont.count ?? 0;
-      if (registros === 0) return null;
       return {
         nome_arquivo: imp.data?.nome_arquivo ?? "planilha.xlsx",
         data_importacao: imp.data?.data_importacao ?? null,
@@ -202,14 +205,18 @@ export function usePlanilhaAtiva() {
 }
 
 /**
- * Retira a planilha ativa: remove somente os registros importados de planilha.
- * Os cadastros feitos diretamente no Recruta+ permanecem no banco.
+ * Desvincula a planilha: remove apenas o vínculo com o arquivo importado.
+ * NENHUM dado é apagado — as vagas passam a constar como registros próprios
+ * do Recruta+ e todo o histórico, indicadores e gráficos permanecem intactos.
  */
 export function useRetirarPlanilha() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const vagas = await supabase.from("vagas").delete().not("importacao_id", "is", null);
+      const vagas = await supabase
+        .from("vagas")
+        .update({ importacao_id: null, origem: "sistema" })
+        .not("importacao_id", "is", null);
       if (vagas.error) throw vagas.error;
       const imp = await supabase.from("importacoes").delete().not("id", "is", null);
       if (imp.error) throw imp.error;

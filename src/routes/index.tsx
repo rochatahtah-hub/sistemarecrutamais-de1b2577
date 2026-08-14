@@ -55,7 +55,7 @@ import {
   type LinhaAgregada,
 } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -231,7 +231,6 @@ function Dashboard() {
       <div className="space-y-3">
         <AtalhosPeriodo />
         <FiltrosBar registros={registros} />
-        <PlanilhaAtivaBanner />
       </div>
 
       {isAdmin && <ResumoAcessos />}
