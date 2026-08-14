@@ -28,7 +28,7 @@ import { exportarExcel } from "@/lib/exportar";
 import { agregar, fmtData, fmtNum, fmtPct } from "@/lib/metricas";
 import { STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
 import { FichaVaga } from "@/components/vagas/FichaVaga";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/confirmacoes")({
   head: () => ({
@@ -122,7 +122,6 @@ function Pagina() {
       </div>
 
       <FiltrosBar registros={registros} />
-      <PlanilhaAtivaBanner />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {cards.map((c) => (

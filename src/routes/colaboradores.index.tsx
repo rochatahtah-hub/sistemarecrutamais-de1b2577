@@ -7,7 +7,7 @@ import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import { agregarPor } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/colaboradores/")({
   head: () => ({
@@ -42,7 +42,6 @@ function Pagina() {
     <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold">Desempenho dos colaboradores</h1>
       <FiltrosBar registros={registros} />
-      <PlanilhaAtivaBanner />
       <TabelaDesempenho
         linhas={linhas}
         destino="colaboradores"

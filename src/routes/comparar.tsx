@@ -16,7 +16,7 @@ import { useVagas } from "@/lib/dados";
 import { Sigiloso } from "@/lib/privacidade";
 import { agregar, agregarPor, fmtNum, fmtPct, variacao } from "@/lib/metricas";
 import type { VagaRegistro } from "@/lib/tipos";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/comparar")({
   head: () => ({
@@ -110,7 +110,6 @@ function Pagina() {
 
   return (
     <div className="space-y-6">
-      <PlanilhaAtivaBanner />
       <div>
         <h1 className="font-display text-2xl font-bold">Comparar períodos</h1>
         <p className="text-sm text-muted-foreground">

@@ -44,7 +44,7 @@ import {
   type Granularidade,
 } from "@/lib/metricas";
 import { SITUACAO_LABEL, STATUS_LABEL } from "@/lib/tipos";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa"; nome: string }) {
   const priv = usePrivacidade();
@@ -123,7 +123,6 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
       </div>
 
       <FiltrosBar registros={registros} />
-      <PlanilhaAtivaBanner />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <CardIndicador titulo="Total de vagas" valor={fmtNum(total.vagas)} icon={Briefcase} tom="ouro" />

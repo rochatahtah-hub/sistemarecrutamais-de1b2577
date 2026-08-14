@@ -19,7 +19,7 @@ import { exportarExcel } from "@/lib/exportar";
 import { fmtData, fmtNum } from "@/lib/metricas";
 import { SITUACAO_LABEL, STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
 import { FichaVaga } from "@/components/vagas/FichaVaga";
-import { PlanilhaAtivaBanner, SemPlanilha } from "@/components/PlanilhaAtiva";
+import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/vagas")({
   head: () => ({
@@ -61,7 +61,6 @@ function Pagina() {
       </div>
 
       <FiltrosBar registros={registros} />
-      <PlanilhaAtivaBanner />
 
       <p className="text-sm text-muted-foreground">
         {fmtNum(filtrados.length)} registros encontrados.
