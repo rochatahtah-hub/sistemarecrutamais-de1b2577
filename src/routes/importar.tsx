@@ -191,12 +191,9 @@ function Pagina() {
     }
     setSalvando(true);
     try {
-      // O banco é a fonte oficial: a importação substitui apenas os registros
-      // que vieram de planilhas anteriores e preserva tudo o que foi cadastrado
-      // diretamente no Recruta+ (vagas manuais, colaboradores e empresas).
-      const limparVagas = await supabase.from("vagas").delete().not("importacao_id", "is", null);
-      if (limparVagas.error) throw limparVagas.error;
-
+      // O banco é a fonte oficial e permanente. A importação é apenas uma
+      // ferramenta de migração: nada é apagado, os registros novos são somados
+      // ao banco e as duplicatas são ignoradas pelo hash.
       const nomesColab = Array.from(new Set(validas.map((l) => l.colaborador)));
       const nomesEmp = Array.from(new Set(validas.map((l) => l.empresa)));
 
@@ -264,7 +261,7 @@ function Pagina() {
 
       await qc.invalidateQueries();
       toast.success(
-        `Planilha ativa substituída: ${adicionados} registros agora alimentam todo o sistema.`,
+        `${adicionados} registros migrados para o banco de dados. Nenhum dado existente foi alterado.`,
       );
       cancelar();
     } catch (e) {
@@ -279,10 +276,9 @@ function Pagina() {
       <div>
         <h1 className="font-display text-2xl font-bold">Importar dados</h1>
         <p className="text-sm text-muted-foreground">
-          Envie a planilha de controle de vagas (.xlsx ou .xls). A planilha enviada passa a ser a
-          única fonte de dados do sistema: ao confirmar, os dados da planilha anterior são
-          removidos e todo o sistema (dashboard, colaboradores, empresas, gráficos e rankings) é
-          recalculado apenas com a nova planilha.
+          Ferramenta de migração controlada. O banco de dados do Recruta+ é a fonte oficial e
+          permanente: a importação apenas acrescenta registros novos (.xlsx ou .xls), sem apagar ou
+          substituir vagas, empresas, colaboradores, históricos ou indicadores já existentes.
         </p>
       </div>
 
@@ -329,8 +325,8 @@ function Pagina() {
                 disabled={salvando || validas.length === 0}
               >
                 {salvando
-                  ? "Substituindo dados..."
-                  : `Substituir dados pela planilha (${fmtNum(validas.length)})`}
+                  ? "Importando registros..."
+                  : `Adicionar ao banco de dados (${fmtNum(validas.length)})`}
               </Button>
             </div>
           </div>
