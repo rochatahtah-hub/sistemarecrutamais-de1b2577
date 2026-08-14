@@ -17,7 +17,7 @@ import {
 import { usePlanilhaAtiva, useRetirarPlanilha } from "@/lib/dados";
 import { fmtData, fmtNum } from "@/lib/metricas";
 
-/** Estado exibido quando não há planilha ativa no sistema. */
+/** Estado exibido quando ainda não há registros no banco de dados. */
 export function SemPlanilha({ pagina }: { pagina?: string }) {
   return (
     <div className="surface-panel filete-ouro mx-auto mt-12 max-w-xl rounded-2xl p-10 text-center">
@@ -29,8 +29,8 @@ export function SemPlanilha({ pagina }: { pagina?: string }) {
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
         {pagina ? `${pagina} usa os dados oficiais do banco. ` : ""}
-        Cadastre programações pelo sistema ou importe uma planilha para começar — o banco de dados é
-        a fonte principal e continua funcionando mesmo sem planilha.
+        Cadastre programações diretamente no Recruta+ para começar — o banco de dados é a fonte
+        oficial e permanente do sistema.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Button asChild>
@@ -46,7 +46,7 @@ export function SemPlanilha({ pagina }: { pagina?: string }) {
   );
 }
 
-/** Faixa com a planilha ativa e a opção de retirá-la. */
+/** Faixa informativa da última importação, com a opção de desvincular o arquivo. */
 export function PlanilhaAtivaBanner() {
   const { data: ativa } = usePlanilhaAtiva();
   const retirar = useRetirarPlanilha();
@@ -60,9 +60,9 @@ export function PlanilhaAtivaBanner() {
           <FileSpreadsheet className="h-4.5 w-4.5" strokeWidth={1.75} />
         </span>
         <div className="min-w-0">
-          <p className="text-sm font-semibold">Planilha ativa: {ativa.nome_arquivo}</p>
+          <p className="text-sm font-semibold">Última importação: {ativa.nome_arquivo}</p>
           <p className="text-xs text-muted-foreground">
-            {fmtNum(ativa.registros)} registros alimentando todo o sistema
+            {fmtNum(ativa.registros)} registros migrados para o banco de dados
             {ativa.data_importacao ? ` · importada em ${fmtData(ativa.data_importacao)}` : ""}
           </p>
         </div>
@@ -71,15 +71,16 @@ export function PlanilhaAtivaBanner() {
         <AlertDialogTrigger asChild>
           <Button variant="outline" disabled={retirar.isPending}>
             <Trash2 className="mr-2 h-4 w-4" />
-            {retirar.isPending ? "Retirando..." : "Retirar planilha"}
+            {retirar.isPending ? "Desvinculando..." : "Retirar planilha"}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Retirar a planilha ativa?</AlertDialogTitle>
+            <AlertDialogTitle>Retirar o vínculo com a planilha?</AlertDialogTitle>
             <AlertDialogDescription>
-              Todos os dados desta planilha serão removidos do sistema e todas as abas voltarão ao
-              estado "Nenhuma planilha carregada."
+              Nenhum dado será apagado. As vagas, empresas, colaboradores, históricos, gráficos e
+              indicadores continuam no banco de dados; apenas o vínculo com o arquivo importado é
+              removido.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -87,12 +88,13 @@ export function PlanilhaAtivaBanner() {
             <AlertDialogAction
               onClick={() =>
                 retirar.mutate(undefined, {
-                  onSuccess: () => toast.success("Planilha retirada. Nenhuma planilha carregada."),
-                  onError: (e) => toast.error(`Falha ao retirar: ${(e as Error).message}`),
+                  onSuccess: () =>
+                    toast.success("Vínculo removido. Todos os dados continuam no banco."),
+                  onError: (e) => toast.error(`Falha ao desvincular: ${(e as Error).message}`),
                 })
               }
             >
-              Retirar planilha
+              Retirar vínculo
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
