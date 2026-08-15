@@ -349,36 +349,66 @@ export type Database = {
       }
       colaboradores_bloqueados: {
         Row: {
+          ativo: boolean
           bloqueado_por: string | null
           bloqueado_por_nome: string
+          candidato_id: string | null
           cpf: string
           created_at: string
+          empresa_id: string | null
           id: string
           motivo: string
           nome: string
+          telefone: string
+          tipo_bloqueio: string
           updated_at: string
         }
         Insert: {
+          ativo?: boolean
           bloqueado_por?: string | null
           bloqueado_por_nome?: string
+          candidato_id?: string | null
           cpf: string
           created_at?: string
+          empresa_id?: string | null
           id?: string
           motivo?: string
           nome?: string
+          telefone?: string
+          tipo_bloqueio?: string
           updated_at?: string
         }
         Update: {
+          ativo?: boolean
           bloqueado_por?: string | null
           bloqueado_por_nome?: string
+          candidato_id?: string | null
           cpf?: string
           created_at?: string
+          empresa_id?: string | null
           id?: string
           motivo?: string
           nome?: string
+          telefone?: string
+          tipo_bloqueio?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "colaboradores_bloqueados_candidato_id_fkey"
+            columns: ["candidato_id"]
+            isOneToOne: false
+            referencedRelation: "candidatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "colaboradores_bloqueados_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       configuracoes: {
         Row: {
@@ -1404,6 +1434,18 @@ export type Database = {
       tem_permissao: {
         Args: { _acao: string; _modulo: string; _user_id: string }
         Returns: boolean
+      }
+      verificar_bloqueio: {
+        Args: { _cpf: string; _empresa_id?: string }
+        Returns: {
+          bloqueado: boolean
+          bloqueado_por_nome: string
+          created_at: string
+          empresa_id: string
+          empresa_nome: string
+          motivo: string
+          tipo_bloqueio: string
+        }[]
       }
     }
     Enums: {
