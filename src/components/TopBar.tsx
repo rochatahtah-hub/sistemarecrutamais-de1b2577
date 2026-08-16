@@ -181,7 +181,7 @@ export function TopBar() {
             );
           }}
         >
-          {privado ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {privado ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
           <span className="hidden sm:inline">{privado ? "Privacidade ativa" : "Privacidade"}</span>
         </Button>
         <DropdownMenu
