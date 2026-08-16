@@ -38,7 +38,7 @@ import {
   useMinhasProgramacoes,
   type Candidato,
 } from "@/lib/programacao";
-import type { Bloqueio } from "@/lib/bloqueios";
+import type { BloqueioAtivo } from "@/lib/bloqueios";
 
 export const Route = createFileRoute("/minha-programacao")({
   head: () => ({
@@ -69,7 +69,7 @@ function Pagina() {
   const confirmar = useConfirmarProgramacao();
 
   const [candidato, setCandidato] = useState<Candidato | null>(null);
-  const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
+  const [bloqueio, setBloqueio] = useState<BloqueioAtivo | null>(null);
   const [data, setData] = useState(hojeISO());
   const [empresaId, setEmpresaId] = useState("");
   const [status, setStatus] = useState<"AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO">(

@@ -21,7 +21,7 @@ import {
   useSalvarCandidato,
   type Candidato,
 } from "@/lib/programacao";
-import { buscarBloqueio, type Bloqueio } from "@/lib/bloqueios";
+import { buscarBloqueio, type BloqueioAtivo } from "@/lib/bloqueios";
 import { camposFaltantes, interpretarFicha } from "@/lib/ficha-texto";
 import { extrairFicha } from "@/lib/ficha.functions";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -29,7 +29,7 @@ import { usePrivacidade } from "@/lib/privacidade";
 interface Props {
   onCandidato: (c: Candidato | null) => void;
   candidato: Candidato | null;
-  onBloqueio?: (b: Bloqueio | null) => void;
+  onBloqueio?: (b: BloqueioAtivo | null) => void;
   /** Ao mudar, limpa a ficha para um novo registro. */
   resetSinal?: number;
 }
@@ -47,7 +47,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [lendo, setLendo] = useState(false);
   const [aviso, setAviso] = useState("");
   const [pendencias, setPendencias] = useState<string[]>([]);
-  const [bloqueio, setBloqueio] = useState<Bloqueio | null>(null);
+  const [bloqueio, setBloqueio] = useState<BloqueioAtivo | null>(null);
   const [liberado, setLiberado] = useState(false);
   const [previsualizando, setPrevisualizando] = useState(false);
   const salvar = useSalvarCandidato();
@@ -76,7 +76,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     if (inputArquivo.current) inputArquivo.current.value = "";
   }, [resetSinal]);
 
-  function definirBloqueio(b: Bloqueio | null) {
+  function definirBloqueio(b: BloqueioAtivo | null) {
     setBloqueio(b);
     setLiberado(!b);
     onBloqueio?.(b);
