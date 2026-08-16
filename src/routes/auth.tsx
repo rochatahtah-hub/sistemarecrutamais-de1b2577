@@ -222,9 +222,10 @@ function Pagina() {
             </p>
             <Link
               to="/cadastro-diarias"
-              className="inline-flex w-full items-center justify-center rounded-md border border-primary/30 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary ring-offset-background transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/25 ring-offset-background transition-all hover:brightness-110 hover:shadow-xl hover:shadow-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] active:shadow-md sm:text-base"
             >
-              Cadastre-se para trabalhar em diárias
+              <Briefcase className="h-4 w-4 shrink-0" />
+              Cadastrar para diárias
             </Link>
             <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
               Cadastro público para oportunidades de trabalho. Não cria uma conta
