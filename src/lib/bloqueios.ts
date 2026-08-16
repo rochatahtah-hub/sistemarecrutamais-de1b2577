@@ -60,7 +60,7 @@ export async function verificarBloqueio(
   if (limpo.length !== 11) return null;
   const { data, error } = await supabase.rpc("verificar_bloqueio", {
     _cpf: limpo,
-    _empresa_id: empresaId ?? undefined,
+    ...(empresaId ? { _empresa_id: empresaId } : {}),
   });
   if (error) throw error;
   const linha = (data ?? [])[0];
@@ -82,12 +82,12 @@ export async function verificarBloqueio(
 export const buscarBloqueio = verificarBloqueio;
 
 export interface FiltroBloqueios {
-  busca?: string;
-  empresaId?: string;
-  tipo?: TipoBloqueio | "";
-  status?: "ativos" | "inativos" | "todos";
-  de?: string;
-  ate?: string;
+  busca?: string | undefined;
+  empresaId?: string | undefined;
+  tipo?: TipoBloqueio | "" | undefined;
+  status?: "ativos" | "inativos" | "todos" | undefined;
+  de?: string | undefined;
+  ate?: string | undefined;
 }
 
 const SELECT_BLOQUEIO =
@@ -128,14 +128,14 @@ export function useBloqueados(filtros: FiltroBloqueios | string = {}) {
 }
 
 export interface DadosBloqueio {
-  id?: string;
+  id?: string | undefined;
   cpf: string;
-  nome?: string;
-  telefone?: string;
+  nome?: string | undefined;
+  telefone?: string | undefined;
   motivo: string;
   tipo_bloqueio: TipoBloqueio;
-  empresa_id?: string | null;
-  ativo?: boolean;
+  empresa_id?: string | null | undefined;
+  ativo?: boolean | undefined;
 }
 
 async function autorAtual() {
