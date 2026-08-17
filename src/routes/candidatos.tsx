@@ -148,11 +148,16 @@ function Pagina() {
                   <TableCell className="font-medium">{priv.nome(c.nome)}</TableCell>
                   <TableCell>{priv.privado ? priv.cpf(c.cpf) : formatarCPF(c.cpf)}</TableCell>
                   <TableCell>
-                    {c.telefone
-                      ? priv.privado
-                        ? priv.telefone(c.telefone)
-                        : formatarTelefone(c.telefone)
-                      : "—"}
+                    {!c.telefone ? (
+                      "—"
+                    ) : priv.privado ? (
+                      priv.telefone(c.telefone)
+                    ) : (
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                        {formatarTelefone(c.telefone)}
+                        <BotaoWhatsApp telefone={c.telefone} nome={c.nome} />
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="max-w-[280px]">
                     <span className="text-sm">{resumoTransporte(c)}</span>
