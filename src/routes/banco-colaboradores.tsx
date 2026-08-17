@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
 import { EstadoVazio } from "@/components/EstadoVazio";
+import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { FormularioColaborador } from "@/components/diarias/FormularioColaborador";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -263,7 +264,16 @@ function Pagina() {
                 {lista.map((c) => (
                   <TableRow key={c.id}>
                     <TableCell className="font-medium">{priv.nome(c.full_name)}</TableCell>
-                    <TableCell>{priv.privado ? "•••••" : formatarTelefone(c.phone)}</TableCell>
+                    <TableCell>
+                      {priv.privado ? (
+                        "•••••"
+                      ) : (
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap">
+                          {formatarTelefone(c.phone)}
+                          <BotaoWhatsApp telefone={c.phone} nome={c.full_name} />
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap text-muted-foreground">
                       {priv.privado ? (
                         "•••••"
