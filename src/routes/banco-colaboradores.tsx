@@ -42,6 +42,35 @@ import {
   type ColaboradorDiaria,
   type StatusColaborador,
 } from "@/lib/diarias";
+import { TIPOS_TRANSPORTE } from "@/lib/programacao";
+
+/** Resumo do transporte exibido diretamente na listagem (sem entrar em edição). */
+function ResumoTransporte({ colaborador }: { colaborador: ColaboradorDiaria }) {
+  const rotulo = (tipo: string) =>
+    TIPOS_TRANSPORTE.find((t) => t.valor === tipo)?.rotulo ?? tipo;
+  const tipos = (colaborador.transporte_tipos ?? []).map(rotulo);
+  return (
+    <div className="space-y-1 text-xs">
+      <div>
+        <span className="text-muted-foreground">Próprio: </span>
+        <span className="font-medium">{colaborador.transporte_proprio ? "Sim" : "Não"}</span>
+      </div>
+      {colaborador.transporte_proprio && (
+        <div>
+          <span className="text-muted-foreground">Tipo: </span>
+          <span className="font-medium">{tipos.length ? tipos.join(", ") : "—"}</span>
+        </div>
+      )}
+      <div>
+        <span className="text-muted-foreground">Fretado: </span>
+        <span className="font-medium">{colaborador.precisa_fretado ? "Sim" : "Não"}</span>
+      </div>
+      {colaborador.transporte_observacao ? (
+        <p className="text-muted-foreground">Obs.: {colaborador.transporte_observacao}</p>
+      ) : null}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/banco-colaboradores")({
   head: () => ({
@@ -222,6 +251,7 @@ function Pagina() {
                   <TableHead>CPF</TableHead>
                   <TableHead>Cidade / Bairro</TableHead>
                   <TableHead>Disponibilidade</TableHead>
+                  <TableHead>Transporte</TableHead>
                   <TableHead>Função</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
