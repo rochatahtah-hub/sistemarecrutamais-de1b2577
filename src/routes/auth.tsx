@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Briefcase, ChevronDown, Lock } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ChevronDown, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -219,23 +219,6 @@ function Pagina() {
               </Button>
             </form>
             )}
-
-            <div className="mt-6 border-t border-border pt-6">
-              <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                Ainda não possui acesso?
-              </p>
-              <Link
-                to="/cadastro-diarias" search={{ empresa: "" }}
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/25 ring-offset-background transition-all hover:brightness-110 hover:shadow-xl hover:shadow-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] active:shadow-md sm:text-base"
-              >
-                <Briefcase className="h-4 w-4 shrink-0" />
-                Cadastrar para diárias
-              </Link>
-              <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
-                Cadastro público para oportunidades de trabalho. Não cria uma conta
-                de acesso ao sistema.
-              </p>
-            </div>
           </div>
         </div>
       </main>
