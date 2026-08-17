@@ -1,0 +1,1 @@
+DELETE FROM public.daily_workers WHERE full_name = 'Teste Diag QA' AND cpf = '39053344705';

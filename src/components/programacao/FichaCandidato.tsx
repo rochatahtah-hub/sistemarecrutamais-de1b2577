@@ -37,10 +37,18 @@ interface Props {
   onBloqueio?: (b: BloqueioAtivo | null) => void;
   /** Ao mudar, limpa a ficha para um novo registro. */
   resetSinal?: number;
+  /** Exibe os campos de transporte (dados cadastrais do candidato). */
+  mostrarTransporte?: boolean;
 }
 
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
-export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal = 0 }: Props) {
+export function FichaCandidato({
+  onCandidato,
+  candidato,
+  onBloqueio,
+  resetSinal = 0,
+  mostrarTransporte = true,
+}: Props) {
   const priv = usePrivacidade();
   const inputArquivo = useRef<HTMLInputElement>(null);
   const campoFicha = useRef<HTMLTextAreaElement>(null);
@@ -366,7 +374,9 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
 
       {aviso && <p className="text-sm font-medium text-primary">{aviso}</p>}
 
-      <CamposTransporte valor={transporte} onChange={mudarTransporte} idPrefixo="ficha" />
+      {mostrarTransporte && (
+        <CamposTransporte valor={transporte} onChange={mudarTransporte} idPrefixo="ficha" />
+      )}
 
       {pendencias.length > 0 && (
         <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
@@ -421,6 +431,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
               Selecionado: <strong className="text-foreground">{priv.nome(candidato.nome)}</strong> ·{" "}
               {priv.privado ? priv.cpf(candidato.cpf) : formatarCPF(candidato.cpf)}
             </span>
+            {mostrarTransporte && (
             <Button
               type="button"
               variant="outline"
@@ -441,6 +452,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
             >
               {atualizarTransporte.isPending ? "Salvando..." : "Salvar transporte"}
             </Button>
+            )}
           </>
         )}
       </div>

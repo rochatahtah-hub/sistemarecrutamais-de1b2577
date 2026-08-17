@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Briefcase } from "lucide-react";
+import { Briefcase, ChevronDown, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -52,6 +52,7 @@ function Pagina() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [acessoAberto, setAcessoAberto] = useState(false);
   const [abrirPin, setAbrirPin] = useState(false);
   const [pin, setPin] = useState("");
   const [jaTemPin, setJaTemPin] = useState(true);
@@ -174,7 +175,24 @@ function Pagina() {
           </div>
 
           <div className="surface-panel filete-ouro entrada-suave rounded-2xl p-7 sm:p-8">
-            <form className="space-y-4" onSubmit={entrar}>
+            <button
+              type="button"
+              aria-expanded={acessoAberto}
+              aria-controls="form-programador"
+              onClick={() => setAcessoAberto((v) => !v)}
+              className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-left transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide">
+                <Lock className="h-4 w-4 text-primary" />
+                Acesso do programador
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${acessoAberto ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            {acessoAberto && (
+            <form id="form-programador" className="mt-5 space-y-4" onSubmit={entrar}>
               <div className="space-y-1.5">
                 <Label htmlFor="email">E-mail</Label>
                 <Input
@@ -200,6 +218,7 @@ function Pagina() {
                 {enviando ? "Entrando..." : "Entrar"}
               </Button>
             </form>
+            )}
 
             <div className="mt-6 border-t border-border pt-6">
               <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">

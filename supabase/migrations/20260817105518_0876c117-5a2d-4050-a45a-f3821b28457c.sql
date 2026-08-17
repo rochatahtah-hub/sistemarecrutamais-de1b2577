@@ -1,0 +1,1 @@
+ALTER TABLE public.daily_workers ALTER COLUMN tenant_id DROP DEFAULT;
