@@ -14,7 +14,57 @@ export interface Candidato {
   nome: string;
   cpf: string;
   telefone: string | null;
+  transporte_proprio: boolean;
+  transporte_tipos: string[];
+  precisa_fretado: boolean;
+  transporte_observacao: string;
 }
+
+/** Tipos de transporte próprio aceitos (valor no banco → rótulo exibido). */
+export const TIPOS_TRANSPORTE = [
+  { valor: "bicicleta", rotulo: "Bicicleta" },
+  { valor: "bicicleta_eletrica", rotulo: "Bicicleta elétrica" },
+  { valor: "moto", rotulo: "Moto" },
+  { valor: "carro", rotulo: "Carro" },
+] as const;
+
+export type TipoTransporte = (typeof TIPOS_TRANSPORTE)[number]["valor"];
+
+export interface DadosTransporte {
+  transporte_proprio: boolean;
+  transporte_tipos: string[];
+  precisa_fretado: boolean;
+  transporte_observacao: string;
+}
+
+export const TRANSPORTE_PADRAO: DadosTransporte = {
+  transporte_proprio: false,
+  transporte_tipos: [],
+  precisa_fretado: false,
+  transporte_observacao: "",
+};
+
+export function rotuloTransporte(valor: string): string {
+  return TIPOS_TRANSPORTE.find((t) => t.valor === valor)?.rotulo ?? valor;
+}
+
+/** Normaliza os dados de transporte antes de gravar (coerência e limites). */
+export function normalizarTransporte(dados: Partial<DadosTransporte>): DadosTransporte {
+  const proprio = dados.transporte_proprio === true;
+  const permitidos = TIPOS_TRANSPORTE.map((t) => t.valor as string);
+  const tipos = proprio
+    ? Array.from(new Set(dados.transporte_tipos ?? [])).filter((t) => permitidos.includes(t))
+    : [];
+  return {
+    transporte_proprio: proprio,
+    transporte_tipos: tipos,
+    precisa_fretado: dados.precisa_fretado === true,
+    transporte_observacao: (dados.transporte_observacao ?? "").trim().slice(0, 500),
+  };
+}
+
+const CAMPOS_CANDIDATO =
+  "id,nome,cpf,telefone,transporte_proprio,transporte_tipos,precisa_fretado,transporte_observacao";
 
 export function soDigitos(v: string) {
   return (v ?? "").replace(/\D/g, "");
@@ -93,7 +143,7 @@ export function useCandidatos(busca = "", habilitado = true) {
     queryFn: async ({ signal }): Promise<Candidato[]> => {
       let q = supabase
           .from("candidatos")
-          .select("id,nome,cpf,telefone")
+          .select(CAMPOS_CANDIDATO)
           .order("nome")
           .limit(50)
           .abortSignal(signal);
@@ -120,7 +170,7 @@ export async function buscarCandidatoPorCPF(cpf: string): Promise<Candidato | nu
   if (limpo.length < 11) return null;
   const { data, error } = await supabase
     .from("candidatos")
-    .select("id,nome,cpf,telefone")
+    .select(CAMPOS_CANDIDATO)
     .eq("cpf", limpo)
     .maybeSingle();
   if (error) throw error;
@@ -134,10 +184,22 @@ export function useSalvarCandidato() {
       nome: string;
       cpf: string;
       telefone: string;
+      transporte?: Partial<DadosTransporte>;
     }): Promise<{ candidato: Candidato; jaExistia: boolean }> => {
       const cpf = soDigitos(dados.cpf);
       const existente = await buscarCandidatoPorCPF(cpf);
-      if (existente) return { candidato: existente, jaExistia: true };
+      if (existente) {
+        if (!dados.transporte) return { candidato: existente, jaExistia: true };
+        const transporte = normalizarTransporte(dados.transporte);
+        const { data: atualizado, error: erroUpdate } = await supabase
+          .from("candidatos")
+          .update(transporte)
+          .eq("id", existente.id)
+          .select(CAMPOS_CANDIDATO)
+          .single();
+        if (erroUpdate) throw erroUpdate;
+        return { candidato: atualizado as Candidato, jaExistia: true };
+      }
       const { data: sessao } = await supabase.auth.getUser();
       const { data, error } = await supabase
         .from("candidatos")
@@ -146,11 +208,31 @@ export function useSalvarCandidato() {
           cpf,
           telefone: soDigitos(dados.telefone),
           criado_por: sessao.user?.id ?? null,
+          ...normalizarTransporte(dados.transporte ?? {}),
         })
-        .select("id,nome,cpf,telefone")
+        .select(CAMPOS_CANDIDATO)
         .single();
       if (error) throw error;
       return { candidato: data as Candidato, jaExistia: false };
+    },
+    onSuccess: () => sincronizarSistema(qc),
+  });
+}
+
+/** Atualiza somente os dados de transporte e deslocamento do candidato. */
+export function useAtualizarTransporte() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dados: { id: string } & Partial<DadosTransporte>): Promise<Candidato> => {
+      const { id, ...resto } = dados;
+      const { data, error } = await supabase
+        .from("candidatos")
+        .update(normalizarTransporte(resto))
+        .eq("id", id)
+        .select(CAMPOS_CANDIDATO)
+        .single();
+      if (error) throw error;
+      return data as Candidato;
     },
     onSuccess: () => sincronizarSistema(qc),
   });
