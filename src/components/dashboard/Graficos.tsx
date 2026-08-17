@@ -15,6 +15,7 @@ import {
 } from "recharts";
 import type { LinhaAgregada, Agregado } from "@/lib/metricas";
 import { usePrivacidade } from "@/lib/privacidade";
+import { primeiroNome } from "@/lib/utils";
 
 const COR_PRESENCA = "oklch(0.62 0.13 158)";
 const COR_FALTA = "oklch(0.6 0.19 26)";
@@ -63,7 +64,7 @@ export function GraficoBarrasStatus({
   const priv = usePrivacidade();
   const dados = linhas.map((l) => ({
     ...l,
-    nome: sensivel ? priv.nome(l.nome) : priv.empresa(l.nome),
+    nome: sensivel ? primeiroNome(priv.nome(l.nome)) : priv.empresa(l.nome),
   }));
   return (
     <ResponsiveContainer width="100%" height={320}>
@@ -104,7 +105,7 @@ export function GraficoBarraMetrica({
   const priv = usePrivacidade();
   const dados = linhas.map((l) => ({
     ...l,
-    nome: sensivel ? priv.nome(l.nome) : priv.empresa(l.nome),
+    nome: sensivel ? primeiroNome(priv.nome(l.nome)) : priv.empresa(l.nome),
   }));
   return (
     <ResponsiveContainer width="100%" height={320}>

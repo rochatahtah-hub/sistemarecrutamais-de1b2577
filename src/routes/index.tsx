@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/table";
 import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { useAuth } from "@/lib/auth";
-import { useCandidatos } from "@/lib/programacao";
+import { useCandidatos, useProgramadorasHabilitadas } from "@/lib/programacao";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import {
   agregar,
@@ -54,7 +54,7 @@ import {
   type Granularidade,
   type LinhaAgregada,
 } from "@/lib/metricas";
-import { METAS_PADRAO } from "@/lib/tipos";
+import { METAS_PADRAO, normalizarTexto } from "@/lib/tipos";
 import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/")({
@@ -169,6 +169,7 @@ function Dashboard() {
   const { data: config } = useConfiguracoes();
   const { perfil, isAdmin, podeOperar } = useAuth();
   const { data: candidatos = [] } = useCandidatos("", podeOperar);
+  const { data: programadorasHabilitadas = [] } = useProgramadorasHabilitadas();
   const priv = usePrivacidade();
   const navigate = useNavigate();
   const { filtros, setFiltros } = useFiltros();
@@ -178,7 +179,18 @@ function Dashboard() {
   const metas = config?.metas ?? METAS_PADRAO;
   const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
   const total = useMemo(() => agregar(filtrados), [filtrados]);
-  const porColaborador = useMemo(() => agregarPor(filtrados, "colaborador"), [filtrados]);
+  const nomesHabilitados = useMemo(
+    () => new Set(programadorasHabilitadas.map((p) => normalizarTexto(p.nome))),
+    [programadorasHabilitadas],
+  );
+  /** Somente usuários ativos com permissão efetiva de "Minha Programação". */
+  const porColaborador = useMemo(
+    () =>
+      agregarPor(filtrados, "colaborador").filter((l) =>
+        nomesHabilitados.has(normalizarTexto(l.nome)),
+      ),
+    [filtrados, nomesHabilitados],
+  );
   const porEmpresa = useMemo(() => agregarPor(filtrados, "empresa"), [filtrados]);
   const serie = useMemo(() => serieTemporal(filtrados, granularidade), [filtrados, granularidade]);
   const alertas = useMemo(() => gerarAlertas(filtrados, metas), [filtrados, metas]);
