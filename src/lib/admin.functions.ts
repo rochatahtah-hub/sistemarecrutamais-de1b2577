@@ -33,6 +33,8 @@ export const criarUsuario = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode cadastrar usuários.");
     if (!data.senha || data.senha.length < 6) throw new Error("A senha precisa ter 6+ caracteres.");
+    const { data: tenantId } = await context.supabase.rpc("tenant_atual");
+    if (!tenantId) throw new Error("Não foi possível identificar a empresa ativa.");
     const papel: PapelUsuario = PAPEIS.includes(data.papel as PapelUsuario)
       ? (data.papel as PapelUsuario)
       : "programadora";
@@ -45,13 +47,16 @@ export const criarUsuario = createServerFn({ method: "POST" })
       email,
       password: data.senha,
       email_confirm: true,
-      user_metadata: { nome: data.nome.trim() },
+      user_metadata: { nome: data.nome.trim(), tenant_id: tenantId },
     });
     if (error || !criado.user) throw new Error(error?.message ?? "Não foi possível criar o acesso.");
 
     await supabaseAdmin
       .from("profiles")
-      .upsert({ id: criado.user.id, nome: data.nome.trim(), email, ativo: true }, { onConflict: "id" });
+      .upsert(
+        { id: criado.user.id, nome: data.nome.trim(), email, ativo: true, tenant_id: tenantId },
+        { onConflict: "id" },
+      );
     await supabaseAdmin
       .from("user_roles")
       .upsert(
