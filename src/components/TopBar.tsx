@@ -170,7 +170,7 @@ export function TopBar() {
         {tenant && (
           <Badge
             variant="outline"
-            className="hidden max-w-[16rem] truncate md:inline-flex"
+            className="inline-flex max-w-[9rem] truncate sm:max-w-[16rem]"
             title={`Empresa: ${tenant.nome}`}
           >
             {tenant.nome}

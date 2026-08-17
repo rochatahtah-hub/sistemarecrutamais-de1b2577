@@ -20,12 +20,14 @@ export function useTenantAtual() {
   return useQuery({
     queryKey: ["tenant-atual", user?.id],
     enabled: !!user,
-    staleTime: 5 * 60_000,
+    staleTime: 0,
+    refetchOnMount: "always",
     queryFn: async (): Promise<Tenant | null> => {
+      if (!user) return null;
       const { data: perfil, error: erroPerfil } = await supabase
         .from("profiles")
         .select("tenant_id")
-        .eq("id", user!.id)
+        .eq("id", user.id)
         .maybeSingle();
       if (erroPerfil) throw erroPerfil;
       const tenantId = perfil?.tenant_id;
