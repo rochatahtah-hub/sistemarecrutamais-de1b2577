@@ -64,6 +64,11 @@ function Pagina() {
               </Link>
             </Button>
             <Button asChild variant="outline" size="sm">
+              <Link to="/empresas-sistema">
+                <Building2 className="mr-2 h-4 w-4" /> Empresas do sistema
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
               <Link to="/backups">
                 <DatabaseBackup className="mr-2 h-4 w-4" /> Backups
               </Link>
