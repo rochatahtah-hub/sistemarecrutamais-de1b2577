@@ -673,7 +673,7 @@ export type Database = {
           phone: string
           precisa_fretado?: boolean
           status?: string
-          tenant_id: string
+          tenant_id?: string
           transporte_observacao?: string
           transporte_proprio?: boolean
           transporte_tipos?: string[]
@@ -1839,6 +1839,7 @@ export type Database = {
         Returns: boolean
       }
       tenant_atual: { Args: never; Returns: string }
+      tenant_do_portal: { Args: never; Returns: string }
       tenant_do_usuario: { Args: { _user_id: string }; Returns: string }
       tenant_padrao: { Args: never; Returns: string }
       verificar_bloqueio: {
