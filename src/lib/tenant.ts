@@ -91,7 +91,12 @@ export function useTenantsDisponiveis() {
   });
 }
 
-/** Troca a empresa ativa e zera todo o cache para não vazar dados da empresa anterior. */
+/**
+ * Troca a empresa ativa (apenas o contexto da sessão em `tenant_contexto`).
+ * Nenhum dado é apagado: a limpeza abaixo é exclusivamente do cache temporário
+ * do React Query no navegador, para não exibir dados da empresa anterior.
+ * Ao voltar para a empresa original, tudo é recarregado do banco como estava.
+ */
 export function useTrocarTenant() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -105,7 +110,8 @@ export function useTrocarTenant() {
     },
     onSuccess: async () => {
       await qc.cancelQueries();
-      qc.clear();
+      // Somente cache/estado da interface. Nunca DELETE no banco.
+      qc.removeQueries();
       if (typeof window !== "undefined") window.location.reload();
     },
   });
