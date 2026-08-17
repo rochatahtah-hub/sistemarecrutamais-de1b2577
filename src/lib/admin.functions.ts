@@ -97,7 +97,7 @@ export const definirSenha = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode alterar senhas.");
     if (!data.senha || data.senha.length < 6) throw new Error("A senha precisa ter 6+ caracteres.");
-    await garantirMesmaEmpresa(context, data.userId);
+    await garantirMesmaEmpresa(context.supabase, data.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
@@ -118,7 +118,7 @@ export const definirPermissao = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode alterar permissões.");
     if (!PAPEIS.includes(data.papel)) throw new Error("Perfil inválido.");
-    await garantirMesmaEmpresa(context, data.userId);
+    await garantirMesmaEmpresa(context.supabase, data.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { EMAIL_ADMIN_PRINCIPAL, acharUsuarioPorEmail } = await import("./admin.server");
