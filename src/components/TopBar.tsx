@@ -18,11 +18,11 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { BuscaGlobal } from "@/components/BuscaGlobal";
 import { AvatarUsuario } from "@/components/AvatarUsuario";
 import { DialogoFotoPerfil } from "@/components/DialogoFotoPerfil";
+import { SeletorEmpresa } from "@/components/SeletorEmpresa";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
 import { useConfiguracoes } from "@/lib/dados";
-import { useTenantAtual } from "@/lib/tenant";
 import { useMarcarNotificacoesLidas, useNotificacoes } from "@/lib/programacao";
 
 function dentroDoExpediente(inicio: string, fim: string) {
@@ -91,7 +91,6 @@ export function TopBar() {
   const { perfil, user, isAdmin, podeOperar, sair } = useAuth();
   const { privado, alternar } = usePrivacidade();
   const { data: config } = useConfiguracoes();
-  const { data: tenant } = useTenantAtual();
   const { data: notificacoes = [] } = useNotificacoes();
   const marcarLidas = useMarcarNotificacoesLidas();
   const [fotoAberta, setFotoAberta] = useState(false);
