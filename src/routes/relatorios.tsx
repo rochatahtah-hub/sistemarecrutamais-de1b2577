@@ -33,10 +33,10 @@ export const Route = createFileRoute("/relatorios")({
 function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
-  const { filtros } = useFiltros();
+  const { filtros, filtrar } = useFiltros();
   const [gerando, setGerando] = useState(false);
 
-  const filtrados = useMemo(() => filtrar(registros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros, filtrar]);
   const total = agregar(filtrados);
   const periodo = descreverPeriodo(filtrados);
 

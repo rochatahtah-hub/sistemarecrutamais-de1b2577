@@ -78,7 +78,7 @@ function CartaoInsight({
 function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
-  const { filtros } = useFiltros();
+  const { filtros, filtrar } = useFiltros();
   const metas = config?.metas ?? METAS_PADRAO;
   const insights = useMemo(
     () => gerarInsights(filtrar(registros), metas),

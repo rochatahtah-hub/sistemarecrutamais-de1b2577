@@ -51,7 +51,7 @@ function Pagina() {
   const { data: config } = useConfiguracoes();
   const { perfil } = useAuth();
   const priv = usePrivacidade();
-  const { filtros, setFiltros } = useFiltros();
+  const { filtros, setFiltros, filtrar } = useFiltros();
   const navigate = useNavigate();
   const [aberto, setAberto] = useState<string | null>(null);
   const [aba, setAba] = useState<Aba>("pendentes");

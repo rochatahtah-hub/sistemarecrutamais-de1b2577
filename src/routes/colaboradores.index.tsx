@@ -30,10 +30,10 @@ export const Route = createFileRoute("/colaboradores/")({
 function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
-  const { filtros } = useFiltros();
+  const { filtros, filtrar } = useFiltros();
   const linhas = useMemo(
     () => agregarPor(filtrar(registros), "colaborador"),
-    [registros, filtros],
+    [registros, filtros, filtrar],
   );
 
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Colaboradores" />;

@@ -49,12 +49,12 @@ import { SemPlanilha } from "@/components/PlanilhaAtiva";
 export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa"; nome: string }) {
   const priv = usePrivacidade();
   const { data: registros = [], isLoading } = useVagas();
-  const { filtros } = useFiltros();
+  const { filtros, filtrar } = useFiltros();
   const [granularidade, setGranularidade] = useState<Granularidade>("quinzena");
   const [pagina, setPagina] = useState(0);
   const porPagina = 25;
 
-  const filtrados = useMemo(() => filtrar(registros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros, filtrar]);
   const meus = useMemo(
     () => filtrados.filter((r) => (tipo === "colaborador" ? r.colaborador : r.empresa) === nome),
     [filtrados, tipo, nome],
