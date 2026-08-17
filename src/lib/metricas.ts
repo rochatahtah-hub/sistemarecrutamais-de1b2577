@@ -130,7 +130,9 @@ export function agregarPorProgramadora(
   const porId = new Map(habilitadas.map((p) => [p.id, p]));
   const resolver = criarResolucaoProgramadora(habilitadas);
 
-  const grupos = new Map<string, VagaRegistro[]>();
+  // Inicializa todos os usuários habilitados para que a ausência de vagas no
+  // período resulte em métricas zeradas, não no desaparecimento do Dashboard.
+  const grupos = new Map<string, VagaRegistro[]>(habilitadas.map((p) => [p.id, []]));
   for (const r of registros) {
     const id = resolver(r);
     if (!id) continue;

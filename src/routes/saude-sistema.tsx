@@ -2,14 +2,24 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { RequerAdmin } from "@/components/RequerAdmin";
-import { useQuery } from "@tanstack/react-query";
-import { Activity, AlertTriangle, Database, FileSpreadsheet, FileText, ShieldAlert } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Activity, AlertTriangle, CheckCircle2, Database, FileSpreadsheet, FileText, RotateCcw, ShieldAlert, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { listarErrosSistema } from "@/lib/system-health";
+import { arquivarErrosResolvidos, definirErroResolvido, listarErrosSistema } from "@/lib/system-health";
 import { exportarSaudeExcel, exportarSaudePDF } from "@/lib/exportar-saude";
 
 export const Route = createFileRoute("/saude-sistema")({
@@ -28,6 +38,9 @@ export const Route = createFileRoute("/saude-sistema")({
 
 function Pagina() {
   const { isAdmin } = useAuth();
+  const qc = useQueryClient();
+  const [filtro, setFiltro] = useState<"pendente" | "resolvido">("pendente");
+  const [arquivar, setArquivar] = useState<string | "todos" | null>(null);
   const consulta = useQuery({
     queryKey: ["saude-sistema"],
     queryFn: listarErrosSistema,
@@ -36,6 +49,7 @@ function Pagina() {
     retry: false,
   });
   const erros = consulta.data ?? [];
+  const visiveis = erros.filter((erro) => erro.status === filtro);
   const backup = useQuery({
     queryKey: ["saude-backup"],
     enabled: isAdmin,
@@ -50,6 +64,23 @@ function Pagina() {
     },
   });
   const [exportando, setExportando] = useState<"pdf" | "excel" | null>(null);
+  const atualizar = useMutation({
+    mutationFn: ({ id, resolvido }: { id: string; resolvido: boolean }) => definirErroResolvido(id, resolvido),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["saude-sistema"] });
+      toast.success("Status do diagnóstico atualizado.");
+    },
+    onError: () => toast.error("Não foi possível atualizar o diagnóstico."),
+  });
+  const limpar = useMutation({
+    mutationFn: (alvo: string | "todos") => arquivarErrosResolvidos(alvo === "todos" ? undefined : alvo),
+    onSuccess: async (totalArquivado) => {
+      setArquivar(null);
+      await qc.invalidateQueries({ queryKey: ["saude-sistema"] });
+      toast.success(`${totalArquivado} item(ns) resolvido(s) removido(s) da lista.`);
+    },
+    onError: () => toast.error("Não foi possível limpar os itens resolvidos."),
+  });
   const total = useMemo(() => erros.reduce((soma, erro) => soma + erro.ocorrencias, 0), [erros]);
   const naoAutorizados = useMemo(
     () => erros.filter((erro) => erro.codigo_http === 401).reduce((soma, erro) => soma + erro.ocorrencias, 0),
@@ -121,28 +152,55 @@ function Pagina() {
         </p>
       </div>
       <div className="surface-panel overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b p-3">
+          <div className="flex gap-2">
+            <Button size="sm" variant={filtro === "pendente" ? "secondary" : "ghost"} onClick={() => setFiltro("pendente")}>Pendentes</Button>
+            <Button size="sm" variant={filtro === "resolvido" ? "secondary" : "ghost"} onClick={() => setFiltro("resolvido")}>Resolvidos</Button>
+          </div>
+          {filtro === "resolvido" && visiveis.length > 0 && (
+            <Button size="sm" variant="outline" onClick={() => setArquivar("todos")}>
+              <Trash2 className="mr-2 h-4 w-4" /> Limpar itens resolvidos
+            </Button>
+          )}
+        </div>
         {consulta.isPending ? (
           <p className="p-5 text-sm text-muted-foreground">Carregando diagnósticos...</p>
         ) : consulta.isError ? (
           <div className="flex items-center gap-2 p-5 text-sm text-destructive">
             <AlertTriangle className="h-4 w-4" /> Não foi possível consultar os diagnósticos.
           </div>
-        ) : erros.length === 0 ? (
-          <p className="p-5 text-sm text-muted-foreground">Nenhuma falha registrada.</p>
+        ) : visiveis.length === 0 ? (
+          <p className="p-5 text-sm text-muted-foreground">Nenhum diagnóstico {filtro}.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="border-b bg-muted/30 text-xs text-muted-foreground">
-                <tr><th className="p-3">Última ocorrência</th><th className="p-3">Origem</th><th className="p-3">Falha</th><th className="p-3">Ambiente</th><th className="p-3 text-right">Total</th></tr>
+                <tr><th className="p-3">Última ocorrência</th><th className="p-3">Origem</th><th className="p-3">Falha</th><th className="p-3">Ambiente</th><th className="p-3 text-right">Total</th><th className="p-3 text-right">Ações</th></tr>
               </thead>
               <tbody>
-                {erros.map((erro) => (
+                {visiveis.map((erro) => (
                   <tr key={erro.id} className="border-b last:border-0">
                     <td className="whitespace-nowrap p-3">{new Date(erro.ultima_ocorrencia).toLocaleString("pt-BR")}</td>
                     <td className="p-3"><p className="font-medium">{erro.componente || erro.pagina || "Aplicação"}</p><p className="text-xs text-muted-foreground">{erro.operacao || erro.categoria}{erro.codigo_http ? ` · HTTP ${erro.codigo_http}` : ""}</p></td>
                     <td className="max-w-md p-3"><p className="line-clamp-2">{erro.mensagem}</p><p className="truncate text-xs text-muted-foreground">{erro.endpoint}</p></td>
                     <td className="whitespace-nowrap p-3 text-muted-foreground">{erro.navegador} · {erro.sistema_operacional}</td>
                     <td className="p-3 text-right font-semibold">{erro.ocorrencias}</td>
+                    <td className="whitespace-nowrap p-3 text-right">
+                      {erro.status === "pendente" ? (
+                        <Button size="icon" variant="ghost" title="Marcar como resolvido" aria-label="Marcar como resolvido" onClick={() => atualizar.mutate({ id: erro.id, resolvido: true })}>
+                          <CheckCircle2 className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <>
+                          <Button size="icon" variant="ghost" title="Reabrir diagnóstico" aria-label="Reabrir diagnóstico" onClick={() => atualizar.mutate({ id: erro.id, resolvido: false })}>
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="text-destructive hover:text-destructive" title="Remover item resolvido" aria-label="Remover item resolvido" onClick={() => setArquivar(erro.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -150,6 +208,18 @@ function Pagina() {
           </div>
         )}
       </div>
+      <AlertDialog open={arquivar !== null} onOpenChange={(aberto) => !aberto && setArquivar(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{arquivar === "todos" ? "Limpar itens resolvidos?" : "Remover item resolvido?"}</AlertDialogTitle>
+            <AlertDialogDescription>Os diagnósticos serão arquivados e sairão da lista, sem apagar dados operacionais.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => arquivar && limpar.mutate(arquivar)}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

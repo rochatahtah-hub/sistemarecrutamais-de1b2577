@@ -58,6 +58,7 @@ function Pagina() {
   const { data: empresa, isPending: carregandoEmpresa } = useQuery({
     queryKey: ["portal-empresa", slugEmpresa],
     queryFn: () => empresaDoPortal(slugEmpresa || null),
+    enabled: Boolean(slugEmpresa),
   });
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -119,7 +120,7 @@ function Pagina() {
           Cadastro para trabalho por diária
         </h1>
 
-        {!carregandoEmpresa && !empresa && (
+        {(!slugEmpresa || (!carregandoEmpresa && !empresa)) && (
           <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-destructive-foreground">
             Não encontramos a empresa deste link. Peça o endereço correto de cadastro para a equipe.
           </p>
