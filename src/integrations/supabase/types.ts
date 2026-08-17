@@ -647,8 +647,12 @@ export type Database = {
           neighborhood: string
           observacao: string
           phone: string
+          precisa_fretado: boolean
           status: string
           tenant_id: string | null
+          transporte_observacao: string
+          transporte_proprio: boolean
+          transporte_tipos: string[]
           updated_at: string
         }
         Insert: {
@@ -667,8 +671,12 @@ export type Database = {
           neighborhood: string
           observacao?: string
           phone: string
+          precisa_fretado?: boolean
           status?: string
           tenant_id?: string | null
+          transporte_observacao?: string
+          transporte_proprio?: boolean
+          transporte_tipos?: string[]
           updated_at?: string
         }
         Update: {
@@ -687,8 +695,12 @@ export type Database = {
           neighborhood?: string
           observacao?: string
           phone?: string
+          precisa_fretado?: boolean
           status?: string
           tenant_id?: string | null
+          transporte_observacao?: string
+          transporte_proprio?: boolean
+          transporte_tipos?: string[]
           updated_at?: string
         }
         Relationships: [
