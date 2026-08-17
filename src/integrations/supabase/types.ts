@@ -514,6 +514,24 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_secrets: {
+        Row: {
+          created_at: string
+          nome: string
+          valor: string
+        }
+        Insert: {
+          created_at?: string
+          nome: string
+          valor: string
+        }
+        Update: {
+          created_at?: string
+          nome?: string
+          valor?: string
+        }
+        Relationships: []
+      }
       daily_workers: {
         Row: {
           available_days: string[]
