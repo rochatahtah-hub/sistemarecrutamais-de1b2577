@@ -20,6 +20,7 @@ import {
   formatarTelefone,
   soDigitos,
   useSalvarCandidato,
+  useAtualizarTransporte,
   TRANSPORTE_PADRAO,
   type Candidato,
   type DadosTransporte,
@@ -56,6 +57,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [previsualizando, setPrevisualizando] = useState(false);
   const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
   const salvar = useSalvarCandidato();
+  const atualizarTransporte = useAtualizarTransporte();
 
   const mudarTransporte = (parcial: Partial<DadosTransporte>) =>
     setTransporte((atual) => ({ ...atual, ...parcial }));
@@ -414,10 +416,32 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
 
       <div className="flex flex-wrap items-center gap-3">
         {candidato && !bloqueio && (
-          <span className="text-sm text-muted-foreground">
-            Selecionado: <strong className="text-foreground">{priv.nome(candidato.nome)}</strong> ·{" "}
-            {priv.privado ? priv.cpf(candidato.cpf) : formatarCPF(candidato.cpf)}
-          </span>
+          <>
+            <span className="text-sm text-muted-foreground">
+              Selecionado: <strong className="text-foreground">{priv.nome(candidato.nome)}</strong> ·{" "}
+              {priv.privado ? priv.cpf(candidato.cpf) : formatarCPF(candidato.cpf)}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={atualizarTransporte.isPending}
+              onClick={() => {
+                atualizarTransporte.mutate(
+                  { id: candidato.id, ...transporte },
+                  {
+                    onSuccess: (atualizado) => {
+                      onCandidato(atualizado);
+                      toast.success("Transporte atualizado.");
+                    },
+                    onError: (e) => toast.error((e as Error).message),
+                  },
+                );
+              }}
+            >
+              {atualizarTransporte.isPending ? "Salvando..." : "Salvar transporte"}
+            </Button>
+          </>
         )}
       </div>
     </div>
