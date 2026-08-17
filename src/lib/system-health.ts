@@ -149,7 +149,7 @@ export async function definirErroResolvido(id: string, resolvido: boolean) {
 }
 
 export async function arquivarErrosResolvidos(id?: string) {
-  const { data, error } = await supabase.rpc("arquivar_erros_resolvidos", { _id: id ?? null });
+  const { data, error } = await supabase.rpc("arquivar_erros_resolvidos", { _id: id });
   if (error) throw new Error(error.message);
   return Number(data ?? 0);
 }
