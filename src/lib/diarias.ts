@@ -61,10 +61,14 @@ export interface NovoColaboradorDiaria {
   available_days: string[];
   available_periods: string[];
   desired_role: string;
+  transporte_proprio?: boolean;
+  transporte_tipos?: string[];
+  precisa_fretado?: boolean;
+  transporte_observacao?: string;
 }
 
 const CAMPOS =
-  "id,full_name,phone,cpf_mascara,city,neighborhood,available_for_daily,available_days,available_periods,desired_role,status,observacao,consent_date,created_at";
+  "id,full_name,phone,cpf_mascara,city,neighborhood,available_for_daily,available_days,available_periods,desired_role,status,observacao,consent_date,created_at,transporte_proprio,transporte_tipos,precisa_fretado,transporte_observacao";
 
 export function soDigitosTelefone(valor: string) {
   return (valor ?? "").replace(/\D+/g, "").slice(0, 11);
