@@ -22,7 +22,7 @@ const PAPEIS: PapelUsuario[] = [
 
 /** Garante que a conta alvo pertence à empresa ativa de quem está administrando. */
 async function garantirMesmaEmpresa(
-  supabaseUsuario: { rpc: (n: "tenant_atual") => Promise<{ data: string | null }> },
+  supabaseUsuario: { rpc: (n: "tenant_atual") => PromiseLike<{ data: string | null }> },
   userId: string,
 ) {
   const { data: tenantId } = await supabaseUsuario.rpc("tenant_atual");
