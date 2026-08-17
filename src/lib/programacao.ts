@@ -338,7 +338,7 @@ async function verificarMeta(uid: string, nome: string, meta: number) {
       mensagem,
       chave,
     },
-    { onConflict: "user_id,chave", ignoreDuplicates: true },
+    { onConflict: "tenant_id,user_id,chave", ignoreDuplicates: true },
   );
   await supabase.from("notificacoes").upsert(
     {
@@ -349,7 +349,7 @@ async function verificarMeta(uid: string, nome: string, meta: number) {
       mensagem: `${nome} registrou ${presencas} presenças na quinzena (meta ${meta}).`,
       chave: `${chave}-admin`,
     },
-    { onConflict: "user_id,chave", ignoreDuplicates: true },
+    { onConflict: "tenant_id,user_id,chave", ignoreDuplicates: true },
   );
   return { metaAtingida: true, mensagem };
 }
