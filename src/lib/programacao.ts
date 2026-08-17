@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "./auth";
 import { quinzenaAtual, dentroDaQuinzena } from "./quinzena";
 import { sincronizarSistema } from "./sincronizar";
 
@@ -386,8 +387,11 @@ export function useProgramadoras() {
  * A lista vem do banco (perfis + permissões + status ativo) e nunca é fixa no código.
  */
 export function useProgramadorasHabilitadas() {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["programadoras-habilitadas"],
+    queryKey: ["programadoras-habilitadas", user?.id],
+    // Consulta autenticada: nas telas públicas (portal de diárias) não deve ser disparada.
+    enabled: Boolean(user),
     queryFn: async (): Promise<{ id: string; nome: string }[]> => {
       const { data, error } = await supabase.rpc("programadoras_da_programacao");
       if (error) throw error;
