@@ -310,10 +310,12 @@ function DialogoExcluir({ empresa, aoFechar }: { empresa: Tenant | null; aoFecha
   const [etapa, setEtapa] = useState(1);
 
   const ativa = !!empresa && empresa.id === atual?.id;
+  const habilitada = !!empresa && empresa.ativo && empresa.status === "ativo";
   const bloqueadores = dependencias.filter((d) => d.bloqueia && Number(d.total) > 0);
   const podeExcluir =
     !!empresa &&
     !ativa &&
+    !habilitada &&
     bloqueadores.length === 0 &&
     confirmacao.trim().toLowerCase() === empresa.nome.toLowerCase();
 
@@ -344,6 +346,12 @@ function DialogoExcluir({ empresa, aoFechar }: { empresa: Tenant | null; aoFecha
           {ativa && (
             <p className="rounded-md bg-destructive/10 p-3 text-destructive">
               Esta é a empresa ativa da sua sessão. Entre em outra empresa antes de excluir.
+            </p>
+          )}
+          {habilitada && (
+            <p className="rounded-md bg-destructive/10 p-3 text-destructive">
+              Esta empresa está ATIVA. Só é possível excluir empresas inativas — use “Inativar
+              empresa” antes.
             </p>
           )}
           {isPending ? (
