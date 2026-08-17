@@ -35,7 +35,7 @@ function Pagina() {
   const { filtros } = useFiltros();
   const { isAdmin } = useAuth();
   const linhas = useMemo(
-    () => agregarPor(aplicarFiltros(registros, filtros), "empresa"),
+    () => agregarPor(filtrar(registros), "empresa"),
     [registros, filtros],
   );
 

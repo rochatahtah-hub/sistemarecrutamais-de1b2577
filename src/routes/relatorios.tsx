@@ -36,7 +36,7 @@ function Pagina() {
   const { filtros } = useFiltros();
   const [gerando, setGerando] = useState(false);
 
-  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros]);
   const total = agregar(filtrados);
   const periodo = descreverPeriodo(filtrados);
 

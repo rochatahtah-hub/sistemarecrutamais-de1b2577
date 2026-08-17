@@ -72,7 +72,7 @@ function Pagina() {
   const registrar = useRegistrarConfirmacao();
   const porPagina = 50;
 
-  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros]);
   const total = useMemo(() => agregar(filtrados), [filtrados]);
   const lista = useMemo(
     () => (aba === "TODAS" ? filtrados : filtrados.filter((r) => r.status === aba)),

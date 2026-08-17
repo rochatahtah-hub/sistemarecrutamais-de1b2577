@@ -54,7 +54,7 @@ export function DetalhePerfil({ tipo, nome }: { tipo: "colaborador" | "empresa";
   const [pagina, setPagina] = useState(0);
   const porPagina = 25;
 
-  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros]);
   const meus = useMemo(
     () => filtrados.filter((r) => (tipo === "colaborador" ? r.colaborador : r.empresa) === nome),
     [filtrados, tipo, nome],

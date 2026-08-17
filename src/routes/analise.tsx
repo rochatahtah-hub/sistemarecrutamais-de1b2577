@@ -81,7 +81,7 @@ function Pagina() {
   const { filtros } = useFiltros();
   const metas = config?.metas ?? METAS_PADRAO;
   const insights = useMemo(
-    () => gerarInsights(aplicarFiltros(registros, filtros), metas),
+    () => gerarInsights(filtrar(registros), metas),
     [registros, filtros, metas],
   );
   const nomes = useMemo(

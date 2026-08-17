@@ -44,7 +44,7 @@ function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { filtros } = useFiltros();
   const linhas = useMemo(
-    () => rankingPerformance(aplicarFiltros(registros, filtros)),
+    () => rankingPerformance(filtrar(registros)),
     [registros, filtros],
   );
 

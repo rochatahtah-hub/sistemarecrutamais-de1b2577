@@ -32,7 +32,7 @@ function Pagina() {
   const { data: config } = useConfiguracoes();
   const { filtros } = useFiltros();
   const linhas = useMemo(
-    () => agregarPor(aplicarFiltros(registros, filtros), "colaborador"),
+    () => agregarPor(filtrar(registros), "colaborador"),
     [registros, filtros],
   );
 

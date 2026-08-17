@@ -58,7 +58,7 @@ function Pagina() {
   const metas = config?.metas ?? METAS_PADRAO;
 
   const alertas = useMemo(
-    () => gerarRadar(aplicarFiltros(registros, filtros), metas),
+    () => gerarRadar(filtrar(registros), metas),
     [registros, filtros, metas],
   );
   const nomes = useMemo(

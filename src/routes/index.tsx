@@ -178,7 +178,7 @@ function Dashboard() {
   const [metricaEmpresa, setMetricaEmpresa] = useState<keyof LinhaAgregada>("presencas");
 
   const metas = config?.metas ?? METAS_PADRAO;
-  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros]);
   const total = useMemo(() => agregar(filtrados), [filtrados]);
   /** Somente usuários ativos com permissão efetiva de "Minha Programação". */
   const porColaborador = useMemo(
