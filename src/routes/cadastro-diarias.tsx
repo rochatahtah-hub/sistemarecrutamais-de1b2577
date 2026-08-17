@@ -98,7 +98,9 @@ function Pagina() {
     <div className="malha-escura min-h-screen bg-background px-4 py-10">
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-8 flex justify-center">
-          <img src={logoLockup.url} alt="Recruta+" className="h-12 w-auto object-contain" />
+          <span className="inline-flex items-center justify-center rounded-2xl border border-gold/25 bg-[#0b0f19] px-6 py-3 shadow-lg">
+            <img src={logoLockup.url} alt="Recruta+" className="h-12 w-auto object-contain" />
+          </span>
         </div>
 
         <h1 className="mb-6 text-center font-display text-2xl font-bold tracking-tight sm:text-3xl">
