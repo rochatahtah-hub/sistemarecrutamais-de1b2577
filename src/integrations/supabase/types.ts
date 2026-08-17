@@ -750,6 +750,7 @@ export type Database = {
       }
       erros_sistema: {
         Row: {
+          arquivado_em: string | null
           categoria: string
           codigo_http: number | null
           componente: string
@@ -763,8 +764,12 @@ export type Database = {
           operacao: string
           pagina: string
           primeira_ocorrencia: string
+          resolvido_em: string | null
+          resolvido_por: string | null
+          resolvido_por_nome: string
           sistema_operacional: string
           stack: string | null
+          status: string
           tenant_id: string
           ultima_ocorrencia: string
           updated_at: string
@@ -772,6 +777,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          arquivado_em?: string | null
           categoria?: string
           codigo_http?: number | null
           componente?: string
@@ -785,8 +791,12 @@ export type Database = {
           operacao?: string
           pagina?: string
           primeira_ocorrencia?: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          resolvido_por_nome?: string
           sistema_operacional?: string
           stack?: string | null
+          status?: string
           tenant_id?: string
           ultima_ocorrencia?: string
           updated_at?: string
@@ -794,6 +804,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          arquivado_em?: string | null
           categoria?: string
           codigo_http?: number | null
           componente?: string
@@ -807,8 +818,12 @@ export type Database = {
           operacao?: string
           pagina?: string
           primeira_ocorrencia?: string
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+          resolvido_por_nome?: string
           sistema_operacional?: string
           stack?: string | null
+          status?: string
           tenant_id?: string
           ultima_ocorrencia?: string
           updated_at?: string
@@ -1857,10 +1872,15 @@ export type Database = {
         Args: { _conversa: string; _user: string }
         Returns: boolean
       }
+      arquivar_erros_resolvidos: { Args: { _id?: string }; Returns: number }
       cpf_colaborador_diaria: { Args: { _id: string }; Returns: string }
       criador_conversa: {
         Args: { _conversa: string; _user: string }
         Returns: boolean
+      }
+      definir_status_erro_sistema: {
+        Args: { _id: string; _resolvido: boolean }
+        Returns: undefined
       }
       definir_status_tenant: {
         Args: { _ativo: boolean; _tenant: string }
