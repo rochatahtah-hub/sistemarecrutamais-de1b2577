@@ -35,6 +35,7 @@ import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as SaudeSistemaRouteImport } from './routes/saude-sistema'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VagasRouteImport } from './routes/vagas'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
@@ -176,6 +177,11 @@ const SaudeSistemaRoute = SaudeSistemaRouteImport.update({
   path: '/saude-sistema',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VagasRoute = VagasRouteImport.update({
   id: '/vagas',
   path: '/vagas',
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -293,6 +300,7 @@ export interface FileRoutesByTo {
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
   '/saude-sistema': typeof SaudeSistemaRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/radar'
     | '/relatorios'
     | '/saude-sistema'
+    | '/sitemap.xml'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
     | '/radar'
     | '/relatorios'
     | '/saude-sistema'
+    | '/sitemap.xml'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -448,6 +459,7 @@ export interface FileRouteTypes {
     | '/radar'
     | '/relatorios'
     | '/saude-sistema'
+    | '/sitemap.xml'
     | '/vagas'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
@@ -487,6 +499,7 @@ export interface RootRouteChildren {
   RadarRoute: typeof RadarRoute
   RelatoriosRoute: typeof RelatoriosRoute
   SaudeSistemaRoute: typeof SaudeSistemaRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VagasRoute: typeof VagasRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
@@ -683,6 +696,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SaudeSistemaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vagas': {
       id: '/vagas'
       path: '/vagas'
@@ -783,6 +803,7 @@ const rootRouteChildren: RootRouteChildren = {
   RadarRoute: RadarRoute,
   RelatoriosRoute: RelatoriosRoute,
   SaudeSistemaRoute: SaudeSistemaRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   VagasRoute: VagasRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
