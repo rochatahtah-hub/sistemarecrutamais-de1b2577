@@ -51,6 +51,13 @@ async function nomeUsuario(ctx: Contexto) {
   return data?.nome ?? "Administrador";
 }
 
+/** Empresa ativa do usuário — todo o painel de banco é limitado a ela. */
+async function tenantDo(ctx: Contexto) {
+  const { data } = await (ctx.supabase.rpc as unknown as (n: string) => Promise<{ data: string | null }>)("tenant_atual");
+  if (!data) throw new Error("Não foi possível identificar a empresa ativa.");
+  return data as string;
+}
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin as unknown as {
@@ -69,29 +76,37 @@ export const panoramaBanco = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await exigir(context, "visualizar");
+    const tenantId = await tenantDo(context as unknown as Contexto);
     const db = await admin();
     const contagens: { chave: string; nome: string; total: number }[] = [];
     for (const ent of ENTIDADES) {
-      const { count } = await db.from(ent.tabela).select("id", { count: "exact", head: true });
+      const { count } = await db.from(ent.tabela).select("id", { count: "exact", head: true }).eq("tenant_id", tenantId);
       contagens.push({ chave: ent.chave, nome: ent.nome, total: count ?? 0 });
     }
     const [ultimasVagas, ultimoBackup, ultimoDrive] = await Promise.all([
-      db.from("vagas").select("id,data,cargo,status,updated_at").order("updated_at", { ascending: false }).limit(5),
+      db
+        .from("vagas")
+        .select("id,data,cargo,status,updated_at")
+        .eq("tenant_id", tenantId)
+        .order("updated_at", { ascending: false })
+        .limit(5),
       db
         .from("backups")
         .select("created_at,arquivo_nome,tamanho_bytes,status,criado_por_nome")
+        .eq("tenant_id", tenantId)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
       db
         .from("backups")
         .select("drive_em,arquivo_nome,drive_link")
+        .eq("tenant_id", tenantId)
         .eq("drive_status", "enviado")
         .order("drive_em", { ascending: false })
         .limit(1)
         .maybeSingle(),
     ]);
-    const { data: somaBackups } = await db.from("backups").select("tamanho_bytes");
+    const { data: somaBackups } = await db.from("backups").select("tamanho_bytes").eq("tenant_id", tenantId);
     const armazenamentoBackups = (somaBackups ?? []).reduce(
       (s: number, b: { tamanho_bytes: number | null }) => s + (b.tamanho_bytes ?? 0),
       0,
@@ -123,12 +138,14 @@ export const listarRegistros = createServerFn({ method: "POST" })
     await exigir(context, "visualizar");
     const ent = entidadePorChave(data.entidade);
     if (!ent) throw new Error("Entidade não disponível.");
+    const tenantId = await tenantDo(context as unknown as Contexto);
     const db = await admin();
     const porPagina = 25;
     const colunas = ["id", ...ent.campos.map((c) => c.chave)].join(",");
     let q = db
       .from(ent.tabela)
       .select(colunas, { count: "exact" })
+      .eq("tenant_id", tenantId)
       .order(ent.ordem, { ascending: false })
       .range(data.pagina * porPagina, data.pagina * porPagina + porPagina - 1);
 
@@ -163,9 +180,10 @@ export const atualizarRegistro = createServerFn({ method: "POST" })
     if (!Object.keys(patch).length) throw new Error("Nenhum campo editável foi informado.");
 
     const db = await admin();
-    const { data: antes } = await db.from(ent.tabela).select("*").eq("id", data.id).maybeSingle();
+    const tenantId = await tenantDo(ctx);
+    const { data: antes } = await db.from(ent.tabela).select("*").eq("tenant_id", tenantId).eq("id", data.id).maybeSingle();
     if (!antes) throw new Error("Registro não encontrado.");
-    const { error } = await db.from(ent.tabela).update(patch).eq("id", data.id);
+    const { error } = await db.from(ent.tabela).update(patch).eq("tenant_id", tenantId).eq("id", data.id);
     if (error) throw new Error(error.message);
 
     const nome = await nomeUsuario(ctx);
@@ -181,6 +199,7 @@ export const atualizarRegistro = createServerFn({ method: "POST" })
         valor_novo: texto(v),
         usuario_id: ctx.userId,
         usuario_nome: nome,
+        tenant_id: tenantId,
       }));
     if (linhas.length) await db.from("auditoria").insert(linhas);
     return { ok: true, alterados: linhas.length };
@@ -199,9 +218,15 @@ export const arquivarRegistro = createServerFn({ method: "POST" })
     const ent = entidadePorChave(data.entidade);
     if (!ent?.arquivar) throw new Error("Esta entidade não permite arquivamento.");
     const db = await admin();
+    const tenantId = await tenantDo(ctx);
     const valor = data.arquivar ? ent.arquivar.inativo : ent.arquivar.ativo;
-    const { data: antes } = await db.from(ent.tabela).select("*").eq("id", data.id).maybeSingle();
-    const { error } = await db.from(ent.tabela).update({ [ent.arquivar.coluna]: valor }).eq("id", data.id);
+    const { data: antes } = await db.from(ent.tabela).select("*").eq("tenant_id", tenantId).eq("id", data.id).maybeSingle();
+    if (!antes) throw new Error("Registro não encontrado nesta empresa.");
+    const { error } = await db
+      .from(ent.tabela)
+      .update({ [ent.arquivar.coluna]: valor })
+      .eq("tenant_id", tenantId)
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     await db.from("auditoria").insert({
       tabela: ent.tabela,
@@ -213,6 +238,7 @@ export const arquivarRegistro = createServerFn({ method: "POST" })
       valor_novo: texto(valor),
       usuario_id: ctx.userId,
       usuario_nome: await nomeUsuario(ctx),
+      tenant_id: tenantId,
     });
     return { ok: true };
   });
@@ -225,12 +251,14 @@ export const dependenciasRegistro = createServerFn({ method: "POST" })
     await exigir(context, "visualizar");
     const ent = entidadePorChave(data.entidade);
     if (!ent) throw new Error("Entidade não disponível.");
+    const tenantId = await tenantDo(context as unknown as Contexto);
     const db = await admin();
     const itens: { rotulo: string; total: number }[] = [];
     for (const dep of ent.dependencias ?? []) {
       const { count } = await db
         .from(dep.tabela)
         .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
         .eq(dep.coluna, data.id);
       if ((count ?? 0) > 0) itens.push({ rotulo: dep.rotulo, total: count ?? 0 });
     }
@@ -256,10 +284,12 @@ export const excluirRegistro = createServerFn({ method: "POST" })
       throw new Error('Digite EXCLUIR para confirmar a remoção definitiva.');
     }
     const db = await admin();
+    const tenantId = await tenantDo(ctx);
     for (const dep of ent.dependencias ?? []) {
       const { count } = await db
         .from(dep.tabela)
         .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
         .eq(dep.coluna, data.id);
       if ((count ?? 0) > 0) {
         throw new Error(
@@ -267,8 +297,9 @@ export const excluirRegistro = createServerFn({ method: "POST" })
         );
       }
     }
-    const { data: antes } = await db.from(ent.tabela).select("*").eq("id", data.id).maybeSingle();
-    const { error } = await db.from(ent.tabela).delete().eq("id", data.id);
+    const { data: antes } = await db.from(ent.tabela).select("*").eq("tenant_id", tenantId).eq("id", data.id).maybeSingle();
+    if (!antes) throw new Error("Registro não encontrado nesta empresa.");
+    const { error } = await db.from(ent.tabela).delete().eq("tenant_id", tenantId).eq("id", data.id);
     if (error) throw new Error(error.message);
     await db.from("auditoria").insert({
       tabela: ent.tabela,
@@ -280,6 +311,7 @@ export const excluirRegistro = createServerFn({ method: "POST" })
       valor_novo: "",
       usuario_id: ctx.userId,
       usuario_nome: await nomeUsuario(ctx),
+      tenant_id: tenantId,
     });
     return { ok: true };
   });
@@ -290,10 +322,12 @@ export const auditoriaBanco = createServerFn({ method: "POST" })
   .inputValidator((d: { entidade?: string }) => ({ entidade: String(d?.entidade ?? "") }))
   .handler(async ({ data, context }) => {
     await exigir(context, "visualizar");
+    const tenantId = await tenantDo(context as unknown as Contexto);
     const db = await admin();
     let q = db
       .from("auditoria")
       .select("id,created_at,usuario_nome,tabela,acao,descricao,campo,valor_anterior,valor_novo")
+      .eq("tenant_id", tenantId)
       .order("created_at", { ascending: false })
       .limit(50);
     const ent = data.entidade ? entidadePorChave(data.entidade) : null;

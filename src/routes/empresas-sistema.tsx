@@ -51,9 +51,11 @@ function Pagina() {
 
   const criar = useMutation({
     mutationFn: async (valor: string) => {
-      const { error } = await supabase
-        .from("tenants")
-        .insert({ nome: valor.trim(), slug: slugificar(valor) });
+      // Cria a empresa já provisionada (perfis, permissões e configurações iniciais).
+      const { error } = await supabase.rpc("provisionar_tenant", {
+        _nome: valor.trim(),
+        _slug: slugificar(valor),
+      });
       if (error) throw error;
     },
     onSuccess: async () => {

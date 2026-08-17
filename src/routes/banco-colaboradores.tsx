@@ -43,6 +43,7 @@ import {
   type StatusColaborador,
 } from "@/lib/diarias";
 import { rotuloTransporte } from "@/lib/programacao";
+import { useTenantAtual } from "@/lib/tenant";
 
 /** Resumo do transporte exibido diretamente na listagem (sem entrar em edição). */
 function ResumoTransporte({ colaborador }: { colaborador: ColaboradorDiaria }) {
@@ -122,8 +123,11 @@ function Pagina() {
   const [colaboradorSelecionado, setColaboradorSelecionado] = useState<ColaboradorDiaria | null>(null);
   const { data: cpfCompleto } = useCpfCompleto(cpfVisivel);
 
+  const { data: empresaAtiva } = useTenantAtual();
+  // O link leva o identificador da empresa: o cadastro cai sempre na empresa certa.
+  const caminhoPortal = `/cadastro-diarias?empresa=${encodeURIComponent(empresaAtiva?.slug ?? "")}`;
   const linkPortal =
-    typeof window === "undefined" ? "/cadastro-diarias" : `${window.location.origin}/cadastro-diarias`;
+    typeof window === "undefined" ? caminhoPortal : `${window.location.origin}${caminhoPortal}`;
 
   function exportar() {
     const linhas = [
@@ -184,7 +188,7 @@ function Pagina() {
               Copiar link do portal
             </Button>
             <Button variant="outline" asChild>
-              <a href="/cadastro-diarias" target="_blank" rel="noreferrer">
+              <a href={caminhoPortal} target="_blank" rel="noreferrer">
                 <Link2 className="mr-2 h-4 w-4" />
                 Abrir portal
               </a>

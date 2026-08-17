@@ -225,7 +225,7 @@ function Pagina() {
                 Ainda não possui acesso?
               </p>
               <Link
-                to="/cadastro-diarias"
+                to="/cadastro-diarias" search={{ empresa: "" }}
                 className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/25 ring-offset-background transition-all hover:brightness-110 hover:shadow-xl hover:shadow-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] active:shadow-md sm:text-base"
               >
                 <Briefcase className="h-4 w-4 shrink-0" />
