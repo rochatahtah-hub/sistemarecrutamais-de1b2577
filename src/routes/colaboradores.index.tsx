@@ -4,8 +4,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { FiltrosBar } from "@/components/FiltrosBar";
 import { TabelaDesempenho } from "@/components/dashboard/TabelaDesempenho";
 import { useConfiguracoes, useVagas } from "@/lib/dados";
-import { aplicarFiltros, useFiltros } from "@/lib/filtros";
-import { agregarPor } from "@/lib/metricas";
+import { useFiltros } from "@/lib/filtros";
+import { agregarPorProgramadora } from "@/lib/metricas";
+import { useProgramadorasHabilitadas } from "@/lib/programacao";
 import { METAS_PADRAO } from "@/lib/tipos";
 import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
@@ -31,9 +32,10 @@ function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { filtros, filtrar } = useFiltros();
+  const { data: habilitadas = [] } = useProgramadorasHabilitadas();
   const linhas = useMemo(
-    () => agregarPor(filtrar(registros), "colaborador"),
-    [registros, filtros, filtrar],
+    () => agregarPorProgramadora(filtrar(registros), habilitadas),
+    [registros, filtros, filtrar, habilitadas],
   );
 
   if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Colaboradores" />;
