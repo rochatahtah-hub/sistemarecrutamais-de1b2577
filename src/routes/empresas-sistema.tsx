@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Building2, Check, Copy, LogIn, Pencil, Plus, Power, Trash2 } from "lucide-react";
+import { Building2, Check, Copy, ExternalLink, LogIn, Pencil, Plus, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
