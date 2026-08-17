@@ -11,14 +11,17 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
   formatarCPF,
   formatarTelefone,
   soDigitos,
   useSalvarCandidato,
+  TIPOS_TRANSPORTE,
   type Candidato,
 } from "@/lib/programacao";
 import { buscarBloqueio, type BloqueioAtivo } from "@/lib/bloqueios";
@@ -50,6 +53,10 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [bloqueio, setBloqueio] = useState<BloqueioAtivo | null>(null);
   const [liberado, setLiberado] = useState(false);
   const [previsualizando, setPrevisualizando] = useState(false);
+  const [transporteProprio, setTransporteProprio] = useState(false);
+  const [tiposTransporte, setTiposTransporte] = useState<string[]>([]);
+  const [precisaFretado, setPrecisaFretado] = useState(false);
+  const [obsTransporte, setObsTransporte] = useState("");
   const salvar = useSalvarCandidato();
 
   useEffect(() => {
@@ -73,6 +80,10 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     setLiberado(false);
     setPrevisualizando(false);
     setLendo(false);
+    setTransporteProprio(false);
+    setTiposTransporte([]);
+    setPrecisaFretado(false);
+    setObsTransporte("");
     if (inputArquivo.current) inputArquivo.current.value = "";
   }, [resetSinal]);
 
@@ -202,7 +213,17 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         toast.error("🚫 COLABORADOR BLOQUEADO — não é possível usar este CPF.");
         return;
       }
-      const { candidato: c, jaExistia } = await salvar.mutateAsync({ nome, cpf, telefone });
+      const { candidato: c, jaExistia } = await salvar.mutateAsync({
+        nome,
+        cpf,
+        telefone,
+        transporte: {
+          transporte_proprio: transporteProprio,
+          transporte_tipos: tiposTransporte,
+          precisa_fretado: precisaFretado,
+          transporte_observacao: obsTransporte,
+        },
+      });
       setAviso(jaExistia ? "Candidato já cadastrado." : "");
       definirBloqueio(null);
       onCandidato(c);
