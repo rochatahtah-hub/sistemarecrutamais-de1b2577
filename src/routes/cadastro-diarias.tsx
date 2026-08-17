@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, HandHeart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,6 +15,7 @@ import {
   PERIODOS,
   cadastrarColaboradorPublico,
   cpfValido,
+  empresaDoPortal,
   formatarCpf,
   formatarTelefone,
   soDigitosTelefone,
@@ -22,6 +24,9 @@ import { CamposTransporte } from "@/components/programacao/CamposTransporte";
 import { TRANSPORTE_PADRAO, type DadosTransporte } from "@/lib/programacao";
 
 export const Route = createFileRoute("/cadastro-diarias")({
+  validateSearch: (busca: Record<string, unknown>) => ({
+    empresa: typeof busca["empresa"] === "string" ? (busca["empresa"] as string) : "",
+  }),
   head: () => ({
     meta: [
       { title: "Cadastro de Diárias | Recruta+" },
@@ -49,6 +54,11 @@ function alternar(lista: string[], valor: string) {
 }
 
 function Pagina() {
+  const { empresa: slugEmpresa } = Route.useSearch();
+  const { data: empresa, isPending: carregandoEmpresa } = useQuery({
+    queryKey: ["portal-empresa", slugEmpresa],
+    queryFn: () => empresaDoPortal(slugEmpresa || null),
+  });
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cpf, setCpf] = useState("");
@@ -63,6 +73,7 @@ function Pagina() {
   const [concluido, setConcluido] = useState(false);
 
   const valido =
+    Boolean(empresa?.id) &&
     nome.trim().length >= 3 &&
     soDigitosTelefone(telefone).length >= 10 &&
     cpfValido(cpf) &&
@@ -75,6 +86,7 @@ function Pagina() {
     setEnviando(true);
     try {
       await cadastrarColaboradorPublico({
+        tenant_id: empresa!.id,
         full_name: nome.trim().slice(0, 120),
         phone: telefone,
         cpf,

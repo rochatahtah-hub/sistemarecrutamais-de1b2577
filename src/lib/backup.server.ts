@@ -32,13 +32,29 @@ type Linha = Record<string, unknown>;
 
 const PAGINA = 1000;
 
-async function lerTabela(tabela: string): Promise<Linha[]> {
+/** Ids de usuários da empresa — usado nas tabelas que não têm coluna de empresa. */
+async function usuariosDoTenant(tenantId: string): Promise<string[]> {
+  const { data } = await supabaseAdmin.from("profiles").select("id").eq("tenant_id", tenantId);
+  return (data ?? []).map((p) => p.id);
+}
+
+async function lerTabela(tabela: string, tenantId: string, idsUsuarios: string[]): Promise<Linha[]> {
   const linhas: Linha[] = [];
   for (let inicio = 0; ; inicio += PAGINA) {
-    const { data, error } = await supabaseAdmin
+    let consulta = supabaseAdmin
       .from(tabela as Tabela)
       .select("*")
-      .range(inicio, inicio + PAGINA - 1);
+      .range(inicio, inicio + PAGINA - 1) as unknown as {
+      eq: (c: string, v: unknown) => unknown;
+      in: (c: string, v: unknown[]) => unknown;
+    };
+    consulta = (tabela === "user_roles"
+      ? consulta.in("user_id", idsUsuarios.length ? idsUsuarios : ["00000000-0000-0000-0000-000000000000"])
+      : consulta.eq("tenant_id", tenantId)) as typeof consulta;
+    const { data, error } = (await (consulta as unknown as Promise<unknown>)) as {
+      data: Linha[] | null;
+      error: { message: string } | null;
+    };
     if (error) throw new Error(`Falha ao ler a tabela ${tabela}: ${error.message}`);
     const lote = (data ?? []) as Linha[];
     linhas.push(...lote);
@@ -95,10 +111,11 @@ function carimbo(): string {
 }
 
 /** Lê todas as tabelas do sistema e monta o arquivo de backup no formato pedido. */
-export async function montarArquivoBackup(formato: FormatoBackup): Promise<ArquivoBackup> {
+export async function montarArquivoBackup(formato: FormatoBackup, tenantId: string): Promise<ArquivoBackup> {
   const dados: Array<{ tabela: string; linhas: Linha[] }> = [];
+  const idsUsuarios = await usuariosDoTenant(tenantId);
   for (const tabela of TABELAS_BACKUP) {
-    dados.push({ tabela, linhas: await lerTabela(tabela) });
+    dados.push({ tabela, linhas: await lerTabela(tabela, tenantId, idsUsuarios) });
   }
   const totalRegistros = dados.reduce((s, d) => s + d.linhas.length, 0);
 
@@ -134,10 +151,12 @@ export async function montarArquivoBackup(formato: FormatoBackup): Promise<Arqui
 export async function executarBackup(opcoes: {
   formato: FormatoBackup;
   origem: OrigemBackup;
+  tenantId: string;
   criadoPor?: string | null;
   criadoPorNome?: string;
 }) {
   const inicio = Date.now();
+  if (!opcoes.tenantId) throw new Error("Empresa não identificada para o backup.");
   const { data: registro, error: erroRegistro } = await supabaseAdmin
     .from("backups")
     .insert({
@@ -146,6 +165,7 @@ export async function executarBackup(opcoes: {
       status: "processando",
       criado_por: opcoes.criadoPor ?? null,
       criado_por_nome: opcoes.criadoPorNome || "Sistema",
+      tenant_id: opcoes.tenantId,
     })
     .select("id")
     .single();
@@ -154,8 +174,8 @@ export async function executarBackup(opcoes: {
   }
 
   try {
-    const arquivo = await montarArquivoBackup(opcoes.formato);
-    const caminho = `${new Date().getFullYear()}/${arquivo.nome}`;
+    const arquivo = await montarArquivoBackup(opcoes.formato, opcoes.tenantId);
+    const caminho = `${opcoes.tenantId}/${new Date().getFullYear()}/${arquivo.nome}`;
     const { error: erroUpload } = await supabaseAdmin.storage
       .from("backups")
       .upload(caminho, arquivo.conteudo, { contentType: arquivo.contentType, upsert: true });
@@ -191,12 +211,13 @@ export async function executarBackup(opcoes: {
 }
 
 /** Remove backups mais antigos que a retenção configurada (arquivo + histórico). */
-export async function aplicarRetencao(dias: number) {
+export async function aplicarRetencao(dias: number, tenantId: string) {
   if (!dias || dias <= 0) return 0;
   const limite = new Date(Date.now() - dias * 86_400_000).toISOString();
   const { data } = await supabaseAdmin
     .from("backups")
     .select("id,arquivo_path")
+    .eq("tenant_id", tenantId)
     .lt("created_at", limite);
   const antigos = data ?? [];
   if (antigos.length === 0) return 0;
@@ -257,7 +278,7 @@ async function linkTemporario(caminho: string, nome: string) {
 export async function enviarBackupEmail(backupId: string, destino: string) {
   const { data: backup } = await supabaseAdmin
     .from("backups")
-    .select("arquivo_path,arquivo_nome,tamanho_bytes,status,formato")
+    .select("arquivo_path,arquivo_nome,tamanho_bytes,status,formato,tenant_id")
     .eq("id", backupId)
     .maybeSingle();
 
@@ -279,6 +300,7 @@ export async function enviarBackupEmail(backupId: string, destino: string) {
     mensagem: `Arquivo ${backup.arquivo_nome} pronto para ${destino}. Link de download (7 dias): ${link}`,
     para_admin: true,
     chave: `backup-${backupId}`,
+    tenant_id: backup.tenant_id,
   });
 
   return { enviado: false, motivo: "e-mail do projeto ainda não configurado", link, status };
@@ -286,13 +308,36 @@ export async function enviarBackupEmail(backupId: string, destino: string) {
 
 /** Roda o agendamento se estiver ativo e vencido. Usado pela rotina automática. */
 export async function rodarAgendamento() {
-  const { data: agenda } = await supabaseAdmin
+  const { data: agendas } = await supabaseAdmin
     .from("backup_agendamento")
     .select("*")
-    .eq("id", true)
-    .maybeSingle();
+    .eq("ativo", true);
 
-  if (!agenda || !agenda.ativo) return { executado: false, motivo: "agendamento inativo" };
+  const resultados = [];
+  for (const agenda of agendas ?? []) {
+    resultados.push(await rodarAgendamentoDaEmpresa(agenda));
+  }
+  if (!resultados.length) return { executado: false, motivo: "agendamento inativo" };
+  const executado = resultados.find((r) => r.executado);
+  return executado ?? resultados[0]!;
+}
+
+type Agendamento = { [k: string]: unknown } & {
+  ativo: boolean;
+  tenant_id: string;
+  formato: string;
+  retencao_dias: number;
+  email_destino: string;
+  proxima_execucao: string | null;
+  frequencia: string;
+  hora: number;
+  dia_semana: number;
+  dia_mes: number;
+};
+
+/** Executa (se vencido) o agendamento de uma empresa específica. */
+async function rodarAgendamentoDaEmpresa(agenda: Agendamento) {
+  if (!agenda.ativo) return { executado: false, motivo: "agendamento inativo" };
 
   const agora = new Date();
   if (agenda.proxima_execucao && new Date(agenda.proxima_execucao) > agora) {
@@ -303,9 +348,10 @@ export async function rodarAgendamento() {
     const resultado = await executarBackup({
       formato: (agenda.formato as FormatoBackup) ?? "sql",
       origem: "agendado",
+      tenantId: agenda.tenant_id,
       criadoPorNome: "Rotina automática",
     });
-    const removidos = await aplicarRetencao(agenda.retencao_dias);
+    const removidos = await aplicarRetencao(agenda.retencao_dias, agenda.tenant_id);
     const envio = await enviarBackupEmail(resultado.id, agenda.email_destino);
 
     await supabaseAdmin
@@ -317,7 +363,7 @@ export async function rodarAgendamento() {
         ultimo_envio_status: envio.enviado ? "enviado" : "pendente_dominio",
         ultimo_envio_erro: envio.enviado ? "" : String(envio.motivo ?? ""),
       })
-      .eq("id", true);
+      .eq("tenant_id", agenda.tenant_id);
 
     return { executado: true, ...resultado, removidos, envio };
   } catch (e) {
@@ -330,13 +376,14 @@ export async function rodarAgendamento() {
         ultimo_envio_status: "falhou",
         ultimo_envio_erro: mensagem.slice(0, 500),
       })
-      .eq("id", true);
+      .eq("tenant_id", agenda.tenant_id);
     await supabaseAdmin.from("notificacoes").insert({
       tipo: "backup",
       titulo: "Falha no backup automático",
       mensagem: mensagem.slice(0, 400),
       para_admin: true,
       chave: `backup-falha-${agora.toISOString().slice(0, 13)}`,
+      tenant_id: agenda.tenant_id,
     });
     throw e;
   }

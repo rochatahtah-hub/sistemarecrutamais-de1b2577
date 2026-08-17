@@ -239,7 +239,7 @@ export type Database = {
           {
             foreignKeyName: "backup_agendamento_tenant_fk"
             columns: ["tenant_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
@@ -765,6 +765,7 @@ export type Database = {
           primeira_ocorrencia: string
           sistema_operacional: string
           stack: string | null
+          tenant_id: string
           ultima_ocorrencia: string
           updated_at: string
           user_agent: string
@@ -786,6 +787,7 @@ export type Database = {
           primeira_ocorrencia?: string
           sistema_operacional?: string
           stack?: string | null
+          tenant_id?: string
           ultima_ocorrencia?: string
           updated_at?: string
           user_agent?: string
@@ -807,12 +809,21 @@ export type Database = {
           primeira_ocorrencia?: string
           sistema_operacional?: string
           stack?: string | null
+          tenant_id?: string
           ultima_ocorrencia?: string
           updated_at?: string
           user_agent?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "erros_sistema_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       importacoes: {
         Row: {
@@ -1149,23 +1160,34 @@ export type Database = {
       presenca_usuarios: {
         Row: {
           online: boolean
+          tenant_id: string
           ultimo_visto: string
           updated_at: string
           user_id: string
         }
         Insert: {
           online?: boolean
+          tenant_id?: string
           ultimo_visto?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           online?: boolean
+          tenant_id?: string
           ultimo_visto?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "presenca_usuarios_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1622,6 +1644,7 @@ export type Database = {
           login_at: string
           navegador: string
           sistema_operacional: string
+          tenant_id: string
           user_agent: string
           user_id: string | null
           usuario_nome: string
@@ -1632,6 +1655,7 @@ export type Database = {
           login_at?: string
           navegador?: string
           sistema_operacional?: string
+          tenant_id?: string
           user_agent?: string
           user_id?: string | null
           usuario_nome?: string
@@ -1642,11 +1666,20 @@ export type Database = {
           login_at?: string
           navegador?: string
           sistema_operacional?: string
+          tenant_id?: string
           user_agent?: string
           user_id?: string | null
           usuario_nome?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_access_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -1823,6 +1856,10 @@ export type Database = {
           nome: string
         }[]
       }
+      provisionar_tenant: {
+        Args: { _nome: string; _slug: string }
+        Returns: string
+      }
       registrar_acesso: {
         Args: {
           _navegador?: string
@@ -1869,6 +1906,14 @@ export type Database = {
       tenant_do_portal: { Args: never; Returns: string }
       tenant_do_usuario: { Args: { _user_id: string }; Returns: string }
       tenant_padrao: { Args: never; Returns: string }
+      tenant_publico: {
+        Args: { _slug: string }
+        Returns: {
+          id: string
+          nome: string
+          slug: string
+        }[]
+      }
       verificar_bloqueio: {
         Args: { _cpf: string; _empresa_id?: string }
         Returns: {

@@ -109,8 +109,18 @@ export function formatarTelefone(valor: string) {
   return d.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3").replace(/[-\s()]*$/, "");
 }
 
+/** Empresa do portal público, identificada pelo link (?empresa=slug). */
+export async function empresaDoPortal(slug: string | null) {
+  const { data, error } = await supabase.rpc("tenant_publico", { _slug: slug ?? "" });
+  if (error) throw new Error(error.message);
+  const empresa = (Array.isArray(data) ? data[0] : data) as
+    | { id: string; nome: string; slug: string }
+    | undefined;
+  return empresa ?? null;
+}
+
 /** Envio público do portal de diárias (sem login). */
-export async function cadastrarColaboradorPublico(dados: NovoColaboradorDiaria) {
+export async function cadastrarColaboradorPublico(dados: NovoColaboradorDiaria & { tenant_id: string }) {
   const { error } = await supabase.from("daily_workers").insert({
     ...dados,
     phone: soDigitosTelefone(dados.phone),

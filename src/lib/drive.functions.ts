@@ -102,9 +102,14 @@ export const enviarBackupDrive = createServerFn({ method: "POST" })
       );
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: tenantId } = await (context.supabase.rpc as unknown as (n: string) => Promise<{ data: string | null }>)(
+      "tenant_atual",
+    );
+    if (!tenantId) throw new Error("Não foi possível identificar a empresa ativa.");
     const { data: backup } = await supabaseAdmin
       .from("backups")
       .select("arquivo_path,arquivo_nome,status,drive_status,drive_link")
+      .eq("tenant_id", tenantId)
       .eq("id", data.id)
       .maybeSingle();
     if (!backup || backup.status !== "concluido" || !backup.arquivo_path) {

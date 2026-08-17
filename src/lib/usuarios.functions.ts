@@ -9,17 +9,39 @@ async function garantirAdmin(context: { supabase: { rpc: Function }; userId: str
   if (!ehAdmin) throw new Error("Apenas o administrador pode executar esta ação.");
 }
 
+/** Empresa ativa do administrador autenticado — todo acesso é limitado a ela. */
+async function tenantDoContexto(context: { supabase: { rpc: Function } }) {
+  const { data } = await (context.supabase.rpc as (n: string) => Promise<{ data: string | null }>)("tenant_atual");
+  if (!data) throw new Error("Não foi possível identificar a empresa ativa.");
+  return data as string;
+}
+
+/** Impede que um administrador altere contas de outra empresa. */
+async function garantirUsuarioDaEmpresa(
+  admin: { from: Function },
+  tenantId: string,
+  userId: string,
+) {
+  const { data } = await (admin.from("profiles") as any)
+    .select("id,tenant_id")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!data || data.tenant_id !== tenantId) throw new Error("Usuário de outra empresa: acesso negado.");
+}
+
 /** Lista os usuários com perfil, permissão, status e último acesso. */
 export const listarUsuarios = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await garantirAdmin(context);
+    const tenantId = await tenantDoContexto(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [{ data: perfis }, { data: papeis }, auth] = await Promise.all([
       supabaseAdmin
         .from("profiles")
         .select("id,nome,email,ativo,meta_quinzena,ultimo_acesso,last_login_at,ultimo_preenchimento,created_at")
+        .eq("tenant_id", tenantId)
         .order("nome"),
       supabaseAdmin.from("user_roles").select("user_id,role"),
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 }),
@@ -62,8 +84,10 @@ export const definirStatusUsuario = createServerFn({ method: "POST" })
   .inputValidator((d: { userId: string; ativo: boolean }) => d)
   .handler(async ({ data, context }) => {
     await garantirAdmin(context);
+    const tenantId = await tenantDoContexto(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { EMAIL_ADMIN_PRINCIPAL, acharUsuarioPorEmail } = await import("./admin.server");
+    await garantirUsuarioDaEmpresa(supabaseAdmin, tenantId, data.userId);
 
     if (!data.ativo) {
       const principal = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
@@ -86,6 +110,7 @@ export const definirStatusUsuario = createServerFn({ method: "POST" })
       valor_novo: data.ativo ? "true" : "false",
       usuario_id: context.userId,
       usuario_nome: "Administrador",
+      tenant_id: tenantId,
     });
     return { ok: true };
   });
@@ -97,8 +122,10 @@ export const atualizarUsuario = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await garantirAdmin(context);
     if (data.nome.trim().length < 2) throw new Error("Informe o nome completo.");
+    const tenantId = await tenantDoContexto(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { normalizarEmail } = await import("./admin.server");
+    await garantirUsuarioDaEmpresa(supabaseAdmin, tenantId, data.userId);
     const email = normalizarEmail(data.email);
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("Informe um e-mail válido.");
 
@@ -128,6 +155,7 @@ export const atualizarUsuario = createServerFn({ method: "POST" })
       valor_novo: `${data.nome.trim()} (${email})`,
       usuario_id: context.userId,
       usuario_nome: "Administrador",
+      tenant_id: tenantId,
     });
     return { ok: true };
   });
@@ -142,8 +170,10 @@ export const excluirUsuario = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await garantirAdmin(context);
     if (data.userId === context.userId) throw new Error("Você não pode excluir o próprio acesso.");
+    const tenantId = await tenantDoContexto(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { EMAIL_ADMIN_PRINCIPAL, acharUsuarioPorEmail } = await import("./admin.server");
+    await garantirUsuarioDaEmpresa(supabaseAdmin, tenantId, data.userId);
     const principal = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
     if (principal?.id === data.userId) throw new Error("O administrador principal não pode ser excluído.");
 
@@ -192,6 +222,7 @@ export const excluirUsuario = createServerFn({ method: "POST" })
       valor_novo: "",
       usuario_id: context.userId,
       usuario_nome: "Administrador",
+      tenant_id: tenantId,
     });
     return { ok: true };
   });

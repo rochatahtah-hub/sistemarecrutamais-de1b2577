@@ -2,7 +2,17 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-type Contexto = { supabase: { rpc: (n: "has_role", a: { _user_id: string; _role: "admin" }) => Promise<{ data: boolean | null }> }; userId: string };
+type Contexto = {
+  supabase: { rpc: (n: string, a?: unknown) => Promise<{ data: unknown }> };
+  userId: string;
+};
+
+/** Empresa ativa do administrador — backups são sempre por empresa. */
+async function tenantDo(context: Contexto) {
+  const { data } = await context.supabase.rpc("tenant_atual");
+  if (!data) throw new Error("Não foi possível identificar a empresa ativa.");
+  return String(data);
+}
 
 async function exigirAdmin(context: Contexto) {
   const { data } = await context.supabase.rpc("has_role", {
@@ -31,6 +41,7 @@ export const gerarBackup = createServerFn({ method: "POST" })
     const resultado = await executarBackup({
       formato: data.formato,
       origem: "manual",
+      tenantId: await tenantDo(context as unknown as Contexto),
       criadoPor: context.userId,
       criadoPorNome: perfil?.nome ?? "Administrador",
     });
@@ -38,7 +49,7 @@ export const gerarBackup = createServerFn({ method: "POST" })
     const { data: agenda } = await supabaseAdmin
       .from("backup_agendamento")
       .select("email_destino")
-      .eq("id", true)
+      .eq("tenant_id", await tenantDo(context as unknown as Contexto))
       .maybeSingle();
     const envio = await enviarBackupEmail(
       resultado.id,
@@ -57,6 +68,7 @@ export const linkDownloadBackup = createServerFn({ method: "POST" })
     const { data: backup } = await supabaseAdmin
       .from("backups")
       .select("arquivo_path,arquivo_nome,status")
+      .eq("tenant_id", await tenantDo(context as unknown as Contexto))
       .eq("id", data.id)
       .maybeSingle();
     if (!backup || backup.status !== "concluido" || !backup.arquivo_path) {
@@ -76,15 +88,17 @@ export const excluirBackup = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await exigirAdmin(context as unknown as Contexto);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const tenantId = await tenantDo(context as unknown as Contexto);
     const { data: backup } = await supabaseAdmin
       .from("backups")
       .select("arquivo_path")
+      .eq("tenant_id", tenantId)
       .eq("id", data.id)
       .maybeSingle();
     if (backup?.arquivo_path) {
       await supabaseAdmin.storage.from("backups").remove([backup.arquivo_path]);
     }
-    await supabaseAdmin.from("backups").delete().eq("id", data.id);
+    await supabaseAdmin.from("backups").delete().eq("tenant_id", tenantId).eq("id", data.id);
     return { ok: true };
   });
 
@@ -102,7 +116,10 @@ export const salvarEmailBackup = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("backup_agendamento")
-      .upsert({ id: true, email_destino: data.email });
+      .upsert(
+        { tenant_id: await tenantDo(context as unknown as Contexto), email_destino: data.email },
+        { onConflict: "tenant_id" },
+      );
     if (error) throw new Error(error.message);
     return { ok: true, email: data.email };
   });
@@ -114,15 +131,17 @@ export const testarEnvioBackup = createServerFn({ method: "POST" })
     await exigirAdmin(context as unknown as Contexto);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { enviarBackupEmail } = await import("./backup.server");
+    const tenantId = await tenantDo(context as unknown as Contexto);
     const { data: agenda } = await supabaseAdmin
       .from("backup_agendamento")
       .select("email_destino")
-      .eq("id", true)
+      .eq("tenant_id", tenantId)
       .maybeSingle();
     const destino = agenda?.email_destino || "rochatahtah@gmail.com";
     const { data: ultimo } = await supabaseAdmin
       .from("backups")
       .select("id,arquivo_nome")
+      .eq("tenant_id", tenantId)
       .eq("status", "concluido")
       .order("created_at", { ascending: false })
       .limit(1)
@@ -168,11 +187,14 @@ export const salvarAgendamento = createServerFn({ method: "POST" })
     const { calcularProximaExecucao } = await import("./backup.server");
     const { error } = await supabaseAdmin
       .from("backup_agendamento")
-      .upsert({
-        id: true,
-        ...data,
-        proxima_execucao: data.ativo ? calcularProximaExecucao(data) : null,
-      });
+      .upsert(
+        {
+          tenant_id: await tenantDo(context as unknown as Contexto),
+          ...data,
+          proxima_execucao: data.ativo ? calcularProximaExecucao(data) : null,
+        },
+        { onConflict: "tenant_id" },
+      );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
