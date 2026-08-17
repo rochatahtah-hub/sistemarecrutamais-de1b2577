@@ -119,6 +119,17 @@ function Pagina() {
           Cadastro para trabalho por diária
         </h1>
 
+        {!carregandoEmpresa && !empresa && (
+          <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-destructive-foreground">
+            Não encontramos a empresa deste link. Peça o endereço correto de cadastro para a equipe.
+          </p>
+        )}
+        {empresa && (
+          <p className="mb-6 text-center text-sm text-muted-foreground">
+            Você está se cadastrando para <strong className="text-foreground">{empresa.nome}</strong>.
+          </p>
+        )}
+
         {concluido ? (
           <Card>
             <CardHeader className="items-center text-center">
