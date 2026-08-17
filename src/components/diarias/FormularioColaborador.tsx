@@ -1,0 +1,212 @@
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
+import { CamposTransporte } from "@/components/programacao/CamposTransporte";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import {
+  PERIODOS,
+  cpfValido,
+  formatarCpf,
+  formatarTelefone,
+  soDigitosTelefone,
+  useAtualizarColaboradorDiaria,
+  useCriarColaboradorDiaria,
+  type ColaboradorDiaria,
+} from "@/lib/diarias";
+import { TRANSPORTE_PADRAO, type DadosTransporte } from "@/lib/programacao";
+
+interface FormularioColaboradorProps {
+  aberto: boolean;
+  colaborador: ColaboradorDiaria | null;
+  onOpenChange: (aberto: boolean) => void;
+}
+
+export function FormularioColaborador({ aberto, colaborador, onOpenChange }: FormularioColaboradorProps) {
+  const criar = useCriarColaboradorDiaria();
+  const atualizar = useAtualizarColaboradorDiaria();
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [disponivel, setDisponivel] = useState(true);
+  const [periodos, setPeriodos] = useState<string[]>([]);
+  const [funcao, setFuncao] = useState("");
+  const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
+
+  useEffect(() => {
+    if (!aberto) return;
+    setNome(colaborador?.full_name ?? "");
+    setTelefone(colaborador?.phone ?? "");
+    setCpf("");
+    setCidade(colaborador?.city ?? "");
+    setBairro(colaborador?.neighborhood ?? "");
+    setDisponivel(colaborador?.available_for_daily ?? true);
+    setPeriodos(colaborador?.available_periods ?? []);
+    setFuncao(colaborador?.desired_role ?? "");
+    setTransporte({
+      transporte_proprio: colaborador?.transporte_proprio ?? false,
+      transporte_tipos: [...(colaborador?.transporte_tipos ?? [])],
+      precisa_fretado: colaborador?.precisa_fretado ?? false,
+      transporte_observacao: colaborador?.transporte_observacao ?? "",
+    });
+  }, [aberto, colaborador]);
+
+  const editando = Boolean(colaborador);
+  const valido =
+    nome.trim().length >= 3 &&
+    soDigitosTelefone(telefone).length >= 10 &&
+    (editando || cpfValido(cpf)) &&
+    cidade.trim().length >= 2 &&
+    bairro.trim().length >= 2;
+  const salvando = criar.isPending || atualizar.isPending;
+
+  function alternarPeriodo(periodo: string, marcado: boolean) {
+    setPeriodos((atuais) =>
+      marcado ? Array.from(new Set([...atuais, periodo])) : atuais.filter((item) => item !== periodo),
+    );
+  }
+
+  function salvar() {
+    if (!valido || salvando) return;
+    const dadosComuns = {
+      full_name: nome.trim().slice(0, 120),
+      phone: telefone,
+      city: cidade.trim().slice(0, 80),
+      neighborhood: bairro.trim().slice(0, 80),
+      available_for_daily: disponivel,
+      available_periods: periodos,
+      desired_role: funcao.trim().slice(0, 120),
+      ...transporte,
+    };
+
+    if (colaborador) {
+      atualizar.mutate(
+        { id: colaborador.id, dados: dadosComuns },
+        {
+          onSuccess: () => {
+            toast.success("Colaborador atualizado.");
+            onOpenChange(false);
+          },
+          onError: () => toast.error("Não foi possível atualizar o colaborador."),
+        },
+      );
+      return;
+    }
+
+    criar.mutate(
+      { ...dadosComuns, cpf, available_days: [] },
+      {
+        onSuccess: () => {
+          toast.success("Colaborador cadastrado.");
+          onOpenChange(false);
+        },
+        onError: (erro) => toast.error(erro instanceof Error ? erro.message : "Não foi possível cadastrar."),
+      },
+    );
+  }
+
+  return (
+    <Dialog open={aberto} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{editando ? "Editar colaborador" : "Cadastrar colaborador"}</DialogTitle>
+          <DialogDescription>
+            {editando ? "Atualize os dados vinculados a este colaborador." : "Inclua um colaborador no banco de diárias."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="colaborador-nome">Nome completo *</Label>
+            <Input id="colaborador-nome" value={nome} maxLength={120} onChange={(e) => setNome(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="colaborador-telefone">Telefone / WhatsApp *</Label>
+            <Input
+              id="colaborador-telefone"
+              inputMode="tel"
+              value={formatarTelefone(telefone)}
+              onChange={(e) => setTelefone(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="colaborador-cpf">CPF *</Label>
+            {editando ? (
+              <Input id="colaborador-cpf" value={colaborador?.cpf_mascara || "CPF preservado"} disabled />
+            ) : (
+              <Input
+                id="colaborador-cpf"
+                inputMode="numeric"
+                value={formatarCpf(cpf)}
+                onChange={(e) => setCpf(e.target.value)}
+                placeholder="000.000.000-00"
+              />
+            )}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="colaborador-funcao">Função de interesse</Label>
+            <Input id="colaborador-funcao" value={funcao} maxLength={120} onChange={(e) => setFuncao(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="colaborador-cidade">Cidade *</Label>
+            <Input id="colaborador-cidade" value={cidade} maxLength={80} onChange={(e) => setCidade(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="colaborador-bairro">Bairro *</Label>
+            <Input id="colaborador-bairro" value={bairro} maxLength={80} onChange={(e) => setBairro(e.target.value)} />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between rounded-lg border border-border px-3.5 py-3">
+          <Label htmlFor="colaborador-disponivel">Disponível para diárias</Label>
+          <Switch id="colaborador-disponivel" checked={disponivel} onCheckedChange={setDisponivel} />
+        </div>
+
+        <CamposTransporte
+          titulo="TRANSPORTE"
+          valor={transporte}
+          onChange={(parcial) => setTransporte((atual) => ({ ...atual, ...parcial }))}
+          idPrefixo={`colaborador-${colaborador?.id ?? "novo"}-transporte`}
+        />
+
+        <div className="space-y-2">
+          <Label>Períodos disponíveis</Label>
+          <div className="flex flex-wrap gap-4">
+            {PERIODOS.map((periodo) => (
+              <div key={periodo} className="flex items-center gap-2">
+                <Checkbox
+                  id={`colaborador-periodo-${periodo}`}
+                  checked={periodos.includes(periodo)}
+                  onCheckedChange={(marcado) => alternarPeriodo(periodo, marcado === true)}
+                />
+                <Label htmlFor={`colaborador-periodo-${periodo}`} className="font-normal">{periodo}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={salvando}>Cancelar</Button>
+          <Button onClick={salvar} disabled={!valido || salvando}>
+            {salvando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Salvar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

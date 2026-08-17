@@ -212,7 +212,8 @@ export function useCpfCompleto(id: string | null) {
     queryKey: ["daily-worker-cpf", id],
     enabled: Boolean(id),
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("cpf_colaborador_diaria", { _id: id! });
+      if (!id) return null;
+      const { data, error } = await supabase.rpc("cpf_colaborador_diaria", { _id: id });
       if (error) throw error;
       return (data as string | null) ?? null;
     },

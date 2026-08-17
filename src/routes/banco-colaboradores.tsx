@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Database, Download, Eye, Link2, Trash2, Users } from "lucide-react";
+import { Copy, Database, Download, Eye, Link2, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
 import { EstadoVazio } from "@/components/EstadoVazio";
+import { FormularioColaborador } from "@/components/diarias/FormularioColaborador";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,7 +31,6 @@ import { usePrivacidade } from "@/lib/privacidade";
 import { usePermissoes } from "@/lib/permissoes";
 import { RequerPermissao } from "@/components/RequerPermissao";
 import {
-  DIAS_SEMANA,
   PERIODOS,
   STATUS_COLABORADOR,
   STATUS_ROTULO,
@@ -39,6 +39,7 @@ import {
   useColaboradoresDiaria,
   useCpfCompleto,
   useExcluirColaboradorDiaria,
+  type ColaboradorDiaria,
   type StatusColaborador,
 } from "@/lib/diarias";
 
@@ -70,7 +71,6 @@ function Pagina() {
   const [busca, setBusca] = useState("");
   const [cidade, setCidade] = useState("");
   const [status, setStatus] = useState("todos");
-  const [dia, setDia] = useState("todos");
   const [periodo, setPeriodo] = useState("todos");
   const [disponivel, setDisponivel] = useState<"todos" | "sim" | "nao">("todos");
   const buscaDebounce = useDebounce(busca, 350);
@@ -82,16 +82,17 @@ function Pagina() {
       cidade: cidadeDebounce,
       status,
       disponivel,
-      dia: dia === "todos" ? "" : dia,
       periodo: periodo === "todos" ? "" : periodo,
     }),
-    [buscaDebounce, cidadeDebounce, status, disponivel, dia, periodo],
+    [buscaDebounce, cidadeDebounce, status, disponivel, periodo],
   );
 
   const { data: lista = [], isLoading } = useColaboradoresDiaria(filtros);
   const atualizar = useAtualizarColaboradorDiaria();
   const excluir = useExcluirColaboradorDiaria();
   const [cpfVisivel, setCpfVisivel] = useState<string | null>(null);
+  const [formularioAberto, setFormularioAberto] = useState(false);
+  const [colaboradorSelecionado, setColaboradorSelecionado] = useState<ColaboradorDiaria | null>(null);
   const { data: cpfCompleto } = useCpfCompleto(cpfVisivel);
 
   const linkPortal =
@@ -99,7 +100,7 @@ function Pagina() {
 
   function exportar() {
     const linhas = [
-      ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Dias", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
+      ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
       ...lista.map((c) => [
         c.full_name,
         formatarTelefone(c.phone),
@@ -107,7 +108,6 @@ function Pagina() {
         c.city,
         c.neighborhood,
         c.available_for_daily ? "Sim" : "Não",
-        c.available_days.join(" | "),
         c.available_periods.join(" | "),
         c.desired_role,
         c.transporte_proprio ? "Sim" : "Não",
@@ -135,6 +135,17 @@ function Pagina() {
         icone={<Database className="h-5 w-5" />}
         acoes={
           <>
+            {pode("banco_colaboradores", "criar") && (
+              <Button
+                onClick={() => {
+                  setColaboradorSelecionado(null);
+                  setFormularioAberto(true);
+                }}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Cadastrar colaborador
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={() => {
@@ -162,7 +173,7 @@ function Pagina() {
       />
 
       <Card>
-        <CardContent className="grid gap-3 pt-6 md:grid-cols-3 xl:grid-cols-6">
+        <CardContent className="grid gap-3 pt-6 md:grid-cols-3 xl:grid-cols-5">
           <Input placeholder="Buscar nome, telefone ou bairro" value={busca} onChange={(e) => setBusca(e.target.value)} />
           <Input placeholder="Cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} />
           <Select value={status} onValueChange={setStatus}>
@@ -180,13 +191,6 @@ function Pagina() {
               <SelectItem value="todos">Disponibilidade: todas</SelectItem>
               <SelectItem value="sim">Disponível para diária</SelectItem>
               <SelectItem value="nao">Indisponível</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={dia} onValueChange={setDia}>
-            <SelectTrigger><SelectValue placeholder="Dia" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Qualquer dia</SelectItem>
-              {DIAS_SEMANA.map((d) => (<SelectItem key={d} value={d}>{d}</SelectItem>))}
             </SelectContent>
           </Select>
           <Select value={periodo} onValueChange={setPeriodo}>
@@ -258,11 +262,8 @@ function Pagina() {
                         ) : (
                           <Badge variant="secondary">Indisponível</Badge>
                         )}
-                        {c.available_days.length > 0 && (
-                          <span className="text-xs text-muted-foreground">{c.available_days.join(", ")}</span>
-                        )}
                         {c.available_periods.length > 0 && (
-                          <span className="text-xs text-muted-foreground">• {c.available_periods.join(", ")}</span>
+                          <span className="text-xs text-muted-foreground">{c.available_periods.join(", ")}</span>
                         )}
                       </div>
                     </TableCell>
@@ -293,6 +294,20 @@ function Pagina() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
+                      {pode("banco_colaboradores", "editar") && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={`Editar ${c.full_name}`}
+                          title="Editar colaborador"
+                          onClick={() => {
+                            setColaboradorSelecionado(c);
+                            setFormularioAberto(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                       {pode("banco_colaboradores", "excluir") && (
                         <Button
                           size="icon"
@@ -318,6 +333,15 @@ function Pagina() {
           </CardContent>
         </Card>
       )}
+
+      <FormularioColaborador
+        aberto={formularioAberto}
+        colaborador={colaboradorSelecionado}
+        onOpenChange={(aberto) => {
+          setFormularioAberto(aberto);
+          if (!aberto) setColaboradorSelecionado(null);
+        }}
+      />
     </div>
   );
 }
