@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
 import { useConfiguracoes } from "@/lib/dados";
+import { useTenantAtual } from "@/lib/tenant";
 import { useMarcarNotificacoesLidas, useNotificacoes } from "@/lib/programacao";
 
 function dentroDoExpediente(inicio: string, fim: string) {
@@ -90,6 +91,7 @@ export function TopBar() {
   const { perfil, user, isAdmin, podeOperar, sair } = useAuth();
   const { privado, alternar } = usePrivacidade();
   const { data: config } = useConfiguracoes();
+  const { data: tenant } = useTenantAtual();
   const { data: notificacoes = [] } = useNotificacoes();
   const marcarLidas = useMarcarNotificacoesLidas();
   const [fotoAberta, setFotoAberta] = useState(false);
@@ -165,6 +167,15 @@ export function TopBar() {
         <h2 className="min-w-0 truncate text-[15px] font-semibold tracking-tight text-foreground">
           {secao}
         </h2>
+        {tenant && (
+          <Badge
+            variant="outline"
+            className="hidden max-w-[16rem] truncate md:inline-flex"
+            title={`Empresa: ${tenant.nome}`}
+          >
+            {tenant.nome}
+          </Badge>
+        )}
       </div>
       <div className="ml-auto flex items-center gap-1.5">
         <BuscaGlobal />
