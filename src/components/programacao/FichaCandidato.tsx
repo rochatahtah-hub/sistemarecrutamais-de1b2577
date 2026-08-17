@@ -11,19 +11,20 @@ import {
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { CamposTransporte } from "@/components/programacao/CamposTransporte";
 import {
   formatarCPF,
   formatarTelefone,
   soDigitos,
   useSalvarCandidato,
-  TIPOS_TRANSPORTE,
+  TRANSPORTE_PADRAO,
   type Candidato,
+  type DadosTransporte,
 } from "@/lib/programacao";
+import { buscarCandidatoPorCPF } from "@/lib/programacao";
 import { buscarBloqueio, type BloqueioAtivo } from "@/lib/bloqueios";
 import { camposFaltantes, interpretarFicha } from "@/lib/ficha-texto";
 import { extrairFicha } from "@/lib/ficha.functions";
@@ -53,11 +54,22 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
   const [bloqueio, setBloqueio] = useState<BloqueioAtivo | null>(null);
   const [liberado, setLiberado] = useState(false);
   const [previsualizando, setPrevisualizando] = useState(false);
-  const [transporteProprio, setTransporteProprio] = useState(false);
-  const [tiposTransporte, setTiposTransporte] = useState<string[]>([]);
-  const [precisaFretado, setPrecisaFretado] = useState(false);
-  const [obsTransporte, setObsTransporte] = useState("");
+  const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
   const salvar = useSalvarCandidato();
+
+  const mudarTransporte = (parcial: Partial<DadosTransporte>) =>
+    setTransporte((atual) => ({ ...atual, ...parcial }));
+
+  // Carrega o transporte já salvo do candidato selecionado.
+  useEffect(() => {
+    if (!candidato) return;
+    setTransporte({
+      transporte_proprio: candidato.transporte_proprio ?? false,
+      transporte_tipos: candidato.transporte_tipos ?? [],
+      precisa_fretado: candidato.precisa_fretado ?? false,
+      transporte_observacao: candidato.transporte_observacao ?? "",
+    });
+  }, [candidato]);
 
   useEffect(() => {
     montado.current = true;
@@ -80,10 +92,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     setLiberado(false);
     setPrevisualizando(false);
     setLendo(false);
-    setTransporteProprio(false);
-    setTiposTransporte([]);
-    setPrecisaFretado(false);
-    setObsTransporte("");
+    setTransporte(TRANSPORTE_PADRAO);
     if (inputArquivo.current) inputArquivo.current.value = "";
   }, [resetSinal]);
 
@@ -217,12 +226,7 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
         nome,
         cpf,
         telefone,
-        transporte: {
-          transporte_proprio: transporteProprio,
-          transporte_tipos: tiposTransporte,
-          precisa_fretado: precisaFretado,
-          transporte_observacao: obsTransporte,
-        },
+        transporte,
       });
       setAviso(jaExistia ? "Candidato já cadastrado." : "");
       definirBloqueio(null);

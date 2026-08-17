@@ -16,7 +16,7 @@ export const entrarComPin = createServerFn({ method: "POST" })
   .inputValidator((d: { pin: string }) => ({ pin: String(d.pin ?? "").trim() }))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { conferirPin, gerarHashPin, pinValido } = await import("./pin.server");
+    const { conferirPin, pinValido } = await import("./pin.server");
     const { criarSessaoAdminPrincipal } = await import("./admin.server");
 
     if (!pinValido(data.pin)) throw new Error("O PIN deve ter de 4 a 8 dígitos.");
@@ -26,12 +26,12 @@ export const entrarComPin = createServerFn({ method: "POST" })
       .select("pin_hash,falhas,bloqueado_ate")
       .maybeSingle();
 
+    // Nenhum cadastro de "primeiro PIN" por visitantes: sem registro, o acesso é negado.
+    // A definição/alteração do PIN só acontece por `alterarPin`, que exige sessão de administrador.
     if (!registro) {
-      await supabaseAdmin
-        .from("admin_pin")
-        .upsert({ id: true, pin_hash: await gerarHashPin(data.pin), falhas: 0, bloqueado_ate: null });
-      const tokens = await criarSessaoAdminPrincipal();
-      return { ...tokens, primeiroAcesso: true };
+      throw new Error(
+        "Acesso administrativo indisponível: nenhum PIN cadastrado. Solicite ao administrador.",
+      );
     }
 
     if (registro.bloqueado_ate && new Date(registro.bloqueado_ate) > new Date()) {
