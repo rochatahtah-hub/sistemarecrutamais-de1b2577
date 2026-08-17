@@ -71,6 +71,29 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
     });
   }, [candidato]);
 
+  // Com o CPF completo, traz o transporte já cadastrado para não sobrescrever com valores vazios.
+  useEffect(() => {
+    const digitos = soDigitos(cpf);
+    if (digitos.length !== 11 || candidato) return;
+    let cancelado = false;
+    void buscarCandidatoPorCPF(digitos)
+      .then((existente) => {
+        if (cancelado || !existente) return;
+        setTransporte({
+          transporte_proprio: existente.transporte_proprio ?? false,
+          transporte_tipos: existente.transporte_tipos ?? [],
+          precisa_fretado: existente.precisa_fretado ?? false,
+          transporte_observacao: existente.transporte_observacao ?? "",
+        });
+      })
+      .catch(() => {
+        /* sem cadastro anterior: mantém o preenchimento atual */
+      });
+    return () => {
+      cancelado = true;
+    };
+  }, [cpf, candidato]);
+
   useEffect(() => {
     montado.current = true;
     return () => {
@@ -340,6 +363,8 @@ export function FichaCandidato({ onCandidato, candidato, onBloqueio, resetSinal 
       </div>
 
       {aviso && <p className="text-sm font-medium text-primary">{aviso}</p>}
+
+      <CamposTransporte valor={transporte} onChange={mudarTransporte} idPrefixo="ficha" />
 
       {pendencias.length > 0 && (
         <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
