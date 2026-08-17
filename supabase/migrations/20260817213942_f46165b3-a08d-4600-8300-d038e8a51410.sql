@@ -1,0 +1,1 @@
+DELETE FROM public.daily_workers WHERE full_name = 'TESTE PORTAL QA';

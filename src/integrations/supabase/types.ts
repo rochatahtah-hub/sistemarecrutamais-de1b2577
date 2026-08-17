@@ -1962,6 +1962,10 @@ export type Database = {
         Returns: boolean
       }
       tenant_ativo: { Args: never; Returns: string }
+      tenant_ativo_para_captacao: {
+        Args: { _tenant: string }
+        Returns: boolean
+      }
       tenant_atual: { Args: never; Returns: string }
       tenant_do_portal: { Args: never; Returns: string }
       tenant_do_usuario: { Args: { _user_id: string }; Returns: string }
