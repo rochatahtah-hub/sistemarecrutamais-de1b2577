@@ -9,10 +9,12 @@ export function CamposTransporte({
   valor,
   onChange,
   idPrefixo = "transporte",
+  titulo = "Transporte e deslocamento",
 }: {
   valor: DadosTransporte;
   onChange: (parcial: Partial<DadosTransporte>) => void;
   idPrefixo?: string;
+  titulo?: string;
 }) {
   const alternarTipo = (tipo: string, marcado: boolean) => {
     const atuais = new Set(valor.transporte_tipos);
@@ -23,7 +25,7 @@ export function CamposTransporte({
 
   return (
     <section className="space-y-4 rounded-xl border border-border/70 bg-muted/20 p-4">
-      <h3 className="rotulo-secao">Transporte e deslocamento</h3>
+      <h3 className="rotulo-secao">{titulo}</h3>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
