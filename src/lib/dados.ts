@@ -20,6 +20,7 @@ type LinhaVaga = {
   observacao: string | null;
   colaborador_id: string | null;
   empresa_id: string | null;
+  programadora_id: string | null;
   cargo: string | null;
   horario: string | null;
   local: string | null;
@@ -37,7 +38,7 @@ export async function buscarVagas(): Promise<VagaRegistro[]> {
     const { data, error } = await supabase
       .from("vagas")
       .select(
-        "id,data,quantidade,status,descricao,observacao,colaborador_id,empresa_id,cargo,horario,local,responsavel,situacao,colaboradores(nome),empresas(nome),candidatos(nome)",
+        "id,data,quantidade,status,descricao,observacao,colaborador_id,empresa_id,programadora_id,cargo,horario,local,responsavel,situacao,colaboradores(nome),empresas(nome),candidatos(nome)",
       )
       .order("data", { ascending: false })
       .range(pagina * tamanho, pagina * tamanho + tamanho - 1);
@@ -49,6 +50,7 @@ export async function buscarVagas(): Promise<VagaRegistro[]> {
         data: l.data,
         colaborador_id: l.colaborador_id,
         empresa_id: l.empresa_id,
+        programadora_id: l.programadora_id,
         colaborador: l.colaboradores?.nome ?? "Não identificado",
         empresa: l.empresas?.nome ?? "Não identificada",
         descricao: l.descricao ?? "",
