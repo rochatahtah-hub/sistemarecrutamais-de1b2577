@@ -9,9 +9,11 @@ export const Route = createFileRoute("/api/public/hooks/backup-agendado")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const chave = request.headers.get("apikey") ?? "";
-        const esperada = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? "";
-        if (!esperada || chave !== esperada) {
+        // Segredo exclusivo do agendador (nunca enviado ao navegador).
+        const chave =
+          request.headers.get("x-cron-secret") ?? request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? "";
+        const esperada = process.env["CRON_WEBHOOK_SECRET"] ?? "";
+        if (!esperada || chave.length !== esperada.length || chave !== esperada) {
           return new Response(JSON.stringify({ error: "não autorizado" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
