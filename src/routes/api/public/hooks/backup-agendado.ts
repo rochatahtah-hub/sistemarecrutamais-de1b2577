@@ -9,8 +9,15 @@ export const Route = createFileRoute("/api/public/hooks/backup-agendado")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const chave = request.headers.get("apikey") ?? "";
-        const esperada = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? "";
+        // Segredo exclusivo do agendador, guardado apenas no banco (nunca enviado ao navegador).
+        const chave = request.headers.get("x-cron-secret") ?? "";
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: segredo } = await supabaseAdmin
+          .from("cron_secrets")
+          .select("valor")
+          .eq("nome", "backup-agendado")
+          .maybeSingle();
+        const esperada = segredo?.valor ?? "";
         if (!esperada || chave !== esperada) {
           return new Response(JSON.stringify({ error: "não autorizado" }), {
             status: 401,
