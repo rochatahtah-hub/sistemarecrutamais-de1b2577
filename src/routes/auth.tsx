@@ -155,15 +155,16 @@ function Pagina() {
 
       <main className="flex items-center justify-center px-4 py-10 sm:px-8">
         <div className="w-full max-w-md">
+        <h1 className="sr-only">Entrar no Recruta+ — Sistema de Programação de Vagas</h1>
         <div className="mb-6 flex flex-col items-center text-center lg:hidden">
           <img
             src={logoMarca.url}
             alt="RECRUTA+"
             className="h-14 w-auto select-none object-contain"
           />
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight">
+          <p className="mt-3 text-2xl font-semibold tracking-tight">
             Sistema de Programação
-          </h1>
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">
             Acesso individual das programadoras
           </p>
@@ -171,7 +172,7 @@ function Pagina() {
 
         <div className="surface-panel filete-ouro entrada-suave rounded-2xl p-7 sm:p-8">
           <div className="mb-6 hidden lg:block">
-            <h1 className="text-2xl font-semibold tracking-tight">Sistema de Programação</h1>
+            <p className="text-2xl font-semibold tracking-tight">Sistema de Programação</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Acesso individual das programadoras
             </p>
