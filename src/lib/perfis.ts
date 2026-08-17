@@ -158,6 +158,7 @@ export function useDefinirPerfilDoUsuario() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["usuarios-permissao"] });
       void qc.invalidateQueries({ queryKey: ["permissoes"] });
+      void qc.invalidateQueries({ queryKey: ["programadoras-habilitadas"] });
     },
   });
 }
@@ -223,6 +224,7 @@ export function useSalvarExcecaoUsuario() {
     onSuccess: (_d, v) => {
       void qc.invalidateQueries({ queryKey: ["excecoes-usuario", v.userId] });
       void qc.invalidateQueries({ queryKey: ["permissoes"] });
+      void qc.invalidateQueries({ queryKey: ["programadoras-habilitadas"] });
     },
   });
 }

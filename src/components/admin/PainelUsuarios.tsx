@@ -59,6 +59,7 @@ export function PainelUsuarios() {
     await qc.invalidateQueries({ queryKey: ["admin-usuarios"] });
     await usuarios.refetch();
     await qc.invalidateQueries({ queryKey: ["programadoras"] });
+    await qc.invalidateQueries({ queryKey: ["programadoras-habilitadas"] });
   };
 
   const [novo, setNovo] = useState<{
