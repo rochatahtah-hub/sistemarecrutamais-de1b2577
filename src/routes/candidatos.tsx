@@ -104,8 +104,8 @@ function Pagina() {
       <div>
         <h1 className="font-display text-2xl font-bold">Cadastrar candidato</h1>
         <p className="text-sm text-muted-foreground">
-          Da ficha o sistema guarda somente nome, CPF e telefone. As demais informações são
-          descartadas após a leitura.
+          Da ficha o sistema guarda nome, CPF, telefone e os dados de transporte e deslocamento. As
+          demais informações são descartadas após a leitura.
         </p>
       </div>
 
