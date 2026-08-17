@@ -300,7 +300,11 @@ export type Database = {
           criado_por: string | null
           id: string
           nome: string
+          precisa_fretado: boolean
           telefone: string | null
+          transporte_observacao: string
+          transporte_proprio: boolean
+          transporte_tipos: string[]
           updated_at: string
         }
         Insert: {
@@ -309,7 +313,11 @@ export type Database = {
           criado_por?: string | null
           id?: string
           nome: string
+          precisa_fretado?: boolean
           telefone?: string | null
+          transporte_observacao?: string
+          transporte_proprio?: boolean
+          transporte_tipos?: string[]
           updated_at?: string
         }
         Update: {
@@ -318,7 +326,11 @@ export type Database = {
           criado_por?: string | null
           id?: string
           nome?: string
+          precisa_fretado?: boolean
           telefone?: string | null
+          transporte_observacao?: string
+          transporte_proprio?: boolean
+          transporte_tipos?: string[]
           updated_at?: string
         }
         Relationships: []
@@ -1394,6 +1406,13 @@ export type Database = {
       }
       perfil_do_usuario: { Args: { _user_id: string }; Returns: string }
       pode_operar: { Args: { _user_id: string }; Returns: boolean }
+      programadoras_da_programacao: {
+        Args: never
+        Returns: {
+          id: string
+          nome: string
+        }[]
+      }
       registrar_acesso: {
         Args: {
           _navegador?: string
