@@ -1,9 +1,21 @@
+import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { DatabaseBackup, KeyRound, Settings2, ShieldCheck } from "lucide-react";
+import {
+  AlertCircle,
+  Building2,
+  CheckCircle2,
+  DatabaseBackup,
+  KeyRound,
+  Settings2,
+  ShieldCheck,
+} from "lucide-react";
 
 import { PageHeader } from "@/components/PageHeader";
 import { RequerAdmin } from "@/components/RequerAdmin";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PainelBanco } from "@/components/admin/PainelBanco";
 import { PainelColaboradores } from "@/components/admin/PainelColaboradores";
@@ -12,6 +24,8 @@ import { PainelEmailBackup } from "@/components/admin/PainelEmailBackup";
 import { PainelUsuarios } from "@/components/admin/PainelUsuarios";
 import { ResumoAcessos } from "@/components/admin/ResumoAcessos";
 import { GerenciarEmpresas } from "@/components/programacao/GerenciarEmpresas";
+import { registrarErroSistema } from "@/lib/system-health";
+import { useTenantAtual } from "@/lib/tenant";
 
 export const Route = createFileRoute("/administracao")({
   head: () => ({
@@ -68,6 +82,8 @@ function Pagina() {
         }
       />
 
+      <TenantAdministrativo />
+
       <Tabs defaultValue="usuarios">
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="usuarios">👥 Usuários</TabsTrigger>
@@ -98,5 +114,89 @@ function Pagina() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function TenantAdministrativo() {
+  const { data: tenant, isPending, isError, error, refetch, isFetching } = useTenantAtual();
+
+  useEffect(() => {
+    if (!isError) return;
+    void registrarErroSistema(error, {
+      componente: "TenantAdministrativo",
+      operacao: "carregar tenant associado",
+      endpoint: "tenants",
+      categoria: "banco",
+    });
+  }, [error, isError]);
+
+  if (isPending) {
+    return (
+      <section className="border-b border-border/70 pb-5" aria-label="Carregando tenant">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 shrink-0 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-5 w-64 max-w-[70vw]" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Não foi possível carregar o tenant</AlertTitle>
+        <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
+          <span>A falha foi registrada para diagnóstico. Tente carregar novamente.</span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isFetching}
+            onClick={() => void refetch()}
+          >
+            {isFetching ? "Carregando…" : "Tentar novamente"}
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!tenant) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Nenhum tenant autorizado</AlertTitle>
+        <AlertDescription>
+          Seu perfil administrativo não possui um tenant associado no momento.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <section className="flex flex-col gap-3 border-b border-border/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-gold/25 bg-gold-soft text-accent-foreground">
+          <Building2 className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase text-muted-foreground">Tenant / Empresa</p>
+          <p className="truncate text-base font-semibold text-foreground" title={tenant.nome}>
+            {tenant.nome}
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 pl-[3.25rem] sm:pl-0">
+        <Badge variant="outline">{tenant.slug}</Badge>
+        <Badge variant={tenant.ativo && tenant.status === "ativo" ? "gold" : "secondary"}>
+          {tenant.ativo && tenant.status === "ativo" && <CheckCircle2 className="mr-1 h-3 w-3" />}
+          {tenant.status}
+        </Badge>
+      </div>
+    </section>
   );
 }
