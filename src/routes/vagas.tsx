@@ -39,12 +39,12 @@ export const Route = createFileRoute("/vagas")({
 function Pagina() {
   const priv = usePrivacidade();
   const { data: registros = [], isLoading } = useVagas();
-  const { filtros } = useFiltros();
+  const { filtros, filtrar } = useFiltros();
   const [pagina, setPagina] = useState(0);
   const [ficha, setFicha] = useState<VagaRegistro | null>(null);
   const porPagina = 50;
 
-  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros, filtrar]);
   const totalPaginas = Math.max(1, Math.ceil(filtrados.length / porPagina));
   const atual = Math.min(pagina, totalPaginas - 1);
   const visiveis = filtrados.slice(atual * porPagina, atual * porPagina + porPagina);

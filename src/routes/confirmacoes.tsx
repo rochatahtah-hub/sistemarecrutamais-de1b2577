@@ -65,14 +65,14 @@ const ABAS: { valor: Aba; label: string }[] = [
 function Pagina() {
   const priv = usePrivacidade();
   const { data: registros = [], isLoading } = useVagas();
-  const { filtros } = useFiltros();
+  const { filtros, filtrar } = useFiltros();
   const [aba, setAba] = useState<Aba>("TODAS");
   const [pagina, setPagina] = useState(0);
   const [ficha, setFicha] = useState<VagaRegistro | null>(null);
   const registrar = useRegistrarConfirmacao();
   const porPagina = 50;
 
-  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros, filtrar]);
   const total = useMemo(() => agregar(filtrados), [filtrados]);
   const lista = useMemo(
     () => (aba === "TODAS" ? filtrados : filtrados.filter((r) => r.status === aba)),

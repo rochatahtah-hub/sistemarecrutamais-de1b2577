@@ -32,11 +32,11 @@ export const Route = createFileRoute("/empresas/")({
 function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
-  const { filtros } = useFiltros();
+  const { filtros, filtrar } = useFiltros();
   const { isAdmin } = useAuth();
   const linhas = useMemo(
-    () => agregarPor(aplicarFiltros(registros, filtros), "empresa"),
-    [registros, filtros],
+    () => agregarPor(filtrar(registros), "empresa"),
+    [registros, filtros, filtrar],
   );
 
   if (!isLoading && registros.length === 0)

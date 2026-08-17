@@ -173,12 +173,12 @@ function Dashboard() {
   const { data: programadorasHabilitadas = [] } = useProgramadorasHabilitadas();
   const priv = usePrivacidade();
   const navigate = useNavigate();
-  const { filtros, setFiltros } = useFiltros();
+  const { filtros, setFiltros, filtrar } = useFiltros();
   const [granularidade, setGranularidade] = useState<Granularidade>("dia");
   const [metricaEmpresa, setMetricaEmpresa] = useState<keyof LinhaAgregada>("presencas");
 
   const metas = config?.metas ?? METAS_PADRAO;
-  const filtrados = useMemo(() => aplicarFiltros(registros, filtros), [registros, filtros]);
+  const filtrados = useMemo(() => filtrar(registros), [registros, filtros, filtrar]);
   const total = useMemo(() => agregar(filtrados), [filtrados]);
   /** Somente usuários ativos com permissão efetiva de "Minha Programação". */
   const porColaborador = useMemo(
