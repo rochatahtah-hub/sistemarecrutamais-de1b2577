@@ -177,13 +177,10 @@ function Pagina() {
                 <Switch checked={disponivel} onCheckedChange={setDisponivel} />
               </div>
 
-              <div className="space-y-2 rounded-xl border border-border/70 p-3.5">
-                <Label>Transporte</Label>
-                <CamposTransporte
-                  valor={transporte}
-                  onChange={(parcial) => setTransporte((a) => ({ ...a, ...parcial }))}
-                />
-              </div>
+              <CamposTransporte
+                valor={transporte}
+                onChange={(parcial) => setTransporte((a) => ({ ...a, ...parcial }))}
+              />
 
               <div className="space-y-2">
                 <Label>Períodos disponíveis</Label>
