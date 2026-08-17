@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { useFiltros } from "@/lib/filtros";
 import { usePrivacidade } from "@/lib/privacidade";
+import { primeiroNome } from "@/lib/utils";
 import type { VagaRegistro } from "@/lib/tipos";
 
 const MESES = [
@@ -29,10 +30,13 @@ const MESES = [
 ] as const;
 
 export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
-  const { filtros, setFiltros, limpar } = useFiltros();
+  const { filtros, setFiltros, limpar, programadoras } = useFiltros();
   const priv = usePrivacidade();
 
-  const colaboradores = Array.from(new Set(registros.map((r) => r.colaborador))).sort();
+  // Somente programadoras ativas com acesso efetivo a "Minha Programação", uma vez cada.
+  const colaboradores = Array.from(new Map(programadoras.map((p) => [p.id, p])).values()).sort(
+    (a, b) => primeiroNome(a.nome).localeCompare(primeiroNome(b.nome)),
+  );
   const empresas = Array.from(new Set(registros.map((r) => r.empresa))).sort();
   const anos = Array.from(new Set(registros.map((r) => r.data.slice(0, 4)))).sort().reverse();
 
@@ -136,7 +140,9 @@ export function FiltrosBar({ registros }: { registros: VagaRegistro[] }) {
             <SelectContent>
               <SelectItem value="todos">Todos</SelectItem>
               {colaboradores.map((c) => (
-                <SelectItem key={c} value={c}>{priv.nome(c)}</SelectItem>
+                <SelectItem key={c.id} value={c.id}>
+                  {priv.nome(primeiroNome(c.nome))}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
