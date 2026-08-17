@@ -380,6 +380,22 @@ export function useProgramadoras() {
   });
 }
 
+/**
+ * Usuários ativos com acesso efetivo ao módulo "Minha Programação".
+ * A lista vem do banco (perfis + permissões + status ativo) e nunca é fixa no código.
+ */
+export function useProgramadorasHabilitadas() {
+  return useQuery({
+    queryKey: ["programadoras-habilitadas"],
+    queryFn: async (): Promise<{ id: string; nome: string }[]> => {
+      const { data, error } = await supabase.rpc("programadoras_da_programacao");
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 30_000,
+  });
+}
+
 export function useAtualizarPerfil() {
   const qc = useQueryClient();
   return useMutation({
