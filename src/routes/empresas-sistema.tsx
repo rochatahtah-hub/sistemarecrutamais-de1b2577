@@ -395,7 +395,7 @@ function DialogoExcluir({ empresa, aoFechar }: { empresa: Tenant | null; aoFecha
           {etapa === 1 ? (
             <Button
               variant="destructive"
-              disabled={ativa || bloqueadores.length > 0 || isPending}
+              disabled={ativa || habilitada || bloqueadores.length > 0 || isPending}
               onClick={() => setEtapa(2)}
             >
               Continuar com a exclusão
