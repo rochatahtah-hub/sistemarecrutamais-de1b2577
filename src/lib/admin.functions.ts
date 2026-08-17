@@ -20,6 +20,25 @@ const PAPEIS: PapelUsuario[] = [
   "coordenador_rs",
 ];
 
+/** Garante que a conta alvo pertence à empresa ativa de quem está administrando. */
+async function garantirMesmaEmpresa(
+  supabaseUsuario: { rpc: (n: "tenant_atual") => PromiseLike<{ data: string | null }> },
+  userId: string,
+) {
+  const { data: tenantId } = await supabaseUsuario.rpc("tenant_atual");
+  if (!tenantId) throw new Error("Não foi possível identificar a empresa ativa.");
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: perfil } = await supabaseAdmin
+    .from("profiles")
+    .select("id,tenant_id")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!perfil || perfil.tenant_id !== tenantId) {
+    throw new Error("Usuário de outra empresa: acesso negado.");
+  }
+  return tenantId as string;
+}
+
 /** Cria um usuário com senha definida pelo administrador principal. */
 export const criarUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -33,6 +52,8 @@ export const criarUsuario = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode cadastrar usuários.");
     if (!data.senha || data.senha.length < 6) throw new Error("A senha precisa ter 6+ caracteres.");
+    const { data: tenantId } = await context.supabase.rpc("tenant_atual");
+    if (!tenantId) throw new Error("Não foi possível identificar a empresa ativa.");
     const papel: PapelUsuario = PAPEIS.includes(data.papel as PapelUsuario)
       ? (data.papel as PapelUsuario)
       : "programadora";
@@ -45,13 +66,16 @@ export const criarUsuario = createServerFn({ method: "POST" })
       email,
       password: data.senha,
       email_confirm: true,
-      user_metadata: { nome: data.nome.trim() },
+      user_metadata: { nome: data.nome.trim(), tenant_id: tenantId },
     });
     if (error || !criado.user) throw new Error(error?.message ?? "Não foi possível criar o acesso.");
 
     await supabaseAdmin
       .from("profiles")
-      .upsert({ id: criado.user.id, nome: data.nome.trim(), email, ativo: true }, { onConflict: "id" });
+      .upsert(
+        { id: criado.user.id, nome: data.nome.trim(), email, ativo: true, tenant_id: tenantId },
+        { onConflict: "id" },
+      );
     await supabaseAdmin
       .from("user_roles")
       .upsert(
@@ -73,6 +97,7 @@ export const definirSenha = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode alterar senhas.");
     if (!data.senha || data.senha.length < 6) throw new Error("A senha precisa ter 6+ caracteres.");
+    await garantirMesmaEmpresa(context.supabase, data.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
@@ -93,6 +118,7 @@ export const definirPermissao = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode alterar permissões.");
     if (!PAPEIS.includes(data.papel)) throw new Error("Perfil inválido.");
+    await garantirMesmaEmpresa(context.supabase, data.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { EMAIL_ADMIN_PRINCIPAL, acharUsuarioPorEmail } = await import("./admin.server");

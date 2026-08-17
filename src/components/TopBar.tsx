@@ -134,7 +134,7 @@ export function TopBar() {
         .from("notificacoes")
         .upsert(
           { user_id: user.id, tipo: "inatividade", titulo: "Inatividade", mensagem, chave },
-          { onConflict: "user_id,chave", ignoreDuplicates: true },
+          { onConflict: "tenant_id,user_id,chave", ignoreDuplicates: true },
         );
       if (!error) {
         await supabase.from("notificacoes").upsert(
@@ -146,7 +146,7 @@ export function TopBar() {
             mensagem: `${perfil.nome} está há ${horas} hora(s) sem inserir programações.`,
             chave: `${chave}-admin`,
           },
-          { onConflict: "user_id,chave", ignoreDuplicates: true },
+          { onConflict: "tenant_id,user_id,chave", ignoreDuplicates: true },
         );
       }
     };
