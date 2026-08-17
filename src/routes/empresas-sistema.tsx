@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Building2, Check, LogIn, Pencil, Plus, Power, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Building2, Check, Copy, LogIn, Pencil, Plus, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -69,7 +69,10 @@ function Pagina() {
   const [filtro, setFiltro] = useState<"todas" | "ativas" | "inativas">("todas");
   const [editando, setEditando] = useState<Tenant | null>(null);
   const [excluindo, setExcluindo] = useState<Tenant | null>(null);
+  const [origem, setOrigem] = useState("");
   const status = useDefinirStatusTenant();
+
+  useEffect(() => setOrigem(window.location.origin), []);
 
   const criar = useMutation({
     mutationFn: async (valor: string) => {
@@ -154,6 +157,30 @@ function Pagina() {
                     <Badge variant={habilitada ? "gold" : "secondary"}>
                       {habilitada ? "ATIVA" : "INATIVA"}
                     </Badge>
+                  </div>
+                  <div className="space-y-1.5 border-t border-border/60 pt-3">
+                    <p className="text-xs font-medium">Link de cadastro para diárias</p>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        readOnly
+                        aria-label={`Link de cadastro de ${empresa.nome}`}
+                        value={`${origem}/cadastro-diarias?empresa=${encodeURIComponent(empresa.slug)}`}
+                        className="h-8 text-xs"
+                      />
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        title="Copiar link"
+                        aria-label={`Copiar link de cadastro de ${empresa.nome}`}
+                        onClick={async () => {
+                          const link = `${window.location.origin}/cadastro-diarias?empresa=${encodeURIComponent(empresa.slug)}`;
+                          await navigator.clipboard.writeText(link);
+                          toast.success("Link de cadastro copiado.");
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   {ativa ? (
                     <p className="flex items-center gap-1.5 text-sm text-muted-foreground">

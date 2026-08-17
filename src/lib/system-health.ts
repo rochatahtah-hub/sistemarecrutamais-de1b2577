@@ -16,6 +16,10 @@ export interface ErroSistema {
   ocorrencias: number;
   primeira_ocorrencia: string;
   ultima_ocorrencia: string;
+  status: "pendente" | "resolvido";
+  resolvido_por_nome: string;
+  resolvido_em: string | null;
+  arquivado_em: string | null;
 }
 
 interface ErrosQuery {
@@ -124,13 +128,28 @@ export async function registrarErroSistema(
 }
 
 export async function listarErrosSistema(): Promise<ErroSistema[]> {
-  const { data, error } = await diagnosticsDb
+  const { data, error } = await supabase
     .from("erros_sistema")
     .select(
-      "id,pagina,componente,operacao,endpoint,codigo_http,categoria,mensagem,navegador,sistema_operacional,ocorrencias,primeira_ocorrencia,ultima_ocorrencia",
+      "id,pagina,componente,operacao,endpoint,codigo_http,categoria,mensagem,navegador,sistema_operacional,ocorrencias,primeira_ocorrencia,ultima_ocorrencia,status,resolvido_por_nome,resolvido_em,arquivado_em",
     )
+    .is("arquivado_em", null)
     .order("ultima_ocorrencia", { ascending: false })
     .limit(200);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as ErroSistema[];
+}
+
+export async function definirErroResolvido(id: string, resolvido: boolean) {
+  const { error } = await supabase.rpc("definir_status_erro_sistema", {
+    _id: id,
+    _resolvido: resolvido,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function arquivarErrosResolvidos(id?: string) {
+  const { data, error } = await supabase.rpc("arquivar_erros_resolvidos", { _id: id ?? null });
+  if (error) throw new Error(error.message);
+  return Number(data ?? 0);
 }
