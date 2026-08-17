@@ -1744,6 +1744,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acesso_tenant: { Args: { _tenant: string }; Returns: boolean }
+      acesso_tenant_conversa: { Args: { _conversa: string }; Returns: boolean }
       admin_conversa: {
         Args: { _conversa: string; _user: string }
         Returns: boolean
