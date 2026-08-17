@@ -248,9 +248,10 @@ function Pagina() {
             <DialogDescription>
               {jaTemPin
                 ? "Informe o PIN administrativo (4 a 8 dígitos)."
-                : "Nenhum PIN cadastrado. Defina agora o PIN administrativo (4 a 8 dígitos) — ele será exigido nos próximos acessos."}
+                : "Nenhum PIN cadastrado. Por segurança, o PIN só pode ser definido por um administrador já autenticado, dentro do sistema, na tela de Bloqueio de colaboradores."}
             </DialogDescription>
           </DialogHeader>
+          {jaTemPin ? (
           <div className="space-y-1.5">
             <Label htmlFor="pin">PIN</Label>
             <CampoSenha
@@ -270,15 +271,22 @@ function Pagina() {
               </p>
             ) : null}
           </div>
+          ) : null}
           <DialogFooter>
+            {jaTemPin ? (
             <Button
               type="button"
               className="w-full"
               disabled={enviando || pin.length < 4}
               onClick={() => void entrarComoAdmin()}
             >
-              {enviando ? "Verificando..." : jaTemPin ? "Entrar" : "Definir PIN e entrar"}
+              {enviando ? "Verificando..." : "Entrar"}
             </Button>
+            ) : (
+              <Button type="button" variant="outline" className="w-full" onClick={() => setAbrirPin(false)}>
+                Fechar
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
