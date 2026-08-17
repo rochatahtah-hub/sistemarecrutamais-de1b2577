@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { FichaCandidato } from "@/components/programacao/FichaCandidato";
+import { BotaoWhatsApp } from "@/components/BotaoWhatsApp";
 import { CamposTransporte } from "@/components/programacao/CamposTransporte";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
