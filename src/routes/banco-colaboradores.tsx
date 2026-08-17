@@ -99,7 +99,7 @@ function Pagina() {
 
   function exportar() {
     const linhas = [
-      ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Dias", "Períodos", "Função", "Status", "Cadastro"],
+      ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Dias", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
       ...lista.map((c) => [
         c.full_name,
         formatarTelefone(c.phone),
@@ -110,6 +110,10 @@ function Pagina() {
         c.available_days.join(" | "),
         c.available_periods.join(" | "),
         c.desired_role,
+        c.transporte_proprio ? "Sim" : "Não",
+        (c.transporte_tipos ?? []).join(" | "),
+        c.precisa_fretado ? "Sim" : "Não",
+        c.transporte_observacao ?? "",
         STATUS_ROTULO[c.status as StatusColaborador] ?? c.status,
         new Date(c.created_at).toLocaleDateString("pt-BR"),
       ]),
