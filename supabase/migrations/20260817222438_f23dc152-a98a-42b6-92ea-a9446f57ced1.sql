@@ -1,0 +1,1 @@
+UPDATE public.tenants SET ativo = false, status = 'inativo' WHERE slug = 'empresa-teste-recruta';

@@ -42,9 +42,8 @@ export const Route = createFileRoute("/cadastro-diarias")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "index, follow" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "/cadastro-diarias" }],
   }),
   component: Pagina,
 });
@@ -72,6 +71,8 @@ function Pagina() {
   const [consentimento, setConsentimento] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [concluido, setConcluido] = useState(false);
+  /** Empresa vem exclusivamente do link (slug) e é validada no banco. */
+  const linkIndisponivel = !slugEmpresa || (!carregandoEmpresa && !empresa);
 
   const valido =
     Boolean(empresa?.id) &&
@@ -120,9 +121,10 @@ function Pagina() {
           Cadastro para trabalho por diária
         </h1>
 
-        {(!slugEmpresa || (!carregandoEmpresa && !empresa)) && (
+        {linkIndisponivel && (
           <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-destructive-foreground">
-            Não encontramos a empresa deste link. Peça o endereço correto de cadastro para a equipe.
+            Este cadastro não está disponível no momento. Verifique o link recebido ou peça o endereço
+            correto de cadastro para a equipe.
           </p>
         )}
         {empresa && (
@@ -131,7 +133,7 @@ function Pagina() {
           </p>
         )}
 
-        {concluido ? (
+        {linkIndisponivel ? null : concluido ? (
           <Card>
             <CardHeader className="items-center text-center">
               <span className="grid h-14 w-14 place-items-center rounded-2xl border border-gold/25 bg-gold-soft text-accent-foreground">

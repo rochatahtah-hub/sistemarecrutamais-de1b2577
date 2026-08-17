@@ -4,10 +4,7 @@ import type {} from "@tanstack/react-start";
 const BASE_URL = "https://recrutamaisrh.ia.br";
 
 /** Somente páginas públicas. Áreas internas não entram no sitemap. */
-const ENTRIES = [
-  { path: "/cadastro-diarias", changefreq: "weekly", priority: "1.0" },
-  { path: "/auth", changefreq: "monthly", priority: "0.5" },
-] as const;
+const ENTRIES = [{ path: "/auth", changefreq: "monthly", priority: "0.5" }] as const;
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
