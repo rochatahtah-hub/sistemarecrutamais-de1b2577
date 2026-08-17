@@ -438,6 +438,8 @@ export function JanelaConversa({ resumo, onVoltar, onSaiu }: Props) {
               variant="ghost"
               size="icon"
               className="h-6 w-6"
+              aria-label="Cancelar resposta"
+              title="Cancelar resposta"
               onClick={() => setRespondendo(null)}
             >
               <X className="h-3.5 w-3.5" />

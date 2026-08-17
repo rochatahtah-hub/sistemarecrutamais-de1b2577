@@ -74,7 +74,7 @@ function Pagina() {
       <FiltrosBar registros={registros} />
 
       <div className="surface-panel rounded-2xl p-5">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">Prévia do conteúdo</p>
+        <h2 className="text-xs uppercase tracking-wider text-muted-foreground">Prévia do conteúdo</h2>
         <p className="mt-1 font-display text-lg font-semibold">{periodo}</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-4">
           {[
@@ -103,14 +103,14 @@ function Pagina() {
       </div>
 
       <div className="surface-panel rounded-2xl p-5 text-sm text-muted-foreground">
-        <p className="mb-2 font-semibold text-foreground">O relatório em PDF inclui:</p>
+        <h2 className="mb-2 font-semibold text-foreground">O relatório em PDF inclui:</h2>
         <ul className="list-inside list-disc space-y-1">
           <li>Capa com período analisado e data de emissão</li>
           <li>Resumo executivo com quantidades e percentuais</li>
           <li>Ranking de colaboradores e de empresas</li>
           <li>Alertas gerenciais gerados a partir das metas configuradas</li>
         </ul>
-        <p className="mt-3 font-semibold text-foreground">O Excel consolidado inclui:</p>
+        <h2 className="mt-3 font-semibold text-foreground">O Excel consolidado inclui:</h2>
         <ul className="list-inside list-disc space-y-1">
           <li>Aba de registros detalhados</li>
           <li>Aba de resumo geral</li>

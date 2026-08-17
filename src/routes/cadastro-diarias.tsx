@@ -36,7 +36,9 @@ export const Route = createFileRoute("/cadastro-diarias")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "/cadastro-diarias" }],
   }),
   component: Pagina,
 });
@@ -96,6 +98,10 @@ function Pagina() {
         <div className="mb-8 flex justify-center">
           <img src={logoLockup.url} alt="Recruta+" className="h-12 w-auto object-contain" />
         </div>
+
+        <h1 className="mb-6 text-center font-display text-2xl font-bold tracking-tight sm:text-3xl">
+          Cadastro para trabalho por diária
+        </h1>
 
         {concluido ? (
           <Card>

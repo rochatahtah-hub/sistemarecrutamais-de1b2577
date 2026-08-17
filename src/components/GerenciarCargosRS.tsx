@@ -93,10 +93,10 @@ export function GerenciarCargosRS() {
                     onChange={(e) => setEditandoNome(e.target.value)}
                     className="h-8 flex-1"
                   />
-                  <Button size="icon" variant="ghost" onClick={() => void renomear(c.id)}>
+                  <Button size="icon" variant="ghost" aria-label="Salvar nome do cargo" title="Salvar" onClick={() => void renomear(c.id)}>
                     <Check className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" variant="ghost" onClick={() => setEditandoId(null)}>
+                  <Button size="icon" variant="ghost" aria-label="Cancelar edição do cargo" title="Cancelar" onClick={() => setEditandoId(null)}>
                     <X className="h-4 w-4" />
                   </Button>
                 </>
@@ -117,6 +117,8 @@ export function GerenciarCargosRS() {
                   <Button
                     size="icon"
                     variant="ghost"
+                    aria-label={`Editar o cargo ${c.nome}`}
+                    title="Editar cargo"
                     onClick={() => {
                       setEditandoId(c.id);
                       setEditandoNome(c.nome);
@@ -127,6 +129,8 @@ export function GerenciarCargosRS() {
                   <Button
                     size="icon"
                     variant="ghost"
+                    aria-label={`Excluir o cargo ${c.nome}`}
+                    title="Excluir cargo"
                     onClick={() =>
                       excluir.mutate(c.id, {
                         onSuccess: () => toast.success("Cargo excluído."),

@@ -132,6 +132,8 @@ function ListaPerfis({
                 <Button
                   size="icon"
                   variant="ghost"
+                  aria-label={`Excluir o perfil ${p.nome}`}
+                  title="Excluir perfil"
                   onClick={() => {
                     if (!window.confirm(`Excluir o perfil ${p.nome}?`)) return;
                     excluir.mutate(p.id, {

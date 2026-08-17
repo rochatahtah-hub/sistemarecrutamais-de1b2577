@@ -293,6 +293,8 @@ function Pagina() {
                         <Button
                           size="icon"
                           variant="ghost"
+                          aria-label="Excluir cadastro"
+                          title="Excluir cadastro"
                           onClick={() => {
                             if (!window.confirm(`Excluir o cadastro de ${c.full_name}?`)) return;
                             excluir.mutate(c.id, {

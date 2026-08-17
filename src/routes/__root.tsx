@@ -106,6 +106,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      // Padrão do sistema: áreas internas nunca devem ser indexadas.
+      // As rotas públicas (/auth e /cadastro-diarias) sobrescrevem esta meta.
+      { name: "robots", content: "noindex, nofollow" },
     ],
     links: [
       {
