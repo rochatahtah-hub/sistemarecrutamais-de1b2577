@@ -22,10 +22,10 @@ const PAPEIS: PapelUsuario[] = [
 
 /** Garante que a conta alvo pertence à empresa ativa de quem está administrando. */
 async function garantirMesmaEmpresa(
-  context: { supabase: { rpc: (n: string) => Promise<{ data: unknown }> } },
+  supabaseUsuario: { rpc: (n: "tenant_atual") => Promise<{ data: string | null }> },
   userId: string,
 ) {
-  const { data: tenantId } = await context.supabase.rpc("tenant_atual");
+  const { data: tenantId } = await supabaseUsuario.rpc("tenant_atual");
   if (!tenantId) throw new Error("Não foi possível identificar a empresa ativa.");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: perfil } = await supabaseAdmin
