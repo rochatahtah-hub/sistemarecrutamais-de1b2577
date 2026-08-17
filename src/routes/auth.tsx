@@ -132,7 +132,7 @@ function Pagina() {
         <img
           src={logoLockup.url}
           alt="RECRUTA+ — Gestão inteligente de recrutamento"
-          className="h-14 w-auto select-none object-contain object-left opacity-95"
+          className="h-14 w-auto select-none object-contain object-left"
         />
         <div className="max-w-md">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-sidebar-primary">
@@ -161,11 +161,13 @@ function Pagina() {
           <h1 className="sr-only">Entrar no RECRUTA+</h1>
 
           <div className="mb-8 flex flex-col items-center text-center">
-            <img
-              src={logoLockup.url}
-              alt="RECRUTA+"
-              className="h-16 w-auto select-none object-contain opacity-95"
-            />
+            <div className="malha-escura flex w-full max-w-[320px] items-center justify-center rounded-2xl px-6 py-5 shadow-sm">
+              <img
+                src={logoLockup.url}
+                alt="RECRUTA+ — Gestão inteligente de recrutamento"
+                className="h-12 w-auto select-none object-contain sm:h-14"
+              />
+            </div>
             <p className="mt-4 text-sm font-medium tracking-wide text-muted-foreground">
               Gestão inteligente de recrutamento.
             </p>
