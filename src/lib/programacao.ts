@@ -230,8 +230,9 @@ export function useAtualizarTransporte() {
         .update(normalizarTransporte(resto))
         .eq("id", id)
         .select(CAMPOS_CANDIDATO)
-        .single();
+        .maybeSingle();
       if (error) throw error;
+      if (!data) throw new Error("Não foi possível salvar o transporte: sem permissão para editar este candidato.");
       return data as Candidato;
     },
     onSuccess: () => sincronizarSistema(qc),
