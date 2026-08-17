@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Briefcase, ShieldCheck } from "lucide-react";
+import { Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -21,20 +21,19 @@ import {
 } from "@/components/ui/dialog";
 import { entrarComPin, pinDefinido } from "@/lib/pin.functions";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
-import logoMarca from "@/assets/recruta-mark.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar | Sistema de Programação de Vagas" },
+      { title: "Entrar | RECRUTA+" },
       {
         name: "description",
-        content: "Acesso individual das programadoras ao sistema de programação e controle de vagas.",
+        content: "Acesse o RECRUTA+ — gestão inteligente de recrutamento e seleção.",
       },
-      { property: "og:title", content: "Entrar | Sistema de Programação de Vagas" },
+      { property: "og:title", content: "Entrar | RECRUTA+" },
       {
         property: "og:description",
-        content: "Acesso individual das programadoras ao sistema de programação e controle de vagas.",
+        content: "Acesse o RECRUTA+ — gestão inteligente de recrutamento e seleção.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -159,85 +158,64 @@ function Pagina() {
 
       <main className="flex items-center justify-center px-4 py-10 sm:px-8">
         <div className="w-full max-w-md">
-        <h1 className="sr-only">Entrar no Recruta+ — Sistema de Programação de Vagas</h1>
-        <div className="mb-6 flex flex-col items-center text-center lg:hidden">
-          <img
-            src={logoMarca.url}
-            alt="RECRUTA+"
-            className="h-14 w-auto select-none object-contain"
-          />
-          <p className="mt-3 text-2xl font-semibold tracking-tight">
-            Sistema de Programação
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Acesso individual das programadoras
-          </p>
-        </div>
+          <h1 className="sr-only">Entrar no RECRUTA+</h1>
 
-        <div className="surface-panel filete-ouro entrada-suave rounded-2xl p-7 sm:p-8">
-          <div className="mb-6 hidden lg:block">
-            <p className="text-2xl font-semibold tracking-tight">Sistema de Programação</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Acesso individual das programadoras
+          <div className="mb-8 flex flex-col items-center text-center">
+            <img
+              src={logoLockup.url}
+              alt="RECRUTA+"
+              className="h-16 w-auto select-none object-contain opacity-95"
+            />
+            <p className="mt-4 text-sm font-medium tracking-wide text-muted-foreground">
+              Gestão inteligente de recrutamento.
             </p>
           </div>
-          <Button
-            type="button"
-            variant="secondary"
-            className="mb-4 w-full gap-2"
-            disabled={enviando}
-            onClick={() => void abrirAcessoAdmin()}
-          >
-            <ShieldCheck className="h-4 w-4" />
-            🔐 ADMINISTRADOR
-          </Button>
-          <p className="mb-4 text-center text-xs text-muted-foreground">
-            Acesso administrativo protegido por PIN.
-          </p>
-          <form className="space-y-4 pt-4" onSubmit={entrar}>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="senha">Senha</Label>
-              <CampoSenha
-                id="senha"
-                autoComplete="current-password"
-                required
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={enviando}>
-              {enviando ? "Entrando..." : "Entrar"}
-            </Button>
-          </form>
 
-          <div className="mt-6 border-t border-border pt-6">
-            <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Ainda não possui acesso?
-            </p>
-            <Link
-              to="/cadastro-diarias"
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/25 ring-offset-background transition-all hover:brightness-110 hover:shadow-xl hover:shadow-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] active:shadow-md sm:text-base"
-            >
-              <Briefcase className="h-4 w-4 shrink-0" />
-              Cadastrar para diárias
-            </Link>
-            <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
-              Cadastro público para oportunidades de trabalho. Não cria uma conta
-              de acesso ao sistema.
-            </p>
+          <div className="surface-panel filete-ouro entrada-suave rounded-2xl p-7 sm:p-8">
+            <form className="space-y-4" onSubmit={entrar}>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="senha">Senha</Label>
+                <CampoSenha
+                  id="senha"
+                  autoComplete="current-password"
+                  required
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={enviando}>
+                {enviando ? "Entrando..." : "Entrar"}
+              </Button>
+            </form>
+
+            <div className="mt-6 border-t border-border pt-6">
+              <p className="mb-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Ainda não possui acesso?
+              </p>
+              <Link
+                to="/cadastro-diarias"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-bold uppercase tracking-wide text-primary-foreground shadow-lg shadow-primary/25 ring-offset-background transition-all hover:brightness-110 hover:shadow-xl hover:shadow-primary/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.98] active:shadow-md sm:text-base"
+              >
+                <Briefcase className="h-4 w-4 shrink-0" />
+                Cadastrar para diárias
+              </Link>
+              <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+                Cadastro público para oportunidades de trabalho. Não cria uma conta
+                de acesso ao sistema.
+              </p>
+            </div>
           </div>
-        </div>
         </div>
       </main>
 
