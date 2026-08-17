@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
 import {
-  DIAS_SEMANA,
   PERIODOS,
   cadastrarColaboradorPublico,
   cpfValido,
@@ -19,6 +18,8 @@ import {
   formatarTelefone,
   soDigitosTelefone,
 } from "@/lib/diarias";
+import { CamposTransporte } from "@/components/programacao/CamposTransporte";
+import { TRANSPORTE_PADRAO, type DadosTransporte } from "@/lib/programacao";
 
 export const Route = createFileRoute("/cadastro-diarias")({
   head: () => ({
@@ -54,8 +55,8 @@ function Pagina() {
   const [cidade, setCidade] = useState("");
   const [bairro, setBairro] = useState("");
   const [disponivel, setDisponivel] = useState(true);
-  const [dias, setDias] = useState<string[]>([]);
   const [periodos, setPeriodos] = useState<string[]>([]);
+  const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
   const [funcao, setFuncao] = useState("");
   const [consentimento, setConsentimento] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -80,9 +81,10 @@ function Pagina() {
         city: cidade.trim().slice(0, 80),
         neighborhood: bairro.trim().slice(0, 80),
         available_for_daily: disponivel,
-        available_days: dias,
+        available_days: [],
         available_periods: periodos,
         desired_role: funcao.trim().slice(0, 120),
+        ...transporte,
       });
       setConcluido(true);
     } catch (e) {
@@ -175,20 +177,12 @@ function Pagina() {
                 <Switch checked={disponivel} onCheckedChange={setDisponivel} />
               </div>
 
-              <div className="space-y-2">
-                <Label>Dias disponíveis</Label>
-                <div className="flex flex-wrap gap-2">
-                  {DIAS_SEMANA.map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setDias((a) => alternar(a, d))}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${dias.includes(d) ? "border-gold/50 bg-gold-soft text-accent-foreground" : "border-border/70 text-muted-foreground hover:bg-accent"}`}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
+              <div className="space-y-2 rounded-xl border border-border/70 p-3.5">
+                <Label>Transporte</Label>
+                <CamposTransporte
+                  valor={transporte}
+                  onChange={(parcial) => setTransporte((a) => ({ ...a, ...parcial }))}
+                />
               </div>
 
               <div className="space-y-2">
