@@ -186,6 +186,12 @@ function Pagina() {
                       size="sm"
                       variant="ghost"
                       className="text-destructive hover:text-destructive"
+                      disabled={habilitada}
+                      title={
+                        habilitada
+                          ? "Empresa ativa não pode ser excluída. Inative a empresa antes."
+                          : "Excluir empresa inativa"
+                      }
                       onClick={() => setExcluindo(empresa)}
                     >
                       <Trash2 className="mr-2 h-4 w-4" /> Excluir
