@@ -55,7 +55,7 @@ import {
   type Granularidade,
   type LinhaAgregada,
 } from "@/lib/metricas";
-import { METAS_PADRAO, normalizarTexto } from "@/lib/tipos";
+import { METAS_PADRAO } from "@/lib/tipos";
 import { SemPlanilha } from "@/components/PlanilhaAtiva";
 
 export const Route = createFileRoute("/")({
