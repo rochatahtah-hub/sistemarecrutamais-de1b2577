@@ -42,13 +42,11 @@ import {
   type ColaboradorDiaria,
   type StatusColaborador,
 } from "@/lib/diarias";
-import { TIPOS_TRANSPORTE } from "@/lib/programacao";
+import { rotuloTransporte } from "@/lib/programacao";
 
 /** Resumo do transporte exibido diretamente na listagem (sem entrar em edição). */
 function ResumoTransporte({ colaborador }: { colaborador: ColaboradorDiaria }) {
-  const rotulo = (tipo: string) =>
-    TIPOS_TRANSPORTE.find((t) => t.valor === tipo)?.rotulo ?? tipo;
-  const tipos = (colaborador.transporte_tipos ?? []).map(rotulo);
+  const tipos = (colaborador.transporte_tipos ?? []).map(rotuloTransporte);
   return (
     <div className="space-y-1 text-xs">
       <div>
@@ -296,6 +294,9 @@ function Pagina() {
                           <span className="text-xs text-muted-foreground">{c.available_periods.join(", ")}</span>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <ResumoTransporte colaborador={c} />
                     </TableCell>
                     <TableCell className="text-muted-foreground">{c.desired_role || "—"}</TableCell>
                     <TableCell>
