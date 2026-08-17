@@ -96,11 +96,10 @@ function chaveNome(valor: string): string {
  * está vinculada e, para registros antigos, o nome do colaborador. Quem não
  * está na lista de habilitadas simplesmente não entra no resultado.
  */
-export function agregarPorProgramadora(
-  registros: VagaRegistro[],
+export function criarResolucaoProgramadora(
   habilitadas: { id: string; nome: string }[],
-): LinhaAgregada[] {
-  const porId = new Map(habilitadas.map((p) => [p.id, p]));
+): (registro: VagaRegistro) => string | undefined {
+  const porId = new Set(habilitadas.map((p) => p.id));
   const porNome = new Map<string, string>();
   const primeiroNomeContagem = new Map<string, number>();
   for (const p of habilitadas) {
@@ -116,15 +115,24 @@ export function agregarPorProgramadora(
       porNome.set(primeiro, p.id);
     }
   }
+  return (r) => {
+    if (r.programadora_id && porId.has(r.programadora_id)) return r.programadora_id;
+    const nome = chaveNome(r.colaborador ?? "");
+    if (!nome) return undefined;
+    return porNome.get(nome) ?? porNome.get(nome.split(" ")[0] ?? "");
+  };
+}
+
+export function agregarPorProgramadora(
+  registros: VagaRegistro[],
+  habilitadas: { id: string; nome: string }[],
+): LinhaAgregada[] {
+  const porId = new Map(habilitadas.map((p) => [p.id, p]));
+  const resolver = criarResolucaoProgramadora(habilitadas);
 
   const grupos = new Map<string, VagaRegistro[]>();
   for (const r of registros) {
-    let id: string | undefined;
-    if (r.programadora_id && porId.has(r.programadora_id)) id = r.programadora_id;
-    else {
-      const nome = chaveNome(r.colaborador ?? "");
-      id = porNome.get(nome) ?? porNome.get(nome.split(" ")[0] ?? "");
-    }
+    const id = resolver(r);
     if (!id) continue;
     const lista = grupos.get(id);
     if (lista) lista.push(r);
