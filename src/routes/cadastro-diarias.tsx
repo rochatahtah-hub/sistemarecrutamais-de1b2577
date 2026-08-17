@@ -121,7 +121,8 @@ function Pagina() {
 
         {(!slugEmpresa || (!carregandoEmpresa && !empresa)) && (
           <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-destructive-foreground">
-            Não encontramos a empresa deste link. Peça o endereço correto de cadastro para a equipe.
+            Este cadastro não está disponível no momento. Verifique o link recebido ou peça o endereço
+            correto de cadastro para a equipe.
           </p>
         )}
         {empresa && (
