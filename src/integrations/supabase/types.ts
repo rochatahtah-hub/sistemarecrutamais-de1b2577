@@ -1637,6 +1637,42 @@ export type Database = {
           },
         ]
       }
+      tenants_log: {
+        Row: {
+          acao: string
+          created_at: string
+          detalhe: string
+          id: string
+          tenant_id: string | null
+          tenant_nome: string
+          tenant_slug: string
+          usuario_id: string | null
+          usuario_nome: string
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          detalhe?: string
+          id?: string
+          tenant_id?: string | null
+          tenant_nome?: string
+          tenant_slug?: string
+          usuario_id?: string | null
+          usuario_nome?: string
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          detalhe?: string
+          id?: string
+          tenant_id?: string | null
+          tenant_nome?: string
+          tenant_slug?: string
+          usuario_id?: string | null
+          usuario_nome?: string
+        }
+        Relationships: []
+      }
       user_access_logs: {
         Row: {
           created_at: string
@@ -1826,8 +1862,24 @@ export type Database = {
         Args: { _conversa: string; _user: string }
         Returns: boolean
       }
+      definir_status_tenant: {
+        Args: { _ativo: boolean; _tenant: string }
+        Returns: undefined
+      }
+      dependencias_tenant: {
+        Args: { _tenant: string }
+        Returns: {
+          bloqueia: boolean
+          entidade: string
+          total: number
+        }[]
+      }
       eh_master: { Args: { _user_id: string }; Returns: boolean }
       eh_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      excluir_tenant: {
+        Args: { _confirmacao: string; _tenant: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1884,6 +1936,14 @@ export type Database = {
           _user_agent: string
         }
         Returns: string
+      }
+      registrar_log_tenant: {
+        Args: { _acao: string; _detalhe: string; _tenant: string }
+        Returns: undefined
+      }
+      renomear_tenant: {
+        Args: { _nome: string; _tenant: string }
+        Returns: undefined
       }
       resumo_saude_sistema: {
         Args: never
