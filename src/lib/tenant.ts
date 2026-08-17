@@ -91,6 +91,75 @@ export function useTenantsDisponiveis() {
   });
 }
 
+/** Ativa ou inativa uma empresa (somente CEO). Nenhum dado é apagado. */
+export function useDefinirStatusTenant() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ tenantId, ativo }: { tenantId: string; ativo: boolean }) => {
+      const { error } = await supabase.rpc("definir_status_tenant", {
+        _tenant: tenantId,
+        _ativo: ativo,
+      });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["tenants-disponiveis"] });
+      await qc.invalidateQueries({ queryKey: ["tenant-atual"] });
+    },
+  });
+}
+
+/** Renomeia uma empresa (somente CEO). */
+export function useRenomearTenant() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ tenantId, nome }: { tenantId: string; nome: string }) => {
+      const { error } = await supabase.rpc("renomear_tenant", { _tenant: tenantId, _nome: nome });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["tenants-disponiveis"] });
+      await qc.invalidateQueries({ queryKey: ["tenant-atual"] });
+    },
+  });
+}
+
+export interface DependenciaTenant {
+  entidade: string;
+  total: number;
+  bloqueia: boolean;
+}
+
+/** Registros vinculados à empresa, para conferência antes de excluir. */
+export function useDependenciasTenant(tenantId?: string | null) {
+  return useQuery({
+    queryKey: ["dependencias-tenant", tenantId],
+    enabled: !!tenantId,
+    queryFn: async (): Promise<DependenciaTenant[]> => {
+      const { data, error } = await supabase.rpc("dependencias_tenant", { _tenant: tenantId! });
+      if (error) throw error;
+      return (data ?? []) as DependenciaTenant[];
+    },
+  });
+}
+
+/** Exclusão definitiva da empresa (somente CEO, com confirmação pelo nome). */
+export function useExcluirTenant() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ tenantId, confirmacao }: { tenantId: string; confirmacao: string }) => {
+      const { error } = await supabase.rpc("excluir_tenant", {
+        _tenant: tenantId,
+        _confirmacao: confirmacao,
+      });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["tenants-disponiveis"] });
+    },
+  });
+}
+
 /**
  * Troca a empresa ativa (apenas o contexto da sessão em `tenant_contexto`).
  * Nenhum dado é apagado: a limpeza abaixo é exclusivamente do cache temporário
