@@ -36,7 +36,11 @@ export const Route = createFileRoute("/auth")({
         property: "og:description",
         content: "Acesso individual das programadoras ao sistema de programação e controle de vagas.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "/auth" }],
   }),
   component: Pagina,
 });
