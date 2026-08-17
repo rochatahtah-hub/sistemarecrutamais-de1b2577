@@ -1539,6 +1539,32 @@ export type Database = {
         }
         Relationships: []
       }
+      tenant_contexto: {
+        Row: {
+          tenant_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          tenant_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          tenant_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_contexto_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenants: {
         Row: {
           ativo: boolean
@@ -1838,6 +1864,7 @@ export type Database = {
         Args: { _acao: string; _modulo: string; _user_id: string }
         Returns: boolean
       }
+      tenant_ativo: { Args: never; Returns: string }
       tenant_atual: { Args: never; Returns: string }
       tenant_do_portal: { Args: never; Returns: string }
       tenant_do_usuario: { Args: { _user_id: string }; Returns: string }
