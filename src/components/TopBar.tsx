@@ -167,15 +167,7 @@ export function TopBar() {
         <h2 className="min-w-0 truncate text-[15px] font-semibold tracking-tight text-foreground">
           {secao}
         </h2>
-        {tenant && (
-          <Badge
-            variant="outline"
-            className="inline-flex max-w-[9rem] truncate sm:max-w-[16rem]"
-            title={`Empresa: ${tenant.nome}`}
-          >
-            {tenant.nome}
-          </Badge>
-        )}
+        <SeletorEmpresa />
       </div>
       <div className="ml-auto flex items-center gap-1.5">
         <BuscaGlobal />

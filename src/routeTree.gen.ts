@@ -25,6 +25,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
+import { Route as EmpresasSistemaRouteImport } from './routes/empresas-sistema'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as MetasRouteImport } from './routes/metas'
@@ -125,6 +126,11 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
 const ConfirmacoesRoute = ConfirmacoesRouteImport.update({
   id: '/confirmacoes',
   path: '/confirmacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresasSistemaRoute = EmpresasSistemaRouteImport.update({
+  id: '/empresas-sistema',
+  path: '/empresas-sistema',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -251,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
@@ -290,6 +297,7 @@ export interface FileRoutesByTo {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
@@ -330,6 +338,7 @@ export interface FileRoutesById {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
@@ -371,6 +380,7 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/empresas-sistema'
     | '/historico'
     | '/importar'
     | '/metas'
@@ -410,6 +420,7 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/empresas-sistema'
     | '/historico'
     | '/importar'
     | '/metas'
@@ -449,6 +460,7 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/empresas-sistema'
     | '/historico'
     | '/importar'
     | '/metas'
@@ -489,6 +501,7 @@ export interface RootRouteChildren {
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
+  EmpresasSistemaRoute: typeof EmpresasSistemaRoute
   HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
   MetasRoute: typeof MetasRoute
@@ -624,6 +637,13 @@ declare module '@tanstack/react-router' {
       path: '/confirmacoes'
       fullPath: '/confirmacoes'
       preLoaderRoute: typeof ConfirmacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresas-sistema': {
+      id: '/empresas-sistema'
+      path: '/empresas-sistema'
+      fullPath: '/empresas-sistema'
+      preLoaderRoute: typeof EmpresasSistemaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico': {
@@ -793,6 +813,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,
+  EmpresasSistemaRoute: EmpresasSistemaRoute,
   HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
   MetasRoute: MetasRoute,
