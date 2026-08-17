@@ -38,6 +38,7 @@ export interface VagaRegistro {
   data: string;
   colaborador_id: string | null;
   empresa_id: string | null;
+  programadora_id: string | null;
   colaborador: string;
   empresa: string;
   descricao: string;
