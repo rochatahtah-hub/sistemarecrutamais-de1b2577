@@ -80,6 +80,66 @@ export function agregarPor(
 
 export type Granularidade = "dia" | "semana" | "quinzena" | "mes";
 
+function chaveNome(valor: string): string {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z\s]/g, " ")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+/**
+ * Agrupa as vagas por programadora habilitada (usuário ativo com acesso a
+ * "Minha Programação"). A identificação usa o ID do usuário quando a vaga já
+ * está vinculada e, para registros antigos, o nome do colaborador. Quem não
+ * está na lista de habilitadas simplesmente não entra no resultado.
+ */
+export function agregarPorProgramadora(
+  registros: VagaRegistro[],
+  habilitadas: { id: string; nome: string }[],
+): LinhaAgregada[] {
+  const porId = new Map(habilitadas.map((p) => [p.id, p]));
+  const porNome = new Map<string, string>();
+  const primeiroNomeContagem = new Map<string, number>();
+  for (const p of habilitadas) {
+    const completo = chaveNome(p.nome);
+    if (completo) porNome.set(completo, p.id);
+    const primeiro = completo.split(" ")[0] ?? "";
+    if (primeiro) primeiroNomeContagem.set(primeiro, (primeiroNomeContagem.get(primeiro) ?? 0) + 1);
+  }
+  for (const p of habilitadas) {
+    const primeiro = chaveNome(p.nome).split(" ")[0] ?? "";
+    // só usa o primeiro nome quando ele identifica uma única programadora
+    if (primeiro && primeiroNomeContagem.get(primeiro) === 1 && !porNome.has(primeiro)) {
+      porNome.set(primeiro, p.id);
+    }
+  }
+
+  const grupos = new Map<string, VagaRegistro[]>();
+  for (const r of registros) {
+    let id: string | undefined;
+    if (r.programadora_id && porId.has(r.programadora_id)) id = r.programadora_id;
+    else {
+      const nome = chaveNome(r.colaborador ?? "");
+      id = porNome.get(nome) ?? porNome.get(nome.split(" ")[0] ?? "");
+    }
+    if (!id) continue;
+    const lista = grupos.get(id);
+    if (lista) lista.push(r);
+    else grupos.set(id, [r]);
+  }
+
+  return Array.from(grupos.entries())
+    .map(([id, lista]) => ({
+      chave: id,
+      nome: porId.get(id)?.nome ?? "",
+      ...agregar(lista),
+    }))
+    .sort((a, b) => b.vagas - a.vagas);
+}
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
