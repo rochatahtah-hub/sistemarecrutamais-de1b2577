@@ -49,6 +49,10 @@ export interface ColaboradorDiaria {
   observacao: string;
   consent_date: string | null;
   created_at: string;
+  transporte_proprio: boolean;
+  transporte_tipos: string[];
+  precisa_fretado: boolean;
+  transporte_observacao: string;
 }
 
 export interface NovoColaboradorDiaria {
