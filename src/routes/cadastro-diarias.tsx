@@ -42,9 +42,8 @@ export const Route = createFileRoute("/cadastro-diarias")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "index, follow" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "/cadastro-diarias" }],
   }),
   component: Pagina,
 });
