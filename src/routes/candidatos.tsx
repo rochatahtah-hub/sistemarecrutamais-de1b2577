@@ -202,8 +202,7 @@ function Pagina() {
               {atualizar.isPending ? "Salvando..." : "Salvar"}
             </Button>
           </DialogFooter>
-        </DialogFooter>
-      </DialogContent>
+        </DialogContent>
       </Dialog>
     </div>
   );
