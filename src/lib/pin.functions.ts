@@ -16,7 +16,7 @@ export const entrarComPin = createServerFn({ method: "POST" })
   .inputValidator((d: { pin: string }) => ({ pin: String(d.pin ?? "").trim() }))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { conferirPin, pinValido } = await import("./pin.server");
+    const { conferirPin, pinValido, esperaMinutos } = await import("./pin.server");
     const { criarSessaoAdminPrincipal } = await import("./admin.server");
 
     if (!pinValido(data.pin)) throw new Error("O PIN deve ter de 4 a 8 dígitos.");
@@ -41,19 +41,20 @@ export const entrarComPin = createServerFn({ method: "POST" })
     const ok = await conferirPin(data.pin, registro.pin_hash);
     if (!ok) {
       const falhas = (registro.falhas ?? 0) + 1;
+      const espera = esperaMinutos(falhas, MAX_FALHAS, ESPERA_MIN);
       await supabaseAdmin
         .from("admin_pin")
         .update({
           falhas,
           bloqueado_ate:
             falhas >= MAX_FALHAS
-              ? new Date(Date.now() + ESPERA_MIN * 60_000).toISOString()
+              ? new Date(Date.now() + espera * 60_000).toISOString()
               : registro.bloqueado_ate,
         })
         .eq("id", true);
       throw new Error(
         falhas >= MAX_FALHAS
-          ? `PIN incorreto. Tente novamente em ${ESPERA_MIN} minutos.`
+          ? `PIN incorreto. Tente novamente em ${espera >= 60 ? `${Math.round(espera / 60)}h` : `${espera} minutos`}.`
           : `PIN incorreto. Tente novamente. (tentativas restantes: ${MAX_FALHAS - falhas})`,
       );
     }
@@ -74,8 +75,12 @@ export const alterarPin = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode alterar o PIN.");
 
-    const { gerarHashPin, pinValido } = await import("./pin.server");
-    if (!pinValido(data.novo)) throw new Error("O PIN deve ter de 4 a 8 dígitos.");
+    const { gerarHashPin, pinForteValido } = await import("./pin.server");
+    if (!pinForteValido(data.novo)) {
+      throw new Error(
+        "O PIN deve ter de 6 a 10 dígitos e não pode ser uma sequência (123456) nem dígitos repetidos (111111).",
+      );
+    }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
