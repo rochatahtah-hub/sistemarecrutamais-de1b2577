@@ -1,0 +1,1 @@
+DELETE FROM public.daily_workers WHERE cpf = '99988877700' AND full_name = 'PENTEST TEMP REMOVER';

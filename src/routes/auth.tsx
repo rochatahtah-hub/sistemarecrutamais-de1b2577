@@ -229,7 +229,7 @@ function Pagina() {
             <DialogTitle>🔐 Acesso do administrador</DialogTitle>
             <DialogDescription>
               {jaTemPin
-                ? "Informe o PIN administrativo (4 a 8 dígitos)."
+                ? "Informe o PIN administrativo."
                 : "Nenhum PIN cadastrado. Por segurança, o PIN só pode ser definido por um administrador já autenticado, dentro do sistema, na tela de Bloqueio de colaboradores."}
             </DialogDescription>
           </DialogHeader>
@@ -240,7 +240,7 @@ function Pagina() {
               id="pin"
               inputMode="numeric"
               autoComplete="one-time-code"
-              maxLength={8}
+              maxLength={10}
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
               onKeyDown={(e) => {
