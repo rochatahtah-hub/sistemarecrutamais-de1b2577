@@ -5,6 +5,7 @@ import { Building2, Globe2, KeyRound, Pencil, Plus, Search, ShieldOff, Unlock } 
 import { toast } from "sonner";
 
 import { RequerPermissao } from "@/components/RequerPermissao";
+import { CardPinAdministrativo } from "@/components/CardPinAdministrativo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,7 +43,6 @@ import { useAuth } from "@/lib/auth";
 import { usePermissoes } from "@/lib/permissoes";
 import { formatarCPF, soDigitos, useCandidatos, useEmpresas } from "@/lib/programacao";
 import { usePrivacidade } from "@/lib/privacidade";
-import { alterarPin } from "@/lib/pin.functions";
 import {
   TIPO_ROTULO,
   useBloqueados,
@@ -113,8 +113,6 @@ function Pagina() {
   const termoColab = useDebounce(buscaColab, 350);
   const { data: candidatos = [] } = useCandidatos(termoColab, Boolean(form) && termoColab.length > 2);
 
-  const trocarPin = useServerFn(alterarPin);
-  const [novoPin, setNovoPin] = useState("");
 
   function abrirNovo() {
     setBuscaColab("");
@@ -164,16 +162,6 @@ function Pagina() {
       toast.error((e as Error).message);
     } finally {
       setAlvoDesbloqueio(null);
-    }
-  }
-
-  async function salvarPin() {
-    try {
-      await trocarPin({ data: { novo: novoPin } });
-      setNovoPin("");
-      toast.success("PIN administrativo atualizado.");
-    } catch (e) {
-      toast.error((e as Error).message);
     }
   }
 
