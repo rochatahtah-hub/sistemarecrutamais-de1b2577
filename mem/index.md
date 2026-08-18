@@ -1,10 +1,15 @@
 # Project Memory
 
 ## Core
-Recruta+ em produção: mudanças devem ser incrementais, sem alterar login, telas ou identidade visual sem pedido explícito.
-Arquitetura multiempresa: tenant = tabela `tenants`; `empresas` é entidade operacional, nunca tenant.
-Segurança sempre no banco (RLS/triggers), nunca só no frontend; sem secrets no frontend.
+Marca "RECRUTA+". UI Enterprise SaaS, tema Dark + Ouro. Nunca usar visual genérico claro/roxo.
+Interface e mensagens sempre em português do Brasil.
+SaaS multiempresa: toda tabela nova precisa de tenant_id, policy RESTRICTIVE de isolamento e trigger aplicar_tenant.
+Banco é a fonte soberana dos dados — nada de cálculo de dashboard a partir de planilha.
+Métricas do Recruta+ consideram exclusivamente programadoras com status ATIVO.
+Proibido criar GRANT novo para a role anon. Recursos públicos passam por server function.
+Módulo CLT (R&S) é isolado do módulo de diárias, com tabelas prefixadas rs_.
+LGPD: MODO PRIVACIDADE mascara CPF e telefone. Nunca expor dado pessoal a visitante.
 
 ## Memories
-- [Arquitetura multiempresa](mem://architecture/multitenant) — tenants, tenant_id, funções de contexto, super_admin vs master, tabelas globais
-- [Privilégios do banco](mem://security/grants) — regras de GRANT/REVOKE para anon, authenticated e funções SECURITY DEFINER
+- Segurança: ver documento de memória de segurança do projeto (modelo de acesso, exceções deliberadas, regras de migração).
+- Pentest autorizado: relatório completo em `pentest/relatorio.md`; F-1/F-2/F-3 corrigidos.
