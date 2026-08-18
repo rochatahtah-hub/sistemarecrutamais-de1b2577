@@ -1,14 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
-/** E-mail da conta administrativa principal (acesso direto, sem senha). */
+/** E-mail da conta administrativa principal usada pelo fluxo de PIN já existente. */
 export const EMAIL_ADMIN_PRINCIPAL = "rochatahtah@gmail.com";
 
 export function normalizarEmail(email: string) {
   return (email ?? "").trim().toLowerCase();
 }
 
-/** Cliente publicável no servidor, usado apenas para gerar a sessão de login. */
+/** Cliente publicável no servidor, usado apenas para validar o token de acesso temporário. */
 export function clientePublico() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
   return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
@@ -47,56 +47,44 @@ export async function acharUsuarioPorEmail(
 }
 
 /**
- * Garante a conta administrativa principal e devolve os tokens de sessão.
+ * Cria uma sessão temporária para a conta administrativa principal sem alterar sua senha.
  * Só deve ser chamada após a validação do PIN administrativo.
  */
 export async function criarSessaoAdminPrincipal() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const senha = process.env["ADMIN_MASTER_PASSWORD"]!;
   const existente = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
+  if (!existente) throw new Error("Conta administrativa não encontrada.");
 
-  let userId: string;
-  if (existente) {
-    userId = existente.id;
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password: senha,
-      email_confirm: true,
-    });
-    if (error) throw new Error(error.message);
-  } else {
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email: EMAIL_ADMIN_PRINCIPAL,
-      password: senha,
-      email_confirm: true,
-      user_metadata: { nome: "Administrador Principal" },
-    });
-    if (error || !data.user) throw new Error(error?.message ?? "Falha ao criar administrador.");
-    userId = data.user.id;
+  const [{ data: perfil }, { data: papel }] = await Promise.all([
+    supabaseAdmin
+    .from("profiles")
+      .select("ativo,tenant_id")
+      .eq("id", existente.id)
+      .maybeSingle(),
+    supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", existente.id)
+      .eq("role", "admin")
+      .maybeSingle(),
+  ]);
+  if (!perfil?.ativo || !perfil.tenant_id || !papel) {
+    throw new Error("Conta administrativa sem vínculo ativo ou permissão administrativa.");
   }
 
-  const { data: perfil } = await supabaseAdmin
-    .from("profiles")
-    .select("id,nome")
-    .eq("id", userId)
-    .maybeSingle();
-  await supabaseAdmin.from("profiles").upsert(
-    {
-      id: userId,
-      nome: perfil?.nome ?? "Administrador Principal",
-      email: EMAIL_ADMIN_PRINCIPAL,
-      ativo: true,
-    },
-    { onConflict: "id" },
-  );
-  await supabaseAdmin
-    .from("user_roles")
-    .upsert({ user_id: userId, role: "admin" }, { onConflict: "user_id,role" });
-
-  const { data: sessao, error: erroLogin } = await clientePublico().auth.signInWithPassword({
+  const { data: link, error: erroLink } = await supabaseAdmin.auth.admin.generateLink({
+    type: "magiclink",
     email: EMAIL_ADMIN_PRINCIPAL,
-    password: senha,
   });
-  if (erroLogin || !sessao.session) {
+  if (erroLink || !link.properties?.hashed_token) {
+    throw new Error(erroLink?.message ?? "Não foi possível autorizar a sessão administrativa.");
+  }
+
+  const { data: sessao, error: erroLogin } = await clientePublico().auth.verifyOtp({
+    token_hash: link.properties.hashed_token,
+    type: "email",
+  });
+  if (erroLogin || !sessao.session || sessao.user?.id !== existente.id) {
     throw new Error(erroLogin?.message ?? "Não foi possível iniciar a sessão do administrador.");
   }
   return {

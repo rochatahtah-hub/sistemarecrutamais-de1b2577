@@ -57,6 +57,7 @@ function Pagina() {
   const [pin, setPin] = useState("");
   const [jaTemPin, setJaTemPin] = useState(true);
   const [erroPin, setErroPin] = useState("");
+  const [recuperando, setRecuperando] = useState(false);
 
   useEffect(() => {
     if (!carregando && session) void navigate({ to: "/", replace: true });
@@ -125,6 +126,24 @@ function Pagina() {
     }
     toast.success("Bem-vinda de volta!");
     void navigate({ to: "/", replace: true });
+  }
+
+  async function recuperarSenha() {
+    const emailLimpo = email.trim();
+    if (!emailLimpo) {
+      toast.error("Informe seu e-mail para recuperar a senha.");
+      return;
+    }
+    setRecuperando(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(emailLimpo, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setRecuperando(false);
+    if (error) {
+      toast.error(`Não foi possível enviar a recuperação: ${error.message}`);
+      return;
+    }
+    toast.success("Enviamos um link seguro para redefinir sua senha.");
   }
 
   return (
@@ -216,6 +235,15 @@ function Pagina() {
               </div>
               <Button type="submit" className="w-full" disabled={enviando}>
                 {enviando ? "Entrando..." : "Entrar"}
+              </Button>
+              <Button
+                type="button"
+                variant="link"
+                className="w-full"
+                disabled={recuperando}
+                onClick={() => void recuperarSenha()}
+              >
+                {recuperando ? "Enviando..." : "Esqueci minha senha"}
               </Button>
             </form>
             )}

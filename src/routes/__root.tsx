@@ -26,7 +26,7 @@ import { registrarErroSistema } from "@/lib/system-health";
 import { acaoDeEntrada, moduloDaRota, usePermissoes } from "@/lib/permissoes";
 
 /** Rotas públicas: acessíveis sem login (portal de candidatura e tela de acesso). */
-const ROTAS_PUBLICAS = ["/auth", "/cadastro-diarias"];
+const ROTAS_PUBLICAS = ["/auth", "/reset-password", "/cadastro-diarias"];
 
 function NotFoundComponent() {
   return (
