@@ -35,6 +35,7 @@ import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SaudeSistemaRouteImport } from './routes/saude-sistema'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VagasRouteImport } from './routes/vagas'
@@ -178,6 +179,11 @@ const RelatoriosRoute = RelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SaudeSistemaRoute = SaudeSistemaRouteImport.update({
   id: '/saude-sistema',
   path: '/saude-sistema',
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
@@ -307,6 +314,7 @@ export interface FileRoutesByTo {
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
@@ -390,6 +399,7 @@ export interface FileRouteTypes {
     | '/programadoras'
     | '/radar'
     | '/relatorios'
+    | '/reset-password'
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
@@ -430,6 +440,7 @@ export interface FileRouteTypes {
     | '/programadoras'
     | '/radar'
     | '/relatorios'
+    | '/reset-password'
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
@@ -470,6 +481,7 @@ export interface FileRouteTypes {
     | '/programadoras'
     | '/radar'
     | '/relatorios'
+    | '/reset-password'
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
@@ -511,6 +523,7 @@ export interface RootRouteChildren {
   ProgramadorasRoute: typeof ProgramadorasRoute
   RadarRoute: typeof RadarRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SaudeSistemaRoute: typeof SaudeSistemaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VagasRoute: typeof VagasRoute
@@ -709,6 +722,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RelatoriosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/saude-sistema': {
       id: '/saude-sistema'
       path: '/saude-sistema'
@@ -823,6 +843,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProgramadorasRoute: ProgramadorasRoute,
   RadarRoute: RadarRoute,
   RelatoriosRoute: RelatoriosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SaudeSistemaRoute: SaudeSistemaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VagasRoute: VagasRoute,
