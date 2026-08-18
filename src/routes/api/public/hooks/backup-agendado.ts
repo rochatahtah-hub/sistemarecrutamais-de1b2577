@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+/** Comparação de tempo constante: não revela o segredo por diferença de tempo. */
+function segredoConfere(recebido: string, esperado: string) {
+  if (!esperado || recebido.length !== esperado.length) return false;
+  let diferenca = 0;
+  for (let i = 0; i < esperado.length; i += 1) {
+    diferenca |= recebido.charCodeAt(i) ^ esperado.charCodeAt(i);
+  }
+  return diferenca === 0;
+}
 
 /**
  * Chamado de hora em hora pela rotina do banco. Executa a exportação automática
@@ -18,7 +27,7 @@ export const Route = createFileRoute("/api/public/hooks/backup-agendado")({
           .eq("nome", "backup-agendado")
           .maybeSingle();
         const esperada = segredo?.valor ?? "";
-        if (!esperada || chave !== esperada) {
+        if (!segredoConfere(chave, esperada)) {
           return new Response(JSON.stringify({ error: "não autorizado" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
