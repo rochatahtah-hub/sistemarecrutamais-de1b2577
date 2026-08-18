@@ -19,7 +19,7 @@ export const entrarComPin = createServerFn({ method: "POST" })
     const { conferirPin, pinValido, esperaMinutos } = await import("./pin.server");
     const { criarSessaoAdminPrincipal } = await import("./admin.server");
 
-    if (!pinValido(data.pin)) throw new Error("O PIN deve ter de 4 a 8 dígitos.");
+    if (!pinValido(data.pin)) throw new Error("PIN inválido.");
 
     const { data: registro } = await supabaseAdmin
       .from("admin_pin")
