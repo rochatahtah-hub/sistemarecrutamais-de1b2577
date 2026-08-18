@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { Building2, Globe2, KeyRound, Pencil, Plus, Search, ShieldOff, Unlock } from "lucide-react";
+import { Building2, Globe2, Pencil, Plus, Search, ShieldOff, Unlock } from "lucide-react";
 import { toast } from "sonner";
 
 import { RequerPermissao } from "@/components/RequerPermissao";
