@@ -7,3 +7,4 @@ Segurança sempre no banco (RLS/triggers), nunca só no frontend; sem secrets no
 
 ## Memories
 - [Arquitetura multiempresa](mem://architecture/multitenant) — tenants, tenant_id, funções de contexto, super_admin vs master, tabelas globais
+- [Privilégios do banco](mem://security/grants) — regras de GRANT/REVOKE para anon, authenticated e funções SECURITY DEFINER
