@@ -230,7 +230,7 @@ function Pagina() {
             <DialogDescription>
               {jaTemPin
                 ? "Informe o PIN administrativo."
-                : "Nenhum PIN cadastrado. Por segurança, o PIN só pode ser definido por um administrador já autenticado, dentro do sistema, na tela de Bloqueio de colaboradores."}
+                : "Nenhum PIN cadastrado. Por segurança, o PIN só pode ser definido por um administrador já autenticado, dentro do sistema, em Configurações › Cadastrar/Alterar PIN administrativo."}
             </DialogDescription>
           </DialogHeader>
           {jaTemPin ? (
