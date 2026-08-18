@@ -41,3 +41,18 @@ export async function conferirPin(pin: string, hash: string) {
 export function pinValido(pin: string) {
   return /^\d{4,8}$/.test(pin);
 }
+
+/** Regra para PINs NOVOS: mínimo de 6 dígitos e sem sequências/repetições óbvias. */
+export function pinForteValido(pin: string) {
+  if (!/^\d{6,10}$/.test(pin)) return false;
+  if (/^(\d)\1+$/.test(pin)) return false; // 000000, 111111...
+  const cresce = pin.split("").every((d, i, a) => i === 0 || Number(d) === Number(a[i - 1]) + 1);
+  const decresce = pin.split("").every((d, i, a) => i === 0 || Number(d) === Number(a[i - 1]) - 1);
+  return !cresce && !decresce;
+}
+
+/** Espera exponencial após o limite de tentativas: 15min, 30, 60, 120... até 24h. */
+export function esperaMinutos(falhas: number, maxFalhas: number, baseMin: number) {
+  const excedente = Math.max(0, falhas - maxFalhas);
+  return Math.min(baseMin * 2 ** excedente, 24 * 60);
+}
