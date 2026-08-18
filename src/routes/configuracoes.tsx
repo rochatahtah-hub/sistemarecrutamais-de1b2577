@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { RequerAdmin } from "@/components/RequerAdmin";
+import { CardPinAdministrativo } from "@/components/CardPinAdministrativo";
 import { Save, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
@@ -95,6 +96,8 @@ function Pagina() {
           Metas e regras usadas nos alertas e na interpretação das planilhas.
         </p>
       </div>
+
+      <CardPinAdministrativo />
 
       <div className="surface-panel space-y-4 rounded-2xl p-5">
         <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-primary">

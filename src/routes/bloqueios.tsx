@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { Building2, Globe2, KeyRound, Pencil, Plus, Search, ShieldOff, Unlock } from "lucide-react";
+import { Building2, Globe2, Pencil, Plus, Search, ShieldOff, Unlock } from "lucide-react";
 import { toast } from "sonner";
 
 import { RequerPermissao } from "@/components/RequerPermissao";
+import { CardPinAdministrativo } from "@/components/CardPinAdministrativo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,7 +42,6 @@ import { useAuth } from "@/lib/auth";
 import { usePermissoes } from "@/lib/permissoes";
 import { formatarCPF, soDigitos, useCandidatos, useEmpresas } from "@/lib/programacao";
 import { usePrivacidade } from "@/lib/privacidade";
-import { alterarPin } from "@/lib/pin.functions";
 import {
   TIPO_ROTULO,
   useBloqueados,
@@ -113,8 +112,6 @@ function Pagina() {
   const termoColab = useDebounce(buscaColab, 350);
   const { data: candidatos = [] } = useCandidatos(termoColab, Boolean(form) && termoColab.length > 2);
 
-  const trocarPin = useServerFn(alterarPin);
-  const [novoPin, setNovoPin] = useState("");
 
   function abrirNovo() {
     setBuscaColab("");
@@ -164,16 +161,6 @@ function Pagina() {
       toast.error((e as Error).message);
     } finally {
       setAlvoDesbloqueio(null);
-    }
-  }
-
-  async function salvarPin() {
-    try {
-      await trocarPin({ data: { novo: novoPin } });
-      setNovoPin("");
-      toast.success("PIN administrativo atualizado.");
-    } catch (e) {
-      toast.error((e as Error).message);
     }
   }
 
@@ -325,33 +312,7 @@ function Pagina() {
       </div>
 
       {isAdmin && (
-        <div className="surface-panel space-y-3 rounded-2xl p-4">
-          <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-            <KeyRound className="h-4 w-4 text-primary" /> PIN administrativo
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            O PIN fica guardado de forma cifrada e nunca é exibido. Após 5 tentativas incorretas o
-            acesso fica bloqueado por 15 minutos, e cada nova tentativa errada dobra a espera (até
-            24 horas). Evite sequências (123456) e dígitos repetidos (111111).
-          </p>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="novo-pin">Novo PIN (6 a 10 dígitos)</Label>
-              <Input
-                id="novo-pin"
-                type="password"
-                inputMode="numeric"
-                maxLength={10}
-                className="w-48"
-                value={novoPin}
-                onChange={(e) => setNovoPin(e.target.value.replace(/\D/g, ""))}
-              />
-            </div>
-            <Button variant="outline" disabled={novoPin.length < 6} onClick={() => void salvarPin()}>
-              Alterar PIN
-            </Button>
-          </div>
-        </div>
+        <CardPinAdministrativo />
       )}
 
       <Dialog open={Boolean(form)} onOpenChange={(o) => !o && setForm(null)}>
