@@ -325,33 +325,7 @@ function Pagina() {
       </div>
 
       {isAdmin && (
-        <div className="surface-panel space-y-3 rounded-2xl p-4">
-          <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
-            <KeyRound className="h-4 w-4 text-primary" /> PIN administrativo
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            O PIN fica guardado de forma cifrada e nunca é exibido. Após 5 tentativas incorretas o
-            acesso fica bloqueado por 15 minutos, e cada nova tentativa errada dobra a espera (até
-            24 horas). Evite sequências (123456) e dígitos repetidos (111111).
-          </p>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="novo-pin">Novo PIN (6 a 10 dígitos)</Label>
-              <Input
-                id="novo-pin"
-                type="password"
-                inputMode="numeric"
-                maxLength={10}
-                className="w-48"
-                value={novoPin}
-                onChange={(e) => setNovoPin(e.target.value.replace(/\D/g, ""))}
-              />
-            </div>
-            <Button variant="outline" disabled={novoPin.length < 6} onClick={() => void salvarPin()}>
-              Alterar PIN
-            </Button>
-          </div>
-        </div>
+        <CardPinAdministrativo />
       )}
 
       <Dialog open={Boolean(form)} onOpenChange={(o) => !o && setForm(null)}>
