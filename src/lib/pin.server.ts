@@ -38,8 +38,9 @@ export async function conferirPin(pin: string, hash: string) {
   return diff === 0;
 }
 
+/** Regra de ENTRADA: aceita PINs antigos (4 dígitos) e os novos, mais longos. */
 export function pinValido(pin: string) {
-  return /^\d{4,8}$/.test(pin);
+  return /^\d{4,10}$/.test(pin);
 }
 
 /** Regra para PINs NOVOS: mínimo de 6 dígitos e sem sequências/repetições óbvias. */
