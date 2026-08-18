@@ -219,6 +219,14 @@ function Pagina() {
               </Button>
             </form>
             )}
+
+            <button
+              type="button"
+              onClick={() => void abrirAcessoAdmin()}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              🔐 Administrador
+            </button>
           </div>
         </div>
       </main>
@@ -230,7 +238,7 @@ function Pagina() {
             <DialogDescription>
               {jaTemPin
                 ? "Informe o PIN administrativo."
-                : "Nenhum PIN cadastrado. Por segurança, o PIN só pode ser definido por um administrador já autenticado, dentro do sistema, na tela de Bloqueio de colaboradores."}
+                : "Nenhum PIN cadastrado. Por segurança, o PIN só pode ser definido por um administrador já autenticado, dentro do sistema, em Configurações › Cadastrar/Alterar PIN administrativo."}
             </DialogDescription>
           </DialogHeader>
           {jaTemPin ? (
