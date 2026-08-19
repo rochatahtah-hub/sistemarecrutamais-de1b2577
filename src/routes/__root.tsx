@@ -189,7 +189,9 @@ function Protegido() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { carregando, session } = useAuth();
   const { pode, carregando: carregandoPermissoes } = usePermissoes();
-  const rotaPublica = ROTAS_PUBLICAS.includes(pathname);
+  const rotaPublica = ROTAS_PUBLICAS.some(
+    (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
+  );
   const naTelaDeLogin = pathname === "/auth";
   // Bloqueio por permissão: o módulo da rota precisa estar liberado para o perfil.
   const modulo = moduloDaRota(pathname);
