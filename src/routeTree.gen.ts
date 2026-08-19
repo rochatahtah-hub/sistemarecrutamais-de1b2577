@@ -38,6 +38,8 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SaudeSistemaRouteImport } from './routes/saude-sistema'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VagasRouteImport } from './routes/vagas'
+import { Route as CadastroDiariasIndexRouteImport } from './routes/cadastro-diarias.index'
+import { Route as CadastroDiariasSlugRouteImport } from './routes/cadastro-diarias.$slug'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
@@ -193,6 +195,16 @@ const VagasRoute = VagasRouteImport.update({
   path: '/vagas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroDiariasIndexRoute = CadastroDiariasIndexRouteImport.update({
+  id: '/cadastro-diarias/',
+  path: '/cadastro-diarias/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroDiariasSlugRoute = CadastroDiariasSlugRouteImport.update({
+  id: '/cadastro-diarias/$slug',
+  path: '/cadastro-diarias/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColaboradoresIndexRoute = ColaboradoresIndexRouteImport.update({
   id: '/colaboradores/',
   path: '/colaboradores/',
@@ -270,12 +282,14 @@ export interface FileRoutesByFullPath {
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
+  '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/rs/levantamento': typeof RsLevantamentoRoute
+  '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -310,12 +324,14 @@ export interface FileRoutesByTo {
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
+  '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/rs/levantamento': typeof RsLevantamentoRoute
+  '/cadastro-diarias': typeof CadastroDiariasIndexRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -351,12 +367,14 @@ export interface FileRoutesById {
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
+  '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/rs/levantamento': typeof RsLevantamentoRoute
+  '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -393,12 +411,14 @@ export interface FileRouteTypes {
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
+    | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
     | '/rs/levantamento'
+    | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
@@ -433,12 +453,14 @@ export interface FileRouteTypes {
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
+    | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
     | '/rs/levantamento'
+    | '/cadastro-diarias'
     | '/colaboradores'
     | '/empresas'
     | '/api/public/hooks/backup-agendado'
@@ -473,12 +495,14 @@ export interface FileRouteTypes {
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
+    | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
     | '/rs/levantamento'
+    | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
@@ -514,12 +538,14 @@ export interface RootRouteChildren {
   SaudeSistemaRoute: typeof SaudeSistemaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VagasRoute: typeof VagasRoute
+  CadastroDiariasSlugRoute: typeof CadastroDiariasSlugRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
   RsCandidatosRoute: typeof RsCandidatosRoute
   RsDashboardRoute: typeof RsDashboardRoute
   RsEmpresasRoute: typeof RsEmpresasRoute
   RsLevantamentoRoute: typeof RsLevantamentoRoute
+  CadastroDiariasIndexRoute: typeof CadastroDiariasIndexRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
@@ -730,6 +756,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VagasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro-diarias/': {
+      id: '/cadastro-diarias/'
+      path: '/cadastro-diarias'
+      fullPath: '/cadastro-diarias/'
+      preLoaderRoute: typeof CadastroDiariasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro-diarias/$slug': {
+      id: '/cadastro-diarias/$slug'
+      path: '/cadastro-diarias/$slug'
+      fullPath: '/cadastro-diarias/$slug'
+      preLoaderRoute: typeof CadastroDiariasSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/colaboradores/': {
       id: '/colaboradores/'
       path: '/colaboradores'
@@ -826,12 +866,14 @@ const rootRouteChildren: RootRouteChildren = {
   SaudeSistemaRoute: SaudeSistemaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VagasRoute: VagasRoute,
+  CadastroDiariasSlugRoute: CadastroDiariasSlugRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
   RsCandidatosRoute: RsCandidatosRoute,
   RsDashboardRoute: RsDashboardRoute,
   RsEmpresasRoute: RsEmpresasRoute,
   RsLevantamentoRoute: RsLevantamentoRoute,
+  CadastroDiariasIndexRoute: CadastroDiariasIndexRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,

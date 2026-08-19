@@ -164,7 +164,7 @@ function Pagina() {
                       <Input
                         readOnly
                         aria-label={`Link de cadastro de ${empresa.nome}`}
-                        value={`${origem}/cadastro-diarias?empresa=${encodeURIComponent(empresa.slug)}`}
+                        value={`${origem}/cadastro-diarias/${empresa.slug}`}
                         className="h-8 text-xs"
                       />
                       <Button
@@ -173,7 +173,7 @@ function Pagina() {
                         title="Copiar link"
                         aria-label={`Copiar link de cadastro de ${empresa.nome}`}
                         onClick={async () => {
-                          const link = `${window.location.origin}/cadastro-diarias?empresa=${encodeURIComponent(empresa.slug)}`;
+                          const link = `${window.location.origin}/cadastro-diarias/${empresa.slug}`;
                           await navigator.clipboard.writeText(link);
                           toast.success("Link de cadastro copiado.");
                         }}
@@ -187,7 +187,7 @@ function Pagina() {
                         aria-label={`Abrir link de cadastro de ${empresa.nome}`}
                         onClick={() =>
                           window.open(
-                            `${window.location.origin}/cadastro-diarias?empresa=${encodeURIComponent(empresa.slug)}`,
+                            `${window.location.origin}/cadastro-diarias/${empresa.slug}`,
                             "_blank",
                             "noopener,noreferrer",
                           )
