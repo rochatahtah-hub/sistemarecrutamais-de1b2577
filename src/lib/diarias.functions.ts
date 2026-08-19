@@ -9,12 +9,17 @@ export const empresaPublicaPorSlug = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     if (!data.slug) return null;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: empresa } = await supabaseAdmin
+    const { data: empresa, error } = await supabaseAdmin
       .from("tenants")
       .select("id,nome,slug")
       .eq("slug", data.slug)
       .eq("ativo", true)
       .eq("status", "ativo")
       .maybeSingle();
+    if (error) {
+      // Registro interno: o candidato recebe apenas a mensagem de "tente novamente".
+      console.error("[portal-diarias] falha ao resolver empresa", data.slug, error.message);
+      throw new Error("Falha ao carregar os dados da empresa.");
+    }
     return empresa ?? null;
   });

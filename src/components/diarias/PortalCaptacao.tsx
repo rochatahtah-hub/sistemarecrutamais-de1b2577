@@ -34,10 +34,18 @@ export function PortalCaptacao({ slug }: { slug: string }) {
   // O identificador do link é normalizado apenas para consulta; quem valida a
   // empresa (e o isolamento dos dados) continua sendo o banco.
   const slugEmpresa = (slug ?? "").trim().toLowerCase();
-  const { data: empresa, isPending: carregandoEmpresa } = useQuery({
+  const {
+    data: empresa,
+    isPending: carregandoEmpresa,
+    isError: falhaEmpresa,
+    refetch: recarregarEmpresa,
+    isFetching: buscandoEmpresa,
+  } = useQuery({
     queryKey: ["portal-empresa", slugEmpresa],
     queryFn: () => empresaDoPortal(slugEmpresa || null),
     enabled: Boolean(slugEmpresa),
+    retry: 2,
+    staleTime: 60_000,
   });
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -51,8 +59,13 @@ export function PortalCaptacao({ slug }: { slug: string }) {
   const [consentimento, setConsentimento] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [concluido, setConcluido] = useState(false);
-  /** Empresa vem exclusivamente do link (slug) e é validada no banco. */
-  const linkIndisponivel = !slugEmpresa || (!carregandoEmpresa && !empresa);
+  /**
+   * Empresa vem exclusivamente do link (slug) e é validada no banco.
+   * Só declaramos o link indisponível quando o servidor respondeu que a
+   * empresa não existe/está inativa — falha de carregamento é tratada à parte.
+   */
+  const linkIndisponivel = !slugEmpresa || (!carregandoEmpresa && !falhaEmpresa && !empresa);
+  const falhaCarregamento = Boolean(slugEmpresa) && falhaEmpresa;
 
   const valido =
     Boolean(empresa?.id) &&
@@ -101,13 +114,27 @@ export function PortalCaptacao({ slug }: { slug: string }) {
           {empresa ? `Cadastre-se para trabalhar na ${empresa.nome}` : "Cadastro para trabalho por diária"}
         </h1>
 
+        {carregandoEmpresa && slugEmpresa && (
+          <p className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-border/70 p-4 text-center text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Carregando os dados da empresa...
+          </p>
+        )}
+        {falhaCarregamento && (
+          <div className="mb-6 space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm">
+            <p>Não conseguimos carregar os dados da empresa agora. Verifique sua conexão e tente novamente.</p>
+            <Button variant="outline" size="sm" disabled={buscandoEmpresa} onClick={() => void recarregarEmpresa()}>
+              {buscandoEmpresa && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Tentar novamente
+            </Button>
+          </div>
+        )}
         {linkIndisponivel && (
           <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-destructive-foreground">
             Este cadastro não está disponível no momento. Verifique o link recebido ou peça o endereço
             correto de cadastro para a equipe.
           </p>
         )}
-        {linkIndisponivel ? null : concluido ? (
+        {linkIndisponivel || falhaCarregamento || carregandoEmpresa ? null : concluido ? (
           <Card>
             <CardHeader className="items-center text-center">
               <span className="grid h-14 w-14 place-items-center rounded-2xl border border-gold/25 bg-gold-soft text-accent-foreground">
