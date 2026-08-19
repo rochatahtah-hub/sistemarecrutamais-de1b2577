@@ -31,7 +31,9 @@ function alternar(lista: string[], valor: string) {
  * público do link e é sempre validada no banco (o slug não autoriza nada).
  */
 export function PortalCaptacao({ slug }: { slug: string }) {
-  const slugEmpresa = slug;
+  // O identificador do link é normalizado apenas para consulta; quem valida a
+  // empresa (e o isolamento dos dados) continua sendo o banco.
+  const slugEmpresa = (slug ?? "").trim().toLowerCase();
   const { data: empresa, isPending: carregandoEmpresa } = useQuery({
     queryKey: ["portal-empresa", slugEmpresa],
     queryFn: () => empresaDoPortal(slugEmpresa || null),
