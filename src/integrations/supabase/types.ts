@@ -1980,6 +1980,7 @@ export type Database = {
           ultima_ocorrencia: string
         }[]
       }
+      slug_publico: { Args: { _texto: string }; Returns: string }
       somente_dashboard: { Args: { _user_id: string }; Returns: boolean }
       tem_permissao: {
         Args: { _acao: string; _modulo: string; _user_id: string }
