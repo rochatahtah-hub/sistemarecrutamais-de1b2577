@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Building2, Check, Copy, ExternalLink, LogIn, Pencil, Plus, Power, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { linkPortalDiarias } from "@/lib/portal-url";
 import {
   useDefinirStatusTenant,
   useDependenciasTenant,
@@ -69,10 +70,7 @@ function Pagina() {
   const [filtro, setFiltro] = useState<"todas" | "ativas" | "inativas">("todas");
   const [editando, setEditando] = useState<Tenant | null>(null);
   const [excluindo, setExcluindo] = useState<Tenant | null>(null);
-  const [origem, setOrigem] = useState("");
   const status = useDefinirStatusTenant();
-
-  useEffect(() => setOrigem(window.location.origin), []);
 
   const criar = useMutation({
     mutationFn: async (valor: string) => {
@@ -164,7 +162,7 @@ function Pagina() {
                       <Input
                         readOnly
                         aria-label={`Link de cadastro de ${empresa.nome}`}
-                        value={`${origem}/cadastro-diarias/${empresa.slug}`}
+                        value={linkPortalDiarias(empresa.slug)}
                         className="h-8 text-xs"
                       />
                       <Button
@@ -173,7 +171,7 @@ function Pagina() {
                         title="Copiar link"
                         aria-label={`Copiar link de cadastro de ${empresa.nome}`}
                         onClick={async () => {
-                          const link = `${window.location.origin}/cadastro-diarias/${empresa.slug}`;
+                          const link = linkPortalDiarias(empresa.slug);
                           await navigator.clipboard.writeText(link);
                           toast.success("Link de cadastro copiado.");
                         }}
@@ -187,7 +185,7 @@ function Pagina() {
                         aria-label={`Abrir link de cadastro de ${empresa.nome}`}
                         onClick={() =>
                           window.open(
-                            `${window.location.origin}/cadastro-diarias/${empresa.slug}`,
+                            linkPortalDiarias(empresa.slug),
                             "_blank",
                             "noopener,noreferrer",
                           )

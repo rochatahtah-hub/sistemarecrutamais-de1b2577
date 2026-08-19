@@ -109,7 +109,7 @@ export function formatarTelefone(valor: string) {
   return d.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3").replace(/[-\s()]*$/, "");
 }
 
-/** Empresa do portal público, identificada pelo link (?empresa=slug). */
+/** Empresa do portal público, resolvida no banco pelo slug presente na rota. */
 export async function empresaDoPortal(slug: string | null) {
   const { data, error } = await supabase.rpc("tenant_publico", { _slug: slug ?? "" });
   if (error) throw new Error(error.message);

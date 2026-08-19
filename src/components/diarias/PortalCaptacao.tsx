@@ -98,7 +98,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
         </div>
 
         <h1 className="mb-6 text-center font-display text-2xl font-bold tracking-tight sm:text-3xl">
-          Cadastro para trabalho por diária
+          {empresa ? `Cadastre-se para trabalhar na ${empresa.nome}` : "Cadastro para trabalho por diária"}
         </h1>
 
         {linkIndisponivel && (
@@ -107,12 +107,6 @@ export function PortalCaptacao({ slug }: { slug: string }) {
             correto de cadastro para a equipe.
           </p>
         )}
-        {empresa && (
-          <p className="mb-6 text-center text-sm text-muted-foreground">
-            Você está se cadastrando para <strong className="text-foreground">{empresa.nome}</strong>.
-          </p>
-        )}
-
         {linkIndisponivel ? null : concluido ? (
           <Card>
             <CardHeader className="items-center text-center">

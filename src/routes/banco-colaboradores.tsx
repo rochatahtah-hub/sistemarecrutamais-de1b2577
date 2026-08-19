@@ -45,6 +45,7 @@ import {
 } from "@/lib/diarias";
 import { rotuloTransporte } from "@/lib/programacao";
 import { useTenantAtual } from "@/lib/tenant";
+import { caminhoPortalDiarias, linkPortalDiarias } from "@/lib/portal-url";
 
 /** Resumo do transporte exibido diretamente na listagem (sem entrar em edição). */
 function ResumoTransporte({ colaborador }: { colaborador: ColaboradorDiaria }) {
@@ -126,9 +127,9 @@ function Pagina() {
 
   const { data: empresaAtiva } = useTenantAtual();
   // O link leva o identificador da empresa: o cadastro cai sempre na empresa certa.
-  const caminhoPortal = `/cadastro-diarias/${empresaAtiva?.slug ?? ""}`;
-  const linkPortal =
-    typeof window === "undefined" ? caminhoPortal : `${window.location.origin}${caminhoPortal}`;
+  const slugPortal = empresaAtiva?.slug ?? "";
+  const caminhoPortal = slugPortal ? caminhoPortalDiarias(slugPortal) : "";
+  const linkPortal = slugPortal ? linkPortalDiarias(slugPortal) : "";
 
   function exportar() {
     const linhas = [
@@ -181,14 +182,16 @@ function Pagina() {
             <Button
               variant="outline"
               onClick={() => {
+                if (!linkPortal) return;
                 void navigator.clipboard?.writeText(linkPortal);
                 toast.success("Link do portal copiado.");
               }}
+              disabled={!slugPortal}
             >
               <Copy className="mr-2 h-4 w-4" />
               Copiar link do portal
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild disabled={!slugPortal}>
               <a href={caminhoPortal} target="_blank" rel="noreferrer">
                 <Link2 className="mr-2 h-4 w-4" />
                 Abrir portal
