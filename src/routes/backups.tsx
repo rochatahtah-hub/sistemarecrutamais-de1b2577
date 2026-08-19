@@ -376,9 +376,10 @@ function Pagina() {
           </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          A rotina roda no servidor (não depende do navegador estar aberto) e é verificada de hora
-          em hora. Backups mais antigos que a retenção são apagados automaticamente; use retenção 0
-          para nunca apagar.
+          A rotina roda no servidor (não depende do navegador estar aberto) e é executada uma vez
+          por dia, no horário escolhido. O backup manual continua disponível a qualquer momento.
+          Backups mais antigos que a retenção são apagados automaticamente; use retenção 0 para
+          nunca apagar.
         </p>
       </section>
 
