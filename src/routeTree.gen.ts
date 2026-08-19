@@ -19,7 +19,6 @@ import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BancoColaboradoresRouteImport } from './routes/banco-colaboradores'
 import { Route as BancoDadosRouteImport } from './routes/banco-dados'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
-import { Route as CadastroDiariasRouteImport } from './routes/cadastro-diarias'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CompararRouteImport } from './routes/comparar'
@@ -39,6 +38,8 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SaudeSistemaRouteImport } from './routes/saude-sistema'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as VagasRouteImport } from './routes/vagas'
+import { Route as CadastroDiariasIndexRouteImport } from './routes/cadastro-diarias.index'
+import { Route as CadastroDiariasSlugRouteImport } from './routes/cadastro-diarias.$slug'
 import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.index'
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
@@ -97,11 +98,6 @@ const BancoDadosRoute = BancoDadosRouteImport.update({
 const BloqueiosRoute = BloqueiosRouteImport.update({
   id: '/bloqueios',
   path: '/bloqueios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CadastroDiariasRoute = CadastroDiariasRouteImport.update({
-  id: '/cadastro-diarias',
-  path: '/cadastro-diarias',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CandidatosRoute = CandidatosRouteImport.update({
@@ -199,6 +195,16 @@ const VagasRoute = VagasRouteImport.update({
   path: '/vagas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroDiariasIndexRoute = CadastroDiariasIndexRouteImport.update({
+  id: '/cadastro-diarias/',
+  path: '/cadastro-diarias/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroDiariasSlugRoute = CadastroDiariasSlugRouteImport.update({
+  id: '/cadastro-diarias/$slug',
+  path: '/cadastro-diarias/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ColaboradoresIndexRoute = ColaboradoresIndexRouteImport.update({
   id: '/colaboradores/',
   path: '/colaboradores/',
@@ -257,7 +263,6 @@ export interface FileRoutesByFullPath {
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
-  '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
@@ -277,12 +282,14 @@ export interface FileRoutesByFullPath {
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
+  '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/rs/levantamento': typeof RsLevantamentoRoute
+  '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -298,7 +305,6 @@ export interface FileRoutesByTo {
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
-  '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
@@ -318,12 +324,14 @@ export interface FileRoutesByTo {
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
+  '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/rs/levantamento': typeof RsLevantamentoRoute
+  '/cadastro-diarias': typeof CadastroDiariasIndexRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -340,7 +348,6 @@ export interface FileRoutesById {
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
-  '/cadastro-diarias': typeof CadastroDiariasRoute
   '/candidatos': typeof CandidatosRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
@@ -360,12 +367,14 @@ export interface FileRoutesById {
   '/saude-sistema': typeof SaudeSistemaRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/vagas': typeof VagasRoute
+  '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
   '/rs/levantamento': typeof RsLevantamentoRoute
+  '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
@@ -383,7 +392,6 @@ export interface FileRouteTypes {
     | '/banco-colaboradores'
     | '/banco-dados'
     | '/bloqueios'
-    | '/cadastro-diarias'
     | '/candidatos'
     | '/chat'
     | '/comparar'
@@ -403,12 +411,14 @@ export interface FileRouteTypes {
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
+    | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
     | '/rs/levantamento'
+    | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
@@ -424,7 +434,6 @@ export interface FileRouteTypes {
     | '/banco-colaboradores'
     | '/banco-dados'
     | '/bloqueios'
-    | '/cadastro-diarias'
     | '/candidatos'
     | '/chat'
     | '/comparar'
@@ -444,12 +453,14 @@ export interface FileRouteTypes {
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
+    | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
     | '/rs/levantamento'
+    | '/cadastro-diarias'
     | '/colaboradores'
     | '/empresas'
     | '/api/public/hooks/backup-agendado'
@@ -465,7 +476,6 @@ export interface FileRouteTypes {
     | '/banco-colaboradores'
     | '/banco-dados'
     | '/bloqueios'
-    | '/cadastro-diarias'
     | '/candidatos'
     | '/chat'
     | '/comparar'
@@ -485,12 +495,14 @@ export interface FileRouteTypes {
     | '/saude-sistema'
     | '/sitemap.xml'
     | '/vagas'
+    | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
     | '/rs/levantamento'
+    | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
@@ -507,7 +519,6 @@ export interface RootRouteChildren {
   BancoColaboradoresRoute: typeof BancoColaboradoresRoute
   BancoDadosRoute: typeof BancoDadosRoute
   BloqueiosRoute: typeof BloqueiosRoute
-  CadastroDiariasRoute: typeof CadastroDiariasRoute
   CandidatosRoute: typeof CandidatosRoute
   ChatRoute: typeof ChatRoute
   CompararRoute: typeof CompararRoute
@@ -527,12 +538,14 @@ export interface RootRouteChildren {
   SaudeSistemaRoute: typeof SaudeSistemaRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   VagasRoute: typeof VagasRoute
+  CadastroDiariasSlugRoute: typeof CadastroDiariasSlugRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
   RsCandidatosRoute: typeof RsCandidatosRoute
   RsDashboardRoute: typeof RsDashboardRoute
   RsEmpresasRoute: typeof RsEmpresasRoute
   RsLevantamentoRoute: typeof RsLevantamentoRoute
+  CadastroDiariasIndexRoute: typeof CadastroDiariasIndexRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
@@ -608,13 +621,6 @@ declare module '@tanstack/react-router' {
       path: '/bloqueios'
       fullPath: '/bloqueios'
       preLoaderRoute: typeof BloqueiosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cadastro-diarias': {
-      id: '/cadastro-diarias'
-      path: '/cadastro-diarias'
-      fullPath: '/cadastro-diarias'
-      preLoaderRoute: typeof CadastroDiariasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/candidatos': {
@@ -750,6 +756,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VagasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro-diarias/': {
+      id: '/cadastro-diarias/'
+      path: '/cadastro-diarias'
+      fullPath: '/cadastro-diarias/'
+      preLoaderRoute: typeof CadastroDiariasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro-diarias/$slug': {
+      id: '/cadastro-diarias/$slug'
+      path: '/cadastro-diarias/$slug'
+      fullPath: '/cadastro-diarias/$slug'
+      preLoaderRoute: typeof CadastroDiariasSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/colaboradores/': {
       id: '/colaboradores/'
       path: '/colaboradores'
@@ -827,7 +847,6 @@ const rootRouteChildren: RootRouteChildren = {
   BancoColaboradoresRoute: BancoColaboradoresRoute,
   BancoDadosRoute: BancoDadosRoute,
   BloqueiosRoute: BloqueiosRoute,
-  CadastroDiariasRoute: CadastroDiariasRoute,
   CandidatosRoute: CandidatosRoute,
   ChatRoute: ChatRoute,
   CompararRoute: CompararRoute,
@@ -847,12 +866,14 @@ const rootRouteChildren: RootRouteChildren = {
   SaudeSistemaRoute: SaudeSistemaRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   VagasRoute: VagasRoute,
+  CadastroDiariasSlugRoute: CadastroDiariasSlugRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
   RsCandidatosRoute: RsCandidatosRoute,
   RsDashboardRoute: RsDashboardRoute,
   RsEmpresasRoute: RsEmpresasRoute,
   RsLevantamentoRoute: RsLevantamentoRoute,
+  CadastroDiariasIndexRoute: CadastroDiariasIndexRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,

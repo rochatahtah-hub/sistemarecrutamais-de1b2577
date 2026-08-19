@@ -126,7 +126,7 @@ function Pagina() {
 
   const { data: empresaAtiva } = useTenantAtual();
   // O link leva o identificador da empresa: o cadastro cai sempre na empresa certa.
-  const caminhoPortal = `/cadastro-diarias?empresa=${encodeURIComponent(empresaAtiva?.slug ?? "")}`;
+  const caminhoPortal = `/cadastro-diarias/${empresaAtiva?.slug ?? ""}`;
   const linkPortal =
     typeof window === "undefined" ? caminhoPortal : `${window.location.origin}${caminhoPortal}`;
 
