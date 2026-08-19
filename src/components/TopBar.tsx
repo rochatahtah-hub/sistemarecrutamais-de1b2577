@@ -19,18 +19,9 @@ import { BuscaGlobal } from "@/components/BuscaGlobal";
 import { AvatarUsuario } from "@/components/AvatarUsuario";
 import { DialogoFotoPerfil } from "@/components/DialogoFotoPerfil";
 import { SeletorEmpresa } from "@/components/SeletorEmpresa";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
-import { useConfiguracoes } from "@/lib/dados";
 import { useMarcarNotificacoesLidas, useNotificacoes } from "@/lib/programacao";
-
-function dentroDoExpediente(inicio: string, fim: string) {
-  const agora = new Date();
-  const hhmm = `${String(agora.getHours()).padStart(2, "0")}:${String(agora.getMinutes()).padStart(2, "0")}`;
-  const diaUtil = agora.getDay() >= 1 && agora.getDay() <= 5;
-  return diaUtil && hhmm >= inicio && hhmm <= fim;
-}
 
 /** Nome da seção atual, apenas para exibição no topo. */
 const SECOES: Record<string, string> = {
@@ -88,9 +79,8 @@ function tocarSomNotificacao() {
 export function TopBar() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { perfil, user, isAdmin, podeOperar, sair } = useAuth();
+  const { perfil, user, isAdmin, sair } = useAuth();
   const { privado, alternar } = usePrivacidade();
-  const { data: config } = useConfiguracoes();
   const { data: notificacoes = [] } = useNotificacoes();
   const marcarLidas = useMarcarNotificacoesLidas();
   const [fotoAberta, setFotoAberta] = useState(false);
@@ -117,43 +107,6 @@ export function TopBar() {
       .sort((a, b) => b.length - a.length)[0];
     return base ? SECOES[base] : "RECRUTA+";
   }, [pathname]);
-
-  // Alerta de inatividade dentro do horario de trabalho configurado.
-  useEffect(() => {
-    if (!user || !perfil || !config || !podeOperar) return;
-    const horas = config.inatividadeHoras || 2;
-    const checar = async () => {
-      if (!dentroDoExpediente(config.expedienteInicio, config.expedienteFim)) return;
-      const ultimo = perfil.ultimo_preenchimento ? new Date(perfil.ultimo_preenchimento) : null;
-      const limite = horas * 3_600_000;
-      if (ultimo && Date.now() - ultimo.getTime() < limite) return;
-      const bucket = new Date();
-      const chave = `inatividade-${bucket.toISOString().slice(0, 13)}`;
-      const mensagem = `Você está há ${horas} hora(s) sem atualizar suas programações.`;
-      const { error } = await supabase
-        .from("notificacoes")
-        .upsert(
-          { user_id: user.id, tipo: "inatividade", titulo: "Inatividade", mensagem, chave },
-          { onConflict: "tenant_id,user_id,chave", ignoreDuplicates: true },
-        );
-      if (!error) {
-        await supabase.from("notificacoes").upsert(
-          {
-            user_id: user.id,
-            para_admin: true,
-            tipo: "inatividade-admin",
-            titulo: `${perfil.nome} sem atualizar`,
-            mensagem: `${perfil.nome} está há ${horas} hora(s) sem inserir programações.`,
-            chave: `${chave}-admin`,
-          },
-          { onConflict: "tenant_id,user_id,chave", ignoreDuplicates: true },
-        );
-      }
-    };
-    void checar();
-    const id = window.setInterval(() => void checar(), 15 * 60_000);
-    return () => window.clearInterval(id);
-  }, [user, perfil, config, podeOperar]);
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-3 backdrop-blur-xl md:px-6">
