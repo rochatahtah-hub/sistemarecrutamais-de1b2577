@@ -109,14 +109,11 @@ export function formatarTelefone(valor: string) {
   return d.replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3").replace(/[-\s()]*$/, "");
 }
 
-/** Empresa do portal público, resolvida no banco pelo slug presente na rota. */
+/** Empresa do portal público, resolvida no servidor pelo slug presente na rota. */
 export async function empresaDoPortal(slug: string | null) {
-  const { data, error } = await supabase.rpc("tenant_publico", { _slug: slug ?? "" });
-  if (error) throw new Error(error.message);
-  const empresa = (Array.isArray(data) ? data[0] : data) as
-    | { id: string; nome: string; slug: string }
-    | undefined;
-  return empresa ?? null;
+  if (!slug) return null;
+  const { empresaPublicaPorSlug } = await import("./diarias.functions");
+  return (await empresaPublicaPorSlug({ data: { slug } })) ?? null;
 }
 
 /** Envio público do portal de diárias (sem login). */
