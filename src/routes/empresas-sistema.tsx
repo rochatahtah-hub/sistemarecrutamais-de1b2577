@@ -289,21 +289,47 @@ function Pagina() {
 
 function DialogoEditar({ empresa, aoFechar }: { empresa: Tenant | null; aoFechar: () => void }) {
   const renomear = useRenomearTenant();
+  const qc = useQueryClient();
   const [nome, setNome] = useState("");
+  const [slug, setSlug] = useState("");
+  const [confirmandoSlug, setConfirmandoSlug] = useState(false);
+
+  const alterarSlug = useMutation({
+    mutationFn: async ({ tenantId, valor }: { tenantId: string; valor: string }) => {
+      const { error } = await supabase.rpc("definir_slug_tenant", {
+        _tenant: tenantId,
+        _slug: valor,
+      });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      setConfirmandoSlug(false);
+      toast.success("Link público alterado. Divulgue o novo endereço.");
+      await qc.invalidateQueries({ queryKey: ["tenants-disponiveis"] });
+      await qc.invalidateQueries({ queryKey: ["tenant-atual"] });
+    },
+    onError: (erro) =>
+      toast.error(erro instanceof Error ? erro.message : "Não foi possível alterar o link."),
+  });
 
   return (
     <Dialog
       open={!!empresa}
       onOpenChange={(aberto) => {
         if (!aberto) aoFechar();
-        else setNome(empresa?.nome ?? "");
+        else {
+          setNome(empresa?.nome ?? "");
+          setSlug(empresa?.slug ?? "");
+          setConfirmandoSlug(false);
+        }
       }}
     >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Editar empresa</DialogTitle>
           <DialogDescription>
-            O identificador ({empresa?.slug}) não muda, para preservar links e dados existentes.
+            Ao trocar o nome, o link público ({empresa?.slug}) continua o mesmo, para não quebrar o
+            que já foi divulgado. Você pode alterá-lo abaixo, com confirmação.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-1.5">
@@ -313,6 +339,48 @@ function DialogoEditar({ empresa, aoFechar }: { empresa: Tenant | null; aoFechar
             value={nome || (empresa?.nome ?? "")}
             onChange={(e) => setNome(e.target.value)}
           />
+        </div>
+        <div className="space-y-1.5 rounded-xl border border-border/70 p-3">
+          <Label htmlFor="editar-slug">Link público de captação</Label>
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 text-xs text-muted-foreground">/cadastro-diarias/</span>
+            <Input
+              id="editar-slug"
+              value={slug}
+              onChange={(e) => {
+                setSlug(slugificar(e.target.value));
+                setConfirmandoSlug(false);
+              }}
+            />
+          </div>
+          {slug && slug !== empresa?.slug && (
+            <div className="space-y-2 pt-1">
+              <p className="text-xs text-destructive">
+                Atenção: os links já divulgados com <strong>{empresa?.slug}</strong> deixarão de
+                funcionar. Nenhum candidato já cadastrado é afetado.
+              </p>
+              {confirmandoSlug ? (
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    disabled={alterarSlug.isPending}
+                    onClick={() =>
+                      empresa && alterarSlug.mutate({ tenantId: empresa.id, valor: slug })
+                    }
+                  >
+                    Confirmar novo link
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setConfirmandoSlug(false)}>
+                    Cancelar
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" variant="outline" onClick={() => setConfirmandoSlug(true)}>
+                  Alterar link público
+                </Button>
+              )}
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={aoFechar}>
