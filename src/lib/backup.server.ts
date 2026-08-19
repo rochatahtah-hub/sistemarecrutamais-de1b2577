@@ -344,6 +344,25 @@ async function rodarAgendamentoDaEmpresa(agenda: Agendamento) {
     return { executado: false, motivo: "ainda não é hora", proxima: agenda.proxima_execucao };
   }
 
+  // Trava independente do agendamento: nunca gerar dois backups automáticos
+  // dentro da mesma janela mínima da frequência escolhida.
+  const janelaHoras =
+    agenda.frequencia === "semanal" ? 24 * 6 : agenda.frequencia === "mensal" ? 24 * 27 : 20;
+  const { data: ultimoAgendado } = await supabaseAdmin
+    .from("backups")
+    .select("created_at")
+    .eq("tenant_id", agenda.tenant_id)
+    .eq("origem", "agendado")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (
+    ultimoAgendado?.created_at &&
+    agora.getTime() - new Date(ultimoAgendado.created_at).getTime() < janelaHoras * 3_600_000
+  ) {
+    return { executado: false, motivo: "backup automático já realizado nesta janela" };
+  }
+
   try {
     const resultado = await executarBackup({
       formato: (agenda.formato as FormatoBackup) ?? "sql",
@@ -354,7 +373,7 @@ async function rodarAgendamentoDaEmpresa(agenda: Agendamento) {
     const removidos = await aplicarRetencao(agenda.retencao_dias, agenda.tenant_id);
     const envio = await enviarBackupEmail(resultado.id, agenda.email_destino);
 
-    await supabaseAdmin
+    const { error: erroAgenda } = await supabaseAdmin
       .from("backup_agendamento")
       .update({
         ultima_execucao: agora.toISOString(),
@@ -364,6 +383,7 @@ async function rodarAgendamentoDaEmpresa(agenda: Agendamento) {
         ultimo_envio_erro: envio.enviado ? "" : String(envio.motivo ?? ""),
       })
       .eq("tenant_id", agenda.tenant_id);
+    if (erroAgenda) console.error("[backup] falha ao atualizar agendamento:", erroAgenda.message);
 
     return { executado: true, ...resultado, removidos, envio };
   } catch (e) {
