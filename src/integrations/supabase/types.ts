@@ -1878,6 +1878,10 @@ export type Database = {
         Args: { _conversa: string; _user: string }
         Returns: boolean
       }
+      definir_slug_tenant: {
+        Args: { _slug: string; _tenant: string }
+        Returns: string
+      }
       definir_status_erro_sistema: {
         Args: { _id: string; _resolvido: boolean }
         Returns: undefined
