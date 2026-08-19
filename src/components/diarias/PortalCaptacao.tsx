@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, HandHeart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -23,37 +22,16 @@ import {
 import { CamposTransporte } from "@/components/programacao/CamposTransporte";
 import { TRANSPORTE_PADRAO, type DadosTransporte } from "@/lib/programacao";
 
-export const Route = createFileRoute("/cadastro-diarias")({
-  validateSearch: (busca: Record<string, unknown>) => ({
-    empresa: typeof busca["empresa"] === "string" ? (busca["empresa"] as string) : "",
-  }),
-  head: () => ({
-    meta: [
-      { title: "Cadastro de Diárias | Recruta+" },
-      {
-        name: "description",
-        content:
-          "Cadastre-se gratuitamente no banco de colaboradores do Recruta+ e receba oportunidades de trabalho por diária na sua região.",
-      },
-      { property: "og:title", content: "Cadastro de Diárias | Recruta+" },
-      {
-        property: "og:description",
-        content: "Preencha seus dados e entre no banco de colaboradores para oportunidades de diária.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
-  component: Pagina,
-});
-
 function alternar(lista: string[], valor: string) {
   return lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor];
 }
 
-function Pagina() {
-  const { empresa: slugEmpresa } = Route.useSearch();
+/**
+ * Portal público de captação. A empresa vem exclusivamente do identificador
+ * público do link e é sempre validada no banco (o slug não autoriza nada).
+ */
+export function PortalCaptacao({ slug }: { slug: string }) {
+  const slugEmpresa = slug;
   const { data: empresa, isPending: carregandoEmpresa } = useQuery({
     queryKey: ["portal-empresa", slugEmpresa],
     queryFn: () => empresaDoPortal(slugEmpresa || null),
