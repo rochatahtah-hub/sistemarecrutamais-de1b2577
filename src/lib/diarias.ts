@@ -196,7 +196,14 @@ export function useAtualizarColaboradorDiaria() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, dados }: { id: string; dados: Partial<ColaboradorDiaria> }) => {
-      const { error } = await supabase.from("daily_workers").update(dados).eq("id", id);
+      const ajustados: Partial<ColaboradorDiaria> = { ...dados };
+      if (typeof ajustados.full_name === "string") {
+        ajustados.full_name = normalizarNomeColaborador(ajustados.full_name);
+      }
+      if (typeof ajustados.pix_chave === "string") {
+        ajustados.pix_chave = normalizarChavePix(ajustados.pix_chave);
+      }
+      const { error } = await supabase.from("daily_workers").update(ajustados).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["daily-workers"] }),
