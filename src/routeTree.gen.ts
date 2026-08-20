@@ -29,6 +29,7 @@ import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
+import { Route as PagamentosRouteImport } from './routes/pagamentos'
 import { Route as PerfisRouteImport } from './routes/perfis'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
@@ -148,6 +149,11 @@ const MetasRoute = MetasRouteImport.update({
 const MinhaProgramacaoRoute = MinhaProgramacaoRouteImport.update({
   id: '/minha-programacao',
   path: '/minha-programacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentosRoute = PagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfisRoute = PerfisRouteImport.update({
@@ -273,6 +279,7 @@ export interface FileRoutesByFullPath {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
@@ -315,6 +322,7 @@ export interface FileRoutesByTo {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
@@ -358,6 +366,7 @@ export interface FileRoutesById {
   '/importar': typeof ImportarRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
+  '/pagamentos': typeof PagamentosRoute
   '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
   '/programadoras': typeof ProgramadorasRoute
@@ -402,6 +411,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/pagamentos'
     | '/perfis'
     | '/performance'
     | '/programadoras'
@@ -444,6 +454,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/pagamentos'
     | '/perfis'
     | '/performance'
     | '/programadoras'
@@ -486,6 +497,7 @@ export interface FileRouteTypes {
     | '/importar'
     | '/metas'
     | '/minha-programacao'
+    | '/pagamentos'
     | '/perfis'
     | '/performance'
     | '/programadoras'
@@ -529,6 +541,7 @@ export interface RootRouteChildren {
   ImportarRoute: typeof ImportarRoute
   MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
+  PagamentosRoute: typeof PagamentosRoute
   PerfisRoute: typeof PerfisRoute
   PerformanceRoute: typeof PerformanceRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
@@ -691,6 +704,13 @@ declare module '@tanstack/react-router' {
       path: '/minha-programacao'
       fullPath: '/minha-programacao'
       preLoaderRoute: typeof MinhaProgramacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamentos': {
+      id: '/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/pagamentos'
+      preLoaderRoute: typeof PagamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfis': {
@@ -857,6 +877,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportarRoute: ImportarRoute,
   MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
+  PagamentosRoute: PagamentosRoute,
   PerfisRoute: PerfisRoute,
   PerformanceRoute: PerformanceRoute,
   ProgramadorasRoute: ProgramadorasRoute,

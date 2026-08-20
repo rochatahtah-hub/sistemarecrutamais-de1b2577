@@ -66,3 +66,16 @@ export function useSalvarFuncao() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["funcoes"] }),
   });
 }
+
+/** Exclui uma função da equipe. Use a inativação quando quiser manter histórico. */
+export function useExcluirFuncao() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("funcoes").delete().eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ["funcoes"] }),
+  });
+}
+

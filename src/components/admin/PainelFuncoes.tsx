@@ -1,12 +1,17 @@
 import { useState } from "react";
-import { Check, Pencil, Plus, X } from "lucide-react";
+import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { normalizarNomeFuncao, useFuncoes, useSalvarFuncao } from "@/lib/funcoes";
+import {
+  normalizarNomeFuncao,
+  useExcluirFuncao,
+  useFuncoes,
+  useSalvarFuncao,
+} from "@/lib/funcoes";
 
 /**
  * Cadastro de funções (ATENDIMENTO, FINANCEIRO, FATURAMENTO...) usadas na
@@ -16,6 +21,7 @@ import { normalizarNomeFuncao, useFuncoes, useSalvarFuncao } from "@/lib/funcoes
 export function PainelFuncoes() {
   const { data: funcoes = [], isPending } = useFuncoes();
   const salvar = useSalvarFuncao();
+  const excluir = useExcluirFuncao();
   const [nova, setNova] = useState("");
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [editandoNome, setEditandoNome] = useState("");
@@ -127,6 +133,22 @@ export function PainelFuncoes() {
                       )
                     }
                   />
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    title="Excluir função"
+                    aria-label={`Excluir a função ${f.nome}`}
+                    disabled={excluir.isPending}
+                    onClick={() => {
+                      if (!window.confirm(`Excluir a função ${f.nome}?`)) return;
+                      excluir.mutate(f.id, {
+                        onSuccess: () => toast.success("Função excluída."),
+                        onError: (e) => toast.error((e as Error).message),
+                      });
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                   <Button
                     size="icon"
                     variant="ghost"
