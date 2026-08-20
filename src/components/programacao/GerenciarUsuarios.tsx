@@ -140,7 +140,7 @@ export function GerenciarUsuarios() {
             id="u-funcao"
             value={funcaoId}
             onChange={setFuncaoId}
-            className="h-9 w-full"
+            className="h-9"
           />
         </div>
         <div className="space-y-1.5 md:col-span-2">

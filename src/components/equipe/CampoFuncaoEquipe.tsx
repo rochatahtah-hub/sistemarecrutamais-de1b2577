@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 import { normalizarNomeFuncao, useFuncoes, useSalvarFuncao } from "@/lib/funcoes";
 
 interface Props {
@@ -61,12 +62,12 @@ export function CampoFuncaoEquipe({ value, onChange, id, className, podeCriar = 
   }
 
   return (
-    <div className="flex items-end gap-2">
+    <div className="flex w-full items-end gap-2">
       <Select
         value={value ?? "nenhuma"}
         onValueChange={(v) => onChange(v === "nenhuma" ? null : v)}
       >
-        <SelectTrigger id={id} className={className ?? "h-9 w-48"}>
+        <SelectTrigger id={id} className={cn("h-9 min-w-0 flex-1", className)}>
           <SelectValue placeholder="Selecione a função">
             {atual ? `${atual.nome}${atual.ativo ? "" : " (inativa)"}` : "Sem função"}
           </SelectValue>

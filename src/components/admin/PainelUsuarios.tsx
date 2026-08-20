@@ -143,7 +143,7 @@ export function PainelUsuarios() {
             id="nv-funcao"
             value={novo.funcaoId}
             onChange={(funcaoId) => setNovo({ ...novo, funcaoId })}
-            className="h-9 w-full"
+            className="h-9"
           />
         </div>
         <div className="space-y-1.5 md:col-span-2">
@@ -152,7 +152,7 @@ export function PainelUsuarios() {
             id="nv-papel"
             valor={novo.papel}
             onChange={(papel) => setNovo({ ...novo, papel })}
-            className="h-9 w-full"
+            className="h-9"
           />
         </div>
         <div className="flex justify-end md:col-span-7">
