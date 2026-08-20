@@ -148,6 +148,8 @@ export function FichaCandidato({
     setPrevisualizando(false);
     setLendo(false);
     setTransporte(TRANSPORTE_PADRAO);
+    setPix("");
+
     if (inputArquivo.current) inputArquivo.current.value = "";
   }, [resetSinal]);
 
