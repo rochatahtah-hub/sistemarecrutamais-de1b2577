@@ -215,6 +215,7 @@ function Pagina() {
           onBloqueio={setBloqueio}
           resetSinal={resetSinal}
           mostrarTransporte={false}
+          mostrarFuncao={false}
         />
 
         <div className="grid gap-3 md:grid-cols-4">
@@ -287,7 +288,7 @@ function Pagina() {
                 <TableHead>Candidato</TableHead>
                 <TableHead>CPF</TableHead>
                 <TableHead>Telefone</TableHead>
-                <TableHead>Função</TableHead>
+                
                 <TableHead>Pix</TableHead>
                 <TableHead>Documento</TableHead>
                 <TableHead>Empresa</TableHead>
@@ -310,7 +311,7 @@ function Pagina() {
                   <TableCell>
                     {r.candidato_telefone ? priv.telefone(r.candidato_telefone) : "—"}
                   </TableCell>
-                  <TableCell>{r.candidato_funcao || "—"}</TableCell>
+                  
                   <TableCell>
                     {r.candidato_pix ? priv.texto(r.candidato_pix) : "Pix não cadastrado"}
                   </TableCell>
@@ -355,7 +356,7 @@ function Pagina() {
               ))}
               {daQuinzena.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={10} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={9} className="py-8 text-center text-muted-foreground">
                     Nenhum registro nesta quinzena ainda.
                   </TableCell>
                 </TableRow>

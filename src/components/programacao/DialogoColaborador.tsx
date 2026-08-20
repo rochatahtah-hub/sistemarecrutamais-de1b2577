@@ -116,7 +116,7 @@ export function DialogoColaborador({ registro }: { registro: RegistroProgramacao
         <DialogHeader>
           <DialogTitle>Ficha do colaborador</DialogTitle>
           <DialogDescription>
-            Dados puxados automaticamente da ficha do colaborador. Para alterar nome, função ou
+            Dados puxados automaticamente da ficha do colaborador. Para alterar nome ou
             Pix, edite a ficha — a programação reflete a mudança na hora.
           </DialogDescription>
         </DialogHeader>
@@ -145,10 +145,6 @@ export function DialogoColaborador({ registro }: { registro: RegistroProgramacao
           <div>
             <dt className="text-muted-foreground">Empresa</dt>
             <dd className="font-medium">{priv.empresa(registro.empresa)}</dd>
-          </div>
-          <div>
-            <dt className="text-muted-foreground">Função</dt>
-            <dd className="font-medium">{registro.candidato_funcao || "Função não cadastrada"}</dd>
           </div>
           <div>
             <dt className="text-muted-foreground">Chave Pix</dt>

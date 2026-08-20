@@ -48,6 +48,8 @@ interface Props {
   resetSinal?: number;
   /** Exibe os campos de transporte (dados cadastrais do candidato). */
   mostrarTransporte?: boolean;
+  /** Exibe o seletor de função da ficha (oculto na Minha Programação). */
+  mostrarFuncao?: boolean;
 }
 
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
@@ -60,6 +62,7 @@ export function FichaCandidato({
   onBloqueio,
   resetSinal = 0,
   mostrarTransporte = true,
+  mostrarFuncao = true,
 }: Props) {
   const priv = usePrivacidade();
   const inputArquivo = useRef<HTMLInputElement>(null);
@@ -400,22 +403,24 @@ export function FichaCandidato({
             onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="f-funcao">Função</Label>
-          <Select value={funcao || SEM_FUNCAO} onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}>
-            <SelectTrigger id="f-funcao">
-              <SelectValue placeholder="Selecione a função" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={SEM_FUNCAO}>Sem função definida</SelectItem>
-              {opcoesFuncao(funcoes, funcao).map((n) => (
-                <SelectItem key={n} value={n}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {mostrarFuncao && (
+          <div className="space-y-1.5">
+            <Label htmlFor="f-funcao">Função</Label>
+            <Select value={funcao || SEM_FUNCAO} onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}>
+              <SelectTrigger id="f-funcao">
+                <SelectValue placeholder="Selecione a função" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={SEM_FUNCAO}>Sem função definida</SelectItem>
+                {opcoesFuncao(funcoes, funcao).map((n) => (
+                  <SelectItem key={n} value={n}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="space-y-1.5 md:col-span-2">
           <Label htmlFor="f-pix">Chave Pix</Label>
           <Input
