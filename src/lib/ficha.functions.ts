@@ -27,13 +27,15 @@ export const extrairFicha = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("Leitura automática indisponível no momento.");
 
     const instrucao =
-      "Você lê fichas de cadastro de candidatos. Extraia APENAS o nome completo, o CPF e o telefone. " +
+      "Você lê fichas de cadastro de candidatos. Extraia APENAS o nome completo, o CPF, o telefone e a chave Pix. " +
       "Ignore e descarte qualquer outra informação. Responda somente com JSON: " +
-      '{"nome":"","cpf":"","telefone":""}. CPF e telefone apenas com dígitos. Se não encontrar, use "".';
+      '{"nome":"","cpf":"","telefone":"","pix":""}. CPF e telefone apenas com dígitos. ' +
+      'A chave Pix deve vir EXATAMENTE como escrita na ficha (pode ser CPF, e-mail, telefone ou chave aleatória) e nunca deve ser confundida com o campo CPF. Se não encontrar, use "".';
 
     const conteudo: Array<Record<string, unknown>> = [
-      { type: "text", text: "Extraia nome, CPF e telefone desta ficha." },
+      { type: "text", text: "Extraia nome, CPF, telefone e chave Pix desta ficha." },
     ];
+
     if (data.arquivoBase64) {
       conteudo.push({
         type: "image_url",
