@@ -93,6 +93,8 @@ export function FichaCandidato({
       precisa_fretado: candidato.precisa_fretado ?? false,
       transporte_observacao: candidato.transporte_observacao ?? "",
     });
+    setFuncao(candidato.funcao ?? "");
+    setPix(candidato.pix_chave ?? "");
   }, [candidato]);
 
   // Com o CPF completo, traz o transporte já cadastrado para não sobrescrever com valores vazios.
