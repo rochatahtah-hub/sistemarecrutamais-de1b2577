@@ -13,3 +13,9 @@ type: feature
 - `candidatos` guarda `funcao`, `pix_chave`, `documento_path`, `documento_nome` — mesmos campos de `daily_workers`.
 - Na Minha Programação, a ficha do colaborador (DialogoColaborador) permite salvar função/Pix e anexar, visualizar ou remover o documento (bucket privado, sempre URL assinada de curta duração).
 - Tabela `funcoes` (multiempresa) alimenta o seletor de função; inativas não aparecem em novos cadastros, mas continuam no histórico. Gestão na Central de Administração > aba Funções.
+
+## Leitura da ficha colada (parser)
+- `src/lib/ficha-texto.ts` interpreta a ficha por RÓTULOS (nunca por posição de linha): nome, CPF, telefone, **Chave Pix** e transporte (possui condução, tipo, ponto de embarque).
+- Pix aceita variações "Chave PIX:", "Pix:", "Chave PIX (obrigatório ser em seu nome):" e valor na linha seguinte; guarda o valor literal (ex.: `CPF 086.723.953-01`) sem confundir com o campo CPF.
+- Fallback de IA (`src/lib/ficha.functions.ts`) também devolve `pix`.
+- Testes do parser: `src/lib/ficha-texto.test.ts`.
