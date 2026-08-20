@@ -154,7 +154,7 @@ function Pagina() {
         new Date(c.created_at).toLocaleDateString("pt-BR"),
       ]),
     ];
-    const csv = linhas.map((l) => l.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+    const csv = linhas.map((l) => l.map((v) => celulaCsv(v)).join(";")).join("\n");
     const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
