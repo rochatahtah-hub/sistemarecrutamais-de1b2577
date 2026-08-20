@@ -1,3 +1,4 @@
+import { textoCelulaCsv } from "@/lib/csv-seguro";
 import { strToU8, zipSync } from "fflate";
 
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -72,8 +73,9 @@ function valorSql(valor: unknown): string {
 }
 
 function valorCsv(valor: unknown): string {
-  if (valor === null || valor === undefined) return "";
-  const texto = typeof valor === "object" ? JSON.stringify(valor) : String(valor);
+  // Neutraliza fórmulas (=, +, -, @) para que dados de formulário público não
+  // executem nada ao abrir o backup no Excel/Google Sheets.
+  const texto = textoCelulaCsv(valor);
   return /[",;\n\r]/.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto;
 }
 

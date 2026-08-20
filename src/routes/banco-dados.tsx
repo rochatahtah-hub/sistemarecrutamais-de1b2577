@@ -62,6 +62,7 @@ import {
 } from "@/lib/banco.functions";
 import { enviarBackupDrive, statusDrive } from "@/lib/drive.functions";
 import { gerarBackup, linkDownloadBackup } from "@/lib/backup.functions";
+import { celulaCsv } from "@/lib/csv-seguro";
 
 export const Route = createFileRoute("/banco-dados")({
   head: () => ({
@@ -263,8 +264,8 @@ function Tabelas() {
   const exportar = () => {
     const colunas = ent.campos.map((c) => c.chave);
     const csv = [
-      colunas.map((c) => `"${ent.campos.find((x) => x.chave === c)?.rotulo ?? c}"`).join(";"),
-      ...linhas.map((l) => colunas.map((c) => `"${String(l[c] ?? "").replace(/"/g, '""')}"`).join(";")),
+      colunas.map((c) => celulaCsv(ent.campos.find((x) => x.chave === c)?.rotulo ?? c)).join(";"),
+      ...linhas.map((l) => colunas.map((c) => celulaCsv(l[c] ?? "")).join(";")),
     ].join("\n");
     const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");

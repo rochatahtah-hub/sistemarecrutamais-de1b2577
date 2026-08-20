@@ -47,6 +47,7 @@ import { rotuloTransporte } from "@/lib/programacao";
 import { urlDocumentoIdentidade } from "@/lib/documentos-colaborador";
 import { useTenantAtual } from "@/lib/tenant";
 import { caminhoPortalDiarias, linkPortalDiarias } from "@/lib/portal-url";
+import { celulaCsv } from "@/lib/csv-seguro";
 
 /** Resumo do transporte exibido diretamente na listagem (sem entrar em edição). */
 function ResumoTransporte({ colaborador }: { colaborador: ColaboradorDiaria }) {
@@ -154,7 +155,7 @@ function Pagina() {
         new Date(c.created_at).toLocaleDateString("pt-BR"),
       ]),
     ];
-    const csv = linhas.map((l) => l.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(";")).join("\n");
+    const csv = linhas.map((l) => l.map((v) => celulaCsv(v)).join(";")).join("\n");
     const url = URL.createObjectURL(new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;
