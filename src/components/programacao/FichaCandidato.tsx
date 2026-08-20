@@ -62,6 +62,7 @@ export function FichaCandidato({
   onBloqueio,
   resetSinal = 0,
   mostrarTransporte = true,
+  mostrarFuncao = true,
 }: Props) {
   const priv = usePrivacidade();
   const inputArquivo = useRef<HTMLInputElement>(null);
