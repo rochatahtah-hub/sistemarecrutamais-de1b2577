@@ -17,6 +17,7 @@ import {
   empresaDoPortal,
   formatarCpf,
   formatarTelefone,
+  normalizarNomeColaborador,
   soDigitosTelefone,
 } from "@/lib/diarias";
 import { CamposTransporte } from "@/components/programacao/CamposTransporte";
@@ -56,6 +57,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
   const [periodos, setPeriodos] = useState<string[]>([]);
   const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
   const [funcao, setFuncao] = useState("");
+  const [pix, setPix] = useState("");
   const [consentimento, setConsentimento] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [concluido, setConcluido] = useState(false);
@@ -91,6 +93,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
         available_days: [],
         available_periods: periodos,
         desired_role: funcao.trim().slice(0, 120),
+        pix_chave: pix,
         ...transporte,
       });
       setConcluido(true);
@@ -163,7 +166,16 @@ export function PortalCaptacao({ slug }: { slug: string }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <Label htmlFor="nome">Nome completo *</Label>
-                  <Input id="nome" value={nome} maxLength={120} onChange={(e) => setNome(e.target.value)} />
+                  <Input
+                    id="nome"
+                    value={nome}
+                    maxLength={120}
+                    onChange={(e) => setNome(normalizarNomeColaborador(e.target.value))}
+                    placeholder="TALITAGONCALVESDAROCHA"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Somente letras, sem espaços e sem acentos.
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="tel">Telefone / WhatsApp *</Label>
@@ -196,6 +208,20 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                   <Label htmlFor="bairro">Bairro *</Label>
                   <Input id="bairro" value={bairro} maxLength={80} onChange={(e) => setBairro(e.target.value)} />
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="pix">Chave Pix</Label>
+                <Input
+                  id="pix"
+                  value={pix}
+                  maxLength={140}
+                  onChange={(e) => setPix(e.target.value)}
+                  placeholder="CPF, telefone, e-mail ou chave aleatória"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Usada apenas para pagamento das diárias. Fica visível somente para a equipe autorizada.
+                </p>
               </div>
 
               <div className="flex items-center justify-between rounded-xl border border-border/70 px-3.5 py-3">
