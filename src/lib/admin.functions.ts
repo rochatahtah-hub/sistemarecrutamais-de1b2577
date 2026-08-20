@@ -85,7 +85,7 @@ export const criarUsuario = createServerFn({ method: "POST" })
           email,
           ativo: true,
           tenant_id: tenantId,
-          funcao_id: data.funcaoId || null,
+          perfil_id: data.perfilId || null,
         },
         { onConflict: "id" },
       );
