@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/PageHeader";
 import { RequerPermissao } from "@/components/RequerPermissao";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -316,11 +315,6 @@ function Conteudo() {
                 Você tem acesso somente de consulta nesta área.
               </p>
             )}
-            <div className="sr-only">
-              <Button type="button" tabIndex={-1} aria-hidden>
-                atualizar
-              </Button>
-            </div>
           </CardContent>
         </Card>
       ))}
