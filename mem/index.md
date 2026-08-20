@@ -13,3 +13,4 @@ LGPD: MODO PRIVACIDADE mascara CPF e telefone. Nunca expor dado pessoal a visita
 ## Memories
 - Segurança: ver documento de memória de segurança do projeto (modelo de acesso, exceções deliberadas, regras de migração).
 - Pentest autorizado: relatório completo em `pentest/relatorio.md`; F-1/F-2/F-3 corrigidos.
+- [Cadastro de diárias](mem/features/cadastro-diarias.md) — nome padronizado em caixa alta, chave Pix e documento de identidade em bucket privado por empresa.
