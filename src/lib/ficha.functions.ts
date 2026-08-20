@@ -76,5 +76,7 @@ export const extrairFicha = createServerFn({ method: "POST" })
       nome: (dados.nome ?? "").trim(),
       cpf: digitos(dados.cpf),
       telefone: digitos(dados.telefone),
+      pix: (dados.pix ?? "").trim().slice(0, 140),
     };
+
   });
