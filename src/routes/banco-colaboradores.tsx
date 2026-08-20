@@ -47,6 +47,7 @@ import { rotuloTransporte } from "@/lib/programacao";
 import { urlDocumentoIdentidade } from "@/lib/documentos-colaborador";
 import { useTenantAtual } from "@/lib/tenant";
 import { caminhoPortalDiarias, linkPortalDiarias } from "@/lib/portal-url";
+import { celulaCsv } from "@/lib/csv-seguro";
 
 /** Resumo do transporte exibido diretamente na listagem (sem entrar em edição). */
 function ResumoTransporte({ colaborador }: { colaborador: ColaboradorDiaria }) {

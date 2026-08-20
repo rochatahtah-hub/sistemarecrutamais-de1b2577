@@ -62,6 +62,7 @@ import {
 } from "@/lib/banco.functions";
 import { enviarBackupDrive, statusDrive } from "@/lib/drive.functions";
 import { gerarBackup, linkDownloadBackup } from "@/lib/backup.functions";
+import { celulaCsv } from "@/lib/csv-seguro";
 
 export const Route = createFileRoute("/banco-dados")({
   head: () => ({
