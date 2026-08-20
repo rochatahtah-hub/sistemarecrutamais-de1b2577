@@ -480,9 +480,9 @@ export function FichaCandidato({
       {previsualizando && !candidato && (
         <div className="rounded-lg border bg-muted/30 p-4" aria-live="polite">
           <p className="mb-3 font-semibold text-primary">✓ FICHA PROCESSADA</p>
-          <dl className="grid gap-2 text-sm sm:grid-cols-3">
+          <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-muted-foreground">Nome</dt>
+              <dt className="text-muted-foreground">Nome completo</dt>
               <dd className="font-medium">{priv.nome(nome)}</dd>
             </div>
             <div>
@@ -490,10 +490,17 @@ export function FichaCandidato({
               <dd className="font-medium">{priv.privado ? priv.cpf(cpf) : formatarCPF(cpf)}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Telefone</dt>
+              <dt className="text-muted-foreground">Número de telefone</dt>
               <dd className="font-medium">{priv.privado ? priv.telefone(telefone) : formatarTelefone(telefone)}</dd>
             </div>
+            <div>
+              <dt className="text-muted-foreground">Chave Pix</dt>
+              <dd className="font-medium break-all">
+                {pix ? (priv.privado ? priv.texto(pix) : pix) : "Não informada"}
+              </dd>
+            </div>
           </dl>
+
           <div className="mt-4 flex flex-wrap gap-2">
             <Button type="button" onClick={() => void confirmar()} disabled={salvar.isPending}>
               <UserCheck className="mr-2 h-4 w-4" />
