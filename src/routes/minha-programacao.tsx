@@ -288,7 +288,7 @@ function Pagina() {
                 <TableHead>Candidato</TableHead>
                 <TableHead>CPF</TableHead>
                 <TableHead>Telefone</TableHead>
-                <TableHead>Função</TableHead>
+                
                 <TableHead>Pix</TableHead>
                 <TableHead>Documento</TableHead>
                 <TableHead>Empresa</TableHead>
