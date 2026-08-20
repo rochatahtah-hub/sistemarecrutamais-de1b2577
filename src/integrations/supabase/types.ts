@@ -1062,6 +1062,60 @@ export type Database = {
           },
         ]
       }
+      pagamentos: {
+        Row: {
+          created_at: string
+          id: string
+          observacao: string
+          pago_em: string | null
+          pago_por: string | null
+          pago_por_nome: string
+          status: string
+          tenant_id: string
+          updated_at: string
+          vaga_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          observacao?: string
+          pago_em?: string | null
+          pago_por?: string | null
+          pago_por_nome?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          vaga_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          observacao?: string
+          pago_em?: string | null
+          pago_por?: string | null
+          pago_por_nome?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+          vaga_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_vaga_id_fkey"
+            columns: ["vaga_id"]
+            isOneToOne: true
+            referencedRelation: "vagas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       perfil_permissoes: {
         Row: {
           acao: string
