@@ -148,6 +148,8 @@ export function FichaCandidato({
     setPrevisualizando(false);
     setLendo(false);
     setTransporte(TRANSPORTE_PADRAO);
+    setPix("");
+
     if (inputArquivo.current) inputArquivo.current.value = "";
   }, [resetSinal]);
 
@@ -158,10 +160,30 @@ export function FichaCandidato({
     if (b) onCandidato(null);
   }
 
-  function aplicarDados(dados: { nome: string; cpf: string; telefone: string }) {
+  function aplicarDados(dados: {
+    nome: string;
+    cpf: string;
+    telefone: string;
+    pix?: string;
+    transporte_proprio?: boolean;
+    transporte_tipos?: string[];
+    transporte_observacao?: string;
+  }) {
     if (dados.nome) setNome(normalizarNomeColaborador(dados.nome));
     if (dados.cpf) setCpf(formatarCPF(dados.cpf));
     if (dados.telefone) setTelefone(formatarTelefone(dados.telefone));
+    if (dados.pix) setPix(dados.pix.slice(0, 140));
+    if (dados.transporte_proprio || (dados.transporte_tipos?.length ?? 0) > 0 || dados.transporte_observacao) {
+      setTransporte((atual) => ({
+        ...atual,
+        transporte_proprio: dados.transporte_proprio ?? atual.transporte_proprio,
+        transporte_tipos:
+          (dados.transporte_tipos?.length ?? 0) > 0
+            ? (dados.transporte_tipos as string[])
+            : atual.transporte_tipos,
+        transporte_observacao: dados.transporte_observacao || atual.transporte_observacao,
+      }));
+    }
   }
 
   async function usarFichaColada(textoBruto?: string) {
@@ -183,19 +205,22 @@ export function FichaCandidato({
     setPendencias([]);
     try {
       let dados = interpretarFicha(texto);
-      if (!dados.cpf || !dados.nome || !dados.telefone) {
+      if (!dados.cpf || !dados.nome || !dados.telefone || !dados.pix) {
         try {
           const ia = await extrairFicha({ data: { texto: texto.slice(0, 20_000) } });
            if (!montado.current || processamentoAtual.current !== idProcessamento) return;
           dados = {
+            ...dados,
             nome: dados.nome || ia.nome,
             cpf: dados.cpf || ia.cpf,
             telefone: dados.telefone || ia.telefone,
+            pix: dados.pix || ia.pix || "",
           };
         } catch {
           /* mantém a leitura local */
         }
       }
+
       if (!montado.current || processamentoAtual.current !== idProcessamento) return;
       aplicarDados(dados);
       const faltas = camposFaltantes(dados);
