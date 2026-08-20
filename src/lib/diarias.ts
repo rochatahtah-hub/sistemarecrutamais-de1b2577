@@ -53,6 +53,9 @@ export interface ColaboradorDiaria {
   transporte_tipos: string[];
   precisa_fretado: boolean;
   transporte_observacao: string;
+  pix_chave: string;
+  documento_path: string;
+  documento_nome: string;
 }
 
 export interface NovoColaboradorDiaria {
@@ -69,10 +72,29 @@ export interface NovoColaboradorDiaria {
   transporte_tipos?: string[];
   precisa_fretado?: boolean;
   transporte_observacao?: string;
+  pix_chave?: string;
 }
 
 const CAMPOS =
-  "id,full_name,phone,cpf_mascara,city,neighborhood,available_for_daily,available_days,available_periods,desired_role,status,observacao,consent_date,created_at,transporte_proprio,transporte_tipos,precisa_fretado,transporte_observacao";
+  "id,full_name,phone,cpf_mascara,city,neighborhood,available_for_daily,available_days,available_periods,desired_role,status,observacao,consent_date,created_at,transporte_proprio,transporte_tipos,precisa_fretado,transporte_observacao,pix_chave,documento_path,documento_nome";
+
+/**
+ * Padroniza o nome do colaborador: sem acentos, sem espaços, sem caracteres
+ * especiais e sempre em caixa alta (ex.: "Talita Gonçalves" -> "TALITAGONCALVES").
+ */
+export function normalizarNomeColaborador(valor: string) {
+  return (valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Za-z]/g, "")
+    .toUpperCase()
+    .slice(0, 120);
+}
+
+/** Limpeza da chave Pix: aceita CPF, telefone, e-mail ou chave aleatória. */
+export function normalizarChavePix(valor: string) {
+  return (valor ?? "").trim().replace(/\s+/g, " ").slice(0, 140);
+}
 
 export function soDigitosTelefone(valor: string) {
   return (valor ?? "").replace(/\D+/g, "").slice(0, 11);
@@ -120,6 +142,8 @@ export async function empresaDoPortal(slug: string | null) {
 export async function cadastrarColaboradorPublico(dados: NovoColaboradorDiaria & { tenant_id: string }) {
   const { error } = await supabase.from("daily_workers").insert({
     ...dados,
+    full_name: normalizarNomeColaborador(dados.full_name),
+    pix_chave: normalizarChavePix(dados.pix_chave ?? ""),
     phone: soDigitosTelefone(dados.phone),
     cpf: soDigitosCpf(dados.cpf),
     status: "novo",
@@ -194,20 +218,21 @@ export function useCriarColaboradorDiaria() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (dados: NovoColaboradorDiaria) => {
-      const { error } = await supabase.from("daily_workers").insert({
+      const { data, error } = await supabase.from("daily_workers").insert({
         ...dados,
         phone: soDigitosTelefone(dados.phone),
         cpf: soDigitosCpf(dados.cpf),
         status: "disponivel",
         consent_accepted: true,
         consent_date: new Date().toISOString(),
-      });
+      }).select("id").single();
       if (error) {
         if (error.code === "23505") {
           throw new Error(/cpf/i.test(error.message) ? "CPF já cadastrado." : "Telefone já cadastrado.");
         }
         throw error;
       }
+      return data.id as string;
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["daily-workers"] }),
   });
