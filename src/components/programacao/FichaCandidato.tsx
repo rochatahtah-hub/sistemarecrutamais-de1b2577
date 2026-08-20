@@ -48,6 +48,8 @@ interface Props {
   resetSinal?: number;
   /** Exibe os campos de transporte (dados cadastrais do candidato). */
   mostrarTransporte?: boolean;
+  /** Exibe o seletor de função da ficha (oculto na Minha Programação). */
+  mostrarFuncao?: boolean;
 }
 
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
