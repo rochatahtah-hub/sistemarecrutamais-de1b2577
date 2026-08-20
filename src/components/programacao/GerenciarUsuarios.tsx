@@ -30,6 +30,8 @@ import {
 import { Trash2 } from "lucide-react";
 import { useProgramadoras } from "@/lib/programacao";
 import { usePrivacidade } from "@/lib/privacidade";
+import { CampoFuncaoEquipe } from "@/components/equipe/CampoFuncaoEquipe";
+import { useDefinirFuncaoDoUsuario, useFuncoesDosUsuarios } from "@/lib/funcoes";
 
 function useRoles() {
   return useQuery({
@@ -57,9 +59,12 @@ export function GerenciarUsuarios() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [papel, setPapel] = useState<PapelUsuario>("programadora");
+  const [funcaoId, setFuncaoId] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [novaSenha, setNovaSenha] = useState<Record<string, string>>({});
   const [excluindo, setExcluindo] = useState<string | null>(null);
+  const { data: funcoesUsuarios = {} } = useFuncoesDosUsuarios();
+  const definirFuncao = useDefinirFuncaoDoUsuario();
 
   async function excluir(id: string) {
     setExcluindo(id);
@@ -85,13 +90,15 @@ export function GerenciarUsuarios() {
     e.preventDefault();
     setEnviando(true);
     try {
-      await criar({ data: { nome, email, senha, papel } });
+      await criar({ data: { nome, email, senha, papel, funcaoId } });
       toast.success("Usuário cadastrado.");
       setNome("");
       setEmail("");
       setSenha("");
       setPapel("programadora");
+      setFuncaoId(null);
       void qc.invalidateQueries({ queryKey: ["programadoras"] });
+      void qc.invalidateQueries({ queryKey: ["funcoes-usuarios"] });
       void qc.invalidateQueries({ queryKey: ["user-roles"] });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao cadastrar usuário.");
@@ -102,7 +109,7 @@ export function GerenciarUsuarios() {
 
   return (
     <div className="space-y-5">
-      <form className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-5" onSubmit={cadastrar}>
+      <form className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-7" onSubmit={cadastrar}>
         <div className="space-y-1.5 md:col-span-1">
           <Label htmlFor="u-nome">Nome</Label>
           <Input id="u-nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
@@ -127,11 +134,20 @@ export function GerenciarUsuarios() {
             onChange={(e) => setSenha(e.target.value)}
           />
         </div>
-        <div className="flex items-end justify-between gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="u-papel">Perfil</Label>
-            <SeletorPapel id="u-papel" valor={papel} onChange={setPapel} className="h-9 w-40" />
-          </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="u-funcao">Função</Label>
+          <CampoFuncaoEquipe
+            id="u-funcao"
+            value={funcaoId}
+            onChange={setFuncaoId}
+            className="h-9"
+          />
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="u-papel">Perfil</Label>
+          <SeletorPapel id="u-papel" valor={papel} onChange={setPapel} className="h-9 w-full" />
+        </div>
+        <div className="flex justify-end md:col-span-7">
           <Button type="submit" disabled={enviando}>
             {enviando ? "Salvando..." : "Cadastrar"}
           </Button>
@@ -146,6 +162,20 @@ export function GerenciarUsuarios() {
               <p className="text-sm font-medium">{priv.nome(p.nome)}</p>
               <p className="text-xs text-muted-foreground">{priv.texto(p.email)}</p>
             </div>
+            <CampoFuncaoEquipe
+              value={funcoesUsuarios[p.id] ?? null}
+              podeCriar={false}
+              className="h-8 w-40 text-xs"
+              onChange={(novo) => {
+                definirFuncao.mutate(
+                  { userId: p.id, funcaoId: novo },
+                  {
+                    onSuccess: () => toast.success("Função atualizada."),
+                    onError: (err: Error) => toast.error(err.message),
+                  },
+                );
+              }}
+            />
             <SeletorPapel
               valor={papelDe(p.id)}
               className="h-8 w-44 text-xs"

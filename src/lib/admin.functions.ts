@@ -43,7 +43,13 @@ async function garantirMesmaEmpresa(
 export const criarUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(
-    (d: { nome: string; email: string; senha: string; papel?: PapelUsuario }) => d,
+    (d: {
+      nome: string;
+      email: string;
+      senha: string;
+      papel?: PapelUsuario;
+      funcaoId?: string | null;
+    }) => d,
   )
   .handler(async ({ data, context }) => {
     const { data: ehAdmin } = await context.supabase.rpc("has_role", {
@@ -73,7 +79,14 @@ export const criarUsuario = createServerFn({ method: "POST" })
     await supabaseAdmin
       .from("profiles")
       .upsert(
-        { id: criado.user.id, nome: data.nome.trim(), email, ativo: true, tenant_id: tenantId },
+        {
+          id: criado.user.id,
+          nome: data.nome.trim(),
+          email,
+          ativo: true,
+          tenant_id: tenantId,
+          funcao_id: data.funcaoId || null,
+        },
         { onConflict: "id" },
       );
     await supabaseAdmin

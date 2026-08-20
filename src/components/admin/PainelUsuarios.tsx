@@ -37,6 +37,8 @@ import {
 } from "@/lib/usuarios.functions";
 import { usePrivacidade } from "@/lib/privacidade";
 import { dataHoraLogin, statusUltimoLogin } from "@/lib/acessos";
+import { CampoFuncaoEquipe } from "@/components/equipe/CampoFuncaoEquipe";
+import { useDefinirFuncaoDoUsuario, useFuncoes, useFuncoesDosUsuarios } from "@/lib/funcoes";
 
 function quando(valor: string | null) {
   if (!valor) return "—";
@@ -62,12 +64,17 @@ export function PainelUsuarios() {
     await qc.invalidateQueries({ queryKey: ["programadoras-habilitadas"] });
   };
 
+  const { data: funcoes = [] } = useFuncoes();
+  const { data: funcoesUsuarios = {} } = useFuncoesDosUsuarios();
+  const definirFuncao = useDefinirFuncaoDoUsuario();
+
   const [novo, setNovo] = useState<{
     nome: string;
     email: string;
     senha: string;
     papel: PapelUsuario;
-  }>({ nome: "", email: "", senha: "", papel: "programadora" });
+    funcaoId: string | null;
+  }>({ nome: "", email: "", senha: "", papel: "programadora", funcaoId: null });
   const [editando, setEditando] = useState<{ id: string; nome: string; email: string } | null>(null);
   const [trocaSenha, setTrocaSenha] = useState<{ id: string; nome: string; senha: string } | null>(null);
   const [excluindo, setExcluindo] = useState<{ id: string; nome: string } | null>(null);
@@ -93,14 +100,14 @@ export function PainelUsuarios() {
   return (
     <div className="space-y-5">
       <form
-        className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-5"
+        className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-7"
         onSubmit={(e) => {
           e.preventDefault();
           acao.mutate(
             async () => {
               await criar({ data: novo });
               toast.success("Usuário cadastrado.");
-              setNovo({ nome: "", email: "", senha: "", papel: "programadora" });
+              setNovo({ nome: "", email: "", senha: "", papel: "programadora", funcaoId: null });
             },
           );
         }}
@@ -130,16 +137,25 @@ export function PainelUsuarios() {
             onChange={(e) => setNovo({ ...novo, senha: e.target.value })}
           />
         </div>
-        <div className="flex items-end justify-between gap-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="nv-papel">Perfil</Label>
-            <SeletorPapel
-              id="nv-papel"
-              valor={novo.papel}
-              onChange={(papel) => setNovo({ ...novo, papel })}
-              className="h-9 w-40"
-            />
-          </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="nv-funcao">Função</Label>
+          <CampoFuncaoEquipe
+            id="nv-funcao"
+            value={novo.funcaoId}
+            onChange={(funcaoId) => setNovo({ ...novo, funcaoId })}
+            className="h-9"
+          />
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="nv-papel">Perfil</Label>
+          <SeletorPapel
+            id="nv-papel"
+            valor={novo.papel}
+            onChange={(papel) => setNovo({ ...novo, papel })}
+            className="h-9"
+          />
+        </div>
+        <div className="flex justify-end md:col-span-7">
           <Button type="submit" disabled={acao.isPending}>
             <Plus className="mr-2 h-4 w-4" /> Criar
           </Button>
@@ -181,6 +197,11 @@ export function PainelUsuarios() {
                 <p className="truncate text-sm font-semibold">{p.nome(u.nome)}</p>
                 <Badge variant={u.admin ? "default" : "secondary"}>{PAPEIS_ROTULO[u.papel]}</Badge>
                 <Badge variant={u.ativo ? "outline" : "destructive"}>{u.ativo ? "Ativo" : "Inativo"}</Badge>
+                {funcoesUsuarios[u.id] && (
+                  <Badge variant="secondary">
+                    {funcoes.find((f) => f.id === funcoesUsuarios[u.id])?.nome ?? "Função"}
+                  </Badge>
+                )}
               </div>
               <p className="truncate text-xs text-muted-foreground">{p.privado ? "•••••••" : u.email}</p>
               <p className="text-[11px] text-muted-foreground">
@@ -194,6 +215,17 @@ export function PainelUsuarios() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <CampoFuncaoEquipe
+                value={funcoesUsuarios[u.id] ?? null}
+                podeCriar={false}
+                className="h-8 w-40 text-xs"
+                onChange={(funcaoId) =>
+                  acao.mutate(async () => {
+                    await definirFuncao.mutateAsync({ userId: u.id, funcaoId });
+                    toast.success("Função atualizada.");
+                  })
+                }
+              />
               <SeletorPapel
                 valor={u.papel}
                 className="h-8 w-40 text-xs"
