@@ -34,6 +34,7 @@ import {
   type DadosTransporte,
 } from "@/lib/programacao";
 import { buscarCandidatoPorCPF } from "@/lib/programacao";
+import { normalizarNomeColaborador } from "@/lib/diarias";
 import { buscarBloqueio, type BloqueioAtivo } from "@/lib/bloqueios";
 import { camposFaltantes, interpretarFicha } from "@/lib/ficha-texto";
 import { extrairFicha } from "@/lib/ficha.functions";
@@ -155,7 +156,7 @@ export function FichaCandidato({
   }
 
   function aplicarDados(dados: { nome: string; cpf: string; telefone: string }) {
-    if (dados.nome) setNome(dados.nome);
+    if (dados.nome) setNome(normalizarNomeColaborador(dados.nome));
     if (dados.cpf) setCpf(formatarCPF(dados.cpf));
     if (dados.telefone) setTelefone(formatarTelefone(dados.telefone));
   }
@@ -364,7 +365,16 @@ export function FichaCandidato({
       <div className="grid gap-3 md:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="f-nome">Nome</Label>
-          <Input id="f-nome" value={nome} maxLength={160} onChange={(e) => setNome(e.target.value.slice(0, 160))} />
+          <Input
+            id="f-nome"
+            value={nome}
+            maxLength={160}
+            placeholder="TALITAGONCALVESDAROCHA"
+            onChange={(e) => setNome(normalizarNomeColaborador(e.target.value))}
+          />
+          <p className="text-xs text-muted-foreground">
+            Padronizado automaticamente: só letras, sem acentos e sem espaços.
+          </p>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="f-cpf">CPF</Label>
