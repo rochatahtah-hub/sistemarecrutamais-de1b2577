@@ -44,6 +44,7 @@ import {
   type StatusColaborador,
 } from "@/lib/diarias";
 import { rotuloTransporte } from "@/lib/programacao";
+import { urlDocumentoIdentidade } from "@/lib/documentos-colaborador";
 import { useTenantAtual } from "@/lib/tenant";
 import { caminhoPortalDiarias, linkPortalDiarias } from "@/lib/portal-url";
 
@@ -133,11 +134,13 @@ function Pagina() {
 
   function exportar() {
     const linhas = [
-      ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
+      ["Nome", "Telefone", "CPF", "Chave Pix", "Documento de identidade", "Cidade", "Bairro", "Disponível", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
       ...lista.map((c) => [
         c.full_name,
         formatarTelefone(c.phone),
         c.cpf_mascara || "—",
+        c.pix_chave || "—",
+        c.documento_path ? "Enviado" : "Pendente",
         c.city,
         c.neighborhood,
         c.available_for_daily ? "Sim" : "Não",
@@ -255,6 +258,8 @@ function Pagina() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Telefone</TableHead>
                   <TableHead>CPF</TableHead>
+                  <TableHead>Chave Pix</TableHead>
+                  <TableHead>Identidade</TableHead>
                   <TableHead>Cidade / Bairro</TableHead>
                   <TableHead>Disponibilidade</TableHead>
                   <TableHead>Transporte</TableHead>
@@ -297,6 +302,27 @@ function Pagina() {
                             </Button>
                           )}
                         </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-muted-foreground">
+                      {priv.privado ? "•••••" : c.pix_chave || "—"}
+                    </TableCell>
+                    <TableCell>
+                      {c.documento_path ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7"
+                          onClick={() => {
+                            void urlDocumentoIdentidade(c.documento_path)
+                              .then((url) => window.open(url, "_blank", "noopener,noreferrer"))
+                              .catch(() => toast.error("Não foi possível abrir o documento."));
+                          }}
+                        >
+                          <FileText className="mr-1.5 h-3.5 w-3.5" /> Ver
+                        </Button>
+                      ) : (
+                        <Badge variant="secondary">Pendente</Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{c.city} / {c.neighborhood}</TableCell>
