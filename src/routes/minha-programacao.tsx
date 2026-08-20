@@ -4,7 +4,9 @@ import { CalendarDays, CheckCircle2, Clock, Save, Target, Trash2, XCircle } from
 import { toast } from "sonner";
 
 import { FichaCandidato } from "@/components/programacao/FichaCandidato";
+import { DialogoColaborador } from "@/components/programacao/DialogoColaborador";
 import { CardIndicador } from "@/components/dashboard/CardIndicador";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -285,6 +287,9 @@ function Pagina() {
                 <TableHead>Candidato</TableHead>
                 <TableHead>CPF</TableHead>
                 <TableHead>Telefone</TableHead>
+                <TableHead>Função</TableHead>
+                <TableHead>Pix</TableHead>
+                <TableHead>Documento</TableHead>
                 <TableHead>Empresa</TableHead>
                 <TableHead>Situação</TableHead>
                 <TableHead />
@@ -305,6 +310,17 @@ function Pagina() {
                   <TableCell>
                     {r.candidato_telefone ? priv.telefone(r.candidato_telefone) : "—"}
                   </TableCell>
+                  <TableCell>{r.candidato_funcao || "—"}</TableCell>
+                  <TableCell>
+                    {r.candidato_pix ? priv.texto(r.candidato_pix) : "—"}
+                  </TableCell>
+                  <TableCell>
+                    {r.candidato_documento_path ? (
+                      <Badge variant="gold">Anexado</Badge>
+                    ) : (
+                      <Badge variant="secondary">Pendente</Badge>
+                    )}
+                  </TableCell>
                   <TableCell>{priv.empresa(r.empresa)}</TableCell>
                   <TableCell>
                     <Select
@@ -323,20 +339,23 @@ function Pagina() {
                     </Select>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => excluir.mutate(r.id)}
-                      aria-label="Excluir registro"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex justify-end">
+                      <DialogoColaborador registro={r} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => excluir.mutate(r.id)}
+                        aria-label="Excluir registro"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
               {daQuinzena.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={10} className="py-8 text-center text-muted-foreground">
                     Nenhum registro nesta quinzena ainda.
                   </TableCell>
                 </TableRow>
