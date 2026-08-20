@@ -1,11 +1,24 @@
 import { useState } from "react";
-import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Check, Pencil, Plus, ShieldCheck, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
   normalizarNomeFuncao,
   useExcluirFuncao,
@@ -14,24 +27,31 @@ import {
 } from "@/lib/funcoes";
 
 /**
- * Cadastro de funções (ATENDIMENTO, FINANCEIRO, FATURAMENTO...) usadas na
- * programação. Funções inativas somem dos novos cadastros mas permanecem no
- * histórico dos registros antigos.
+ * Cadastro de funções da equipe (Programador, Coordenador, Financeiro...).
+ * Cada função criada gera automaticamente um perfil correspondente em
+ * Configurações → Perfis e Permissões, onde as permissões são configuradas.
+ * Funções inativas somem dos novos cadastros mas permanecem no histórico.
  */
 export function PainelFuncoes() {
   const { data: funcoes = [], isPending } = useFuncoes();
   const salvar = useSalvarFuncao();
   const excluir = useExcluirFuncao();
+  const [aberto, setAberto] = useState(false);
   const [nova, setNova] = useState("");
+  const [novaDescricao, setNovaDescricao] = useState("");
+  const [novaAtiva, setNovaAtiva] = useState(true);
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [editandoNome, setEditandoNome] = useState("");
 
   async function criar() {
     if (!normalizarNomeFuncao(nova)) return;
     try {
-      await salvar.mutateAsync({ nome: nova });
+      await salvar.mutateAsync({ nome: nova, descricao: novaDescricao, ativo: novaAtiva });
       setNova("");
-      toast.success("Função cadastrada.");
+      setNovaDescricao("");
+      setNovaAtiva(true);
+      setAberto(false);
+      toast.success("Função cadastrada. O perfil correspondente já está em Perfis e Permissões.");
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -41,7 +61,7 @@ export function PainelFuncoes() {
     try {
       await salvar.mutateAsync({ id, nome: editandoNome });
       setEditandoId(null);
-      toast.success("Função atualizada.");
+      toast.success("Função e perfil atualizados.");
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -52,30 +72,68 @@ export function PainelFuncoes() {
       <CardHeader>
         <CardTitle>Funções / cargos da equipe</CardTitle>
         <CardDescription>
-          Cadastre, renomeie, ative ou inative funções da equipe (Programação, Coordenação,
-          Atendimento, Financeiro, Faturamento...). As inativas não aparecem em novas atribuições,
-          mas continuam visíveis nos registros históricos.
+          Cada função criada aqui gera automaticamente um perfil com o mesmo nome em{" "}
+          <Link to="/perfis" className="underline">
+            Perfis e Permissões
+          </Link>
+          , onde você define o que aquele perfil pode ver e fazer. Funções inativas não aparecem em
+          novas atribuições, mas o histórico e o perfil são preservados.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          <Input
-            value={nova}
-            className="max-w-xs"
-            maxLength={80}
-            placeholder="Nova função (ex.: ATENDIMENTO)"
-            onChange={(e) => setNova(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                void criar();
-              }
-            }}
-          />
-          <Button onClick={() => void criar()} disabled={salvar.isPending || !nova.trim()}>
-            <Plus className="mr-2 h-4 w-4" /> Cadastrar
-          </Button>
-        </div>
+        <Dialog open={aberto} onOpenChange={setAberto}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> Criar nova função
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Nova função da equipe</DialogTitle>
+              <DialogDescription>
+                Ex.: Programador, Coordenador, Supervisor, Recrutador, Financeiro, Atendimento. Um
+                perfil com esse nome será criado automaticamente em Perfis e Permissões.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="f-nome">Nome da função</Label>
+                <Input
+                  id="f-nome"
+                  value={nova}
+                  maxLength={80}
+                  placeholder="Ex.: COORDENADOR DE RECRUTAMENTO"
+                  onChange={(e) => setNova(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="f-desc">Descrição (opcional)</Label>
+                <Textarea
+                  id="f-desc"
+                  value={novaDescricao}
+                  maxLength={200}
+                  onChange={(e) => setNovaDescricao(e.target.value)}
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Switch
+                  checked={novaAtiva}
+                  aria-label="Status da nova função"
+                  onCheckedChange={setNovaAtiva}
+                />
+                {novaAtiva ? "Ativa" : "Inativa"}
+              </label>
+            </div>
+            <DialogFooter>
+              <Button
+                onClick={() => void criar()}
+                disabled={salvar.isPending || normalizarNomeFuncao(nova).length < 2}
+              >
+                Criar função e perfil
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         <div className="space-y-1.5">
           {isPending && <p className="text-sm text-muted-foreground">Carregando…</p>}
@@ -118,11 +176,21 @@ export function PainelFuncoes() {
                 </>
               ) : (
                 <>
-                  <span
-                    className={`flex-1 truncate text-sm ${f.ativo ? "" : "text-muted-foreground line-through"}`}
-                  >
-                    {f.nome}
-                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className={`truncate text-sm ${f.ativo ? "" : "text-muted-foreground line-through"}`}
+                    >
+                      {f.nome}
+                    </p>
+                    {f.descricao && (
+                      <p className="truncate text-xs text-muted-foreground">{f.descricao}</p>
+                    )}
+                  </div>
+                  {f.perfil_id && (
+                    <Badge variant="outline" className="shrink-0 gap-1 text-[10px]">
+                      <ShieldCheck className="h-3 w-3" /> Perfil vinculado
+                    </Badge>
+                  )}
                   <Switch
                     checked={f.ativo}
                     aria-label={`Ativar ou inativar a função ${f.nome}`}
