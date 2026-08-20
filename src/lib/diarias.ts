@@ -227,6 +227,8 @@ export function useCriarColaboradorDiaria() {
     mutationFn: async (dados: NovoColaboradorDiaria) => {
       const { data, error } = await supabase.from("daily_workers").insert({
         ...dados,
+        full_name: normalizarNomeColaborador(dados.full_name),
+        pix_chave: normalizarChavePix(dados.pix_chave ?? ""),
         phone: soDigitosTelefone(dados.phone),
         cpf: soDigitosCpf(dados.cpf),
         status: "disponivel",
