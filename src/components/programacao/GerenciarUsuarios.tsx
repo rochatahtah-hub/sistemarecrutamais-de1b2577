@@ -143,11 +143,11 @@ export function GerenciarUsuarios() {
             className="h-9 w-full"
           />
         </div>
-        <div className="flex items-end justify-between gap-3 md:col-span-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="u-papel">Perfil</Label>
-            <SeletorPapel id="u-papel" valor={papel} onChange={setPapel} className="h-9 w-40" />
-          </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="u-papel">Perfil</Label>
+          <SeletorPapel id="u-papel" valor={papel} onChange={setPapel} className="h-9 w-full" />
+        </div>
+        <div className="flex justify-end md:col-span-7">
           <Button type="submit" disabled={enviando}>
             {enviando ? "Salvando..." : "Cadastrar"}
           </Button>
