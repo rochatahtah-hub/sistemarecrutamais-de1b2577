@@ -403,22 +403,24 @@ export function FichaCandidato({
             onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="f-funcao">Função</Label>
-          <Select value={funcao || SEM_FUNCAO} onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}>
-            <SelectTrigger id="f-funcao">
-              <SelectValue placeholder="Selecione a função" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={SEM_FUNCAO}>Sem função definida</SelectItem>
-              {opcoesFuncao(funcoes, funcao).map((n) => (
-                <SelectItem key={n} value={n}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {mostrarFuncao && (
+          <div className="space-y-1.5">
+            <Label htmlFor="f-funcao">Função</Label>
+            <Select value={funcao || SEM_FUNCAO} onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}>
+              <SelectTrigger id="f-funcao">
+                <SelectValue placeholder="Selecione a função" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={SEM_FUNCAO}>Sem função definida</SelectItem>
+                {opcoesFuncao(funcoes, funcao).map((n) => (
+                  <SelectItem key={n} value={n}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="space-y-1.5 md:col-span-2">
           <Label htmlFor="f-pix">Chave Pix</Label>
           <Input
