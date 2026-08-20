@@ -8,3 +8,8 @@ type: feature
 - Chave Pix (`daily_workers.pix_chave`): dado sensível, nunca em URL; mascarada no Modo Privacidade.
 - Documento de identidade (JPG/PNG/PDF, até 10 MB) fica no bucket privado `documentos-colaboradores`, caminho `<tenant_id>/<colaborador_id>/arquivo`. Acesso só por URL assinada (5 min) e políticas que exigem mesma empresa + permissão `banco_colaboradores`.
 - Upload de documento é interno (usuário autenticado). O portal público coleta apenas Pix e demais dados — anônimo não escreve no storage.
+
+## Minha Programação (Pix, documento e funções)
+- `candidatos` guarda `funcao`, `pix_chave`, `documento_path`, `documento_nome` — mesmos campos de `daily_workers`.
+- Na Minha Programação, a ficha do colaborador (DialogoColaborador) permite salvar função/Pix e anexar, visualizar ou remover o documento (bucket privado, sempre URL assinada de curta duração).
+- Tabela `funcoes` (multiempresa) alimenta o seletor de função; inativas não aparecem em novos cadastros, mas continuam no histórico. Gestão na Central de Administração > aba Funções.
