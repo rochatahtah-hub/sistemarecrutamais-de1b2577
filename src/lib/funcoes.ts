@@ -7,6 +7,8 @@ export interface Funcao {
   id: string;
   nome: string;
   ativo: boolean;
+  descricao: string;
+  perfil_id: string | null;
 }
 
 /** Normaliza o nome da função: sem espaços duplicados e sempre em caixa alta. */
@@ -24,7 +26,7 @@ export function useFuncoes() {
     queryFn: async (): Promise<Funcao[]> => {
       const { data, error } = await supabase
         .from("funcoes")
-        .select("id,nome,ativo")
+        .select("id,nome,ativo,descricao,perfil_id")
         .order("nome");
       if (error) throw error;
       return data ?? [];
@@ -46,24 +48,37 @@ export function opcoesFuncao(funcoes: Funcao[], valorAtual?: string | null) {
 export function useSalvarFuncao() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (dados: { id?: string; nome?: string; ativo?: boolean }) => {
-      const campos: { nome?: string; ativo?: boolean } = {};
+    mutationFn: async (dados: {
+      id?: string;
+      nome?: string;
+      ativo?: boolean;
+      descricao?: string;
+    }) => {
+      const campos: { nome?: string; ativo?: boolean; descricao?: string } = {};
       if (dados.nome !== undefined) {
         const nome = normalizarNomeFuncao(dados.nome);
         if (nome.length < 2) throw new Error("Informe o nome da função.");
         campos.nome = nome;
       }
       if (dados.ativo !== undefined) campos.ativo = dados.ativo;
+      if (dados.descricao !== undefined) campos.descricao = dados.descricao.trim().slice(0, 200);
 
       const resposta = dados.id
         ? await supabase.from("funcoes").update(campos).eq("id", dados.id)
-        : await supabase.from("funcoes").insert({ nome: campos.nome ?? "", ativo: campos.ativo ?? true });
+        : await supabase.from("funcoes").insert({
+            nome: campos.nome ?? "",
+            ativo: campos.ativo ?? true,
+            descricao: campos.descricao ?? "",
+          });
       if (resposta.error) {
         if (resposta.error.code === "23505") throw new Error("Essa função já está cadastrada.");
         throw resposta.error;
       }
     },
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["funcoes"] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["funcoes"] });
+      void qc.invalidateQueries({ queryKey: ["perfis-acesso"] });
+    },
   });
 }
 
@@ -75,7 +90,10 @@ export function useExcluirFuncao() {
       const { error } = await supabase.from("funcoes").delete().eq("id", id);
       if (error) throw new Error(error.message);
     },
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["funcoes"] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["funcoes"] });
+      void qc.invalidateQueries({ queryKey: ["perfis-acesso"] });
+    },
   });
 }
 

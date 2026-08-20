@@ -865,28 +865,41 @@ export type Database = {
         Row: {
           ativo: boolean
           created_at: string
+          descricao: string
           id: string
           nome: string
+          perfil_id: string | null
           tenant_id: string
           updated_at: string
         }
         Insert: {
           ativo?: boolean
           created_at?: string
+          descricao?: string
           id?: string
           nome: string
+          perfil_id?: string | null
           tenant_id?: string
           updated_at?: string
         }
         Update: {
           ativo?: boolean
           created_at?: string
+          descricao?: string
           id?: string
           nome?: string
+          perfil_id?: string | null
           tenant_id?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "funcoes_perfil_id_fkey"
+            columns: ["perfil_id"]
+            isOneToOne: false
+            referencedRelation: "perfis_acesso"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "funcoes_tenant_id_fkey"
             columns: ["tenant_id"]
@@ -1166,6 +1179,7 @@ export type Database = {
       }
       perfis_acesso: {
         Row: {
+          ativo: boolean
           chave: string
           created_at: string
           descricao: string
@@ -1176,6 +1190,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ativo?: boolean
           chave: string
           created_at?: string
           descricao?: string
@@ -1186,6 +1201,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ativo?: boolean
           chave?: string
           created_at?: string
           descricao?: string
