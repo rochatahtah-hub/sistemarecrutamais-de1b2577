@@ -642,11 +642,14 @@ export type Database = {
           cpf_mascara: string | null
           created_at: string
           desired_role: string
+          documento_nome: string
+          documento_path: string
           full_name: string
           id: string
           neighborhood: string
           observacao: string
           phone: string
+          pix_chave: string
           precisa_fretado: boolean
           status: string
           tenant_id: string
@@ -666,11 +669,14 @@ export type Database = {
           cpf_mascara?: string | null
           created_at?: string
           desired_role?: string
+          documento_nome?: string
+          documento_path?: string
           full_name: string
           id?: string
           neighborhood: string
           observacao?: string
           phone: string
+          pix_chave?: string
           precisa_fretado?: boolean
           status?: string
           tenant_id?: string
@@ -690,11 +696,14 @@ export type Database = {
           cpf_mascara?: string | null
           created_at?: string
           desired_role?: string
+          documento_nome?: string
+          documento_path?: string
           full_name?: string
           id?: string
           neighborhood?: string
           observacao?: string
           phone?: string
+          pix_chave?: string
           precisa_fretado?: boolean
           status?: string
           tenant_id?: string
