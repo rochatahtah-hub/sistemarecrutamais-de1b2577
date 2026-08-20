@@ -22,40 +22,42 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { normalizarNomeFuncao, useFuncoes, useSalvarFuncao } from "@/lib/funcoes";
+import { useCriarPerfil, usePerfisAcesso } from "@/lib/perfis";
 
 interface Props {
-  /** Função atualmente vinculada ao colaborador (id) ou null. */
+  /** Perfil de acesso vinculado ao colaborador (id) ou null. */
   value: string | null;
-  onChange: (funcaoId: string | null) => void;
+  onChange: (perfilId: string | null) => void;
   id?: string;
   className?: string;
-  /** Exibe o botão "+ Criar função" ao lado do campo. */
+  /** Exibe o botão "+ Cadastrar perfil" ao lado do campo. */
   podeCriar?: boolean;
 }
 
 /**
- * Seleção da função exercida pelo colaborador que tem acesso ao Recruta+.
- * Só lista funções ativas, mas mantém visível a função histórica já vinculada.
- * Não tem relação com as funções/vagas de recrutamento.
+ * Seleção do perfil de acesso do colaborador do Recruta+.
+ * Lista apenas os perfis criados pelo administrador em Perfis e Permissões
+ * (nada pré-cadastrado) e permite criar um novo perfil na hora.
  */
-export function CampoFuncaoEquipe({ value, onChange, id, className, podeCriar = true }: Props) {
-  const { data: funcoes = [] } = useFuncoes();
-  const salvar = useSalvarFuncao();
+export function CampoPerfilAcesso({ value, onChange, id, className, podeCriar = true }: Props) {
+  const { data: perfis = [] } = usePerfisAcesso();
+  const criar = useCriarPerfil();
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
 
-  const atual = funcoes.find((f) => f.id === value);
-  const opcoes = funcoes.filter((f) => f.ativo || f.id === value);
+  const criados = perfis.filter((p) => !p.sistema);
+  const atual = criados.find((p) => p.id === value);
+  const opcoes = criados.filter((p) => p.ativo || p.id === value);
 
-  async function criar() {
+  async function cadastrar() {
     try {
-      await salvar.mutateAsync({ nome, descricao });
+      const novoId = await criar.mutateAsync({ nome, descricao });
+      onChange(novoId);
       setNome("");
       setDescricao("");
       setAberto(false);
-      toast.success("Função criada. Configure os acessos em Perfis e Permissões.");
+      toast.success("Perfil criado. Configure os acessos em Perfis e Permissões.");
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -63,21 +65,18 @@ export function CampoFuncaoEquipe({ value, onChange, id, className, podeCriar = 
 
   return (
     <div className="flex w-full items-end gap-2">
-      <Select
-        value={value ?? "nenhuma"}
-        onValueChange={(v) => onChange(v === "nenhuma" ? null : v)}
-      >
+      <Select value={value ?? "nenhum"} onValueChange={(v) => onChange(v === "nenhum" ? null : v)}>
         <SelectTrigger id={id} className={cn("h-9 min-w-0 flex-1", className)}>
-          <SelectValue placeholder="Selecione a função">
-            {atual ? `${atual.nome}${atual.ativo ? "" : " (inativa)"}` : "Sem função"}
+          <SelectValue placeholder="Selecione o perfil">
+            {atual ? `${atual.nome}${atual.ativo ? "" : " (inativo)"}` : "Sem perfil"}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="nenhuma">Sem função</SelectItem>
-          {opcoes.map((f) => (
-            <SelectItem key={f.id} value={f.id}>
-              {f.nome}
-              {f.ativo ? "" : " (inativa)"}
+          <SelectItem value="nenhum">Sem perfil</SelectItem>
+          {opcoes.map((p) => (
+            <SelectItem key={p.id} value={p.id}>
+              {p.nome}
+              {p.ativo ? "" : " (inativo)"}
             </SelectItem>
           ))}
         </SelectContent>
@@ -90,8 +89,8 @@ export function CampoFuncaoEquipe({ value, onChange, id, className, podeCriar = 
             variant="outline"
             size="icon"
             className="h-9 w-9 shrink-0"
-            title="Criar função"
-            aria-label="Criar função da equipe"
+            title="Cadastrar perfil"
+            aria-label="Cadastrar perfil de acesso"
             onClick={() => setAberto(true)}
           >
             <Plus className="h-4 w-4" />
@@ -100,27 +99,27 @@ export function CampoFuncaoEquipe({ value, onChange, id, className, podeCriar = 
           <Dialog open={aberto} onOpenChange={setAberto}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Criar função da equipe</DialogTitle>
+                <DialogTitle>Cadastrar perfil</DialogTitle>
                 <DialogDescription>
-                  Ex.: Atendimento, Faturamento, Financeiro, Coordenação. Um perfil com o mesmo nome
-                  é criado automaticamente em Perfis e Permissões para configurar os acessos.
+                  Ex.: Atendimento, Financeiro, Faturamento, Coordenação, Programação, RH. O perfil
+                  fica disponível em Perfis e Permissões para configurar os acessos.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="cf-nome">Nome da função</Label>
+                  <Label htmlFor="cp-nome">Nome do perfil</Label>
                   <Input
-                    id="cf-nome"
+                    id="cp-nome"
                     value={nome}
                     maxLength={80}
-                    placeholder="Ex.: ATENDIMENTO"
+                    placeholder="Ex.: Atendimento"
                     onChange={(e) => setNome(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="cf-desc">Descrição (opcional)</Label>
+                  <Label htmlFor="cp-desc">Descrição (opcional)</Label>
                   <Textarea
-                    id="cf-desc"
+                    id="cp-desc"
                     value={descricao}
                     maxLength={200}
                     onChange={(e) => setDescricao(e.target.value)}
@@ -132,10 +131,10 @@ export function CampoFuncaoEquipe({ value, onChange, id, className, podeCriar = 
                   Cancelar
                 </Button>
                 <Button
-                  onClick={() => void criar()}
-                  disabled={salvar.isPending || normalizarNomeFuncao(nome).length < 2}
+                  onClick={() => void cadastrar()}
+                  disabled={criar.isPending || nome.trim().length < 2}
                 >
-                  Criar função
+                  Cadastrar perfil
                 </Button>
               </DialogFooter>
             </DialogContent>

@@ -48,7 +48,7 @@ export const criarUsuario = createServerFn({ method: "POST" })
       email: string;
       senha: string;
       papel?: PapelUsuario;
-      funcaoId?: string | null;
+      perfilId?: string | null;
     }) => d,
   )
   .handler(async ({ data, context }) => {
@@ -85,7 +85,7 @@ export const criarUsuario = createServerFn({ method: "POST" })
           email,
           ativo: true,
           tenant_id: tenantId,
-          funcao_id: data.funcaoId || null,
+          perfil_id: data.perfilId || null,
         },
         { onConflict: "id" },
       );

@@ -30,8 +30,8 @@ import {
 import { Trash2 } from "lucide-react";
 import { useProgramadoras } from "@/lib/programacao";
 import { usePrivacidade } from "@/lib/privacidade";
-import { CampoFuncaoEquipe } from "@/components/equipe/CampoFuncaoEquipe";
-import { useDefinirFuncaoDoUsuario, useFuncoesDosUsuarios } from "@/lib/funcoes";
+import { CampoPerfilAcesso } from "@/components/equipe/CampoPerfilAcesso";
+import { useDefinirPerfilDoUsuario, useUsuariosPermissao } from "@/lib/perfis";
 
 function useRoles() {
   return useQuery({
@@ -59,12 +59,12 @@ export function GerenciarUsuarios() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [papel, setPapel] = useState<PapelUsuario>("programadora");
-  const [funcaoId, setFuncaoId] = useState<string | null>(null);
+  const [perfilId, setPerfilId] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [novaSenha, setNovaSenha] = useState<Record<string, string>>({});
   const [excluindo, setExcluindo] = useState<string | null>(null);
-  const { data: funcoesUsuarios = {} } = useFuncoesDosUsuarios();
-  const definirFuncao = useDefinirFuncaoDoUsuario();
+  const { data: usuariosPerfil = [] } = useUsuariosPermissao();
+  const definirPerfil = useDefinirPerfilDoUsuario();
 
   async function excluir(id: string) {
     setExcluindo(id);
@@ -90,15 +90,15 @@ export function GerenciarUsuarios() {
     e.preventDefault();
     setEnviando(true);
     try {
-      await criar({ data: { nome, email, senha, papel, funcaoId } });
+      await criar({ data: { nome, email, senha, papel, perfilId } });
       toast.success("Usuário cadastrado.");
       setNome("");
       setEmail("");
       setSenha("");
       setPapel("programadora");
-      setFuncaoId(null);
+      setPerfilId(null);
       void qc.invalidateQueries({ queryKey: ["programadoras"] });
-      void qc.invalidateQueries({ queryKey: ["funcoes-usuarios"] });
+      void qc.invalidateQueries({ queryKey: ["usuarios-permissao"] });
       void qc.invalidateQueries({ queryKey: ["user-roles"] });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao cadastrar usuário.");
@@ -135,16 +135,16 @@ export function GerenciarUsuarios() {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="u-funcao">Função</Label>
-          <CampoFuncaoEquipe
-            id="u-funcao"
-            value={funcaoId}
-            onChange={setFuncaoId}
+          <Label htmlFor="u-perfil">Perfil</Label>
+          <CampoPerfilAcesso
+            id="u-perfil"
+            value={perfilId}
+            onChange={setPerfilId}
             className="h-9"
           />
         </div>
         <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="u-papel">Perfil</Label>
+          <Label htmlFor="u-papel">Nível de acesso</Label>
           <SeletorPapel id="u-papel" valor={papel} onChange={setPapel} className="h-9 w-full" />
         </div>
         <div className="flex justify-end md:col-span-7">
@@ -162,15 +162,15 @@ export function GerenciarUsuarios() {
               <p className="text-sm font-medium">{priv.nome(p.nome)}</p>
               <p className="text-xs text-muted-foreground">{priv.texto(p.email)}</p>
             </div>
-            <CampoFuncaoEquipe
-              value={funcoesUsuarios[p.id] ?? null}
+            <CampoPerfilAcesso
+              value={usuariosPerfil.find((u) => u.id === p.id)?.perfil_id ?? null}
               podeCriar={false}
               className="h-8 w-40 text-xs"
               onChange={(novo) => {
-                definirFuncao.mutate(
-                  { userId: p.id, funcaoId: novo },
+                definirPerfil.mutate(
+                  { userId: p.id, perfilId: novo },
                   {
-                    onSuccess: () => toast.success("Função atualizada."),
+                    onSuccess: () => toast.success("Perfil atualizado."),
                     onError: (err: Error) => toast.error(err.message),
                   },
                 );
