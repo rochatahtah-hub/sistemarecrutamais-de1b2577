@@ -1,9 +1,16 @@
-/** Interpreta a ficha colada e extrai somente nome, CPF e telefone. */
+/** Interpreta a ficha colada e extrai nome, CPF, telefone, Pix e transporte. */
 export interface DadosFicha {
   nome: string;
   cpf: string;
   telefone: string;
+  /** Chave Pix exatamente como informada na ficha (CPF, e-mail, telefone ou aleatória). */
+  pix: string;
+  transporte_proprio: boolean;
+  transporte_tipos: string[];
+  /** Ponto de embarque / observação de deslocamento. */
+  transporte_observacao: string;
 }
+
 
 const digitos = (v: string) => v.replace(/\D/g, "");
 
