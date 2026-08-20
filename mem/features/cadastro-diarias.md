@@ -4,7 +4,8 @@ description: Regras de nome padronizado, chave Pix e documento de identidade no 
 type: feature
 ---
 
-- Nome do colaborador é sempre padronizado: só letras, sem espaços/acentos, CAIXA ALTA (ex.: TALITAGONCALVESDAROCHA). Normalização em `normalizarNomeColaborador` (`src/lib/diarias.ts`), aplicada no portal público e no formulário interno.
+- **Portal público de diárias:** o nome do colaborador é preservado exatamente como digitado (espaços, acentos e maiúsculas/minúsculas), sem normalização. Apenas `trim()` e corte de 120 caracteres são aplicados no envio.
+- **Cadastros internos (Ficha, Minha Programação, formulário interno de diárias):** o nome continua padronizado como só letras, sem espaços/acentos, CAIXA ALTA, via `normalizarNomeColaborador` (`src/lib/diarias.ts`).
 - Chave Pix (`daily_workers.pix_chave`): dado sensível, nunca em URL; mascarada no Modo Privacidade.
 - Documento de identidade (JPG/PNG/PDF, até 10 MB) fica no bucket privado `documentos-colaboradores`, caminho `<tenant_id>/<colaborador_id>/arquivo`. Acesso só por URL assinada (5 min) e políticas que exigem mesma empresa + permissão `banco_colaboradores`.
 - Upload de documento é interno (usuário autenticado). O portal público coleta apenas Pix e demais dados — anônimo não escreve no storage.

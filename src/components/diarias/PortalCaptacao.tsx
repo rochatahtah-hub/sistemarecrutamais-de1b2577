@@ -17,7 +17,6 @@ import {
   empresaDoPortal,
   formatarCpf,
   formatarTelefone,
-  normalizarNomeColaborador,
   soDigitosTelefone,
 } from "@/lib/diarias";
 import { CamposTransporte } from "@/components/programacao/CamposTransporte";
@@ -168,12 +167,9 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                     id="nome"
                     value={nome}
                     maxLength={120}
-                    onChange={(e) => setNome(normalizarNomeColaborador(e.target.value))}
-                    placeholder="TALITAGONCALVESDAROCHA"
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Nome completo"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Somente letras, sem espaços e sem acentos.
-                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="tel">Telefone / WhatsApp *</Label>

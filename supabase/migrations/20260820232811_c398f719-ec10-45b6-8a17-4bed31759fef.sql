@@ -1,0 +1,1 @@
+DELETE FROM public.daily_workers WHERE cpf = '83598229054';

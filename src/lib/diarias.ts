@@ -142,7 +142,7 @@ export async function empresaDoPortal(slug: string | null) {
 export async function cadastrarColaboradorPublico(dados: NovoColaboradorDiaria & { tenant_id: string }) {
   const { error } = await supabase.from("daily_workers").insert({
     ...dados,
-    full_name: normalizarNomeColaborador(dados.full_name),
+    full_name: (dados.full_name ?? "").trim().slice(0, 120),
     pix_chave: normalizarChavePix(dados.pix_chave ?? ""),
     phone: soDigitosTelefone(dados.phone),
     cpf: soDigitosCpf(dados.cpf),
