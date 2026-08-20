@@ -34,6 +34,14 @@ export interface RegistroPagamento {
   pago_por_nome: string;
 }
 
+interface LinhaPagamento {
+  id: string;
+  status: string;
+  observacao: string;
+  pago_em: string | null;
+  pago_por_nome: string;
+}
+
 interface LinhaVaga {
   id: string;
   data: string;
@@ -48,15 +56,7 @@ interface LinhaVaga {
     telefone: string | null;
     pix_chave: string | null;
   } | null;
-  pagamentos:
-    | {
-        id: string;
-        status: string;
-        observacao: string;
-        pago_em: string | null;
-        pago_por_nome: string;
-      }[]
-    | null;
+  pagamentos: LinhaPagamento | LinhaPagamento[] | null;
 }
 
 /**
@@ -81,9 +81,13 @@ export function usePagamentos() {
       if (error) throw error;
 
       return ((data ?? []) as unknown as LinhaVaga[])
-        .filter((l) => l.status === "PRESENCA" || (l.pagamentos?.length ?? 0) > 0)
+        .map((l) => ({
+          ...l,
+          pagamento: (Array.isArray(l.pagamentos) ? (l.pagamentos[0] ?? null) : l.pagamentos) ?? null,
+        }))
+        .filter((l) => l.status === "PRESENCA" || l.pagamento !== null)
         .map((l) => {
-          const pg = l.pagamentos?.[0] ?? null;
+          const pg = l.pagamento;
           const status: StatusPagamento = pg
             ? (pg.status as StatusPagamento)
             : l.status === "PRESENCA"
