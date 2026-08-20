@@ -5,7 +5,10 @@ export interface FichaExtraida {
   nome: string;
   cpf: string;
   telefone: string;
+  /** Chave Pix como informada na ficha (pode ser CPF, e-mail, telefone ou aleatória). */
+  pix: string;
 }
+
 
 /**
  * Le a ficha do candidato (imagem ou texto) e devolve SOMENTE nome, CPF e telefone.
