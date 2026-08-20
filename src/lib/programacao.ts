@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./auth";
+import { normalizarNomeColaborador } from "./diarias";
 import { quinzenaAtual, dentroDaQuinzena } from "./quinzena";
 import { sincronizarSistema } from "./sincronizar";
 
@@ -197,11 +198,15 @@ export function useSalvarCandidato() {
       pix_chave?: string;
     }): Promise<{ candidato: Candidato; jaExistia: boolean }> => {
       const cpf = soDigitos(dados.cpf);
-      const extras: { funcao?: string; pix_chave?: string } = {};
+      const nome = normalizarNomeColaborador(dados.nome);
+      if (nome.length < 3) throw new Error("Informe o nome do colaborador (somente letras).");
+      const extras: { funcao?: string; pix_chave?: string; nome?: string } = {};
       if (dados.funcao !== undefined) extras.funcao = dados.funcao.trim().slice(0, 80);
       if (dados.pix_chave !== undefined) extras.pix_chave = dados.pix_chave.trim().slice(0, 140);
       const existente = await buscarCandidatoPorCPF(cpf);
       if (existente) {
+        // A ficha é a fonte única: o nome normalizado também é atualizado no cadastro.
+        if (existente.nome !== nome) extras.nome = nome;
         const temExtras = Object.keys(extras).length > 0;
         if (!dados.transporte && !temExtras) return { candidato: existente, jaExistia: true };
         const transporte = dados.transporte ? normalizarTransporte(dados.transporte) : {};
@@ -218,7 +223,7 @@ export function useSalvarCandidato() {
       const { data, error } = await supabase
         .from("candidatos")
         .insert({
-          nome: dados.nome.trim(),
+          nome,
           cpf,
           telefone: soDigitos(dados.telefone),
           criado_por: sessao.user?.id ?? null,
@@ -489,6 +494,10 @@ export interface RegistroProgramacao {
   candidato_pix: string;
   candidato_documento_path: string;
   candidato_documento_nome: string;
+  candidato_transporte_proprio: boolean;
+  candidato_transporte_tipos: string[];
+  candidato_precisa_fretado: boolean;
+  candidato_transporte_observacao: string;
 }
 
 export function useMinhasProgramacoes(userId?: string) {
@@ -499,7 +508,7 @@ export function useMinhasProgramacoes(userId?: string) {
       const { data, error } = await supabase
         .from("vagas")
         .select(
-          "id,data,status,descricao,observacao,empresas(nome),candidatos(id,nome,cpf,telefone,funcao,pix_chave,documento_path,documento_nome)",
+          "id,data,status,descricao,observacao,empresas(nome),candidatos(id,nome,cpf,telefone,funcao,pix_chave,documento_path,documento_nome,transporte_proprio,transporte_tipos,precisa_fretado,transporte_observacao)",
         )
         .eq("programadora_id", userId!)
         .order("data", { ascending: false })
@@ -521,6 +530,10 @@ export function useMinhasProgramacoes(userId?: string) {
           pix_chave: string | null;
           documento_path: string | null;
           documento_nome: string | null;
+          transporte_proprio: boolean | null;
+          transporte_tipos: string[] | null;
+          precisa_fretado: boolean | null;
+          transporte_observacao: string | null;
         } | null;
       };
       return ((data ?? []) as unknown as Linha[]).map((l) => ({
@@ -538,6 +551,10 @@ export function useMinhasProgramacoes(userId?: string) {
         candidato_nome: l.candidatos?.nome ?? l.descricao ?? "—",
         candidato_cpf: l.candidatos?.cpf ?? "",
         candidato_telefone: l.candidatos?.telefone ?? null,
+        candidato_transporte_proprio: l.candidatos?.transporte_proprio ?? false,
+        candidato_transporte_tipos: l.candidatos?.transporte_tipos ?? [],
+        candidato_precisa_fretado: l.candidatos?.precisa_fretado ?? false,
+        candidato_transporte_observacao: l.candidatos?.transporte_observacao ?? "",
       }));
     },
   });
