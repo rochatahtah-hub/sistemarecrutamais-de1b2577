@@ -103,7 +103,7 @@ function ListaPerfis({
   perfilId,
   onSelecionar,
 }: {
-  perfis: { id: string; nome: string; descricao: string; sistema: boolean }[];
+  perfis: { id: string; nome: string; descricao: string; sistema: boolean; ativo: boolean }[];
   perfilId: string | null;
   onSelecionar: (id: string) => void;
 }) {
@@ -126,6 +126,9 @@ function ListaPerfis({
                 <p className="truncate text-sm font-medium">{p.nome}</p>
                 <p className="truncate text-xs text-muted-foreground">{p.descricao || "Sem descrição"}</p>
               </button>
+              {!p.ativo && (
+                <Badge variant="secondary" className="shrink-0 text-[10px]">Inativo</Badge>
+              )}
               {p.sistema ? (
                 <Badge variant="outline" className="shrink-0 text-[10px]">Sistema</Badge>
               ) : (
@@ -255,7 +258,10 @@ function AbaUsuarios({ meuId }: { meuId: string | null }) {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Usuários</CardTitle>
-          <CardDescription>Vincule um perfil e defina quem é administrador master.</CardDescription>
+          <CardDescription>
+            Vincule a função/perfil do usuário e defina quem é administrador master. Cada função
+            cadastrada em Programações da Equipe aparece aqui como perfil.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {usuarios.map((u) => (
@@ -289,7 +295,14 @@ function AbaUsuarios({ meuId }: { meuId: string | null }) {
                   <SelectTrigger className="h-8 w-[210px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="auto">Perfil pelo papel atual</SelectItem>
-                    {perfis.map((p) => (<SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>))}
+                    {perfis
+                      .filter((p) => p.ativo || p.id === u.perfil_id)
+                      .map((p) => (
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.nome}
+                          {p.ativo ? "" : " (inativo)"}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <label className="flex items-center gap-2 text-xs text-muted-foreground">

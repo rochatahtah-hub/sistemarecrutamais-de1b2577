@@ -9,6 +9,7 @@ export interface PerfilAcesso {
   nome: string;
   descricao: string;
   sistema: boolean;
+  ativo: boolean;
 }
 
 export interface PermissaoPerfil {
@@ -25,7 +26,7 @@ export function usePerfisAcesso() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("perfis_acesso")
-        .select("id,chave,nome,descricao,sistema")
+        .select("id,chave,nome,descricao,sistema,ativo")
         .order("sistema", { ascending: false })
         .order("nome");
       if (error) throw error;
