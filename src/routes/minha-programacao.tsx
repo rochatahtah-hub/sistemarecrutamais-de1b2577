@@ -311,7 +311,7 @@ function Pagina() {
                   <TableCell>
                     {r.candidato_telefone ? priv.telefone(r.candidato_telefone) : "—"}
                   </TableCell>
-                  <TableCell>{r.candidato_funcao || "—"}</TableCell>
+                  
                   <TableCell>
                     {r.candidato_pix ? priv.texto(r.candidato_pix) : "Pix não cadastrado"}
                   </TableCell>
