@@ -215,6 +215,7 @@ function Pagina() {
           onBloqueio={setBloqueio}
           resetSinal={resetSinal}
           mostrarTransporte={false}
+          mostrarFuncao={false}
         />
 
         <div className="grid gap-3 md:grid-cols-4">
