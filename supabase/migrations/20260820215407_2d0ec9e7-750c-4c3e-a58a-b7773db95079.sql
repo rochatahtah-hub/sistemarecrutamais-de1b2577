@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.sincronizar_perfil_funcao() FROM anon, public;
