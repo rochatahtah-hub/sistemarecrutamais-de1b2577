@@ -19,6 +19,13 @@ export interface Candidato {
   transporte_tipos: string[];
   precisa_fretado: boolean;
   transporte_observacao: string;
+  /** Função/cargo exercido — vem do cadastro de funções (tabela funcoes). */
+  funcao: string;
+  /** Chave Pix do colaborador (dado sensível: nunca vai para URL). */
+  pix_chave: string;
+  /** Caminho do documento de identidade no armazenamento privado. */
+  documento_path: string;
+  documento_nome: string;
 }
 
 /** Tipos de transporte próprio aceitos (valor no banco → rótulo exibido). */
@@ -65,7 +72,7 @@ export function normalizarTransporte(dados: Partial<DadosTransporte>): DadosTran
 }
 
 const CAMPOS_CANDIDATO =
-  "id,nome,cpf,telefone,transporte_proprio,transporte_tipos,precisa_fretado,transporte_observacao";
+  "id,nome,cpf,telefone,transporte_proprio,transporte_tipos,precisa_fretado,transporte_observacao,funcao,pix_chave,documento_path,documento_nome";
 
 export function soDigitos(v: string) {
   return (v ?? "").replace(/\D/g, "");
@@ -186,15 +193,21 @@ export function useSalvarCandidato() {
       cpf: string;
       telefone: string;
       transporte?: Partial<DadosTransporte>;
+      funcao?: string;
+      pix_chave?: string;
     }): Promise<{ candidato: Candidato; jaExistia: boolean }> => {
       const cpf = soDigitos(dados.cpf);
+      const extras: { funcao?: string; pix_chave?: string } = {};
+      if (dados.funcao !== undefined) extras.funcao = dados.funcao.trim().slice(0, 80);
+      if (dados.pix_chave !== undefined) extras.pix_chave = dados.pix_chave.trim().slice(0, 140);
       const existente = await buscarCandidatoPorCPF(cpf);
       if (existente) {
-        if (!dados.transporte) return { candidato: existente, jaExistia: true };
-        const transporte = normalizarTransporte(dados.transporte);
+        const temExtras = Object.keys(extras).length > 0;
+        if (!dados.transporte && !temExtras) return { candidato: existente, jaExistia: true };
+        const transporte = dados.transporte ? normalizarTransporte(dados.transporte) : {};
         const { data: atualizado, error: erroUpdate } = await supabase
           .from("candidatos")
-          .update(transporte)
+          .update({ ...transporte, ...extras })
           .eq("id", existente.id)
           .select(CAMPOS_CANDIDATO)
           .single();
@@ -210,6 +223,7 @@ export function useSalvarCandidato() {
           telefone: soDigitos(dados.telefone),
           criado_por: sessao.user?.id ?? null,
           ...normalizarTransporte(dados.transporte ?? {}),
+          ...extras,
         })
         .select(CAMPOS_CANDIDATO)
         .single();
@@ -234,6 +248,46 @@ export function useAtualizarTransporte() {
         .maybeSingle();
       if (error) throw error;
       if (!data) throw new Error("Não foi possível salvar o transporte: sem permissão para editar este candidato.");
+      return data as Candidato;
+    },
+    onSuccess: () => sincronizarSistema(qc),
+  });
+}
+
+/** Dados do colaborador usados na Minha Programação: função, Pix e documento. */
+export interface DadosColaborador {
+  funcao: string;
+  pix_chave: string;
+  documento_path: string;
+  documento_nome: string;
+}
+
+/**
+ * Salva função, chave Pix e vínculo do documento de identidade diretamente
+ * na ficha do candidato (tabela candidatos) — nada fica em estado local.
+ */
+export function useAtualizarDadosCandidato() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      dados: { id: string } & Partial<DadosColaborador>,
+    ): Promise<Candidato> => {
+      const { id, ...resto } = dados;
+      const campos: Partial<DadosColaborador> = {};
+      if (resto.funcao !== undefined) campos.funcao = resto.funcao.trim().slice(0, 80);
+      if (resto.pix_chave !== undefined) campos.pix_chave = resto.pix_chave.trim().slice(0, 140);
+      if (resto.documento_path !== undefined) campos.documento_path = resto.documento_path;
+      if (resto.documento_nome !== undefined) campos.documento_nome = resto.documento_nome;
+
+      const { data, error } = await supabase
+        .from("candidatos")
+        .update(campos)
+        .eq("id", id)
+        .select(CAMPOS_CANDIDATO)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data)
+        throw new Error("Não foi possível salvar: sem permissão para editar este colaborador.");
       return data as Candidato;
     },
     onSuccess: () => sincronizarSistema(qc),
@@ -427,9 +481,14 @@ export interface RegistroProgramacao {
   descricao: string | null;
   observacao: string | null;
   empresa: string;
+  candidato_id: string | null;
   candidato_nome: string;
   candidato_cpf: string;
   candidato_telefone: string | null;
+  candidato_funcao: string;
+  candidato_pix: string;
+  candidato_documento_path: string;
+  candidato_documento_nome: string;
 }
 
 export function useMinhasProgramacoes(userId?: string) {
@@ -440,7 +499,7 @@ export function useMinhasProgramacoes(userId?: string) {
       const { data, error } = await supabase
         .from("vagas")
         .select(
-          "id,data,status,descricao,observacao,empresas(nome),candidatos(nome,cpf,telefone)",
+          "id,data,status,descricao,observacao,empresas(nome),candidatos(id,nome,cpf,telefone,funcao,pix_chave,documento_path,documento_nome)",
         )
         .eq("programadora_id", userId!)
         .order("data", { ascending: false })
@@ -453,7 +512,16 @@ export function useMinhasProgramacoes(userId?: string) {
         descricao: string | null;
         observacao: string | null;
         empresas: { nome: string } | null;
-        candidatos: { nome: string; cpf: string; telefone: string | null } | null;
+        candidatos: {
+          id: string;
+          nome: string;
+          cpf: string;
+          telefone: string | null;
+          funcao: string | null;
+          pix_chave: string | null;
+          documento_path: string | null;
+          documento_nome: string | null;
+        } | null;
       };
       return ((data ?? []) as unknown as Linha[]).map((l) => ({
         id: l.id,
@@ -462,6 +530,11 @@ export function useMinhasProgramacoes(userId?: string) {
         descricao: l.descricao,
         observacao: l.observacao,
         empresa: l.empresas?.nome ?? "—",
+        candidato_id: l.candidatos?.id ?? null,
+        candidato_funcao: l.candidatos?.funcao ?? "",
+        candidato_pix: l.candidatos?.pix_chave ?? "",
+        candidato_documento_path: l.candidatos?.documento_path ?? "",
+        candidato_documento_nome: l.candidatos?.documento_nome ?? "",
         candidato_nome: l.candidatos?.nome ?? l.descricao ?? "—",
         candidato_cpf: l.candidatos?.cpf ?? "",
         candidato_telefone: l.candidatos?.telefone ?? null,

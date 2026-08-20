@@ -342,8 +342,12 @@ export type Database = {
           cpf: string
           created_at: string
           criado_por: string | null
+          documento_nome: string
+          documento_path: string
+          funcao: string
           id: string
           nome: string
+          pix_chave: string
           precisa_fretado: boolean
           telefone: string | null
           tenant_id: string
@@ -356,8 +360,12 @@ export type Database = {
           cpf: string
           created_at?: string
           criado_por?: string | null
+          documento_nome?: string
+          documento_path?: string
+          funcao?: string
           id?: string
           nome: string
+          pix_chave?: string
           precisa_fretado?: boolean
           telefone?: string | null
           tenant_id?: string
@@ -370,8 +378,12 @@ export type Database = {
           cpf?: string
           created_at?: string
           criado_por?: string | null
+          documento_nome?: string
+          documento_path?: string
+          funcao?: string
           id?: string
           nome?: string
+          pix_chave?: string
           precisa_fretado?: boolean
           telefone?: string | null
           tenant_id?: string
@@ -842,6 +854,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "erros_sistema_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funcoes: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funcoes_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

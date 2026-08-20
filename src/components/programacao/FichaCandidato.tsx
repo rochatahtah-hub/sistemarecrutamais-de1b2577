@@ -14,7 +14,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CamposTransporte } from "@/components/programacao/CamposTransporte";
+import { opcoesFuncao, useFuncoes } from "@/lib/funcoes";
 import {
   formatarCPF,
   formatarTelefone,
@@ -42,6 +50,9 @@ interface Props {
 }
 
 /** Ficha do candidato: cole o texto ou importe o arquivo; usa somente nome, CPF e telefone. */
+/** Valor auxiliar do seletor: o Radix não aceita item com valor vazio. */
+const SEM_FUNCAO = "__sem_funcao__";
+
 export function FichaCandidato({
   onCandidato,
   candidato,
@@ -64,6 +75,9 @@ export function FichaCandidato({
   const [liberado, setLiberado] = useState(false);
   const [previsualizando, setPrevisualizando] = useState(false);
   const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
+  const [funcao, setFuncao] = useState("");
+  const [pix, setPix] = useState("");
+  const { data: funcoes = [] } = useFuncoes();
   const salvar = useSalvarCandidato();
   const atualizarTransporte = useAtualizarTransporte();
 
@@ -95,6 +109,8 @@ export function FichaCandidato({
           precisa_fretado: existente.precisa_fretado ?? false,
           transporte_observacao: existente.transporte_observacao ?? "",
         });
+        setFuncao(existente.funcao ?? "");
+        setPix(existente.pix_chave ?? "");
       })
       .catch(() => {
         /* sem cadastro anterior: mantém o preenchimento atual */
@@ -260,6 +276,8 @@ export function FichaCandidato({
         cpf,
         telefone,
         transporte,
+        funcao,
+        pix_chave: pix,
       });
       setAviso(jaExistia ? "Candidato já cadastrado." : "");
       definirBloqueio(null);
@@ -368,6 +386,32 @@ export function FichaCandidato({
             value={telefone}
             inputMode="numeric"
             onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="f-funcao">Função</Label>
+          <Select value={funcao || SEM_FUNCAO} onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}>
+            <SelectTrigger id="f-funcao">
+              <SelectValue placeholder="Selecione a função" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={SEM_FUNCAO}>Sem função definida</SelectItem>
+              {opcoesFuncao(funcoes, funcao).map((n) => (
+                <SelectItem key={n} value={n}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="f-pix">Chave Pix</Label>
+          <Input
+            id="f-pix"
+            value={pix}
+            maxLength={140}
+            placeholder="CPF, telefone, e-mail ou chave aleatória"
+            onChange={(e) => setPix(e.target.value.slice(0, 140))}
           />
         </div>
       </div>
