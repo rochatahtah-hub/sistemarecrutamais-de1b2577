@@ -21,6 +21,7 @@ import { PainelBanco } from "@/components/admin/PainelBanco";
 import { PainelColaboradores } from "@/components/admin/PainelColaboradores";
 import { PainelManutencao } from "@/components/admin/PainelManutencao";
 import { PainelEmailBackup } from "@/components/admin/PainelEmailBackup";
+import { PainelFuncoes } from "@/components/admin/PainelFuncoes";
 import { PainelUsuarios } from "@/components/admin/PainelUsuarios";
 import { ResumoAcessos } from "@/components/admin/ResumoAcessos";
 import { GerenciarEmpresas } from "@/components/programacao/GerenciarEmpresas";
@@ -94,6 +95,7 @@ function Pagina() {
           <TabsTrigger value="usuarios">👥 Usuários</TabsTrigger>
           <TabsTrigger value="empresas">🏢 Empresas</TabsTrigger>
           <TabsTrigger value="colaboradores">🧑‍🔧 Colaboradores</TabsTrigger>
+          <TabsTrigger value="funcoes">🧭 Funções</TabsTrigger>
           <TabsTrigger value="banco">🗄️ Banco de dados</TabsTrigger>
           <TabsTrigger value="manutencao">🛠️ Manutenção</TabsTrigger>
           <TabsTrigger value="email-backup">📧 Backups por e-mail</TabsTrigger>
@@ -107,6 +109,9 @@ function Pagina() {
         </TabsContent>
         <TabsContent value="colaboradores" className="pt-4">
           <PainelColaboradores />
+        </TabsContent>
+        <TabsContent value="funcoes" className="pt-4">
+          <PainelFuncoes />
         </TabsContent>
         <TabsContent value="banco" className="pt-4">
           <PainelBanco />
