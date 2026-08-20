@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  Banknote,
   Building2,
   ClipboardCheck,
   FileSpreadsheet,
@@ -58,6 +59,7 @@ const principal = [
   { title: "Vagas", url: "/vagas", icon: Table2 },
   { title: "Cadastrar Candidato", url: "/candidatos", icon: IdCard },
   { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
+  { title: "Pagamentos", url: "/pagamentos", icon: Banknote },
 ] as const;
 
 const gestao = [
