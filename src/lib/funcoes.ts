@@ -82,6 +82,41 @@ export function useSalvarFuncao() {
   });
 }
 
+/** Função da equipe vinculada a cada colaborador com acesso ao sistema. */
+export function useFuncoesDosUsuarios() {
+  const { user } = useAuth();
+  return useQuery({
+    enabled: Boolean(user),
+    queryKey: ["funcoes-usuarios"],
+    staleTime: 30_000,
+    queryFn: async (): Promise<Record<string, string | null>> => {
+      const { data, error } = await supabase.from("profiles").select("id,funcao_id");
+      if (error) throw error;
+      const mapa: Record<string, string | null> = {};
+      for (const p of data ?? []) mapa[p.id] = p.funcao_id ?? null;
+      return mapa;
+    },
+  });
+}
+
+/** Vincula (ou remove) a função da equipe de um colaborador. */
+export function useDefinirFuncaoDoUsuario() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (p: { userId: string; funcaoId: string | null }) => {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ funcao_id: p.funcaoId })
+        .eq("id", p.userId);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["funcoes-usuarios"] });
+      void qc.invalidateQueries({ queryKey: ["usuarios-permissao"] });
+    },
+  });
+}
+
 /** Exclui uma função da equipe. Use a inativação quando quiser manter histórico. */
 export function useExcluirFuncao() {
   const qc = useQueryClient();

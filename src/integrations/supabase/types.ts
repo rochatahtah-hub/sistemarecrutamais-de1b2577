@@ -1336,6 +1336,7 @@ export type Database = {
           avatar_url: string
           created_at: string
           email: string | null
+          funcao_id: string | null
           id: string
           last_login_at: string | null
           master: boolean
@@ -1352,6 +1353,7 @@ export type Database = {
           avatar_url?: string
           created_at?: string
           email?: string | null
+          funcao_id?: string | null
           id: string
           last_login_at?: string | null
           master?: boolean
@@ -1368,6 +1370,7 @@ export type Database = {
           avatar_url?: string
           created_at?: string
           email?: string | null
+          funcao_id?: string | null
           id?: string
           last_login_at?: string | null
           master?: boolean
@@ -1380,6 +1383,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_funcao_id_fkey"
+            columns: ["funcao_id"]
+            isOneToOne: false
+            referencedRelation: "funcoes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_perfil_id_fkey"
             columns: ["perfil_id"]
