@@ -37,8 +37,8 @@ import {
 } from "@/lib/usuarios.functions";
 import { usePrivacidade } from "@/lib/privacidade";
 import { dataHoraLogin, statusUltimoLogin } from "@/lib/acessos";
-import { CampoFuncaoEquipe } from "@/components/equipe/CampoFuncaoEquipe";
-import { useDefinirFuncaoDoUsuario, useFuncoes, useFuncoesDosUsuarios } from "@/lib/funcoes";
+import { CampoPerfilAcesso } from "@/components/equipe/CampoPerfilAcesso";
+import { useDefinirPerfilDoUsuario, usePerfisAcesso, useUsuariosPermissao } from "@/lib/perfis";
 
 function quando(valor: string | null) {
   if (!valor) return "—";
@@ -64,17 +64,18 @@ export function PainelUsuarios() {
     await qc.invalidateQueries({ queryKey: ["programadoras-habilitadas"] });
   };
 
-  const { data: funcoes = [] } = useFuncoes();
-  const { data: funcoesUsuarios = {} } = useFuncoesDosUsuarios();
-  const definirFuncao = useDefinirFuncaoDoUsuario();
+  const { data: perfis = [] } = usePerfisAcesso();
+  const { data: usuariosPerfil = [] } = useUsuariosPermissao();
+  const definirPerfil = useDefinirPerfilDoUsuario();
+  const perfilDoUsuario = (id: string) => usuariosPerfil.find((u) => u.id === id)?.perfil_id ?? null;
 
   const [novo, setNovo] = useState<{
     nome: string;
     email: string;
     senha: string;
     papel: PapelUsuario;
-    funcaoId: string | null;
-  }>({ nome: "", email: "", senha: "", papel: "programadora", funcaoId: null });
+    perfilId: string | null;
+  }>({ nome: "", email: "", senha: "", papel: "programadora", perfilId: null });
   const [editando, setEditando] = useState<{ id: string; nome: string; email: string } | null>(null);
   const [trocaSenha, setTrocaSenha] = useState<{ id: string; nome: string; senha: string } | null>(null);
   const [excluindo, setExcluindo] = useState<{ id: string; nome: string } | null>(null);
@@ -107,7 +108,7 @@ export function PainelUsuarios() {
             async () => {
               await criar({ data: novo });
               toast.success("Usuário cadastrado.");
-              setNovo({ nome: "", email: "", senha: "", papel: "programadora", funcaoId: null });
+              setNovo({ nome: "", email: "", senha: "", papel: "programadora", perfilId: null });
             },
           );
         }}
@@ -138,16 +139,16 @@ export function PainelUsuarios() {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="nv-funcao">Função</Label>
-          <CampoFuncaoEquipe
-            id="nv-funcao"
-            value={novo.funcaoId}
-            onChange={(funcaoId) => setNovo({ ...novo, funcaoId })}
+          <Label htmlFor="nv-perfil">Perfil</Label>
+          <CampoPerfilAcesso
+            id="nv-perfil"
+            value={novo.perfilId}
+            onChange={(perfilId) => setNovo({ ...novo, perfilId })}
             className="h-9"
           />
         </div>
         <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="nv-papel">Perfil</Label>
+          <Label htmlFor="nv-papel">Nível de acesso</Label>
           <SeletorPapel
             id="nv-papel"
             valor={novo.papel}
@@ -197,9 +198,9 @@ export function PainelUsuarios() {
                 <p className="truncate text-sm font-semibold">{p.nome(u.nome)}</p>
                 <Badge variant={u.admin ? "default" : "secondary"}>{PAPEIS_ROTULO[u.papel]}</Badge>
                 <Badge variant={u.ativo ? "outline" : "destructive"}>{u.ativo ? "Ativo" : "Inativo"}</Badge>
-                {funcoesUsuarios[u.id] && (
+                {perfilDoUsuario(u.id) && (
                   <Badge variant="secondary">
-                    {funcoes.find((f) => f.id === funcoesUsuarios[u.id])?.nome ?? "Função"}
+                    {perfis.find((f) => f.id === perfilDoUsuario(u.id))?.nome ?? "Perfil"}
                   </Badge>
                 )}
               </div>
@@ -215,14 +216,14 @@ export function PainelUsuarios() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <CampoFuncaoEquipe
-                value={funcoesUsuarios[u.id] ?? null}
+              <CampoPerfilAcesso
+                value={perfilDoUsuario(u.id)}
                 podeCriar={false}
                 className="h-8 w-40 text-xs"
-                onChange={(funcaoId) =>
+                onChange={(perfilId) =>
                   acao.mutate(async () => {
-                    await definirFuncao.mutateAsync({ userId: u.id, funcaoId });
-                    toast.success("Função atualizada.");
+                    await definirPerfil.mutateAsync({ userId: u.id, perfilId });
+                    toast.success("Perfil atualizado.");
                   })
                 }
               />
