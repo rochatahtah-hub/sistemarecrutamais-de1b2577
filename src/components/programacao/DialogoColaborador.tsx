@@ -147,10 +147,6 @@ export function DialogoColaborador({ registro }: { registro: RegistroProgramacao
             <dd className="font-medium">{priv.empresa(registro.empresa)}</dd>
           </div>
           <div>
-            <dt className="text-muted-foreground">Função</dt>
-            <dd className="font-medium">{registro.candidato_funcao || "Função não cadastrada"}</dd>
-          </div>
-          <div>
             <dt className="text-muted-foreground">Chave Pix</dt>
             <dd className="font-medium">
               {registro.candidato_pix
