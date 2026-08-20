@@ -44,10 +44,11 @@ export function PainelFuncoes() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Funções da programação</CardTitle>
+        <CardTitle>Funções / cargos da equipe</CardTitle>
         <CardDescription>
-          Cadastre, renomeie, ative ou inative funções. As inativas não aparecem em novos
-          cadastros, mas continuam visíveis no histórico.
+          Cadastre, renomeie, ative ou inative funções da equipe (Programação, Coordenação,
+          Atendimento, Financeiro, Faturamento...). As inativas não aparecem em novas atribuições,
+          mas continuam visíveis nos registros históricos.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
