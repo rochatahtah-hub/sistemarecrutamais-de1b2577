@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Eye, FileUp, Loader2, Save, Trash2, UserRound } from "lucide-react";
+import { useRef, useState } from "react";
+import { Eye, FileUp, Loader2, Trash2, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,64 +11,46 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   enviarDocumentoIdentidade,
   removerDocumentoIdentidade,
   urlDocumentoIdentidade,
 } from "@/lib/documentos-colaborador";
-import { opcoesFuncao, useFuncoes } from "@/lib/funcoes";
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
-import { formatarCPF, useAtualizarDadosCandidato, type RegistroProgramacao } from "@/lib/programacao";
+import {
+  formatarCPF,
+  rotuloTransporte,
+  useAtualizarDadosCandidato,
+  type RegistroProgramacao,
+} from "@/lib/programacao";
 import { useTenantAtual } from "@/lib/tenant";
 
-const SEM_FUNCAO = "__sem_funcao__";
-
 /**
- * Ficha do colaborador dentro da Minha Programação: nome, CPF, telefone,
- * função, chave Pix e documento de identidade — tudo lido e gravado no banco.
+ * Ficha do colaborador exibida na Minha Programação. Todos os dados vêm da
+ * ficha do colaborador (tabela candidatos) — aqui só são consultados, exceto
+ * o documento de identidade, que pode ser anexado/substituído/removido por
+ * quem tem permissão (e continua gravado na própria ficha).
  */
 export function DialogoColaborador({ registro }: { registro: RegistroProgramacao }) {
   const priv = usePrivacidade();
   const { pode } = usePermissoes();
   const { data: tenant } = useTenantAtual();
-  const { data: funcoes = [] } = useFuncoes();
   const atualizar = useAtualizarDadosCandidato();
   const inputArquivo = useRef<HTMLInputElement>(null);
 
   const [aberto, setAberto] = useState(false);
-  const [funcao, setFuncao] = useState(registro.candidato_funcao);
-  const [pix, setPix] = useState(registro.candidato_pix);
   const [enviando, setEnviando] = useState(false);
-
-  // Sempre que a lista é recarregada do banco, a ficha reflete o valor salvo.
-  useEffect(() => {
-    setFuncao(registro.candidato_funcao);
-    setPix(registro.candidato_pix);
-  }, [registro.candidato_funcao, registro.candidato_pix, aberto]);
 
   const podeEditar = pode("programacao", "editar");
   const temDocumento = Boolean(registro.candidato_documento_path);
-  const opcoes = opcoesFuncao(funcoes, registro.candidato_funcao);
 
-  async function salvarDados() {
-    if (!registro.candidato_id) return;
-    try {
-      await atualizar.mutateAsync({ id: registro.candidato_id, funcao, pix_chave: pix });
-      toast.success("Função e Pix salvos no cadastro do colaborador.");
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
-  }
+  const transporte = registro.candidato_transporte_proprio
+    ? registro.candidato_transporte_tipos.map(rotuloTransporte).join(", ") || "Transporte próprio"
+    : registro.candidato_precisa_fretado
+      ? "Precisa de fretado"
+      : "Não informado";
 
   async function enviarDocumento(arquivo: File) {
     if (!registro.candidato_id) return;
@@ -134,7 +116,8 @@ export function DialogoColaborador({ registro }: { registro: RegistroProgramacao
         <DialogHeader>
           <DialogTitle>Ficha do colaborador</DialogTitle>
           <DialogDescription>
-            Dados vindos do banco e vinculados a esta programação.
+            Dados puxados automaticamente da ficha do colaborador. Para alterar nome, função ou
+            Pix, edite a ficha — a programação reflete a mudança na hora.
           </DialogDescription>
         </DialogHeader>
 
@@ -163,53 +146,30 @@ export function DialogoColaborador({ registro }: { registro: RegistroProgramacao
             <dt className="text-muted-foreground">Empresa</dt>
             <dd className="font-medium">{priv.empresa(registro.empresa)}</dd>
           </div>
+          <div>
+            <dt className="text-muted-foreground">Função</dt>
+            <dd className="font-medium">{registro.candidato_funcao || "Função não cadastrada"}</dd>
+          </div>
+          <div>
+            <dt className="text-muted-foreground">Chave Pix</dt>
+            <dd className="font-medium">
+              {registro.candidato_pix
+                ? priv.privado
+                  ? priv.texto(registro.candidato_pix)
+                  : registro.candidato_pix
+                : "Pix não cadastrado"}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-muted-foreground">Transporte</dt>
+            <dd className="font-medium">{transporte}</dd>
+            {registro.candidato_transporte_observacao && (
+              <dd className="text-xs text-muted-foreground">
+                {registro.candidato_transporte_observacao}
+              </dd>
+            )}
+          </div>
         </dl>
-
-        <div className="space-y-3 border-t border-border/70 pt-4">
-          <div className="space-y-1.5">
-            <Label>Função</Label>
-            <Select
-              value={funcao || SEM_FUNCAO}
-              disabled={!podeEditar}
-              onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a função" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={SEM_FUNCAO}>Sem função definida</SelectItem>
-                {opcoes.map((nome) => (
-                  <SelectItem key={nome} value={nome}>
-                    {nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="pix-colaborador">Chave Pix</Label>
-            <Input
-              id="pix-colaborador"
-              value={priv.privado && !podeEditar ? "•••••" : pix}
-              maxLength={140}
-              disabled={!podeEditar}
-              placeholder="CPF, telefone, e-mail ou chave aleatória"
-              onChange={(e) => setPix(e.target.value.slice(0, 140))}
-            />
-          </div>
-
-          {podeEditar && (
-            <Button
-              type="button"
-              onClick={() => void salvarDados()}
-              disabled={atualizar.isPending || !registro.candidato_id}
-            >
-              <Save className="mr-2 h-4 w-4" />
-              {atualizar.isPending ? "Salvando..." : "Salvar função e Pix"}
-            </Button>
-          )}
-        </div>
 
         <div className="space-y-2 border-t border-border/70 pt-4">
           <Label>Documento de identidade</Label>
@@ -238,7 +198,9 @@ export function DialogoColaborador({ registro }: { registro: RegistroProgramacao
                 </span>
               </>
             ) : (
-              <span className="text-xs text-muted-foreground">Nenhum documento anexado.</span>
+              <span className="text-xs text-muted-foreground">
+                Nenhum documento anexado na ficha.
+              </span>
             )}
           </div>
           {podeEditar && (

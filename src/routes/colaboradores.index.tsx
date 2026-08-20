@@ -9,6 +9,8 @@ import { agregarPorProgramadora } from "@/lib/metricas";
 import { useProgramadorasHabilitadas } from "@/lib/programacao";
 import { METAS_PADRAO } from "@/lib/tipos";
 import { SemPlanilha } from "@/components/PlanilhaAtiva";
+import { PainelFuncoes } from "@/components/admin/PainelFuncoes";
+import { usePermissoes } from "@/lib/permissoes";
 
 export const Route = createFileRoute("/colaboradores/")({
   head: () => ({
@@ -33,12 +35,20 @@ function Pagina() {
   const { data: config } = useConfiguracoes();
   const { filtros, filtrar } = useFiltros();
   const { data: habilitadas = [] } = useProgramadorasHabilitadas();
+  const { pode } = usePermissoes();
+  const podeGerenciarFuncoes = pode("equipe", "editar");
   const linhas = useMemo(
     () => agregarPorProgramadora(filtrar(registros), habilitadas),
     [registros, filtros, filtrar, habilitadas],
   );
 
-  if (!isLoading && registros.length === 0) return <SemPlanilha pagina="Colaboradores" />;
+  if (!isLoading && registros.length === 0)
+    return (
+      <div className="space-y-6">
+        <SemPlanilha pagina="Colaboradores" />
+        {podeGerenciarFuncoes && <PainelFuncoes />}
+      </div>
+    );
 
   return (
     <div className="space-y-6">
@@ -49,6 +59,7 @@ function Pagina() {
         destino="colaboradores"
         metaPresenca={(config?.metas ?? METAS_PADRAO).presenca}
       />
+      {podeGerenciarFuncoes && <PainelFuncoes />}
     </div>
   );
 }

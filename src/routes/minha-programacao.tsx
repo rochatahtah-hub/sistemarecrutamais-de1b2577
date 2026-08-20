@@ -312,7 +312,7 @@ function Pagina() {
                   </TableCell>
                   <TableCell>{r.candidato_funcao || "—"}</TableCell>
                   <TableCell>
-                    {r.candidato_pix ? priv.texto(r.candidato_pix) : "—"}
+                    {r.candidato_pix ? priv.texto(r.candidato_pix) : "Pix não cadastrado"}
                   </TableCell>
                   <TableCell>
                     {r.candidato_documento_path ? (
