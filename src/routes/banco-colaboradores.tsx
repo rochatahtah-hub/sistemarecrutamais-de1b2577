@@ -135,14 +135,13 @@ function Pagina() {
 
   function exportar() {
     const linhas = [
-      ["Nome", "Telefone", "CPF", "Chave Pix", "Documento de identidade", "Cidade", "Bairro", "Disponível", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
+      ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
       ...lista.map((c) => [
         c.full_name,
         formatarTelefone(c.phone),
         c.cpf_mascara || "—",
-        c.pix_chave || "—",
-        c.documento_path ? "Enviado" : "Pendente",
         c.city,
+
         c.neighborhood,
         c.available_for_daily ? "Sim" : "Não",
         c.available_periods.join(" | "),
