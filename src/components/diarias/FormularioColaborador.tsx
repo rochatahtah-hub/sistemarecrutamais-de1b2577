@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { FileText, Loader2, Trash2, Upload } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { CamposTransporte } from "@/components/programacao/CamposTransporte";
@@ -29,12 +29,6 @@ import {
 } from "@/lib/diarias";
 import { TRANSPORTE_PADRAO, type DadosTransporte } from "@/lib/programacao";
 import { useTenantAtual } from "@/lib/tenant";
-import {
-  documentoValido,
-  enviarDocumentoIdentidade,
-  removerDocumentoIdentidade,
-  urlDocumentoIdentidade,
-} from "@/lib/documentos-colaborador";
 
 interface FormularioColaboradorProps {
   aberto: boolean;
@@ -54,12 +48,6 @@ export function FormularioColaborador({ aberto, colaborador, onOpenChange }: For
   const [periodos, setPeriodos] = useState<string[]>([]);
   const [funcao, setFuncao] = useState("");
   const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
-  const [pix, setPix] = useState("");
-  const [documentoPath, setDocumentoPath] = useState("");
-  const [documentoNome, setDocumentoNome] = useState("");
-  const [arquivoNovo, setArquivoNovo] = useState<File | null>(null);
-  const [enviandoDoc, setEnviandoDoc] = useState(false);
-  const inputArquivo = useRef<HTMLInputElement | null>(null);
   const { data: empresaAtiva } = useTenantAtual();
 
   useEffect(() => {
@@ -72,10 +60,6 @@ export function FormularioColaborador({ aberto, colaborador, onOpenChange }: For
     setDisponivel(colaborador?.available_for_daily ?? true);
     setPeriodos(colaborador?.available_periods ?? []);
     setFuncao(colaborador?.desired_role ?? "");
-    setPix(colaborador?.pix_chave ?? "");
-    setDocumentoPath(colaborador?.documento_path ?? "");
-    setDocumentoNome(colaborador?.documento_nome ?? "");
-    setArquivoNovo(null);
     setTransporte({
       transporte_proprio: colaborador?.transporte_proprio ?? false,
       transporte_tipos: [...(colaborador?.transporte_tipos ?? [])],
@@ -91,7 +75,7 @@ export function FormularioColaborador({ aberto, colaborador, onOpenChange }: For
     (editando || cpfValido(cpf)) &&
     cidade.trim().length >= 2 &&
     bairro.trim().length >= 2;
-  const salvando = criar.isPending || atualizar.isPending || enviandoDoc;
+  const salvando = criar.isPending || atualizar.isPending;
 
   function alternarPeriodo(periodo: string, marcado: boolean) {
     setPeriodos((atuais) =>
@@ -99,43 +83,8 @@ export function FormularioColaborador({ aberto, colaborador, onOpenChange }: For
     );
   }
 
-  async function anexarDocumento(colaboradorId: string) {
-    if (!arquivoNovo) return null;
-    if (!empresaAtiva?.id) throw new Error("Empresa ativa não identificada.");
-    const anterior = documentoPath;
-    const enviado = await enviarDocumentoIdentidade(empresaAtiva.id, colaboradorId, arquivoNovo);
-    if (anterior) await removerDocumentoIdentidade(anterior).catch(() => undefined);
-    return enviado;
-  }
-
-  async function abrirDocumento() {
-    if (!documentoPath) return;
-    try {
-      const url = await urlDocumentoIdentidade(documentoPath);
-      window.open(url, "_blank", "noopener,noreferrer");
-    } catch {
-      toast.error("Não foi possível abrir o documento.");
-    }
-  }
-
-  async function removerDocumentoAtual() {
-    if (!colaborador || !documentoPath) return;
-    setEnviandoDoc(true);
-    try {
-      await removerDocumentoIdentidade(documentoPath);
-      await atualizar.mutateAsync({ id: colaborador.id, dados: { documento_path: "", documento_nome: "" } });
-      setDocumentoPath("");
-      setDocumentoNome("");
-      toast.success("Documento removido.");
-    } catch {
-      toast.error("Não foi possível remover o documento.");
-    } finally {
-      setEnviandoDoc(false);
-    }
-  }
-
   function salvar() {
-    if (!valido || salvando || enviandoDoc) return;
+    if (!valido || salvando) return;
     const dadosComuns = {
       full_name: nome.trim().slice(0, 120),
       phone: telefone,
@@ -144,39 +93,21 @@ export function FormularioColaborador({ aberto, colaborador, onOpenChange }: For
       available_for_daily: disponivel,
       available_periods: periodos,
       desired_role: funcao.trim().slice(0, 120),
-      pix_chave: pix,
       ...transporte,
     };
 
-    setEnviandoDoc(Boolean(arquivoNovo));
     void (async () => {
       try {
         if (colaborador) {
-          const enviado = await anexarDocumento(colaborador.id);
-          await atualizar.mutateAsync({
-            id: colaborador.id,
-            dados: {
-              ...dadosComuns,
-              ...(enviado ? { documento_path: enviado.caminho, documento_nome: enviado.nome } : {}),
-            },
-          });
+          await atualizar.mutateAsync({ id: colaborador.id, dados: dadosComuns });
           toast.success("Colaborador atualizado.");
         } else {
-          const novoId = await criar.mutateAsync({ ...dadosComuns, cpf, available_days: [] });
-          const enviado = await anexarDocumento(novoId);
-          if (enviado) {
-            await atualizar.mutateAsync({
-              id: novoId,
-              dados: { documento_path: enviado.caminho, documento_nome: enviado.nome },
-            });
-          }
+          await criar.mutateAsync({ ...dadosComuns, cpf, available_days: [] });
           toast.success("Colaborador cadastrado.");
         }
         onOpenChange(false);
       } catch (erro) {
         toast.error(erro instanceof Error ? erro.message : "Não foi possível salvar o colaborador.");
-      } finally {
-        setEnviandoDoc(false);
       }
     })();
   }
