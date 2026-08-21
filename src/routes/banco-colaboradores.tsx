@@ -304,27 +304,6 @@ function Pagina() {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {priv.privado ? "•••••" : c.pix_chave || "—"}
-                    </TableCell>
-                    <TableCell>
-                      {c.documento_path ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7"
-                          onClick={() => {
-                            void urlDocumentoIdentidade(c.documento_path)
-                              .then((url) => window.open(url, "_blank", "noopener,noreferrer"))
-                              .catch(() => toast.error("Não foi possível abrir o documento."));
-                          }}
-                        >
-                          <FileText className="mr-1.5 h-3.5 w-3.5" /> Ver
-                        </Button>
-                      ) : (
-                        <Badge variant="secondary">Pendente</Badge>
-                      )}
-                    </TableCell>
                     <TableCell className="text-muted-foreground">{c.city} / {c.neighborhood}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
