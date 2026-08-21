@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Database, Download, Eye, FileText, Link2, Pencil, Plus, Trash2, Users } from "lucide-react";
+import { Copy, Database, Download, Eye, Link2, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
@@ -44,7 +44,6 @@ import {
   type StatusColaborador,
 } from "@/lib/diarias";
 import { rotuloTransporte } from "@/lib/programacao";
-import { urlDocumentoIdentidade } from "@/lib/documentos-colaborador";
 import { useTenantAtual } from "@/lib/tenant";
 import { caminhoPortalDiarias, linkPortalDiarias } from "@/lib/portal-url";
 import { celulaCsv } from "@/lib/csv-seguro";
