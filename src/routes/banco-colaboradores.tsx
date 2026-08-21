@@ -258,8 +258,6 @@ function Pagina() {
                   <TableHead>Nome</TableHead>
                   <TableHead>Telefone</TableHead>
                   <TableHead>CPF</TableHead>
-                  <TableHead>Chave Pix</TableHead>
-                  <TableHead>Identidade</TableHead>
                   <TableHead>Cidade / Bairro</TableHead>
                   <TableHead>Disponibilidade</TableHead>
                   <TableHead>Transporte</TableHead>
