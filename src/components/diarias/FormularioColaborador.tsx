@@ -28,7 +28,6 @@ import {
   type ColaboradorDiaria,
 } from "@/lib/diarias";
 import { TRANSPORTE_PADRAO, type DadosTransporte } from "@/lib/programacao";
-import { useTenantAtual } from "@/lib/tenant";
 
 interface FormularioColaboradorProps {
   aberto: boolean;
@@ -48,7 +47,6 @@ export function FormularioColaborador({ aberto, colaborador, onOpenChange }: For
   const [periodos, setPeriodos] = useState<string[]>([]);
   const [funcao, setFuncao] = useState("");
   const [transporte, setTransporte] = useState<DadosTransporte>(TRANSPORTE_PADRAO);
-  const { data: empresaAtiva } = useTenantAtual();
 
   useEffect(() => {
     if (!aberto) return;

@@ -54,3 +54,23 @@ describe("interpretarFicha", () => {
     expect(interpretarFicha("Chave PIX:\nCPF 086.723.953-01").pix).toBe("CPF 086.723.953-01");
   });
 });
+
+describe("rótulo 'Chave Pix (obrigatório ser no seu nome)'", () => {
+  const casos = [
+    "086.723.953-01",
+    "exemplo@email.com",
+    "123e4567-e89b-12d3-a456-426614174000",
+  ];
+  for (const valor of casos) {
+    it(`captura ${valor} na mesma linha`, () => {
+      expect(
+        interpretarFicha(`Chave Pix (obrigatório ser no seu nome): ${valor}`).pix,
+      ).toBe(valor);
+    });
+    it(`captura ${valor} na linha seguinte`, () => {
+      expect(
+        interpretarFicha(`CHAVE PIX (obrigatório ser no seu nome)\n${valor}`).pix,
+      ).toBe(valor);
+    });
+  }
+});
