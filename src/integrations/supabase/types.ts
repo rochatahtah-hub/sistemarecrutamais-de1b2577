@@ -861,6 +861,238 @@ export type Database = {
           },
         ]
       }
+      feedback_config: {
+        Row: {
+          ativo: boolean
+          clt_entrada: boolean
+          clt_prazo_dias: number
+          clt_semanal: boolean
+          created_at: string
+          diaria_primeiro_dia: boolean
+          diaria_semanal: boolean
+          email_responsavel: string
+          empresa_id: string | null
+          escopo: string
+          id: string
+          rs_empresa_id: string | null
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          clt_entrada?: boolean
+          clt_prazo_dias?: number
+          clt_semanal?: boolean
+          created_at?: string
+          diaria_primeiro_dia?: boolean
+          diaria_semanal?: boolean
+          email_responsavel?: string
+          empresa_id?: string | null
+          escopo: string
+          id?: string
+          rs_empresa_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          clt_entrada?: boolean
+          clt_prazo_dias?: number
+          clt_semanal?: boolean
+          created_at?: string
+          diaria_primeiro_dia?: boolean
+          diaria_semanal?: boolean
+          email_responsavel?: string
+          empresa_id?: string | null
+          escopo?: string
+          id?: string
+          rs_empresa_id?: string | null
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_config_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_config_rs_empresa_id_fkey"
+            columns: ["rs_empresa_id"]
+            isOneToOne: false
+            referencedRelation: "rs_empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_respostas: {
+        Row: {
+          created_at: string
+          feedback_id: string
+          id: string
+          mencoes: string
+          nota: number | null
+          observacao: string
+          respostas: Json
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_id: string
+          id?: string
+          mencoes?: string
+          nota?: number | null
+          observacao?: string
+          respostas?: Json
+          tenant_id?: string
+        }
+        Update: {
+          created_at?: string
+          feedback_id?: string
+          id?: string
+          mencoes?: string
+          nota?: number | null
+          observacao?: string
+          respostas?: Json
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_respostas_feedback_id_fkey"
+            columns: ["feedback_id"]
+            isOneToOne: true
+            referencedRelation: "feedbacks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_respostas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedbacks: {
+        Row: {
+          colaborador_nome: string
+          created_at: string
+          criado_por: string | null
+          criado_por_nome: string
+          empresa_id: string | null
+          empresa_nome: string
+          enviado_em: string | null
+          enviado_para: string
+          envio_status: string
+          escopo: string
+          id: string
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          respondido_em: string | null
+          rs_candidato_id: string | null
+          rs_empresa_id: string | null
+          status: string
+          tenant_id: string
+          tipo: string
+          token: string
+          updated_at: string
+          vaga_id: string | null
+        }
+        Insert: {
+          colaborador_nome?: string
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          empresa_id?: string | null
+          empresa_nome?: string
+          enviado_em?: string | null
+          enviado_para?: string
+          envio_status?: string
+          escopo: string
+          id?: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          respondido_em?: string | null
+          rs_candidato_id?: string | null
+          rs_empresa_id?: string | null
+          status?: string
+          tenant_id?: string
+          tipo: string
+          token: string
+          updated_at?: string
+          vaga_id?: string | null
+        }
+        Update: {
+          colaborador_nome?: string
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          empresa_id?: string | null
+          empresa_nome?: string
+          enviado_em?: string | null
+          enviado_para?: string
+          envio_status?: string
+          escopo?: string
+          id?: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          respondido_em?: string | null
+          rs_candidato_id?: string | null
+          rs_empresa_id?: string | null
+          status?: string
+          tenant_id?: string
+          tipo?: string
+          token?: string
+          updated_at?: string
+          vaga_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_rs_candidato_id_fkey"
+            columns: ["rs_candidato_id"]
+            isOneToOne: false
+            referencedRelation: "rs_candidatos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_rs_empresa_id_fkey"
+            columns: ["rs_empresa_id"]
+            isOneToOne: false
+            referencedRelation: "rs_empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedbacks_vaga_id_fkey"
+            columns: ["vaga_id"]
+            isOneToOne: false
+            referencedRelation: "vagas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funcoes: {
         Row: {
           ativo: boolean
