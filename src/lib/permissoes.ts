@@ -100,6 +100,9 @@ export const MODULO_POR_ROTA: Record<string, string> = {
   "/radar": "radar",
   "/comparar": "comparar",
   "/relatorios": "relatorios",
+  "/feedback/dashboard": "feedback_dashboard",
+  "/feedback": "feedback",
+
   "/chat": "chat",
   "/administracao": "administracao",
   "/importar": "importar",
