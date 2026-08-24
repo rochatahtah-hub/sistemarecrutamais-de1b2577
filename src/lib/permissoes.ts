@@ -38,6 +38,14 @@ export const MODULOS: ModuloInfo[] = [
   { chave: "radar", nome: "Radar da Operação", acoes: ["visualizar"] },
   { chave: "comparar", nome: "Comparar Períodos", acoes: ["visualizar"] },
   { chave: "relatorios", nome: "Relatórios", acoes: ["visualizar", "exportar"] },
+  {
+    chave: "feedback",
+    nome: "Feedback dos Clientes",
+    acoes: ["visualizar", "criar", "editar", "administrar"],
+  },
+  { chave: "feedback_respostas", nome: "Feedback — Respostas", acoes: ["visualizar"] },
+  { chave: "feedback_dashboard", nome: "Feedback — Dashboard", acoes: ["visualizar"] },
+
   { chave: "chat", nome: "Chat", acoes: ["utilizar"] },
   { chave: "importar", nome: "Importar Excel", acoes: ["visualizar", "criar"] },
   { chave: "historico", nome: "Histórico", acoes: ["visualizar", "exportar"] },
@@ -92,6 +100,9 @@ export const MODULO_POR_ROTA: Record<string, string> = {
   "/radar": "radar",
   "/comparar": "comparar",
   "/relatorios": "relatorios",
+  "/feedback/dashboard": "feedback_dashboard",
+  "/feedback": "feedback",
+
   "/chat": "chat",
   "/administracao": "administracao",
   "/importar": "importar",

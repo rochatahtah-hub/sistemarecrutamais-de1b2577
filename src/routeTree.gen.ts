@@ -45,6 +45,7 @@ import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.i
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
+import { Route as ResponderFeedbackTokenRouteImport } from './routes/responder-feedback.$token'
 import { Route as RsCandidatosRouteImport } from './routes/rs.candidatos'
 import { Route as RsDashboardRouteImport } from './routes/rs.dashboard'
 import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
@@ -231,6 +232,11 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
   path: '/empresas/$nome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResponderFeedbackTokenRoute = ResponderFeedbackTokenRouteImport.update({
+  id: '/responder-feedback/$token',
+  path: '/responder-feedback/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RsCandidatosRoute = RsCandidatosRouteImport.update({
   id: '/rs/candidatos',
   path: '/rs/candidatos',
@@ -292,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
+  '/responder-feedback/$token': typeof ResponderFeedbackTokenRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
@@ -335,6 +342,7 @@ export interface FileRoutesByTo {
   '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
+  '/responder-feedback/$token': typeof ResponderFeedbackTokenRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
@@ -379,6 +387,7 @@ export interface FileRoutesById {
   '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
+  '/responder-feedback/$token': typeof ResponderFeedbackTokenRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
   '/rs/empresas': typeof RsEmpresasRoute
@@ -424,6 +433,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
+    | '/responder-feedback/$token'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
@@ -467,6 +477,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
+    | '/responder-feedback/$token'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
@@ -510,6 +521,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
+    | '/responder-feedback/$token'
     | '/rs/candidatos'
     | '/rs/dashboard'
     | '/rs/empresas'
@@ -554,6 +566,7 @@ export interface RootRouteChildren {
   CadastroDiariasSlugRoute: typeof CadastroDiariasSlugRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
+  ResponderFeedbackTokenRoute: typeof ResponderFeedbackTokenRoute
   RsCandidatosRoute: typeof RsCandidatosRoute
   RsDashboardRoute: typeof RsDashboardRoute
   RsEmpresasRoute: typeof RsEmpresasRoute
@@ -818,6 +831,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasNomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/responder-feedback/$token': {
+      id: '/responder-feedback/$token'
+      path: '/responder-feedback/$token'
+      fullPath: '/responder-feedback/$token'
+      preLoaderRoute: typeof ResponderFeedbackTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rs/candidatos': {
       id: '/rs/candidatos'
       path: '/rs/candidatos'
@@ -890,6 +910,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroDiariasSlugRoute: CadastroDiariasSlugRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
+  ResponderFeedbackTokenRoute: ResponderFeedbackTokenRoute,
   RsCandidatosRoute: RsCandidatosRoute,
   RsDashboardRoute: RsDashboardRoute,
   RsEmpresasRoute: RsEmpresasRoute,
