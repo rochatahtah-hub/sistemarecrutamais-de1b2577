@@ -3,6 +3,554 @@
 
 -- ================= TABELAS E COLUNAS =================
 
+-- TABELA admin_pin
+--   id boolean NOT NULL
+--   pin_hash text NOT NULL
+--   falhas integer NOT NULL
+--   bloqueado_ate timestamp with time zone
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA alertas_operacao
+--   id uuid NOT NULL
+--   chave text NOT NULL
+--   nivel text NOT NULL
+--   titulo text NOT NULL
+--   detalhe text NOT NULL
+--   itens jsonb NOT NULL
+--   status text NOT NULL
+--   observacao text NOT NULL
+--   resolvido_por uuid
+--   resolvido_por_nome text NOT NULL
+--   resolvido_em timestamp with time zone
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA app_user_connections
+--   id uuid NOT NULL
+--   user_id uuid NOT NULL
+--   connector_id text NOT NULL
+--   connection_key_ciphertext text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA auditoria
+--   id uuid NOT NULL
+--   tabela text NOT NULL
+--   registro_id uuid
+--   acao text NOT NULL
+--   descricao text NOT NULL
+--   campo text NOT NULL
+--   valor_anterior text NOT NULL
+--   valor_novo text NOT NULL
+--   usuario_id uuid
+--   usuario_nome text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA backup_agendamento
+--   id boolean NOT NULL
+--   ativo boolean NOT NULL
+--   frequencia text NOT NULL
+--   hora integer NOT NULL
+--   dia_semana integer NOT NULL
+--   dia_mes integer NOT NULL
+--   formato text NOT NULL
+--   retencao_dias integer NOT NULL
+--   ultima_execucao timestamp with time zone
+--   proxima_execucao timestamp with time zone
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   email_destino text NOT NULL
+--   ultimo_envio_em timestamp with time zone
+--   ultimo_envio_status text NOT NULL
+--   ultimo_envio_erro text NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA backups
+--   id uuid NOT NULL
+--   formato text NOT NULL
+--   origem text NOT NULL
+--   status text NOT NULL
+--   arquivo_path text NOT NULL
+--   arquivo_nome text NOT NULL
+--   tamanho_bytes bigint NOT NULL
+--   total_tabelas integer NOT NULL
+--   total_registros integer NOT NULL
+--   erro text NOT NULL
+--   duracao_ms integer NOT NULL
+--   criado_por uuid
+--   criado_por_nome text NOT NULL
+--   concluido_em timestamp with time zone
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   envio_status text NOT NULL
+--   envio_email text NOT NULL
+--   envio_em timestamp with time zone
+--   drive_status text NOT NULL
+--   drive_file_id text NOT NULL
+--   drive_link text NOT NULL
+--   drive_em timestamp with time zone
+--   drive_erro text NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA candidatos
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   cpf text NOT NULL
+--   telefone text
+--   criado_por uuid
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   transporte_proprio boolean NOT NULL
+--   transporte_tipos text[] NOT NULL
+--   precisa_fretado boolean NOT NULL
+--   transporte_observacao text NOT NULL
+--   tenant_id uuid NOT NULL
+--   funcao text NOT NULL
+--   pix_chave text NOT NULL
+--   documento_path text NOT NULL
+--   documento_nome text NOT NULL
+
+-- TABELA colaboradores
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   ativo boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA colaboradores_bloqueados
+--   id uuid NOT NULL
+--   cpf text NOT NULL
+--   nome text NOT NULL
+--   motivo text NOT NULL
+--   bloqueado_por uuid
+--   bloqueado_por_nome text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   empresa_id uuid
+--   tipo_bloqueio text NOT NULL
+--   ativo boolean NOT NULL
+--   telefone text NOT NULL
+--   candidato_id uuid
+--   tenant_id uuid NOT NULL
+
+-- TABELA configuracoes
+--   id uuid NOT NULL
+--   chave text NOT NULL
+--   valor jsonb NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA conversa_participantes
+--   id uuid NOT NULL
+--   conversa_id uuid NOT NULL
+--   user_id uuid NOT NULL
+--   admin boolean NOT NULL
+--   last_read_at timestamp with time zone NOT NULL
+--   created_at timestamp with time zone NOT NULL
+
+-- TABELA conversas
+--   id uuid NOT NULL
+--   tipo text NOT NULL
+--   nome text NOT NULL
+--   descricao text NOT NULL
+--   foto_url text NOT NULL
+--   chave_direta text
+--   criado_por uuid
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA cron_secrets
+--   nome text NOT NULL
+--   valor text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+
+-- TABELA daily_workers
+--   id uuid NOT NULL
+--   full_name text NOT NULL
+--   phone text NOT NULL
+--   city text NOT NULL
+--   neighborhood text NOT NULL
+--   available_for_daily boolean NOT NULL
+--   available_days text[] NOT NULL
+--   available_periods text[] NOT NULL
+--   desired_role text NOT NULL
+--   status text NOT NULL
+--   consent_accepted boolean NOT NULL
+--   consent_date timestamp with time zone
+--   observacao text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   cpf text NOT NULL
+--   cpf_mascara text
+--   tenant_id uuid NOT NULL
+--   transporte_proprio boolean NOT NULL
+--   transporte_tipos text[] NOT NULL
+--   precisa_fretado boolean NOT NULL
+--   transporte_observacao text NOT NULL
+--   pix_chave text NOT NULL
+--   documento_path text NOT NULL
+--   documento_nome text NOT NULL
+
+-- TABELA empresas
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   ativo boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA erros_sistema
+--   id uuid NOT NULL
+--   fingerprint text NOT NULL
+--   user_id uuid
+--   pagina text NOT NULL
+--   componente text NOT NULL
+--   operacao text NOT NULL
+--   endpoint text NOT NULL
+--   codigo_http integer
+--   categoria text NOT NULL
+--   mensagem text NOT NULL
+--   stack text
+--   navegador text NOT NULL
+--   sistema_operacional text NOT NULL
+--   user_agent text NOT NULL
+--   ocorrencias integer NOT NULL
+--   primeira_ocorrencia timestamp with time zone NOT NULL
+--   ultima_ocorrencia timestamp with time zone NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+--   status text NOT NULL
+--   resolvido_por uuid
+--   resolvido_por_nome text NOT NULL
+--   resolvido_em timestamp with time zone
+--   arquivado_em timestamp with time zone
+
+-- TABELA feedback_config
+--   id uuid NOT NULL
+--   escopo text NOT NULL
+--   empresa_id uuid
+--   rs_empresa_id uuid
+--   ativo boolean NOT NULL
+--   diaria_primeiro_dia boolean NOT NULL
+--   diaria_semanal boolean NOT NULL
+--   clt_entrada boolean NOT NULL
+--   clt_semanal boolean NOT NULL
+--   clt_prazo_dias integer NOT NULL
+--   email_responsavel text NOT NULL
+--   tenant_id uuid NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA feedback_respostas
+--   id uuid NOT NULL
+--   feedback_id uuid NOT NULL
+--   respostas jsonb NOT NULL
+--   nota integer
+--   mencoes text NOT NULL
+--   observacao text NOT NULL
+--   tenant_id uuid NOT NULL
+--   created_at timestamp with time zone NOT NULL
+
+-- TABELA feedbacks
+--   id uuid NOT NULL
+--   tipo text NOT NULL
+--   escopo text NOT NULL
+--   empresa_id uuid
+--   rs_empresa_id uuid
+--   empresa_nome text NOT NULL
+--   vaga_id uuid
+--   rs_candidato_id uuid
+--   colaborador_nome text NOT NULL
+--   periodo_inicio date
+--   periodo_fim date
+--   token text NOT NULL
+--   status text NOT NULL
+--   enviado_em timestamp with time zone
+--   enviado_para text NOT NULL
+--   envio_status text NOT NULL
+--   respondido_em timestamp with time zone
+--   criado_por uuid
+--   criado_por_nome text NOT NULL
+--   tenant_id uuid NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA funcoes
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   ativo boolean NOT NULL
+--   tenant_id uuid NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   descricao text NOT NULL
+--   perfil_id uuid
+
+-- TABELA importacoes
+--   id uuid NOT NULL
+--   nome_arquivo text NOT NULL
+--   data_importacao timestamp with time zone NOT NULL
+--   quantidade_registros integer NOT NULL
+--   registros_adicionados integer NOT NULL
+--   registros_atualizados integer NOT NULL
+--   registros_ignorados integer NOT NULL
+--   erros integer NOT NULL
+--   usuario text NOT NULL
+--   status text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA mensagens
+--   id uuid NOT NULL
+--   conversa_id uuid NOT NULL
+--   autor_id uuid
+--   conteudo text NOT NULL
+--   responde_a uuid
+--   excluida boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tipo text NOT NULL
+--   anexo_path text NOT NULL
+--   anexo_nome text NOT NULL
+--   anexo_mime text NOT NULL
+--   anexo_tamanho bigint NOT NULL
+--   duracao_ms integer NOT NULL
+
+-- TABELA notificacoes
+--   id uuid NOT NULL
+--   user_id uuid
+--   tipo text NOT NULL
+--   titulo text NOT NULL
+--   mensagem text NOT NULL
+--   lida boolean NOT NULL
+--   para_admin boolean NOT NULL
+--   chave text
+--   created_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA pagamentos
+--   id uuid NOT NULL
+--   vaga_id uuid NOT NULL
+--   status text NOT NULL
+--   observacao text NOT NULL
+--   pago_em timestamp with time zone
+--   pago_por uuid
+--   pago_por_nome text NOT NULL
+--   tenant_id uuid NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA perfil_permissoes
+--   id uuid NOT NULL
+--   perfil_id uuid NOT NULL
+--   modulo text NOT NULL
+--   acao text NOT NULL
+--   permitido boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA perfis_acesso
+--   id uuid NOT NULL
+--   chave text NOT NULL
+--   nome text NOT NULL
+--   descricao text NOT NULL
+--   sistema boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+--   ativo boolean NOT NULL
+
+-- TABELA permissoes_usuario
+--   id uuid NOT NULL
+--   user_id uuid NOT NULL
+--   modulo text NOT NULL
+--   acao text NOT NULL
+--   permitido boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA planos
+--   id uuid NOT NULL
+--   chave text NOT NULL
+--   nome text NOT NULL
+--   descricao text NOT NULL
+--   limites jsonb NOT NULL
+--   modulos jsonb NOT NULL
+--   ativo boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA presenca_usuarios
+--   user_id uuid NOT NULL
+--   online boolean NOT NULL
+--   ultimo_visto timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA profiles
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   email text
+--   ativo boolean NOT NULL
+--   meta_quinzena integer NOT NULL
+--   ultimo_acesso timestamp with time zone
+--   ultimo_preenchimento timestamp with time zone
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   last_login_at timestamp with time zone
+--   avatar_url text NOT NULL
+--   master boolean NOT NULL
+--   perfil_id uuid
+--   tenant_id uuid NOT NULL
+--   funcao_id uuid
+
+-- TABELA quinzenas_historico
+--   id uuid NOT NULL
+--   chave text NOT NULL
+--   inicio date NOT NULL
+--   fim date NOT NULL
+--   resumo jsonb NOT NULL
+--   fechada_em timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA reacoes_mensagem
+--   id uuid NOT NULL
+--   mensagem_id uuid NOT NULL
+--   conversa_id uuid NOT NULL
+--   user_id uuid NOT NULL
+--   emoji text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+
+-- TABELA rs_candidatos
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   cpf text NOT NULL
+--   telefone text NOT NULL
+--   empresa_id uuid
+--   cargo text NOT NULL
+--   data_admissao date
+--   status text NOT NULL
+--   data_desligamento date
+--   motivo_desligamento text NOT NULL
+--   recrutador_id uuid
+--   recrutador_nome text NOT NULL
+--   observacao text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA rs_cargos
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   ativo boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA rs_empresas
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   cnpj text NOT NULL
+--   contato text NOT NULL
+--   cidade text NOT NULL
+--   observacao text NOT NULL
+--   ativo boolean NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA rs_historico
+--   id uuid NOT NULL
+--   candidato_id uuid NOT NULL
+--   acao text NOT NULL
+--   campo text NOT NULL
+--   valor_anterior text NOT NULL
+--   valor_novo text NOT NULL
+--   usuario_id uuid
+--   usuario_nome text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA super_admins
+--   user_id uuid NOT NULL
+--   observacao text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+
+-- TABELA tenant_contexto
+--   user_id uuid NOT NULL
+--   tenant_id uuid NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA tenants
+--   id uuid NOT NULL
+--   nome text NOT NULL
+--   slug text NOT NULL
+--   plano_id uuid
+--   ativo boolean NOT NULL
+--   status text NOT NULL
+--   dados_comerciais jsonb NOT NULL
+--   configuracoes jsonb NOT NULL
+--   limites jsonb NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+
+-- TABELA tenants_log
+--   id uuid NOT NULL
+--   tenant_id uuid
+--   tenant_nome text NOT NULL
+--   tenant_slug text NOT NULL
+--   acao text NOT NULL
+--   detalhe text NOT NULL
+--   usuario_id uuid
+--   usuario_nome text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+
+-- TABELA user_access_logs
+--   id uuid NOT NULL
+--   user_id uuid
+--   usuario_nome text NOT NULL
+--   login_at timestamp with time zone NOT NULL
+--   navegador text NOT NULL
+--   sistema_operacional text NOT NULL
+--   user_agent text NOT NULL
+--   created_at timestamp with time zone NOT NULL
+--   tenant_id uuid NOT NULL
+
+-- TABELA user_roles
+--   id uuid NOT NULL
+--   user_id uuid NOT NULL
+--   role app_role NOT NULL
+--   created_at timestamp with time zone NOT NULL
+
+-- TABELA vagas
+--   id uuid NOT NULL
+--   data date NOT NULL
+--   colaborador_id uuid
+--   empresa_id uuid
+--   descricao text
+--   quantidade integer NOT NULL
+--   status text NOT NULL
+--   observacao text
+--   importacao_id uuid
+--   hash_registro text
+--   created_at timestamp with time zone NOT NULL
+--   updated_at timestamp with time zone NOT NULL
+--   candidato_id uuid
+--   programadora_id uuid
+--   origem text NOT NULL
+--   cargo text NOT NULL
+--   horario text NOT NULL
+--   local text NOT NULL
+--   responsavel text NOT NULL
+--   situacao text NOT NULL
+--   tenant_id uuid NOT NULL
+
 -- ================= POLÍTICAS RLS =================
 -- alertas_operacao | alertas_operacao_delete | DELETE | roles=authenticated | using=has_role(auth.uid(), 'admin'::app_role) | check=-
 -- alertas_operacao | alertas_operacao_insert | INSERT | roles=authenticated | using=- | check=pode_operar(auth.uid())
