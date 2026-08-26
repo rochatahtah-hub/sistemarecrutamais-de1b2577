@@ -184,7 +184,7 @@ export function AppSidebar() {
                 {privado ? "Usuário oculto" : (perfil?.nome ?? "Conta")}
               </p>
               <p className="truncate text-[10px] uppercase tracking-[0.14em] text-sidebar-foreground/45">
-                {PAPEIS_ROTULO[papeis[0] ?? "programadora"]}
+                {perfil?.perfil_acesso_nome ?? PAPEIS_ROTULO[papeis[0] ?? "programadora"]}
               </p>
             </div>
           )}

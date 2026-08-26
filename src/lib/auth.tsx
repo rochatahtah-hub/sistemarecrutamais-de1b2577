@@ -21,16 +21,12 @@ export interface Perfil {
   avatar_url: string;
   ultimo_acesso: string | null;
   ultimo_preenchimento: string | null;
+  /** Nome do perfil de acesso (perfis_acesso) vinculado — usado para exibir o nível de acesso real. */
+  perfil_acesso_nome: string | null;
 }
 
 export type Papel =
-  | "admin"
-  | "programadora"
-  | "supervisor"
-  | "coordenador"
-  | "comercial"
-  | "rs"
-  | "coordenador_rs";
+  "admin" | "programadora" | "supervisor" | "coordenador" | "comercial" | "rs" | "coordenador_rs";
 
 interface AuthCtx {
   carregando: boolean;
@@ -61,17 +57,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [p, r] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id,nome,email,ativo,meta_quinzena,avatar_url,ultimo_acesso,ultimo_preenchimento")
+        .select(
+          "id,nome,email,ativo,meta_quinzena,avatar_url,ultimo_acesso,ultimo_preenchimento,perfis_acesso(nome)",
+        )
         .eq("id", uid)
         .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
-    setPerfil((p.data as Perfil | null) ?? null);
+    const dados = p.data as
+      (Omit<Perfil, "perfil_acesso_nome"> & { perfis_acesso: { nome: string } | null }) | null;
+    setPerfil(dados ? { ...dados, perfil_acesso_nome: dados.perfis_acesso?.nome ?? null } : null);
     const lista = (r.data ?? []).map((x) => x.role as Papel);
     setPapeis(lista);
     setIsAdmin(lista.includes("admin"));
     // Usuário desativado não permanece com sessão ativa.
-    if (p.data && (p.data as Perfil).ativo === false) {
+    if (dados && dados.ativo === false) {
       await supabase.auth.signOut();
     }
   }, []);
@@ -79,7 +79,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let ativo = true;
     const { data: sub } = supabase.auth.onAuthStateChange((evento, s) => {
-      if (!ativo || (evento !== "SIGNED_IN" && evento !== "SIGNED_OUT" && evento !== "USER_UPDATED" && evento !== "TOKEN_REFRESHED" && evento !== "INITIAL_SESSION")) return;
+      if (
+        !ativo ||
+        (evento !== "SIGNED_IN" &&
+          evento !== "SIGNED_OUT" &&
+          evento !== "USER_UPDATED" &&
+          evento !== "TOKEN_REFRESHED" &&
+          evento !== "INITIAL_SESSION")
+      )
+        return;
       setSession(s);
       if (!s) {
         setPerfil(null);

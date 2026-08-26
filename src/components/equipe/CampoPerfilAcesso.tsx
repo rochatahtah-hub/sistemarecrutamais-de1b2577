@@ -32,21 +32,31 @@ interface Props {
   className?: string;
   /** Exibe o botão "+ Cadastrar perfil" ao lado do campo. */
   podeCriar?: boolean;
+  /** Também lista os perfis de sistema (Administrador, Programadora, etc.), não só os customizados. */
+  incluirSistema?: boolean;
 }
 
 /**
  * Seleção do perfil de acesso do colaborador do Recruta+.
- * Lista apenas os perfis criados pelo administrador em Perfis e Permissões
- * (nada pré-cadastrado) e permite criar um novo perfil na hora.
+ * Por padrão lista apenas os perfis criados pelo administrador em Perfis e Permissões
+ * (nada pré-cadastrado) e permite criar um novo perfil na hora. Com `incluirSistema`,
+ * também mostra os perfis de sistema — usado como "Nível de acesso" único.
  */
-export function CampoPerfilAcesso({ value, onChange, id, className, podeCriar = true }: Props) {
+export function CampoPerfilAcesso({
+  value,
+  onChange,
+  id,
+  className,
+  podeCriar = true,
+  incluirSistema = false,
+}: Props) {
   const { data: perfis = [] } = usePerfisAcesso();
   const criar = useCriarPerfil();
   const [aberto, setAberto] = useState(false);
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
 
-  const criados = perfis.filter((p) => !p.sistema);
+  const criados = incluirSistema ? perfis : perfis.filter((p) => !p.sistema);
   const atual = criados.find((p) => p.id === value);
   const opcoes = criados.filter((p) => p.ativo || p.id === value);
 

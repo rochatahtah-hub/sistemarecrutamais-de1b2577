@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
@@ -7,14 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CampoSenha } from "@/components/CampoSenha";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
-import {
-  criarUsuario,
-  definirPermissao,
-  definirSenha,
-  type PapelUsuario,
-} from "@/lib/admin.functions";
-import { PAPEIS_ROTULO, SeletorPapel } from "@/components/SeletorPapel";
+import { criarUsuario, definirPermissao, definirSenha } from "@/lib/admin.functions";
 import { excluirUsuario } from "@/lib/usuarios.functions";
 import {
   AlertDialog,
@@ -31,25 +24,12 @@ import { Trash2 } from "lucide-react";
 import { useProgramadoras } from "@/lib/programacao";
 import { usePrivacidade } from "@/lib/privacidade";
 import { CampoPerfilAcesso } from "@/components/equipe/CampoPerfilAcesso";
-import { useDefinirPerfilDoUsuario, useUsuariosPermissao } from "@/lib/perfis";
-
-function useRoles() {
-  return useQuery({
-    queryKey: ["user-roles"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("user_roles").select("user_id,role");
-      if (error) throw error;
-      return data ?? [];
-    },
-    staleTime: 30_000,
-  });
-}
+import { useUsuariosPermissao } from "@/lib/perfis";
 
 export function GerenciarUsuarios() {
   const qc = useQueryClient();
   const priv = usePrivacidade();
   const { data: perfis = [] } = useProgramadoras();
-  const { data: roles = [] } = useRoles();
   const criar = useServerFn(criarUsuario);
   const senhaFn = useServerFn(definirSenha);
   const permissaoFn = useServerFn(definirPermissao);
@@ -58,13 +38,11 @@ export function GerenciarUsuarios() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [papel, setPapel] = useState<PapelUsuario>("programadora");
   const [perfilId, setPerfilId] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [novaSenha, setNovaSenha] = useState<Record<string, string>>({});
   const [excluindo, setExcluindo] = useState<string | null>(null);
   const { data: usuariosPerfil = [] } = useUsuariosPermissao();
-  const definirPerfil = useDefinirPerfilDoUsuario();
 
   async function excluir(id: string) {
     setExcluindo(id);
@@ -81,21 +59,19 @@ export function GerenciarUsuarios() {
     }
   }
 
-  const papelDe = (id: string): PapelUsuario =>
-    (Object.keys(PAPEIS_ROTULO) as PapelUsuario[]).find((p) =>
-      roles.some((r) => r.user_id === id && r.role === p),
-    ) ?? "programadora";
-
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
+    if (!perfilId) {
+      toast.error("Selecione o nível de acesso.");
+      return;
+    }
     setEnviando(true);
     try {
-      await criar({ data: { nome, email, senha, papel, perfilId } });
+      await criar({ data: { nome, email, senha, perfilId } });
       toast.success("Usuário cadastrado.");
       setNome("");
       setEmail("");
       setSenha("");
-      setPapel("programadora");
       setPerfilId(null);
       void qc.invalidateQueries({ queryKey: ["programadoras"] });
       void qc.invalidateQueries({ queryKey: ["usuarios-permissao"] });
@@ -109,7 +85,10 @@ export function GerenciarUsuarios() {
 
   return (
     <div className="space-y-5">
-      <form className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-7" onSubmit={cadastrar}>
+      <form
+        className="surface-panel grid gap-3 rounded-2xl p-4 md:grid-cols-6"
+        onSubmit={cadastrar}
+      >
         <div className="space-y-1.5 md:col-span-1">
           <Label htmlFor="u-nome">Nome</Label>
           <Input id="u-nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
@@ -134,20 +113,17 @@ export function GerenciarUsuarios() {
             onChange={(e) => setSenha(e.target.value)}
           />
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="u-perfil">Perfil</Label>
+        <div className="space-y-1.5 md:col-span-2">
+          <Label htmlFor="u-perfil">Nível de acesso</Label>
           <CampoPerfilAcesso
             id="u-perfil"
             value={perfilId}
             onChange={setPerfilId}
+            incluirSistema
             className="h-9"
           />
         </div>
-        <div className="space-y-1.5 md:col-span-2">
-          <Label htmlFor="u-papel">Nível de acesso</Label>
-          <SeletorPapel id="u-papel" valor={papel} onChange={setPapel} className="h-9 w-full" />
-        </div>
-        <div className="flex justify-end md:col-span-7">
+        <div className="flex justify-end md:col-span-6">
           <Button type="submit" disabled={enviando}>
             {enviando ? "Salvando..." : "Cadastrar"}
           </Button>
@@ -165,24 +141,14 @@ export function GerenciarUsuarios() {
             <CampoPerfilAcesso
               value={usuariosPerfil.find((u) => u.id === p.id)?.perfil_id ?? null}
               podeCriar={false}
-              className="h-8 w-40 text-xs"
-              onChange={(novo) => {
-                definirPerfil.mutate(
-                  { userId: p.id, perfilId: novo },
-                  {
-                    onSuccess: () => toast.success("Perfil atualizado."),
-                    onError: (err: Error) => toast.error(err.message),
-                  },
-                );
-              }}
-            />
-            <SeletorPapel
-              valor={papelDe(p.id)}
+              incluirSistema
               className="h-8 w-44 text-xs"
               onChange={(novo) => {
-                void permissaoFn({ data: { userId: p.id, papel: novo } })
+                if (!novo) return;
+                void permissaoFn({ data: { userId: p.id, perfilId: novo } })
                   .then(() => {
-                    toast.success("Permissão atualizada.");
+                    toast.success("Nível de acesso atualizado.");
+                    void qc.invalidateQueries({ queryKey: ["usuarios-permissao"] });
                     void qc.invalidateQueries({ queryKey: ["user-roles"] });
                   })
                   .catch((err: Error) => toast.error(err.message));
@@ -222,8 +188,8 @@ export function GerenciarUsuarios() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Excluir login de programador?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    O acesso de <strong>{priv.nome(p.nome)}</strong> será removido
-                    definitivamente. As vagas, candidatos e o histórico continuam no sistema.
+                    O acesso de <strong>{priv.nome(p.nome)}</strong> será removido definitivamente.
+                    As vagas, candidatos e o histórico continuam no sistema.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
