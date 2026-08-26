@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { derivarStatusValidacao, type StatusValidacao } from "@/lib/atendimento";
 import { useAuth } from "@/lib/auth";
 
 export type StatusPagamento = "AGUARDANDO" | "PAGO" | "PROBLEMA" | "BLOQUEADO";
@@ -32,6 +33,8 @@ export interface RegistroPagamento {
   observacao: string;
   pago_em: string | null;
   pago_por_nome: string;
+  /** Situação da conferência do Atendimento — só leitura; o travamento de verdade é no banco. */
+  status_validacao: StatusValidacao;
 }
 
 interface LinhaPagamento {
@@ -40,6 +43,10 @@ interface LinhaPagamento {
   observacao: string;
   pago_em: string | null;
   pago_por_nome: string;
+}
+
+interface LinhaConferencia {
+  status_validacao: string;
 }
 
 interface LinhaVaga {
@@ -57,6 +64,7 @@ interface LinhaVaga {
     pix_chave: string | null;
   } | null;
   pagamentos: LinhaPagamento | LinhaPagamento[] | null;
+  atendimento_conferencias: LinhaConferencia | LinhaConferencia[] | null;
 }
 
 /**
@@ -77,7 +85,7 @@ export async function buscarPagamentos(): Promise<RegistroPagamento[]> {
   const { data, error } = await supabase
     .from("vagas")
     .select(
-      "id,data,status,descricao,empresa_id,empresas(nome),candidatos(id,nome,cpf,telefone,pix_chave),pagamentos(id,status,observacao,pago_em,pago_por_nome)",
+      "id,data,status,descricao,empresa_id,empresas(nome),candidatos(id,nome,cpf,telefone,pix_chave),pagamentos(id,status,observacao,pago_em,pago_por_nome),atendimento_conferencias(status_validacao)",
     )
     .in("status", ["PRESENCA", "FALTA", "CANCELAMENTO"])
     .order("data", { ascending: false })
@@ -92,6 +100,9 @@ export async function buscarPagamentos(): Promise<RegistroPagamento[]> {
     .filter((l) => l.status === "PRESENCA" || l.pagamento !== null)
     .map((l) => {
       const pg = l.pagamento;
+      const conferencia = Array.isArray(l.atendimento_conferencias)
+        ? (l.atendimento_conferencias[0] ?? null)
+        : l.atendimento_conferencias;
       return {
         vaga_id: l.id,
         pagamento_id: pg?.id ?? null,
@@ -108,6 +119,7 @@ export async function buscarPagamentos(): Promise<RegistroPagamento[]> {
         observacao: pg?.observacao ?? "",
         pago_em: pg?.pago_em ?? null,
         pago_por_nome: pg?.pago_por_nome ?? "",
+        status_validacao: derivarStatusValidacao(l.status, conferencia),
       };
     });
 }

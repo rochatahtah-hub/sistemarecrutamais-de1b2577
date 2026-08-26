@@ -11,7 +11,13 @@ export type Acao =
   | "excluir"
   | "exportar"
   | "utilizar"
-  | "administrar";
+  | "administrar"
+  | "conferir"
+  | "validar"
+  | "apontar_divergencia"
+  | "resolver_divergencia"
+  | "historico"
+  | "processar";
 
 export interface ModuloInfo {
   chave: string;
@@ -22,17 +28,50 @@ export interface ModuloInfo {
 /** Catálogo de módulos e ações administráveis do Recruta+. */
 export const MODULOS: ModuloInfo[] = [
   { chave: "dashboard", nome: "Dashboard", acoes: ["visualizar"] },
-  { chave: "vagas", nome: "Vagas", acoes: ["visualizar", "criar", "editar", "excluir", "exportar"] },
-  { chave: "programacao", nome: "Minha Programação", acoes: ["visualizar", "criar", "editar", "excluir"] },
+  {
+    chave: "vagas",
+    nome: "Vagas",
+    acoes: ["visualizar", "criar", "editar", "excluir", "exportar"],
+  },
+  {
+    chave: "programacao",
+    nome: "Minha Programação",
+    acoes: ["visualizar", "criar", "editar", "excluir"],
+  },
   { chave: "programadoras", nome: "Programações da equipe", acoes: ["visualizar", "editar"] },
   { chave: "candidatos", nome: "Candidatos", acoes: ["visualizar", "criar", "editar", "excluir"] },
   { chave: "confirmacoes", nome: "Confirmações", acoes: ["visualizar", "editar"] },
-  { chave: "pagamentos", nome: "Pagamentos", acoes: ["visualizar", "editar", "exportar"] },
+  {
+    chave: "atendimento",
+    nome: "Atendimento",
+    acoes: [
+      "visualizar",
+      "conferir",
+      "validar",
+      "apontar_divergencia",
+      "resolver_divergencia",
+      "historico",
+    ],
+  },
+  {
+    chave: "atendimento_valores",
+    nome: "Atendimento — Valores",
+    acoes: ["visualizar", "editar", "conferir"],
+  },
+  {
+    chave: "pagamentos",
+    nome: "Pagamentos",
+    acoes: ["visualizar", "editar", "exportar", "conferir", "processar"],
+  },
   { chave: "equipe", nome: "Equipe", acoes: ["visualizar", "criar", "editar", "excluir"] },
   { chave: "empresas", nome: "Empresas", acoes: ["visualizar", "criar", "editar", "excluir"] },
   { chave: "metas", nome: "Metas", acoes: ["visualizar", "criar", "editar", "excluir"] },
   { chave: "bloqueios", nome: "Bloqueios", acoes: ["visualizar", "criar", "editar", "excluir"] },
-  { chave: "banco_colaboradores", nome: "Banco de Colaboradores", acoes: ["visualizar", "criar", "editar", "excluir", "exportar"] },
+  {
+    chave: "banco_colaboradores",
+    nome: "Banco de Colaboradores",
+    acoes: ["visualizar", "criar", "editar", "excluir", "exportar"],
+  },
   { chave: "performance", nome: "Performance", acoes: ["visualizar", "exportar"] },
   { chave: "analise", nome: "Análise Inteligente", acoes: ["visualizar"] },
   { chave: "radar", nome: "Radar da Operação", acoes: ["visualizar"] },
@@ -58,7 +97,11 @@ export const MODULOS: ModuloInfo[] = [
     acoes: ["visualizar", "criar", "editar", "excluir", "exportar", "administrar"],
   },
   { chave: "configuracoes", nome: "Configurações", acoes: ["visualizar", "editar"] },
-  { chave: "administracao", nome: "Central de Administração", acoes: ["visualizar", "administrar"] },
+  {
+    chave: "administracao",
+    nome: "Central de Administração",
+    acoes: ["visualizar", "administrar"],
+  },
   { chave: "saude", nome: "Saúde do Sistema", acoes: ["visualizar", "exportar"] },
   { chave: "perfis", nome: "Perfis e Permissões", acoes: ["visualizar", "administrar"] },
   {
@@ -66,7 +109,11 @@ export const MODULOS: ModuloInfo[] = [
     nome: "R&S — Meus Candidatos",
     acoes: ["visualizar", "criar", "editar", "excluir", "exportar"],
   },
-  { chave: "rs_empresas", nome: "R&S — Empresas CLT", acoes: ["visualizar", "criar", "editar", "excluir"] },
+  {
+    chave: "rs_empresas",
+    nome: "R&S — Empresas CLT",
+    acoes: ["visualizar", "criar", "editar", "excluir"],
+  },
   { chave: "rs_dashboard", nome: "R&S — Dashboard", acoes: ["visualizar", "exportar"] },
   { chave: "rs_levantamento", nome: "R&S — Levantamento", acoes: ["visualizar", "exportar"] },
 ];
@@ -79,6 +126,12 @@ export const ACAO_ROTULO: Record<Acao, string> = {
   exportar: "Exportar",
   utilizar: "Utilizar",
   administrar: "Administrar",
+  conferir: "Conferir",
+  validar: "Validar",
+  apontar_divergencia: "Apontar divergência",
+  resolver_divergencia: "Resolver divergência",
+  historico: "Histórico",
+  processar: "Processar",
 };
 
 /** Rota → módulo correspondente (usado no menu e no bloqueio de rotas). */
@@ -88,6 +141,7 @@ export const MODULO_POR_ROTA: Record<string, string> = {
   "/vagas": "vagas",
   "/candidatos": "candidatos",
   "/confirmacoes": "confirmacoes",
+  "/atendimento": "atendimento",
   "/pagamentos": "pagamentos",
   "/programadoras": "programadoras",
   "/colaboradores": "equipe",

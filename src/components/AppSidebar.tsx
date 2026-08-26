@@ -30,6 +30,7 @@ import {
   Briefcase,
   BarChart3,
   ClipboardList,
+  ListChecks,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -59,6 +60,7 @@ const principal = [
   { title: "Vagas", url: "/vagas", icon: Table2 },
   { title: "Cadastrar Candidato", url: "/candidatos", icon: IdCard },
   { title: "Confirmações", url: "/confirmacoes", icon: ClipboardCheck },
+  { title: "Atendimento", url: "/atendimento", icon: ListChecks },
   { title: "Pagamentos", url: "/pagamentos", icon: Banknote },
 ] as const;
 

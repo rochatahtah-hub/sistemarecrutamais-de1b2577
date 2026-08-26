@@ -124,6 +124,178 @@ export type Database = {
         }
         Relationships: []
       }
+      atendimento_conferencias: {
+        Row: {
+          adicional_motivo: string
+          adicional_percentual: number
+          ajuda_custo_valor: number
+          checklist: Json
+          created_at: string
+          horario_realizado_entrada: string
+          horario_realizado_saida: string
+          horas_trabalhadas: number | null
+          id: string
+          jornada_completa: string | null
+          motivo_jornada_parcial: string
+          observacao: string
+          status_validacao: string
+          tem_ajuda_custo: boolean
+          tenant_id: string
+          tipo_adicional: string
+          total_estimado: number | null
+          updated_at: string
+          vaga_id: string
+          validado_em: string | null
+          validado_por: string | null
+          validado_por_nome: string
+          valor_diaria: number | null
+        }
+        Insert: {
+          adicional_motivo?: string
+          adicional_percentual?: number
+          ajuda_custo_valor?: number
+          checklist?: Json
+          created_at?: string
+          horario_realizado_entrada?: string
+          horario_realizado_saida?: string
+          horas_trabalhadas?: number | null
+          id?: string
+          jornada_completa?: string | null
+          motivo_jornada_parcial?: string
+          observacao?: string
+          status_validacao?: string
+          tem_ajuda_custo?: boolean
+          tenant_id?: string
+          tipo_adicional?: string
+          total_estimado?: number | null
+          updated_at?: string
+          vaga_id: string
+          validado_em?: string | null
+          validado_por?: string | null
+          validado_por_nome?: string
+          valor_diaria?: number | null
+        }
+        Update: {
+          adicional_motivo?: string
+          adicional_percentual?: number
+          ajuda_custo_valor?: number
+          checklist?: Json
+          created_at?: string
+          horario_realizado_entrada?: string
+          horario_realizado_saida?: string
+          horas_trabalhadas?: number | null
+          id?: string
+          jornada_completa?: string | null
+          motivo_jornada_parcial?: string
+          observacao?: string
+          status_validacao?: string
+          tem_ajuda_custo?: boolean
+          tenant_id?: string
+          tipo_adicional?: string
+          total_estimado?: number | null
+          updated_at?: string
+          vaga_id?: string
+          validado_em?: string | null
+          validado_por?: string | null
+          validado_por_nome?: string
+          valor_diaria?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atendimento_conferencias_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimento_conferencias_vaga_id_fkey"
+            columns: ["vaga_id"]
+            isOneToOne: true
+            referencedRelation: "vagas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atendimento_divergencias: {
+        Row: {
+          aberta_em: string
+          aberta_por: string | null
+          aberta_por_nome: string
+          conferencia_id: string
+          created_at: string
+          id: string
+          observacao: string
+          resolvida_em: string | null
+          resolvida_por: string | null
+          resolvida_por_nome: string
+          resultado: string
+          status: string
+          tenant_id: string
+          tipo: string
+          updated_at: string
+          vaga_id: string
+        }
+        Insert: {
+          aberta_em?: string
+          aberta_por?: string | null
+          aberta_por_nome?: string
+          conferencia_id: string
+          created_at?: string
+          id?: string
+          observacao?: string
+          resolvida_em?: string | null
+          resolvida_por?: string | null
+          resolvida_por_nome?: string
+          resultado?: string
+          status?: string
+          tenant_id?: string
+          tipo?: string
+          updated_at?: string
+          vaga_id: string
+        }
+        Update: {
+          aberta_em?: string
+          aberta_por?: string | null
+          aberta_por_nome?: string
+          conferencia_id?: string
+          created_at?: string
+          id?: string
+          observacao?: string
+          resolvida_em?: string | null
+          resolvida_por?: string | null
+          resolvida_por_nome?: string
+          resultado?: string
+          status?: string
+          tenant_id?: string
+          tipo?: string
+          updated_at?: string
+          vaga_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atendimento_divergencias_conferencia_id_fkey"
+            columns: ["conferencia_id"]
+            isOneToOne: false
+            referencedRelation: "atendimento_conferencias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimento_divergencias_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atendimento_divergencias_vaga_id_fkey"
+            columns: ["vaga_id"]
+            isOneToOne: false
+            referencedRelation: "vagas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auditoria: {
         Row: {
           acao: string
