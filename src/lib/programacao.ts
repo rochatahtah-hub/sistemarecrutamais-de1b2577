@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./auth";
-import { normalizarNomeColaborador } from "./diarias";
+import { cpfValido, normalizarNomeColaborador } from "./diarias";
 import { quinzenaAtual, dentroDaQuinzena } from "./quinzena";
 import { sincronizarSistema } from "./sincronizar";
 
@@ -184,55 +184,66 @@ export async function buscarCandidatoPorCPF(cpf: string): Promise<Candidato | nu
   return data ?? null;
 }
 
+export interface DadosSalvarCandidato {
+  nome: string;
+  cpf: string;
+  telefone: string;
+  transporte?: Partial<DadosTransporte>;
+  funcao?: string;
+  pix_chave?: string;
+}
+
+/**
+ * Cadastra ou atualiza um candidato pelo CPF. Recusa CPF com dígito
+ * verificador inválido — nenhum candidato com CPF errado chega a ser gravado.
+ */
+export async function salvarCandidato(
+  dados: DadosSalvarCandidato,
+): Promise<{ candidato: Candidato; jaExistia: boolean }> {
+  const cpf = soDigitos(dados.cpf);
+  if (!cpfValido(cpf)) throw new Error("Informe um CPF válido.");
+  const nome = normalizarNomeColaborador(dados.nome);
+  if (nome.length < 3) throw new Error("Informe o nome do colaborador (somente letras).");
+  const extras: { funcao?: string; pix_chave?: string; nome?: string } = {};
+  if (dados.funcao !== undefined) extras.funcao = dados.funcao.trim().slice(0, 80);
+  if (dados.pix_chave !== undefined) extras.pix_chave = dados.pix_chave.trim().slice(0, 140);
+  const existente = await buscarCandidatoPorCPF(cpf);
+  if (existente) {
+    // A ficha é a fonte única: o nome normalizado também é atualizado no cadastro.
+    if (existente.nome !== nome) extras.nome = nome;
+    const temExtras = Object.keys(extras).length > 0;
+    if (!dados.transporte && !temExtras) return { candidato: existente, jaExistia: true };
+    const transporte = dados.transporte ? normalizarTransporte(dados.transporte) : {};
+    const { data: atualizado, error: erroUpdate } = await supabase
+      .from("candidatos")
+      .update({ ...transporte, ...extras })
+      .eq("id", existente.id)
+      .select(CAMPOS_CANDIDATO)
+      .single();
+    if (erroUpdate) throw erroUpdate;
+    return { candidato: atualizado as Candidato, jaExistia: true };
+  }
+  const { data: sessao } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from("candidatos")
+    .insert({
+      nome,
+      cpf,
+      telefone: soDigitos(dados.telefone),
+      criado_por: sessao.user?.id ?? null,
+      ...normalizarTransporte(dados.transporte ?? {}),
+      ...extras,
+    })
+    .select(CAMPOS_CANDIDATO)
+    .single();
+  if (error) throw error;
+  return { candidato: data as Candidato, jaExistia: false };
+}
+
 export function useSalvarCandidato() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (dados: {
-      nome: string;
-      cpf: string;
-      telefone: string;
-      transporte?: Partial<DadosTransporte>;
-      funcao?: string;
-      pix_chave?: string;
-    }): Promise<{ candidato: Candidato; jaExistia: boolean }> => {
-      const cpf = soDigitos(dados.cpf);
-      const nome = normalizarNomeColaborador(dados.nome);
-      if (nome.length < 3) throw new Error("Informe o nome do colaborador (somente letras).");
-      const extras: { funcao?: string; pix_chave?: string; nome?: string } = {};
-      if (dados.funcao !== undefined) extras.funcao = dados.funcao.trim().slice(0, 80);
-      if (dados.pix_chave !== undefined) extras.pix_chave = dados.pix_chave.trim().slice(0, 140);
-      const existente = await buscarCandidatoPorCPF(cpf);
-      if (existente) {
-        // A ficha é a fonte única: o nome normalizado também é atualizado no cadastro.
-        if (existente.nome !== nome) extras.nome = nome;
-        const temExtras = Object.keys(extras).length > 0;
-        if (!dados.transporte && !temExtras) return { candidato: existente, jaExistia: true };
-        const transporte = dados.transporte ? normalizarTransporte(dados.transporte) : {};
-        const { data: atualizado, error: erroUpdate } = await supabase
-          .from("candidatos")
-          .update({ ...transporte, ...extras })
-          .eq("id", existente.id)
-          .select(CAMPOS_CANDIDATO)
-          .single();
-        if (erroUpdate) throw erroUpdate;
-        return { candidato: atualizado as Candidato, jaExistia: true };
-      }
-      const { data: sessao } = await supabase.auth.getUser();
-      const { data, error } = await supabase
-        .from("candidatos")
-        .insert({
-          nome,
-          cpf,
-          telefone: soDigitos(dados.telefone),
-          criado_por: sessao.user?.id ?? null,
-          ...normalizarTransporte(dados.transporte ?? {}),
-          ...extras,
-        })
-        .select(CAMPOS_CANDIDATO)
-        .single();
-      if (error) throw error;
-      return { candidato: data as Candidato, jaExistia: false };
-    },
+    mutationFn: salvarCandidato,
     onSuccess: () => sincronizarSistema(qc),
   });
 }

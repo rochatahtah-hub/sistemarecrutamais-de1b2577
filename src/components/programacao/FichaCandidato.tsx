@@ -34,7 +34,7 @@ import {
   type DadosTransporte,
 } from "@/lib/programacao";
 import { buscarCandidatoPorCPF } from "@/lib/programacao";
-import { normalizarNomeColaborador } from "@/lib/diarias";
+import { cpfValido, normalizarNomeColaborador } from "@/lib/diarias";
 import { buscarBloqueio, type BloqueioAtivo } from "@/lib/bloqueios";
 import { camposFaltantes, interpretarFicha } from "@/lib/ficha-texto";
 import { extrairFicha } from "@/lib/ficha.functions";
@@ -173,7 +173,11 @@ export function FichaCandidato({
     if (dados.cpf) setCpf(formatarCPF(dados.cpf));
     if (dados.telefone) setTelefone(formatarTelefone(dados.telefone));
     if (dados.pix) setPix(dados.pix.slice(0, 140));
-    if (dados.transporte_proprio || (dados.transporte_tipos?.length ?? 0) > 0 || dados.transporte_observacao) {
+    if (
+      dados.transporte_proprio ||
+      (dados.transporte_tipos?.length ?? 0) > 0 ||
+      dados.transporte_observacao
+    ) {
       setTransporte((atual) => ({
         ...atual,
         transporte_proprio: dados.transporte_proprio ?? atual.transporte_proprio,
@@ -208,7 +212,7 @@ export function FichaCandidato({
       if (!dados.cpf || !dados.nome || !dados.telefone || !dados.pix) {
         try {
           const ia = await extrairFicha({ data: { texto: texto.slice(0, 20_000) } });
-           if (!montado.current || processamentoAtual.current !== idProcessamento) return;
+          if (!montado.current || processamentoAtual.current !== idProcessamento) return;
           dados = {
             ...dados,
             nome: dados.nome || ia.nome,
@@ -291,7 +295,7 @@ export function FichaCandidato({
       toast.error("Informe o nome do candidato.");
       return;
     }
-    if (soDigitos(cpf).length !== 11) {
+    if (!cpfValido(cpf)) {
       toast.error("Informe um CPF válido.");
       return;
     }
@@ -331,7 +335,12 @@ export function FichaCandidato({
           placeholder="COLE A FICHA AQUI — o texto ficará no campo até você clicar em Processar ficha."
         />
         <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" disabled={lendo} onClick={() => void usarFichaColada()} aria-busy={lendo}>
+          <Button
+            type="button"
+            disabled={lendo}
+            onClick={() => void usarFichaColada()}
+            aria-busy={lendo}
+          >
             {lendo ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
@@ -431,7 +440,10 @@ export function FichaCandidato({
         {mostrarFuncao && (
           <div className="space-y-1.5">
             <Label htmlFor="f-funcao">Função</Label>
-            <Select value={funcao || SEM_FUNCAO} onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}>
+            <Select
+              value={funcao || SEM_FUNCAO}
+              onValueChange={(v) => setFuncao(v === SEM_FUNCAO ? "" : v)}
+            >
               <SelectTrigger id="f-funcao">
                 <SelectValue placeholder="Selecione a função" />
               </SelectTrigger>
@@ -491,7 +503,9 @@ export function FichaCandidato({
             </div>
             <div>
               <dt className="text-muted-foreground">Número de telefone</dt>
-              <dd className="font-medium">{priv.privado ? priv.telefone(telefone) : formatarTelefone(telefone)}</dd>
+              <dd className="font-medium">
+                {priv.privado ? priv.telefone(telefone) : formatarTelefone(telefone)}
+              </dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Chave Pix</dt>
@@ -521,30 +535,30 @@ export function FichaCandidato({
         {candidato && !bloqueio && (
           <>
             <span className="text-sm text-muted-foreground">
-              Selecionado: <strong className="text-foreground">{priv.nome(candidato.nome)}</strong> ·{" "}
-              {priv.privado ? priv.cpf(candidato.cpf) : formatarCPF(candidato.cpf)}
+              Selecionado: <strong className="text-foreground">{priv.nome(candidato.nome)}</strong>{" "}
+              · {priv.privado ? priv.cpf(candidato.cpf) : formatarCPF(candidato.cpf)}
             </span>
             {mostrarTransporte && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={atualizarTransporte.isPending}
-              onClick={() => {
-                atualizarTransporte.mutate(
-                  { id: candidato.id, ...transporte },
-                  {
-                    onSuccess: (atualizado) => {
-                      onCandidato(atualizado);
-                      toast.success("Transporte atualizado.");
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={atualizarTransporte.isPending}
+                onClick={() => {
+                  atualizarTransporte.mutate(
+                    { id: candidato.id, ...transporte },
+                    {
+                      onSuccess: (atualizado) => {
+                        onCandidato(atualizado);
+                        toast.success("Transporte atualizado.");
+                      },
+                      onError: (e) => toast.error((e as Error).message),
                     },
-                    onError: (e) => toast.error((e as Error).message),
-                  },
-                );
-              }}
-            >
-              {atualizarTransporte.isPending ? "Salvando..." : "Salvar transporte"}
-            </Button>
+                  );
+                }}
+              >
+                {atualizarTransporte.isPending ? "Salvando..." : "Salvar transporte"}
+              </Button>
             )}
           </>
         )}

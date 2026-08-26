@@ -17,6 +17,7 @@ import {
   formatarCPF,
   formatarTelefone,
   normalizarTransporte,
+  salvarCandidato,
   soDigitos,
   termoSeguro,
   type Candidato,
@@ -214,5 +215,60 @@ describe("confirmarProgramacao", () => {
   it("propaga erro ao atualizar o status", async () => {
     mockFrom.mockReturnValueOnce(chainResolvendo({ data: null, error: new Error("falhou") }));
     await expect(confirmarProgramacao({ id: "vaga-1", status: "FALTA" })).rejects.toThrow("falhou");
+  });
+});
+
+describe("salvarCandidato", () => {
+  const dadosBase = {
+    nome: "Fulano de Tal",
+    cpf: "111.444.777-35",
+    telefone: "47997695445",
+  };
+
+  it("recusa CPF com dígito verificador inválido e não toca no banco", async () => {
+    await expect(salvarCandidato({ ...dadosBase, cpf: "111.444.777-36" })).rejects.toThrow(
+      "Informe um CPF válido.",
+    );
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
+  it("recusa CPF com dígitos insuficientes", async () => {
+    await expect(salvarCandidato({ ...dadosBase, cpf: "123" })).rejects.toThrow(
+      "Informe um CPF válido.",
+    );
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
+  it("recusa nome muito curto mesmo com CPF válido", async () => {
+    await expect(salvarCandidato({ ...dadosBase, nome: "Jo" })).rejects.toThrow(
+      "Informe o nome do colaborador (somente letras).",
+    );
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
+  it("cadastra um candidato novo quando o CPF é válido e ainda não existe", async () => {
+    mockFrom
+      .mockReturnValueOnce(chainResolvendo({ data: null, error: null }))
+      .mockReturnValueOnce(
+        chainResolvendo({ data: { id: "cand-1", nome: "FULANODETAL" }, error: null }),
+      );
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: "uid-1" } } });
+
+    const r = await salvarCandidato(dadosBase);
+
+    expect(r.jaExistia).toBe(false);
+    expect(mockFrom).toHaveBeenCalledTimes(2);
+  });
+
+  it("reaproveita o candidato existente sem gravar nada quando não há dado novo", async () => {
+    mockFrom.mockReturnValueOnce(
+      chainResolvendo({ data: { id: "cand-1", nome: "FULANODETAL" }, error: null }),
+    );
+
+    const r = await salvarCandidato(dadosBase);
+
+    expect(r.jaExistia).toBe(true);
+    expect(r.candidato).toEqual({ id: "cand-1", nome: "FULANODETAL" });
+    expect(mockFrom).toHaveBeenCalledTimes(1);
   });
 });
