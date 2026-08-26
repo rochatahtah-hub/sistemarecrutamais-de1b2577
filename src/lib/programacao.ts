@@ -100,10 +100,10 @@ export function useEmpresas() {
     queryKey: ["empresas-cadastro"],
     queryFn: async ({ signal }): Promise<Empresa[]> => {
       const { data, error } = await supabase
-          .from("empresas")
-          .select("id,nome,ativo")
-          .order("nome")
-          .abortSignal(signal);
+        .from("empresas")
+        .select("id,nome,ativo")
+        .order("nome")
+        .abortSignal(signal);
       if (error) throw error;
       return data ?? [];
     },
@@ -136,7 +136,7 @@ export function useSalvarEmpresa() {
 /* ---------------- Candidatos ---------------- */
 
 /** Remove caracteres que quebram o filtro do PostgREST e limita o tamanho. */
-function termoSeguro(v: string) {
+export function termoSeguro(v: string) {
   return (v ?? "")
     .replace(/[\r\n\t]+/g, " ")
     .replace(/[,()%*"\\]/g, " ")
@@ -151,19 +151,17 @@ export function useCandidatos(busca = "", habilitado = true) {
     queryKey: ["candidatos", termo],
     queryFn: async ({ signal }): Promise<Candidato[]> => {
       let q = supabase
-          .from("candidatos")
-          .select(CAMPOS_CANDIDATO)
-          .order("nome")
-          .limit(50)
-          .abortSignal(signal);
-        if (termo) {
-          const digitos = soDigitos(termo);
-          q = q.or(
-            digitos
-              ? `nome.ilike.%${termo}%,cpf.ilike.%${digitos}%`
-              : `nome.ilike.%${termo}%`,
-          );
-        }
+        .from("candidatos")
+        .select(CAMPOS_CANDIDATO)
+        .order("nome")
+        .limit(50)
+        .abortSignal(signal);
+      if (termo) {
+        const digitos = soDigitos(termo);
+        q = q.or(
+          digitos ? `nome.ilike.%${termo}%,cpf.ilike.%${digitos}%` : `nome.ilike.%${termo}%`,
+        );
+      }
       const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
@@ -252,7 +250,10 @@ export function useAtualizarTransporte() {
         .select(CAMPOS_CANDIDATO)
         .maybeSingle();
       if (error) throw error;
-      if (!data) throw new Error("Não foi possível salvar o transporte: sem permissão para editar este candidato.");
+      if (!data)
+        throw new Error(
+          "Não foi possível salvar o transporte: sem permissão para editar este candidato.",
+        );
       return data as Candidato;
     },
     onSuccess: () => sincronizarSistema(qc),
@@ -274,9 +275,7 @@ export interface DadosColaborador {
 export function useAtualizarDadosCandidato() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (
-      dados: { id: string } & Partial<DadosColaborador>,
-    ): Promise<Candidato> => {
+    mutationFn: async (dados: { id: string } & Partial<DadosColaborador>): Promise<Candidato> => {
       const { id, ...resto } = dados;
       const campos: Partial<DadosColaborador> = {};
       if (resto.funcao !== undefined) campos.funcao = resto.funcao.trim().slice(0, 80);
@@ -302,11 +301,7 @@ export function useAtualizarDadosCandidato() {
 /* ---------------- Programacoes ---------------- */
 
 async function garantirColaborador(nome: string): Promise<string> {
-  const { data } = await supabase
-    .from("colaboradores")
-    .select("id")
-    .eq("nome", nome)
-    .maybeSingle();
+  const { data } = await supabase.from("colaboradores").select("id").eq("nome", nome).maybeSingle();
   if (data?.id) return data.id;
   const { data: novo, error } = await supabase
     .from("colaboradores")
@@ -325,49 +320,56 @@ export interface NovaProgramacao {
   observacao?: string;
 }
 
+/**
+ * Cria uma programação (agenda um colaborador numa vaga). Verifica bloqueio
+ * ANTES de qualquer gravação — se o colaborador estiver bloqueado (geral ou
+ * para a empresa), a vaga nunca chega a ser criada.
+ */
+export async function criarProgramacao(p: NovaProgramacao) {
+  const { verificarBloqueio, mensagemBloqueio } = await import("./bloqueios");
+  const bloqueio = await verificarBloqueio(p.candidato.cpf, p.empresa_id);
+  if (bloqueio) {
+    throw new Error(
+      `${mensagemBloqueio(bloqueio)} Procure o responsável pelo sistema para liberação.`,
+    );
+  }
+  const { data: sessao } = await supabase.auth.getUser();
+  const uid = sessao.user?.id;
+  if (!uid) throw new Error("Sessão expirada. Faça login novamente.");
+  const { data: perfil } = await supabase
+    .from("profiles")
+    .select("nome,meta_quinzena")
+    .eq("id", uid)
+    .maybeSingle();
+  const nome = perfil?.nome ?? "Programadora";
+  const colaborador_id = await garantirColaborador(nome);
+
+  const { error } = await supabase.from("vagas").insert({
+    data: p.data,
+    colaborador_id,
+    empresa_id: p.empresa_id,
+    candidato_id: p.candidato.id,
+    programadora_id: uid,
+    descricao: p.candidato.nome,
+    quantidade: 1,
+    status: p.status,
+    observacao: p.observacao ?? "",
+    origem: "manual",
+  });
+  if (error) throw error;
+
+  await supabase
+    .from("profiles")
+    .update({ ultimo_preenchimento: new Date().toISOString() })
+    .eq("id", uid);
+
+  return verificarMeta(uid, nome, perfil?.meta_quinzena ?? 0);
+}
+
 export function useCriarProgramacao() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (p: NovaProgramacao) => {
-      const { verificarBloqueio, mensagemBloqueio } = await import("./bloqueios");
-      const bloqueio = await verificarBloqueio(p.candidato.cpf, p.empresa_id);
-      if (bloqueio) {
-        throw new Error(
-          `${mensagemBloqueio(bloqueio)} Procure o responsável pelo sistema para liberação.`,
-        );
-      }
-      const { data: sessao } = await supabase.auth.getUser();
-      const uid = sessao.user?.id;
-      if (!uid) throw new Error("Sessão expirada. Faça login novamente.");
-      const { data: perfil } = await supabase
-        .from("profiles")
-        .select("nome,meta_quinzena")
-        .eq("id", uid)
-        .maybeSingle();
-      const nome = perfil?.nome ?? "Programadora";
-      const colaborador_id = await garantirColaborador(nome);
-
-      const { error } = await supabase.from("vagas").insert({
-        data: p.data,
-        colaborador_id,
-        empresa_id: p.empresa_id,
-        candidato_id: p.candidato.id,
-        programadora_id: uid,
-        descricao: p.candidato.nome,
-        quantidade: 1,
-        status: p.status,
-        observacao: p.observacao ?? "",
-        origem: "manual",
-      });
-      if (error) throw error;
-
-      await supabase
-        .from("profiles")
-        .update({ ultimo_preenchimento: new Date().toISOString() })
-        .eq("id", uid);
-
-      return verificarMeta(uid, nome, perfil?.meta_quinzena ?? 0);
-    },
+    mutationFn: criarProgramacao,
     onSuccess: () => sincronizarSistema(qc),
   });
 }
@@ -572,29 +574,31 @@ export function useExcluirProgramacao() {
 }
 
 /** Confirma posteriormente a situação de uma vaga programada. */
+export async function confirmarProgramacao(p: {
+  id: string;
+  status: "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
+}) {
+  const { situacaoPorStatus } = await import("./tipos");
+  const { error } = await supabase
+    .from("vagas")
+    .update({ status: p.status, situacao: situacaoPorStatus(p.status) })
+    .eq("id", p.id);
+  if (error) throw error;
+  const { data: sessao } = await supabase.auth.getUser();
+  const uid = sessao.user?.id;
+  if (!uid || p.status !== "PRESENCA") return { metaAtingida: false, mensagem: "" };
+  const { data: perfil } = await supabase
+    .from("profiles")
+    .select("nome,meta_quinzena")
+    .eq("id", uid)
+    .maybeSingle();
+  return verificarMeta(uid, perfil?.nome ?? "Programadora", perfil?.meta_quinzena ?? 0);
+}
+
 export function useConfirmarProgramacao() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (p: {
-      id: string;
-      status: "AGUARDANDO" | "PRESENCA" | "FALTA" | "CANCELAMENTO";
-    }) => {
-      const { situacaoPorStatus } = await import("./tipos");
-      const { error } = await supabase
-        .from("vagas")
-        .update({ status: p.status, situacao: situacaoPorStatus(p.status) })
-        .eq("id", p.id);
-      if (error) throw error;
-      const { data: sessao } = await supabase.auth.getUser();
-      const uid = sessao.user?.id;
-      if (!uid || p.status !== "PRESENCA") return { metaAtingida: false, mensagem: "" };
-      const { data: perfil } = await supabase
-        .from("profiles")
-        .select("nome,meta_quinzena")
-        .eq("id", uid)
-        .maybeSingle();
-      return verificarMeta(uid, perfil?.nome ?? "Programadora", perfil?.meta_quinzena ?? 0);
-    },
+    mutationFn: confirmarProgramacao,
     onSuccess: () => sincronizarSistema(qc),
   });
 }
