@@ -77,7 +77,8 @@ export function permanenciaTexto(dias: number | null): string {
   const partes: string[] = [];
   if (anos) partes.push(`${anos} ${anos === 1 ? "ano" : "anos"}`);
   if (meses) partes.push(`${meses} ${meses === 1 ? "mês" : "meses"}`);
-  if (!anos && diasRestantes) partes.push(`${diasRestantes} ${diasRestantes === 1 ? "dia" : "dias"}`);
+  if (!anos && diasRestantes)
+    partes.push(`${diasRestantes} ${diasRestantes === 1 ? "dia" : "dias"}`);
   return partes.join(" e ") || `${dias} dias`;
 }
 
@@ -111,27 +112,29 @@ export function useEmpresasCLT() {
   });
 }
 
+export async function salvarEmpresaCLT(e: Partial<EmpresaCLT> & { nome: string }) {
+  const dados = {
+    nome: e.nome.trim(),
+    cnpj: e.cnpj?.trim() ?? "",
+    contato: e.contato?.trim() ?? "",
+    cidade: e.cidade?.trim() ?? "",
+    observacao: e.observacao?.trim() ?? "",
+    ativo: e.ativo ?? true,
+  };
+  if (!dados.nome) throw new Error("Informe o nome da empresa.");
+  const resp = e.id
+    ? await supabase.from("rs_empresas").update(dados).eq("id", e.id)
+    : await supabase.from("rs_empresas").insert(dados);
+  if (resp.error) {
+    if (resp.error.code === "23505") throw new Error("Já existe uma empresa CLT com esse nome.");
+    throw resp.error;
+  }
+}
+
 export function useSalvarEmpresaCLT() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (e: Partial<EmpresaCLT> & { nome: string }) => {
-      const dados = {
-        nome: e.nome.trim(),
-        cnpj: e.cnpj?.trim() ?? "",
-        contato: e.contato?.trim() ?? "",
-        cidade: e.cidade?.trim() ?? "",
-        observacao: e.observacao?.trim() ?? "",
-        ativo: e.ativo ?? true,
-      };
-      if (!dados.nome) throw new Error("Informe o nome da empresa.");
-      const resp = e.id
-        ? await supabase.from("rs_empresas").update(dados).eq("id", e.id)
-        : await supabase.from("rs_empresas").insert(dados);
-      if (resp.error) {
-        if (resp.error.code === "23505") throw new Error("Já existe uma empresa CLT com esse nome.");
-        throw resp.error;
-      }
-    },
+    mutationFn: salvarEmpresaCLT,
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["rs-empresas"] }),
   });
 }
@@ -168,21 +171,23 @@ export function useCargosCLT() {
   });
 }
 
+export async function salvarCargoCLT(c: { id?: string; nome: string; ativo?: boolean }) {
+  const dados = { nome: c.nome.trim(), ativo: c.ativo ?? true };
+  if (!dados.nome) throw new Error("Informe o nome do cargo.");
+  const resp = c.id
+    ? await supabase.from("rs_cargos").update(dados).eq("id", c.id)
+    : await supabase.from("rs_cargos").insert(dados);
+  if (resp.error) {
+    if (resp.error.code === "23505") throw new Error("Esse cargo já está cadastrado.");
+    throw new Error(resp.error.message);
+  }
+  return dados.nome;
+}
+
 export function useSalvarCargoCLT() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (c: { id?: string; nome: string; ativo?: boolean }) => {
-      const dados = { nome: c.nome.trim(), ativo: c.ativo ?? true };
-      if (!dados.nome) throw new Error("Informe o nome do cargo.");
-      const resp = c.id
-        ? await supabase.from("rs_cargos").update(dados).eq("id", c.id)
-        : await supabase.from("rs_cargos").insert(dados);
-      if (resp.error) {
-        if (resp.error.code === "23505") throw new Error("Esse cargo já está cadastrado.");
-        throw new Error(resp.error.message);
-      }
-      return dados.nome;
-    },
+    mutationFn: salvarCargoCLT,
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["rs-cargos"] }),
   });
 }
@@ -227,36 +232,38 @@ export interface EntradaCandidatoCLT {
   observacao?: string;
 }
 
+export async function salvarCandidatoCLT(c: EntradaCandidatoCLT) {
+  const cpf = soDigitosCpf(c.cpf);
+  if (!c.nome.trim()) throw new Error("Informe o nome completo do candidato.");
+  if (!cpfValido(cpf)) throw new Error("Informe um CPF válido.");
+  if (c.status === "desligado" && !c.data_desligamento)
+    throw new Error("Informe a data de desligamento.");
+  const dados = {
+    nome: c.nome.trim(),
+    cpf,
+    telefone: c.telefone?.trim() ?? "",
+    empresa_id: c.empresa_id,
+    cargo: c.cargo.trim(),
+    data_admissao: c.data_admissao || null,
+    status: c.status,
+    data_desligamento: c.status === "desligado" ? c.data_desligamento : null,
+    motivo_desligamento: c.status === "desligado" ? (c.motivo_desligamento?.trim() ?? "") : "",
+    recrutador_nome: c.recrutador_nome?.trim() ?? "",
+    observacao: c.observacao?.trim() ?? "",
+  };
+  const resp = c.id
+    ? await supabase.from("rs_candidatos").update(dados).eq("id", c.id)
+    : await supabase.from("rs_candidatos").insert(dados);
+  if (resp.error) {
+    if (resp.error.code === "23505") throw new Error("Já existe um candidato CLT com esse CPF.");
+    throw new Error(resp.error.message);
+  }
+}
+
 export function useSalvarCandidatoCLT() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (c: EntradaCandidatoCLT) => {
-      const cpf = soDigitosCpf(c.cpf);
-      if (!c.nome.trim()) throw new Error("Informe o nome completo do candidato.");
-      if (!cpfValido(cpf)) throw new Error("Informe um CPF válido.");
-      if (c.status === "desligado" && !c.data_desligamento)
-        throw new Error("Informe a data de desligamento.");
-      const dados = {
-        nome: c.nome.trim(),
-        cpf,
-        telefone: c.telefone?.trim() ?? "",
-        empresa_id: c.empresa_id,
-        cargo: c.cargo.trim(),
-        data_admissao: c.data_admissao || null,
-        status: c.status,
-        data_desligamento: c.status === "desligado" ? c.data_desligamento : null,
-        motivo_desligamento: c.status === "desligado" ? (c.motivo_desligamento?.trim() ?? "") : "",
-        recrutador_nome: c.recrutador_nome?.trim() ?? "",
-        observacao: c.observacao?.trim() ?? "",
-      };
-      const resp = c.id
-        ? await supabase.from("rs_candidatos").update(dados).eq("id", c.id)
-        : await supabase.from("rs_candidatos").insert(dados);
-      if (resp.error) {
-        if (resp.error.code === "23505") throw new Error("Já existe um candidato CLT com esse CPF.");
-        throw new Error(resp.error.message);
-      }
-    },
+    mutationFn: salvarCandidatoCLT,
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["rs-candidatos"] }),
   });
 }
