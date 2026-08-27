@@ -26,7 +26,7 @@ Recrutado por: TALITA`;
 describe("interpretarFicha", () => {
   it("lê a ficha completa sem confundir CPF com Pix", () => {
     const d = interpretarFicha(FICHA);
-    expect(d.nome).toBe("RONILDO CARVALHO BRITO");
+    expect(d.nome).toBe("Ronildo Carvalho Brito");
     expect(d.cpf).toBe("08672395301");
     expect(d.telefone).toBe("47997695445");
     expect(d.pix).toBe("CPF 086.723.953-01");
@@ -52,6 +52,36 @@ describe("interpretarFicha", () => {
 
   it("aceita rótulo sozinho com valor na linha seguinte", () => {
     expect(interpretarFicha("Chave PIX:\nCPF 086.723.953-01").pix).toBe("CPF 086.723.953-01");
+  });
+});
+
+describe("formatação do nome ao colar ficha", () => {
+  const casos: [string, string][] = [
+    ["TALITA GONÇALVES DA ROCHA", "Talita Gonçalves da Rocha"],
+    ["TALITA ROCHA", "Talita Rocha"],
+    ["JOAO DA SILVA", "Joao da Silva"],
+    ["MARIA EDUARDA DOS SANTOS", "Maria Eduarda dos Santos"],
+    ["ANA CAROLINA DE OLIVEIRA", "Ana Carolina de Oliveira"],
+    ["PEDRO HENRIQUE DA SILVA", "Pedro Henrique da Silva"],
+    ["MARIA DAS DORES SILVA", "Maria das Dores Silva"],
+    ["JOÃO PEDRO DE OLIVEIRA", "João Pedro de Oliveira"],
+    ["MARIA DE FATIMA DA SILVA", "Maria de Fatima da Silva"],
+    ["JOAO PEDRO HENRIQUE DOS SANTOS OLIVEIRA", "Joao Pedro Henrique dos Santos Oliveira"],
+    ["TALITA   GONÇALVES   DA   ROCHA", "Talita Gonçalves da Rocha"],
+  ];
+  for (const [entrada, esperado] of casos) {
+    it(`formata "${entrada}" como "${esperado}"`, () => {
+      expect(interpretarFicha(`Nome completo: ${entrada}\nCPF: 086.723.953-01`).nome).toBe(
+        esperado,
+      );
+    });
+  }
+
+  it("não afeta a leitura de CPF, telefone e Pix", () => {
+    const d = interpretarFicha(FICHA);
+    expect(d.cpf).toBe("08672395301");
+    expect(d.telefone).toBe("47997695445");
+    expect(d.pix).toBe("CPF 086.723.953-01");
   });
 });
 

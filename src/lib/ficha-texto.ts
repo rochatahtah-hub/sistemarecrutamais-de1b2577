@@ -45,6 +45,25 @@ function apos(linhas: string[], rotulos: string[]) {
   return "";
 }
 
+const PREPOSICOES_NOME = new Set(["da", "de", "do", "das", "dos", "e"]);
+
+/**
+ * Formata o nome extraído da ficha (normalmente colada em CAIXA ALTA) para apresentação
+ * normal: primeira letra de cada palavra maiúscula, preposições comuns em minúsculo,
+ * espaços preservados.
+ */
+function formatarNome(nome: string): string {
+  return nome
+    .split(" ")
+    .filter(Boolean)
+    .map((palavra, i) => {
+      const minuscula = palavra.toLocaleLowerCase("pt-BR");
+      if (i > 0 && PREPOSICOES_NOME.has(minuscula)) return minuscula;
+      return minuscula.charAt(0).toLocaleUpperCase("pt-BR") + minuscula.slice(1);
+    })
+    .join(" ");
+}
+
 const PALAVRAS_IGNORAR =
   /(ficha|cadastro|candidato|colaborador|empresa|vaga|cargo|endere|bairro|cidade|estado|nascimento|data|rg|pis|ctps|banco|pix|obs|status|função|funcao|setor|sexo|m[ãa]e|pai|e-?mail|telefone|celular|cpf)/i;
 
@@ -112,6 +131,7 @@ export function interpretarFicha(texto: string): DadosFicha {
     nome = linha ?? "";
   }
   nome = nome.replace(/\s{2,}/g, " ").trim();
+  if (nome) nome = formatarNome(nome);
 
   const pix = extrairPix(linhas);
   const transporte = extrairTransporte(linhas);
