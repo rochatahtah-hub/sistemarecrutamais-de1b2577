@@ -34,9 +34,9 @@ import {
   type DadosTransporte,
 } from "@/lib/programacao";
 import { buscarCandidatoPorCPF } from "@/lib/programacao";
-import { cpfValido, normalizarNomeColaborador } from "@/lib/diarias";
+import { cpfValido } from "@/lib/diarias";
 import { buscarBloqueio, type BloqueioAtivo } from "@/lib/bloqueios";
-import { camposFaltantes, interpretarFicha } from "@/lib/ficha-texto";
+import { camposFaltantes, formatarNome, interpretarFicha } from "@/lib/ficha-texto";
 import { extrairFicha } from "@/lib/ficha.functions";
 import { usePrivacidade } from "@/lib/privacidade";
 
@@ -169,7 +169,7 @@ export function FichaCandidato({
     transporte_tipos?: string[];
     transporte_observacao?: string;
   }) {
-    if (dados.nome) setNome(normalizarNomeColaborador(dados.nome));
+    if (dados.nome) setNome(formatarNome(dados.nome).slice(0, 160));
     if (dados.cpf) setCpf(formatarCPF(dados.cpf));
     if (dados.telefone) setTelefone(formatarTelefone(dados.telefone));
     if (dados.pix) setPix(dados.pix.slice(0, 140));
@@ -406,11 +406,11 @@ export function FichaCandidato({
             id="f-nome"
             value={nome}
             maxLength={160}
-            placeholder="TALITAGONCALVESDAROCHA"
-            onChange={(e) => setNome(normalizarNomeColaborador(e.target.value))}
+            placeholder="Talita Gonçalves da Rocha"
+            onChange={(e) => setNome(e.target.value)}
           />
           <p className="text-xs text-muted-foreground">
-            Padronizado automaticamente: só letras, sem acentos e sem espaços.
+            Preenchido automaticamente ao colar a ficha.
           </p>
         </div>
         <div className="space-y-1.5">

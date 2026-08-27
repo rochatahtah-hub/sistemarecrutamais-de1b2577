@@ -52,7 +52,7 @@ const PREPOSICOES_NOME = new Set(["da", "de", "do", "das", "dos", "e"]);
  * normal: primeira letra de cada palavra maiúscula, preposições comuns em minúsculo,
  * espaços preservados.
  */
-function formatarNome(nome: string): string {
+export function formatarNome(nome: string): string {
   return nome
     .split(" ")
     .filter(Boolean)
