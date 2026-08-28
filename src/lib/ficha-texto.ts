@@ -45,23 +45,12 @@ function apos(linhas: string[], rotulos: string[]) {
   return "";
 }
 
-const PREPOSICOES_NOME = new Set(["da", "de", "do", "das", "dos", "e"]);
-
 /**
- * Formata o nome extraído da ficha (normalmente colada em CAIXA ALTA) para apresentação
- * normal: primeira letra de cada palavra maiúscula, preposições comuns em minúsculo,
- * espaços preservados.
+ * Formata o nome extraído da ficha (ou digitado manualmente) para o padrão do sistema:
+ * CAIXA ALTA, espaços normalizados, nome completo preservado (nada é removido/abreviado).
  */
 export function formatarNome(nome: string): string {
-  return nome
-    .split(" ")
-    .filter(Boolean)
-    .map((palavra, i) => {
-      const minuscula = palavra.toLocaleLowerCase("pt-BR");
-      if (i > 0 && PREPOSICOES_NOME.has(minuscula)) return minuscula;
-      return minuscula.charAt(0).toLocaleUpperCase("pt-BR") + minuscula.slice(1);
-    })
-    .join(" ");
+  return nome.replace(/\s+/g, " ").trim().toLocaleUpperCase("pt-BR");
 }
 
 const PALAVRAS_IGNORAR =

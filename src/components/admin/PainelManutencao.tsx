@@ -39,6 +39,10 @@ export function useIntegridade() {
         { rotulo: "CPF inválido ou incompleto", qtd: listaC.filter((c) => (c.cpf ?? "").replace(/\D/g, "").length !== 11).length },
         { rotulo: "Colaboradores duplicados (mesmo CPF)", qtd: [...porCpf.values()].filter((n) => n > 1).length },
         { rotulo: "Colaboradores sem nome", qtd: listaC.filter((c) => !c.nome?.trim()).length },
+        {
+          rotulo: "Nomes colados sem espaço (revisar manualmente)",
+          qtd: listaC.filter((c) => c.nome && !/\s/.test(c.nome.trim())).length,
+        },
         { rotulo: "Programações sem empresa", qtd: listaV.filter((v) => !v.empresa_id).length },
         { rotulo: "Programações sem colaborador", qtd: listaV.filter((v) => !v.colaborador_id && !v.candidato_id).length },
         { rotulo: "Registros sem data", qtd: listaV.filter((v) => !v.data).length },

@@ -250,7 +250,7 @@ describe("salvarCandidato", () => {
     mockFrom
       .mockReturnValueOnce(chainResolvendo({ data: null, error: null }))
       .mockReturnValueOnce(
-        chainResolvendo({ data: { id: "cand-1", nome: "FULANODETAL" }, error: null }),
+        chainResolvendo({ data: { id: "cand-1", nome: "FULANO DE TAL" }, error: null }),
       );
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: "uid-1" } } });
 
@@ -262,13 +262,34 @@ describe("salvarCandidato", () => {
 
   it("reaproveita o candidato existente sem gravar nada quando não há dado novo", async () => {
     mockFrom.mockReturnValueOnce(
-      chainResolvendo({ data: { id: "cand-1", nome: "FULANODETAL" }, error: null }),
+      chainResolvendo({ data: { id: "cand-1", nome: "FULANO DE TAL" }, error: null }),
     );
 
     const r = await salvarCandidato(dadosBase);
 
     expect(r.jaExistia).toBe(true);
-    expect(r.candidato).toEqual({ id: "cand-1", nome: "FULANODETAL" });
+    expect(r.candidato).toEqual({ id: "cand-1", nome: "FULANO DE TAL" });
     expect(mockFrom).toHaveBeenCalledTimes(1);
+  });
+
+  it("grava o nome em CAIXA ALTA com espaços normalizados (não junta as palavras)", async () => {
+    const insertMock = vi
+      .fn()
+      .mockReturnValue(
+        chainResolvendo({ data: { id: "cand-1", nome: "TALITA GONÇALVES DA ROCHA" }, error: null }),
+      );
+    mockFrom
+      .mockReturnValueOnce(chainResolvendo({ data: null, error: null }))
+      .mockReturnValueOnce({ insert: insertMock });
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: "uid-1" } } });
+
+    await salvarCandidato({
+      ...dadosBase,
+      nome: "  Talita   Gonçalves DA rocha  ",
+    });
+
+    expect(insertMock).toHaveBeenCalledWith(
+      expect.objectContaining({ nome: "TALITA GONÇALVES DA ROCHA" }),
+    );
   });
 });

@@ -87,6 +87,8 @@ export function useAtualizarVaga() {
       situacao?: string;
       quantidade?: number;
       observacao?: string;
+      empresa_id?: string;
+      data?: string;
     }) => {
       const { id, ...campos } = dados;
       const { error } = await supabase.from("vagas").update(campos).eq("id", id);

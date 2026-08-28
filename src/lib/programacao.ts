@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./auth";
-import { cpfValido, normalizarNomeColaborador } from "./diarias";
+import { cpfValido } from "./diarias";
+import { formatarNome } from "./ficha-texto";
 import { quinzenaAtual, dentroDaQuinzena } from "./quinzena";
 import { sincronizarSistema } from "./sincronizar";
 
@@ -202,7 +203,7 @@ export async function salvarCandidato(
 ): Promise<{ candidato: Candidato; jaExistia: boolean }> {
   const cpf = soDigitos(dados.cpf);
   if (!cpfValido(cpf)) throw new Error("Informe um CPF válido.");
-  const nome = normalizarNomeColaborador(dados.nome);
+  const nome = formatarNome(dados.nome);
   if (nome.length < 3) throw new Error("Informe o nome do colaborador (somente letras).");
   const extras: { funcao?: string; pix_chave?: string; nome?: string } = {};
   if (dados.funcao !== undefined) extras.funcao = dados.funcao.trim().slice(0, 80);

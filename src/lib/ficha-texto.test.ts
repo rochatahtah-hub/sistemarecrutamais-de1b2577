@@ -26,7 +26,7 @@ Recrutado por: TALITA`;
 describe("interpretarFicha", () => {
   it("lê a ficha completa sem confundir CPF com Pix", () => {
     const d = interpretarFicha(FICHA);
-    expect(d.nome).toBe("Ronildo Carvalho Brito");
+    expect(d.nome).toBe("RONILDO CARVALHO BRITO");
     expect(d.cpf).toBe("08672395301");
     expect(d.telefone).toBe("47997695445");
     expect(d.pix).toBe("CPF 086.723.953-01");
@@ -57,17 +57,20 @@ describe("interpretarFicha", () => {
 
 describe("formatação do nome ao colar ficha", () => {
   const casos: [string, string][] = [
-    ["TALITA GONÇALVES DA ROCHA", "Talita Gonçalves da Rocha"],
-    ["TALITA ROCHA", "Talita Rocha"],
-    ["JOAO DA SILVA", "Joao da Silva"],
-    ["MARIA EDUARDA DOS SANTOS", "Maria Eduarda dos Santos"],
-    ["ANA CAROLINA DE OLIVEIRA", "Ana Carolina de Oliveira"],
-    ["PEDRO HENRIQUE DA SILVA", "Pedro Henrique da Silva"],
-    ["MARIA DAS DORES SILVA", "Maria das Dores Silva"],
-    ["JOÃO PEDRO DE OLIVEIRA", "João Pedro de Oliveira"],
-    ["MARIA DE FATIMA DA SILVA", "Maria de Fatima da Silva"],
-    ["JOAO PEDRO HENRIQUE DOS SANTOS OLIVEIRA", "Joao Pedro Henrique dos Santos Oliveira"],
-    ["TALITA   GONÇALVES   DA   ROCHA", "Talita Gonçalves da Rocha"],
+    ["TALITA GONÇALVES DA ROCHA", "TALITA GONÇALVES DA ROCHA"],
+    ["TALITA ROCHA", "TALITA ROCHA"],
+    ["JOAO DA SILVA", "JOAO DA SILVA"],
+    ["MARIA EDUARDA DOS SANTOS", "MARIA EDUARDA DOS SANTOS"],
+    ["ANA CAROLINA DE OLIVEIRA", "ANA CAROLINA DE OLIVEIRA"],
+    ["PEDRO HENRIQUE DA SILVA", "PEDRO HENRIQUE DA SILVA"],
+    ["MARIA DAS DORES SILVA", "MARIA DAS DORES SILVA"],
+    ["JOÃO PEDRO DE OLIVEIRA", "JOÃO PEDRO DE OLIVEIRA"],
+    ["MARIA DE FATIMA DA SILVA", "MARIA DE FATIMA DA SILVA"],
+    ["JOAO PEDRO HENRIQUE DOS SANTOS OLIVEIRA", "JOAO PEDRO HENRIQUE DOS SANTOS OLIVEIRA"],
+    ["TALITA   GONÇALVES   DA   ROCHA", "TALITA GONÇALVES DA ROCHA"],
+    ["Talita Gonçalves da Rocha", "TALITA GONÇALVES DA ROCHA"],
+    ["joão da silva", "JOÃO DA SILVA"],
+    ["  Maria   Eduarda  ", "MARIA EDUARDA"],
   ];
   for (const [entrada, esperado] of casos) {
     it(`formata "${entrada}" como "${esperado}"`, () => {

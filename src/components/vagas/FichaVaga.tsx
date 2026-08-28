@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import { useAtualizarVaga, useRegistrarConfirmacao } from "@/lib/dados";
 import { usePrivacidade } from "@/lib/privacidade";
+import { usePermissoes } from "@/lib/permissoes";
+import { useEmpresas } from "@/lib/programacao";
 import { agregar, fmtData, fmtNum, fmtPct } from "@/lib/metricas";
 import { SITUACOES, SITUACAO_LABEL, STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
 
@@ -42,6 +44,8 @@ export function FichaVaga({
   const atualizar = useAtualizarVaga();
   const confirmar = useRegistrarConfirmacao();
   const priv = usePrivacidade();
+  const { pode } = usePermissoes();
+  const { data: empresas = [] } = useEmpresas();
   const [cargo, setCargo] = useState("");
   const [horario, setHorario] = useState("");
   const [local, setLocal] = useState("");
@@ -49,6 +53,8 @@ export function FichaVaga({
   const [situacao, setSituacao] = useState("ABERTA");
   const [quantidade, setQuantidade] = useState(1);
   const [observacao, setObservacao] = useState("");
+  const [empresaId, setEmpresaId] = useState("");
+  const [dataInicio, setDataInicio] = useState("");
 
   useEffect(() => {
     if (!vaga) return;
@@ -59,7 +65,14 @@ export function FichaVaga({
     setSituacao(vaga.situacao || "ABERTA");
     setQuantidade(vaga.quantidade);
     setObservacao(vaga.observacao);
+    setEmpresaId(vaga.empresa_id ?? "");
+    setDataInicio(vaga.data);
   }, [vaga]);
+
+  const editavel =
+    vaga?.status === "AGUARDANDO" &&
+    pode("programacao", "editar_aguardando_confirmacao") &&
+    !priv.privado;
 
   /** Demais registros da mesma vaga (empresa + cargo + data) para somar candidatos. */
   const grupo = useMemo(() => {
@@ -84,6 +97,7 @@ export function FichaVaga({
         situacao,
         quantidade: Number.isFinite(quantidade) && quantidade > 0 ? quantidade : 1,
         observacao: observacao.trim(),
+        ...(editavel ? { empresa_id: empresaId, data: dataInicio } : {}),
       });
       toast.success("Ficha da vaga atualizada.");
       onFechar();
@@ -125,8 +139,21 @@ export function FichaVaga({
 
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <Label>Empresa</Label>
-            <Input value={priv.empresa(vaga.empresa)} readOnly />
+            <Label htmlFor="fv-empresa">Empresa</Label>
+            {editavel ? (
+              <Select value={empresaId} onValueChange={setEmpresaId}>
+                <SelectTrigger id="fv-empresa"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {empresas.map((e) => (
+                    <SelectItem key={e.id} value={e.id}>
+                      {e.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input value={priv.empresa(vaga.empresa)} readOnly />
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fv-cargo">Cargo</Label>
@@ -143,8 +170,17 @@ export function FichaVaga({
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Data</Label>
-            <Input value={fmtData(vaga.data)} readOnly />
+            <Label htmlFor="fv-data">Data</Label>
+            {editavel ? (
+              <Input
+                id="fv-data"
+                type="date"
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+              />
+            ) : (
+              <Input value={fmtData(vaga.data)} readOnly />
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="fv-hora">Horário</Label>

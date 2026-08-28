@@ -406,8 +406,8 @@ export function FichaCandidato({
             id="f-nome"
             value={nome}
             maxLength={160}
-            placeholder="Talita Gonçalves da Rocha"
-            onChange={(e) => setNome(e.target.value)}
+            placeholder="TALITA GONÇALVES DA ROCHA"
+            onChange={(e) => setNome(e.target.value.toLocaleUpperCase("pt-BR"))}
           />
           <p className="text-xs text-muted-foreground">
             Preenchido automaticamente ao colar a ficha.

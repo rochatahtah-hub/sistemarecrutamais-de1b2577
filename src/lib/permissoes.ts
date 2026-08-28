@@ -17,7 +17,8 @@ export type Acao =
   | "apontar_divergencia"
   | "resolver_divergencia"
   | "historico"
-  | "processar";
+  | "processar"
+  | "editar_aguardando_confirmacao";
 
 export interface ModuloInfo {
   chave: string;
@@ -36,7 +37,7 @@ export const MODULOS: ModuloInfo[] = [
   {
     chave: "programacao",
     nome: "Minha Programação",
-    acoes: ["visualizar", "criar", "editar", "excluir"],
+    acoes: ["visualizar", "criar", "editar", "excluir", "editar_aguardando_confirmacao"],
   },
   { chave: "programadoras", nome: "Programações da equipe", acoes: ["visualizar", "editar"] },
   { chave: "candidatos", nome: "Candidatos", acoes: ["visualizar", "criar", "editar", "excluir"] },
@@ -132,6 +133,7 @@ export const ACAO_ROTULO: Record<Acao, string> = {
   resolver_divergencia: "Resolver divergência",
   historico: "Histórico",
   processar: "Processar",
+  editar_aguardando_confirmacao: "Editar aguardando confirmação",
 };
 
 /** Rota → módulo correspondente (usado no menu e no bloqueio de rotas). */
