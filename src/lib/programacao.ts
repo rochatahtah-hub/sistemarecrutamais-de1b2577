@@ -374,6 +374,14 @@ export async function criarProgramacao(p: NovaProgramacao) {
       `${mensagemBloqueio(bloqueio)} Procure o responsável pelo sistema para liberação.`,
     );
   }
+  if (p.status !== "CANCELAMENTO") {
+    const repetida = await fichaJaFechada({
+      candidato_id: p.candidato.id,
+      empresa_id: p.empresa_id,
+      data: p.data,
+    });
+    if (repetida) throw new Error(MSG_FICHA_DUPLICADA);
+  }
   const { data: sessao } = await supabase.auth.getUser();
   const uid = sessao.user?.id;
   if (!uid) throw new Error("Sessão expirada. Faça login novamente.");
