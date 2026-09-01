@@ -117,6 +117,52 @@ export function useRegistrarConfirmacao() {
   });
 }
 
+/**
+ * Verifica se a ficha (vaga) possui registros vinculados que impedem a
+ * exclusão — evita registros órfãos e quebra de relacionamentos.
+ */
+export async function dependenciasDaFicha(id: string): Promise<string[]> {
+  const [pag, conf, div, fb] = await Promise.all([
+    supabase.from("pagamentos").select("id", { count: "exact", head: true }).eq("vaga_id", id),
+    supabase
+      .from("atendimento_conferencias")
+      .select("id", { count: "exact", head: true })
+      .eq("vaga_id", id),
+    supabase
+      .from("atendimento_divergencias")
+      .select("id", { count: "exact", head: true })
+      .eq("vaga_id", id),
+    supabase.from("feedbacks").select("id", { count: "exact", head: true }).eq("vaga_id", id),
+  ]);
+  const itens: string[] = [];
+  if ((pag.count ?? 0) > 0) itens.push("pagamento");
+  if ((conf.count ?? 0) > 0) itens.push("conferência de atendimento");
+  if ((div.count ?? 0) > 0) itens.push("divergência de atendimento");
+  if ((fb.count ?? 0) > 0) itens.push("feedback");
+  return itens;
+}
+
+/**
+ * Exclui uma ficha do histórico. Recusa a exclusão quando existem registros
+ * vinculados. A auditoria é registrada pelo gatilho do banco (tabela vagas).
+ */
+export function useExcluirFicha() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const vinculos = await dependenciasDaFicha(id);
+      if (vinculos.length > 0) {
+        throw new Error(
+          `Não é possível excluir: esta ficha possui ${vinculos.join(", ")} vinculado(s). Remova ou trate esses registros antes de excluir.`,
+        );
+      }
+      const { error } = await supabase.from("vagas").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => sincronizarSistema(qc),
+  });
+}
+
 export interface Configuracoes {
   metas: Metas;
   mapeamento: MapeamentoStatus;

@@ -337,6 +337,35 @@ export interface NovaProgramacao {
  * ANTES de qualquer gravação — se o colaborador estiver bloqueado (geral ou
  * para a empresa), a vaga nunca chega a ser criada.
  */
+/** Mensagem única de ficha repetida (interface e banco usam o mesmo texto). */
+export const MSG_FICHA_DUPLICADA =
+  "⚠️ Ficha já fechada para esta vaga.\n\nEste colaborador já possui uma ficha fechada para esta mesma vaga. Verifique o histórico antes de continuar.";
+
+/**
+ * Consulta o histórico completo (não apenas a programação atual) para saber se
+ * o colaborador já teve uma ficha fechada para a mesma vaga — identificada pelo
+ * registro da vaga no banco (empresa + data + cargo).
+ */
+export async function fichaJaFechada(p: {
+  candidato_id: string;
+  empresa_id: string;
+  data: string;
+  cargo?: string;
+}): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("vagas")
+    .select("id,cargo,status")
+    .eq("candidato_id", p.candidato_id)
+    .eq("empresa_id", p.empresa_id)
+    .eq("data", p.data)
+    .limit(200);
+  if (error) throw error;
+  const alvo = (p.cargo ?? "").trim().toLowerCase();
+  return (data ?? []).some(
+    (v) => (v.cargo ?? "").trim().toLowerCase() === alvo && v.status !== "CANCELAMENTO",
+  );
+}
+
 export async function criarProgramacao(p: NovaProgramacao) {
   const { verificarBloqueio, mensagemBloqueio } = await import("./bloqueios");
   const bloqueio = await verificarBloqueio(p.candidato.cpf, p.empresa_id);
@@ -348,6 +377,14 @@ export async function criarProgramacao(p: NovaProgramacao) {
   const { data: sessao } = await supabase.auth.getUser();
   const uid = sessao.user?.id;
   if (!uid) throw new Error("Sessão expirada. Faça login novamente.");
+  if (p.status !== "CANCELAMENTO") {
+    const repetida = await fichaJaFechada({
+      candidato_id: p.candidato.id,
+      empresa_id: p.empresa_id,
+      data: p.data,
+    });
+    if (repetida) throw new Error(MSG_FICHA_DUPLICADA);
+  }
   const { data: perfil } = await supabase
     .from("profiles")
     .select("nome,meta_quinzena")
@@ -368,7 +405,11 @@ export async function criarProgramacao(p: NovaProgramacao) {
     observacao: p.observacao ?? "",
     origem: "manual",
   });
-  if (error) throw error;
+  if (error) {
+    // O banco também barra a duplicidade (validação final, à prova de frontend).
+    if (error.message.includes("Ficha já fechada")) throw new Error(MSG_FICHA_DUPLICADA);
+    throw error;
+  }
 
   await supabase
     .from("profiles")

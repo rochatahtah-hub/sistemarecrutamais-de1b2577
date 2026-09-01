@@ -157,6 +157,7 @@ describe("criarProgramacao", () => {
     mockRpc.mockResolvedValueOnce({ data: [], error: null });
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: "uid-1" } } });
     mockFrom
+      .mockReturnValueOnce(chainResolvendo({ data: [], error: null }))
       .mockReturnValueOnce(
         chainResolvendo({ data: { nome: "Talita", meta_quinzena: 0 }, error: null }),
       )
@@ -167,16 +168,29 @@ describe("criarProgramacao", () => {
     const r = await criarProgramacao(novaProgramacaoBase);
 
     expect(r).toEqual({ metaAtingida: false, mensagem: "" });
-    expect(mockFrom).toHaveBeenNthCalledWith(1, "profiles");
-    expect(mockFrom).toHaveBeenNthCalledWith(2, "colaboradores");
-    expect(mockFrom).toHaveBeenNthCalledWith(3, "vagas");
-    expect(mockFrom).toHaveBeenNthCalledWith(4, "profiles");
+    expect(mockFrom).toHaveBeenNthCalledWith(1, "vagas");
+    expect(mockFrom).toHaveBeenNthCalledWith(2, "profiles");
+    expect(mockFrom).toHaveBeenNthCalledWith(3, "colaboradores");
+    expect(mockFrom).toHaveBeenNthCalledWith(4, "vagas");
+    expect(mockFrom).toHaveBeenNthCalledWith(5, "profiles");
+  });
+
+  it("recusa uma segunda ficha do mesmo colaborador para a mesma vaga", async () => {
+    mockRpc.mockResolvedValueOnce({ data: [], error: null });
+    mockGetUser.mockResolvedValueOnce({ data: { user: { id: "uid-1" } } });
+    mockFrom.mockReturnValueOnce(
+      chainResolvendo({ data: [{ id: "v-1", cargo: "", status: "PRESENCA" }], error: null }),
+    );
+
+    await expect(criarProgramacao(novaProgramacaoBase)).rejects.toThrow(/já fechada/i);
+    expect(mockFrom).toHaveBeenCalledTimes(1);
   });
 
   it("propaga erro ao gravar a vaga", async () => {
     mockRpc.mockResolvedValueOnce({ data: [], error: null });
     mockGetUser.mockResolvedValueOnce({ data: { user: { id: "uid-1" } } });
     mockFrom
+      .mockReturnValueOnce(chainResolvendo({ data: [], error: null }))
       .mockReturnValueOnce(
         chainResolvendo({ data: { nome: "Talita", meta_quinzena: 0 }, error: null }),
       )
