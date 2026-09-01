@@ -57,6 +57,40 @@ function Pagina() {
   const { data: arquivadas = [] } = useHistoricoQuinzenas();
   const fechar = useFecharQuinzena();
   const atual = quinzenaAtual();
+  const priv = usePrivacidade();
+  const { pode } = usePermissoes();
+  const excluir = useExcluirFicha();
+
+  const [busca, setBusca] = useState("");
+  const [emEdicao, setEmEdicao] = useState<VagaRegistro | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<VagaRegistro | null>(null);
+
+  const podeEditar = pode("historico", "editar");
+  const podeExcluir = pode("historico", "excluir");
+
+  /** Fichas já processadas (com confirmação registrada). */
+  const fichas = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+    return registros
+      .filter((r) => r.status !== "AGUARDANDO")
+      .filter((r) =>
+        termo
+          ? `${r.candidato} ${r.descricao} ${r.empresa} ${r.cargo}`.toLowerCase().includes(termo)
+          : true,
+      )
+      .slice(0, 300);
+  }, [registros, busca]);
+
+  async function confirmarExclusao() {
+    if (!paraExcluir) return;
+    try {
+      await excluir.mutateAsync(paraExcluir.id);
+      toast.success("Ficha excluída. Registro salvo no histórico de alterações.");
+      setParaExcluir(null);
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
 
   const linhas = useMemo(() => {
     const mapa = new Map<
