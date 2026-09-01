@@ -88,7 +88,11 @@ export const MODULOS: ModuloInfo[] = [
 
   { chave: "chat", nome: "Chat", acoes: ["utilizar"] },
   { chave: "importar", nome: "Importar Excel", acoes: ["visualizar", "criar"] },
-  { chave: "historico", nome: "Histórico", acoes: ["visualizar", "exportar"] },
+  {
+    chave: "historico",
+    nome: "Histórico",
+    acoes: ["visualizar", "editar", "excluir", "exportar"],
+  },
   { chave: "auditoria", nome: "Histórico de Alterações", acoes: ["visualizar", "exportar"] },
   { chave: "acessos", nome: "Histórico de Acessos", acoes: ["visualizar"] },
   { chave: "backups", nome: "Backups", acoes: ["visualizar", "criar", "excluir"] },
