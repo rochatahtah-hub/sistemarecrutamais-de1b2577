@@ -202,6 +202,114 @@ function Pagina() {
           </TableBody>
         </Table>
       </div>
+
+      <div className="surface-panel space-y-3 rounded-2xl p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-semibold">
+              Fichas processadas ({fmtNum(fichas.length)})
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Fichas com confirmação registrada. Edite ou exclua conforme suas permissões.
+            </p>
+          </div>
+          <Input
+            className="w-full sm:w-72"
+            placeholder="Buscar por colaborador, empresa ou cargo"
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        </div>
+
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Data</TableHead>
+                <TableHead>Colaborador</TableHead>
+                <TableHead>Empresa</TableHead>
+                <TableHead>Cargo</TableHead>
+                <TableHead>Situação</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {fichas.map((f) => (
+                <TableRow key={f.id}>
+                  <TableCell>{fmtData(f.data)}</TableCell>
+                  <TableCell className="font-medium">
+                    {priv.nome(f.candidato || f.descricao || "—")}
+                  </TableCell>
+                  <TableCell>{priv.empresa(f.empresa)}</TableCell>
+                  <TableCell>{f.cargo || "—"}</TableCell>
+                  <TableCell>{STATUS_LABEL[f.status] ?? f.status}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Editar ficha"
+                        disabled={!podeEditar}
+                        onClick={() => setEmEdicao(f)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Excluir ficha"
+                        disabled={!podeExcluir}
+                        onClick={() => setParaExcluir(f)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {fichas.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                    Nenhuma ficha processada encontrada.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      <FichaVaga
+        vaga={emEdicao}
+        registros={registros}
+        aberto={Boolean(emEdicao)}
+        onFechar={() => setEmEdicao(null)}
+      />
+
+      <AlertDialog open={Boolean(paraExcluir)} onOpenChange={(v) => !v && setParaExcluir(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza que deseja excluir esta ficha?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A ficha de {priv.nome(paraExcluir?.candidato || paraExcluir?.descricao || "—")} em{" "}
+              {priv.empresa(paraExcluir?.empresa ?? "")} será removida. Fichas com pagamento,
+              atendimento ou feedback vinculados não podem ser excluídas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={excluir.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                void confirmarExclusao();
+              }}
+            >
+              Excluir ficha
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
