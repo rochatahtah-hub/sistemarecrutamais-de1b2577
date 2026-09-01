@@ -374,6 +374,9 @@ export async function criarProgramacao(p: NovaProgramacao) {
       `${mensagemBloqueio(bloqueio)} Procure o responsável pelo sistema para liberação.`,
     );
   }
+  const { data: sessao } = await supabase.auth.getUser();
+  const uid = sessao.user?.id;
+  if (!uid) throw new Error("Sessão expirada. Faça login novamente.");
   if (p.status !== "CANCELAMENTO") {
     const repetida = await fichaJaFechada({
       candidato_id: p.candidato.id,
@@ -382,9 +385,6 @@ export async function criarProgramacao(p: NovaProgramacao) {
     });
     if (repetida) throw new Error(MSG_FICHA_DUPLICADA);
   }
-  const { data: sessao } = await supabase.auth.getUser();
-  const uid = sessao.user?.id;
-  if (!uid) throw new Error("Sessão expirada. Faça login novamente.");
   const { data: perfil } = await supabase
     .from("profiles")
     .select("nome,meta_quinzena")
