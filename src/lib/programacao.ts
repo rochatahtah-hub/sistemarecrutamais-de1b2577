@@ -405,7 +405,11 @@ export async function criarProgramacao(p: NovaProgramacao) {
     observacao: p.observacao ?? "",
     origem: "manual",
   });
-  if (error) throw error;
+  if (error) {
+    // O banco também barra a duplicidade (validação final, à prova de frontend).
+    if (error.message.includes("Ficha já fechada")) throw new Error(MSG_FICHA_DUPLICADA);
+    throw error;
+  }
 
   await supabase
     .from("profiles")
