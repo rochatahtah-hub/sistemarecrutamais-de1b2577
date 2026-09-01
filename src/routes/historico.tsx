@@ -1,9 +1,21 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Archive } from "lucide-react";
+import { Archive, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FichaVaga } from "@/components/vagas/FichaVaga";
 import {
   Table,
   TableBody,
@@ -13,8 +25,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from "@/lib/auth";
-import { useVagas } from "@/lib/dados";
+import { useExcluirFicha, useVagas } from "@/lib/dados";
+import { usePermissoes } from "@/lib/permissoes";
+import { usePrivacidade } from "@/lib/privacidade";
 import { fmtData, fmtNum, fmtPct } from "@/lib/metricas";
+import { STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
 import { quinzenaDe, quinzenaAtual } from "@/lib/quinzena";
 import { useFecharQuinzena, useHistoricoQuinzenas } from "@/lib/programacao";
 
