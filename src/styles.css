@@ -432,8 +432,10 @@
 .recruta-network[data-state="loading"] .recruta-network-path,
 .recruta-network[data-state="success"] .recruta-network-path { opacity: 0.7; }
 
-.recruta-network-compact { min-height: 8rem; max-width: 30rem; margin-inline: auto; }
-.recruta-network-compact .recruta-network-node:nth-of-type(n + 3) { display: none; }
+/* Altura maior que o desktop dá espaço vertical suficiente para os cards restantes
+   (posicionados por %) não se sobreporem quando sobra menos altura de tela. */
+.recruta-network-compact { min-height: 14rem; max-width: 26rem; margin-inline: auto; }
+.recruta-network-compact .recruta-network-node:nth-of-type(n + 4) { display: none; }
 
 /* Versão mínima para fundo claro: só uma curva discreta com um ponto de luz. */
 .recruta-network-light {
@@ -474,8 +476,8 @@
 }
 
 @media (max-width: 639px) {
-  .recruta-network-compact { min-height: 6rem; }
-  .recruta-network-compact .recruta-network-node:nth-of-type(n + 2) { display: none; }
+  .recruta-network-compact { min-height: 11rem; }
+  .recruta-network-compact .recruta-network-node:nth-of-type(n + 3) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
