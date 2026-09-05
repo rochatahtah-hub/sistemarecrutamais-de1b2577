@@ -166,6 +166,13 @@ function Pagina() {
           alt="RECRUTA+ — Gestão inteligente de recrutamento"
           className="h-14 w-auto select-none object-contain object-left"
         />
+        <p className="text-xs text-sidebar-foreground/45">
+            Ambiente privado · Acesso individual e monitorado
+        </p>
+        </div>
+        {/* Posicionamento absoluto: centraliza o bloco de texto sem contar na altura da
+            página (um `flex-1` normal aqui infla o grid da tela toda além da viewport). */}
+        <div className="absolute inset-0 z-10 flex items-center p-12">
         <div className="max-w-md">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-sidebar-primary">
             Plataforma corporativa
@@ -183,9 +190,6 @@ function Pagina() {
             <span>Histórico auditável</span>
           </div>
         </div>
-        <p className="text-xs text-sidebar-foreground/45">
-            Ambiente privado · Acesso individual e monitorado
-        </p>
         </div>
       </aside>
 
