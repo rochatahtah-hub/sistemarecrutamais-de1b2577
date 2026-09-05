@@ -322,65 +322,58 @@
   animation: network-travel 14s linear infinite;
 }
 
-.recruta-network-signal-2 { animation-duration: 18s; animation-delay: -6s; }
-.recruta-network-signal-3 { animation-duration: 20s; animation-delay: -11s; }
-
 .recruta-network-node {
   position: absolute;
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem;
-  border-radius: 0.85rem;
-  border: 1px solid color-mix(in oklab, var(--color-gold) 16%, transparent);
-  background: color-mix(in oklab, var(--color-sidebar) 55%, transparent);
-  opacity: 0.72;
-  backdrop-filter: blur(6px);
-  transition: opacity 700ms var(--ease-suave), border-color 700ms var(--ease-suave), filter 700ms var(--ease-suave), padding-inline-end 500ms var(--ease-suave);
+  gap: 0.55rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.9rem;
+  border: 1px solid color-mix(in oklab, var(--color-gold) 22%, transparent);
+  background: color-mix(in oklab, var(--color-sidebar) 62%, transparent);
+  opacity: 0.85;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.6);
+  transition: opacity 700ms var(--ease-suave), border-color 700ms var(--ease-suave), filter 700ms var(--ease-suave);
   animation: network-float 10s ease-in-out infinite;
 }
 
 .recruta-network-node-icon {
   display: grid;
   place-items: center;
-  width: 1.15rem;
-  height: 1.15rem;
+  width: 1.6rem;
+  height: 1.6rem;
   flex: 0 0 auto;
-  color: color-mix(in oklab, var(--color-gold) 55%, var(--color-sidebar-foreground));
+  border-radius: 0.5rem;
+  background: color-mix(in oklab, var(--color-gold) 12%, transparent);
+  color: var(--color-gold);
 }
-.recruta-network-node-icon svg { width: 0.9rem; height: 0.9rem; stroke-width: 1.5; }
+.recruta-network-node-icon svg { width: 1rem; height: 1rem; stroke-width: 1.6; }
 
 .recruta-network-node-label {
   display: inline-block;
-  max-width: 0;
-  overflow: hidden;
   white-space: nowrap;
-  font-size: 0.625rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-gold);
-  opacity: 0;
-  transition: max-width 550ms var(--ease-suave), opacity 400ms var(--ease-suave);
+  letter-spacing: 0.02em;
+  color: color-mix(in oklab, var(--color-sidebar-foreground) 85%, transparent);
 }
 
 .recruta-network-node-1 { animation-duration: 9s; }
 .recruta-network-node-2 { animation-duration: 13s; animation-delay: -4s; }
 .recruta-network-node-3 { animation-duration: 15s; animation-delay: -9s; }
 .recruta-network-node-4 { animation-duration: 11s; animation-delay: -2s; }
+.recruta-network-node-5 { animation-duration: 12.5s; animation-delay: -6.5s; }
 
 .recruta-network-node.is-active,
 .recruta-network[data-state="loading"] .recruta-network-node {
   opacity: 1;
-  padding-inline-end: 0.7rem;
-  border-color: color-mix(in oklab, var(--color-gold) 45%, transparent);
-  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-gold) 35%, transparent));
+  border-color: color-mix(in oklab, var(--color-gold) 60%, transparent);
+  filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-gold) 40%, transparent));
 }
-.recruta-network-node.is-active .recruta-network-node-label,
-.recruta-network[data-state="loading"] .recruta-network-node-label {
-  max-width: 8rem;
-  opacity: 1;
+.recruta-network-node.is-active .recruta-network-node-label {
+  color: var(--color-gold);
 }
 
 /* Silhuetas discretas ao fundo — só textura, nunca reagem a estado. */
@@ -423,28 +416,6 @@
 
 .recruta-network-success svg { width: 2rem; height: 2rem; }
 
-/* Pequeno "resultado subindo" ao lado do check de confirmação. */
-.recruta-network-result {
-  position: absolute;
-  z-index: 4;
-  inset: 50% auto auto calc(50% + 3rem);
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 1rem;
-  transform: translateY(-50%);
-}
-.recruta-network-result span {
-  width: 3px;
-  border-radius: 2px;
-  background: var(--color-gold);
-  transform-origin: bottom;
-  animation: network-result 900ms var(--ease-suave) both;
-}
-.recruta-network-result span:nth-child(1) { height: 40%; animation-delay: 80ms; }
-.recruta-network-result span:nth-child(2) { height: 70%; animation-delay: 200ms; }
-.recruta-network-result span:nth-child(3) { height: 100%; animation-delay: 320ms; }
-
 .recruta-network[data-state="loading"] .recruta-network-signal { animation-duration: 5s; }
 .recruta-network[data-state="success"] .recruta-network-signal { animation-duration: 3s; }
 .recruta-network[data-state="loading"] .recruta-network-path,
@@ -485,7 +456,6 @@
 @keyframes network-breathe { 0%, 100% { opacity: 0.4; transform: scale(0.96); } 50% { opacity: 0.65; transform: scale(1.02); } }
 @keyframes network-breathe-line { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.6; } }
 @keyframes network-success { from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-@keyframes network-result { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
 
 @media (max-width: 639px) {
   .recruta-network-compact { min-height: 6rem; }
@@ -497,8 +467,7 @@
   .recruta-network-node,
   .recruta-network-path,
   .recruta-network-signal,
-  .recruta-network-success,
-  .recruta-network-result span {
+  .recruta-network-success {
     animation: none !important;
   }
   .recruta-network-signal { stroke-dasharray: 4 96; opacity: 0.45; }

@@ -1,9 +1,10 @@
 import {
+  Briefcase,
   CalendarDays,
   CheckCircle2,
-  FileText,
   IdCard,
   ShieldCheck,
+  TrendingUp,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -19,39 +20,40 @@ interface RecruitaNetworkAnimationProps {
   className?: string;
 }
 
+type NodeId = Exclude<RecruitaAnimationState, "idle" | "loading" | "success"> | "resultado";
+
 interface NetworkNode {
-  id: Exclude<RecruitaAnimationState, "idle" | "loading" | "success">;
+  id: NodeId;
   icon: LucideIcon;
-  /** Rótulo curto, só aparece enquanto o card está ativo. */
+  /** Rótulo curto, sempre visível — igual à referência (cards com ícone + texto). */
   rotulo: string;
   position: string;
 }
 
 /**
- * Poucos elementos, nos cantos/espaços vazios — nunca sobre o título ou o formulário.
- * Cada um representa uma etapa do Recruta+: pessoa → vaga → calendário → confirmação.
+ * Cascata de cards descendo pelo lado direito do painel escuro, ligados por uma única
+ * linha dourada — igual à referência: pessoa → vaga → agenda → confirmado → resultado.
  */
 const NODES: NetworkNode[] = [
-  { id: "people", icon: Users, rotulo: "Pessoas", position: "right-[12%] top-[6%]" },
-  { id: "connection", icon: CalendarDays, rotulo: "Agenda", position: "right-[6%] top-[40%]" },
-  { id: "password", icon: ShieldCheck, rotulo: "Confirmado", position: "right-[14%] bottom-[18%]" },
-  { id: "documents", icon: FileText, rotulo: "Nova vaga", position: "left-[6%] bottom-[14%]" },
+  { id: "people", icon: Users, rotulo: "Pessoas", position: "right-[14%] top-[8%]" },
+  { id: "documents", icon: Briefcase, rotulo: "Nova vaga", position: "right-[6%] top-[27%]" },
+  { id: "connection", icon: CalendarDays, rotulo: "Agenda", position: "right-[16%] top-[47%]" },
+  { id: "password", icon: ShieldCheck, rotulo: "Confirmado", position: "right-[5%] bottom-[16%]" },
+  { id: "resultado", icon: TrendingUp, rotulo: "Resultados", position: "right-[17%] bottom-[3%]" },
 ];
 
-/** Curvas suaves e esparsas — não um fluxograma. */
+/** Uma única curva descendo ao lado dos cards, ligando-os em sequência. */
 const PATHS = [
-  "M 88 10 C 68 22, 90 32, 84 44",
-  "M 84 44 C 62 56, 74 74, 86 84",
-  "M 10 82 C 34 66, 55 58, 84 44",
+  "M 82 10 C 68 18, 92 24, 78 32 C 64 40, 90 44, 82 52 C 74 60, 92 66, 80 78 C 72 86, 90 90, 84 94",
 ];
 
 const PATHS_LIGHT = ["M 6 88 C 32 62, 66 46, 96 12"];
 
-/** Silhuetas bem discretas ao fundo — só textura, sem estado nem rótulo. */
+/** Silhuetas discretas ao fundo — só textura, sem estado nem rótulo. */
 const FANTASMAS_ESCUROS = [
-  { icon: Users, position: "left-[24%] top-[16%]" },
-  { icon: Users, position: "right-[26%] top-[70%]" },
-  { icon: IdCard, position: "left-[15%] top-[62%]" },
+  { icon: Users, position: "left-[22%] top-[14%]" },
+  { icon: Users, position: "left-[30%] bottom-[22%]" },
+  { icon: IdCard, position: "left-[12%] top-[55%]" },
 ];
 
 const FANTASMAS_CLAROS = [
@@ -59,17 +61,17 @@ const FANTASMAS_CLAROS = [
   { icon: IdCard, position: "right-[6%] bottom-[8%]" },
 ];
 
-function ativo(node: NetworkNode["id"], state: RecruitaAnimationState) {
-  if (state === "success") return node === "password";
+function ativo(node: NodeId, state: RecruitaAnimationState) {
+  if (state === "success") return node === "password" || node === "resultado";
   if (state === "loading") return true;
   return node === state;
 }
 
 /**
- * Camada decorativa "conexões em movimento": linhas douradas orgânicas com pontos de luz
- * percorrendo-as lentamente, cards pequenos com ícone (+ rótulo só quando ativos) contando
- * a jornada pessoa → vaga → calendário → confirmação, e silhuetas discretas ao fundo.
- * Puramente visual (aria-hidden) — não representa nem altera nenhum dado do formulário.
+ * Camada decorativa "conexões em movimento": uma linha dourada orgânica com pontos de luz
+ * percorrendo-a lentamente, cards com ícone + rótulo contando a jornada pessoa → vaga →
+ * agenda → confirmação → resultado, e silhuetas discretas ao fundo. Puramente visual
+ * (aria-hidden) — não representa nem altera nenhum dado do formulário.
  */
 export function RecruitaNetworkAnimation({
   state = "idle",
@@ -151,16 +153,9 @@ export function RecruitaNetworkAnimation({
       })}
 
       {state === "success" ? (
-        <>
-          <div className="recruta-network-success">
-            <CheckCircle2 />
-          </div>
-          <div className="recruta-network-result" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
-        </>
+        <div className="recruta-network-success">
+          <CheckCircle2 />
+        </div>
       ) : null}
     </div>
   );
