@@ -20,41 +20,45 @@ interface RecruitaNetworkAnimationProps {
   className?: string;
 }
 
-type NodeId = Exclude<RecruitaAnimationState, "idle" | "loading" | "success"> | "resultado";
+type NodeId =
+  Exclude<RecruitaAnimationState, "idle" | "loading" | "success" | "people"> | "resultado";
 
 interface NetworkNode {
   id: NodeId;
   icon: LucideIcon;
-  /** Rótulo curto, sempre visível — igual à referência (cards com ícone + texto). */
-  rotulo: string;
+  /** Rótulo curto — só os cards com informação de verdade mostram texto. */
+  rotulo?: string;
   position: string;
 }
 
 /**
- * Cascata de cards descendo pelo lado direito do painel escuro, ligados por uma única
- * linha dourada — igual à referência: pessoa → vaga → agenda → confirmado → resultado.
+ * Sequência que sobe de baixo para cima, uma etapa aparecendo (pop-up) de cada vez, em loop
+ * contínuo: nova vaga → agenda → candidato confirmado → resultado.
  */
 const NODES: NetworkNode[] = [
-  { id: "people", icon: Users, rotulo: "Pessoas", position: "right-[14%] top-[8%]" },
-  { id: "documents", icon: Briefcase, rotulo: "Nova vaga", position: "right-[6%] top-[27%]" },
-  { id: "connection", icon: CalendarDays, rotulo: "Agenda", position: "right-[16%] top-[47%]" },
-  { id: "password", icon: ShieldCheck, rotulo: "Confirmado", position: "right-[5%] bottom-[16%]" },
-  { id: "resultado", icon: TrendingUp, rotulo: "Resultados", position: "right-[17%] bottom-[3%]" },
+  {
+    id: "documents",
+    icon: Briefcase,
+    rotulo: "Nova oportunidade",
+    position: "right-[10%] bottom-[8%]",
+  },
+  { id: "connection", icon: CalendarDays, position: "right-[19%] bottom-[30%]" },
+  {
+    id: "password",
+    icon: CheckCircle2,
+    rotulo: "Candidato confirmado",
+    position: "right-[7%] bottom-[52%]",
+  },
+  { id: "resultado", icon: TrendingUp, position: "right-[18%] bottom-[74%]" },
 ];
 
-/** Uma única curva descendo ao lado dos cards, ligando-os em sequência. */
-const PATHS = [
-  "M 82 10 C 68 18, 92 24, 78 32 C 64 40, 90 44, 82 52 C 74 60, 92 66, 80 78 C 72 86, 90 90, 84 94",
-];
+/** Curva única em zigue-zague ligando as 4 etapas, de baixo para cima. */
+const PATHS = ["M 84 92 C 68 84, 92 76, 78 66 C 64 56, 90 48, 76 38 C 62 28, 88 20, 74 10"];
+
+/** Ramo curto até o card de "pessoa", ao fundo. */
+const PATH_PESSOA = "M 74 10 C 56 4, 40 8, 26 16";
 
 const PATHS_LIGHT = ["M 6 88 C 32 62, 66 46, 96 12"];
-
-/** Silhuetas discretas ao fundo — só textura, sem estado nem rótulo. */
-const FANTASMAS_ESCUROS = [
-  { icon: Users, position: "left-[22%] top-[14%]" },
-  { icon: Users, position: "left-[30%] bottom-[22%]" },
-  { icon: IdCard, position: "left-[12%] top-[55%]" },
-];
 
 const FANTASMAS_CLAROS = [
   { icon: Users, position: "right-[16%] top-[10%]" },
@@ -68,9 +72,10 @@ function ativo(node: NodeId, state: RecruitaAnimationState) {
 }
 
 /**
- * Camada decorativa "conexões em movimento": uma linha dourada orgânica com pontos de luz
- * percorrendo-a lentamente, cards com ícone + rótulo contando a jornada pessoa → vaga →
- * agenda → confirmação → resultado, e silhuetas discretas ao fundo. Puramente visual
+ * Camada decorativa "conexões em movimento": uma linha dourada em zigue-zague com pontos de
+ * luz percorrendo-a lentamente, e cards que aparecem em pop-up um de cada vez (de baixo para
+ * cima, em loop) contando a jornada nova vaga → agenda → confirmação → resultado. Ao fundo,
+ * borrado, um card de "pessoa" ligado por um ramo da mesma linha. Puramente visual
  * (aria-hidden) — não representa nem altera nenhum dado do formulário.
  */
 export function RecruitaNetworkAnimation({
@@ -122,20 +127,17 @@ export function RecruitaNetworkAnimation({
             />
           </g>
         ))}
+        {!compact && (
+          <g>
+            <path className="recruta-network-path" d={PATH_PESSOA} pathLength="100" />
+            <path
+              className="recruta-network-signal recruta-network-signal-pessoa"
+              d={PATH_PESSOA}
+              pathLength="100"
+            />
+          </g>
+        )}
       </svg>
-
-      {!compact &&
-        FANTASMAS_ESCUROS.map((f, i) => {
-          const Icon = f.icon;
-          return (
-            <span
-              key={i}
-              className={`recruta-network-ghost recruta-network-ghost-${i + 1} ${f.position}`}
-            >
-              <Icon />
-            </span>
-          );
-        })}
 
       {NODES.map((node, index) => {
         const Icon = node.icon;
@@ -147,10 +149,18 @@ export function RecruitaNetworkAnimation({
             <span className="recruta-network-node-icon">
               <Icon />
             </span>
-            <span className="recruta-network-node-label">{node.rotulo}</span>
+            {node.rotulo ? <span className="recruta-network-node-label">{node.rotulo}</span> : null}
           </span>
         );
       })}
+
+      {!compact && (
+        <span className="recruta-network-node recruta-network-node-pessoa left-[18%] top-[10%]">
+          <span className="recruta-network-node-icon">
+            <Users />
+          </span>
+        </span>
+      )}
 
       {state === "success" ? (
         <div className="recruta-network-success">

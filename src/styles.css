@@ -322,6 +322,8 @@
   animation: network-travel 14s linear infinite;
 }
 
+.recruta-network-signal-pessoa { animation-duration: 10s; animation-delay: -3s; }
+
 .recruta-network-node {
   position: absolute;
   z-index: 2;
@@ -332,11 +334,11 @@
   border-radius: 0.9rem;
   border: 1px solid color-mix(in oklab, var(--color-gold) 22%, transparent);
   background: color-mix(in oklab, var(--color-sidebar) 62%, transparent);
-  opacity: 0.85;
   backdrop-filter: blur(8px);
   box-shadow: 0 8px 24px -16px rgba(0, 0, 0, 0.6);
-  transition: opacity 700ms var(--ease-suave), border-color 700ms var(--ease-suave), filter 700ms var(--ease-suave);
-  animation: network-float 10s ease-in-out infinite;
+  transform-origin: center;
+  transition: border-color 500ms var(--ease-suave), filter 500ms var(--ease-suave);
+  animation: network-popup 11s ease-in-out infinite;
 }
 
 .recruta-network-node-icon {
@@ -360,15 +362,16 @@
   color: color-mix(in oklab, var(--color-sidebar-foreground) 85%, transparent);
 }
 
-.recruta-network-node-1 { animation-duration: 9s; }
-.recruta-network-node-2 { animation-duration: 13s; animation-delay: -4s; }
-.recruta-network-node-3 { animation-duration: 15s; animation-delay: -9s; }
-.recruta-network-node-4 { animation-duration: 11s; animation-delay: -2s; }
-.recruta-network-node-5 { animation-duration: 12.5s; animation-delay: -6.5s; }
+/* Cada card "pop-a" na sua vez — em loop, de baixo (card 1) para cima (card 4). */
+.recruta-network-node-1 { animation-delay: 0s; }
+.recruta-network-node-2 { animation-delay: -2.75s; }
+.recruta-network-node-3 { animation-delay: -5.5s; }
+.recruta-network-node-4 { animation-delay: -8.25s; }
 
 .recruta-network-node.is-active,
 .recruta-network[data-state="loading"] .recruta-network-node {
-  opacity: 1;
+  opacity: 1 !important;
+  transform: scale(1.05) !important;
   border-color: color-mix(in oklab, var(--color-gold) 60%, transparent);
   filter: drop-shadow(0 0 10px color-mix(in oklab, var(--color-gold) 40%, transparent));
 }
@@ -376,7 +379,15 @@
   color: var(--color-gold);
 }
 
-/* Silhuetas discretas ao fundo — só textura, nunca reagem a estado. */
+/* Card de "pessoa" ao fundo — borrado, sem entrar no ciclo de pop-up. */
+.recruta-network-node-pessoa {
+  z-index: 1;
+  opacity: 0.55;
+  filter: blur(1.5px);
+  animation: network-float 13s ease-in-out infinite;
+}
+
+/* Silhuetas discretas ao fundo (versão clara) — só textura, nunca reagem a estado. */
 .recruta-network-ghost {
   position: absolute;
   z-index: 1;
@@ -456,6 +467,11 @@
 @keyframes network-breathe { 0%, 100% { opacity: 0.4; transform: scale(0.96); } 50% { opacity: 0.65; transform: scale(1.02); } }
 @keyframes network-breathe-line { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.6; } }
 @keyframes network-success { from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes network-popup {
+  0%, 6% { opacity: 0.32; transform: scale(0.86); }
+  16%, 32% { opacity: 1; transform: scale(1.04); }
+  42%, 100% { opacity: 0.32; transform: scale(0.86); }
+}
 
 @media (max-width: 639px) {
   .recruta-network-compact { min-height: 6rem; }
