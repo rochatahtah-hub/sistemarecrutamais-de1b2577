@@ -109,7 +109,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="malha-escura min-h-screen bg-background px-4 py-10">
+    <div className="malha-escura min-h-screen px-4 py-10">
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-8 flex justify-center">
           <span className="inline-flex items-center justify-center rounded-2xl border border-gold/25 bg-[#0b0f19] px-6 py-3 shadow-lg">
@@ -117,18 +117,18 @@ export function PortalCaptacao({ slug }: { slug: string }) {
           </span>
         </div>
 
-        <h1 className="mb-6 text-center font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        <h1 className="mb-6 text-center font-display text-2xl font-bold tracking-tight text-sidebar-foreground sm:text-3xl">
           {empresa ? `Cadastre-se para trabalhar na ${empresa.nome}` : "Cadastro para trabalho por diária"}
         </h1>
         <RecruitaNetworkAnimation state={estadoAnimacao} compact className="mb-6" />
 
         {carregandoEmpresa && slugEmpresa && (
-          <p className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-border/70 p-4 text-center text-sm text-muted-foreground">
+          <p className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-sidebar-border p-4 text-center text-sm text-sidebar-foreground/70">
             <Loader2 className="h-4 w-4 animate-spin" /> Carregando os dados da empresa...
           </p>
         )}
         {falhaCarregamento && (
-          <div className="mb-6 space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm">
+          <div className="mb-6 space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-sidebar-foreground">
             <p>Não conseguimos carregar os dados da empresa agora. Verifique sua conexão e tente novamente.</p>
             <Button variant="outline" size="sm" disabled={buscandoEmpresa} onClick={() => void recarregarEmpresa()}>
               {buscandoEmpresa && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -143,26 +143,26 @@ export function PortalCaptacao({ slug }: { slug: string }) {
           </p>
         )}
         {linkIndisponivel || falhaCarregamento || carregandoEmpresa ? null : concluido ? (
-          <Card>
+          <Card className="border-[color-mix(in_oklab,var(--color-gold)_26%,transparent)] bg-[color-mix(in_oklab,var(--color-sidebar)_45%,transparent)] text-sidebar-foreground shadow-none backdrop-blur-md">
             <CardHeader className="items-center text-center">
               <span className="grid h-14 w-14 place-items-center rounded-2xl border border-gold/25 bg-gold-soft text-accent-foreground">
                 <CheckCircle2 className="h-7 w-7" />
               </span>
               <CardTitle>Cadastro realizado com sucesso!</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sidebar-foreground/65">
                 Seus dados foram registrados no banco de colaboradores do Recruta+. Quando surgir uma
                 oportunidade compatível com sua disponibilidade, nossa equipe poderá entrar em contato.
               </CardDescription>
             </CardHeader>
           </Card>
         ) : (
-          <Card>
+          <Card className="border-[color-mix(in_oklab,var(--color-gold)_26%,transparent)] bg-[color-mix(in_oklab,var(--color-sidebar)_45%,transparent)] text-sidebar-foreground shadow-none backdrop-blur-md">
             <CardHeader>
               <span className="grid h-11 w-11 place-items-center rounded-xl border border-gold/25 bg-gold-soft text-accent-foreground">
                 <HandHeart className="h-5 w-5" />
               </span>
               <CardTitle>Quero trabalhar por diária</CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sidebar-foreground/65">
                 Preencha o formulário abaixo para entrar no banco de colaboradores. É gratuito e leva
                 menos de dois minutos.
               </CardDescription>
@@ -213,10 +213,10 @@ export function PortalCaptacao({ slug }: { slug: string }) {
               </div>
 
 
-              <div className="flex items-center justify-between rounded-xl border border-border/70 px-3.5 py-3" onFocusCapture={() => setEstadoFormulario("connection")}>
+              <div className="flex items-center justify-between rounded-xl border border-sidebar-border/60 px-3.5 py-3" onFocusCapture={() => setEstadoFormulario("connection")}>
                 <div>
                   <p className="text-sm font-medium">Tenho disponibilidade para diárias</p>
-                  <p className="text-xs text-muted-foreground">Você pode alterar isso a qualquer momento com a equipe.</p>
+                  <p className="text-xs text-sidebar-foreground/60">Você pode alterar isso a qualquer momento com a equipe.</p>
                 </div>
                 <Switch checked={disponivel} onCheckedChange={setDisponivel} />
               </div>
@@ -236,7 +236,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                       key={p}
                       type="button"
                       onClick={() => setPeriodos((a) => alternar(a, p))}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${periodos.includes(p) ? "border-gold/50 bg-gold-soft text-accent-foreground" : "border-border/70 text-muted-foreground hover:bg-accent"}`}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${periodos.includes(p) ? "border-gold/50 bg-gold-soft text-accent-foreground" : "border-sidebar-border/60 text-sidebar-foreground/60 hover:bg-white/5"}`}
                     >
                       {p}
                     </button>
@@ -265,7 +265,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                     setConsentimento((v) => !v);
                   }
                 }}
-                className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/70 px-3.5 py-3 text-left text-sm"
+                className="flex cursor-pointer items-start gap-3 rounded-xl border border-sidebar-border/60 px-3.5 py-3 text-left text-sm"
                 onFocusCapture={() => setEstadoFormulario("password")}
               >
                 <Checkbox
@@ -273,7 +273,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                   tabIndex={-1}
                   className="pointer-events-none mt-0.5"
                 />
-                <span className="text-muted-foreground">
+                <span className="text-sidebar-foreground/60">
                   Li e concordo com o uso dos meus dados para cadastro e contato referente a oportunidades
                   de trabalho/diárias. *
                 </span>
