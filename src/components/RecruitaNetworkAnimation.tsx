@@ -58,11 +58,14 @@ const PATHS = ["M 84 92 C 68 84, 92 76, 78 66 C 64 56, 90 48, 76 38 C 62 28, 88 
 /** Ramo curto até o card de "pessoa", ao fundo. */
 const PATH_PESSOA = "M 74 10 C 56 4, 40 8, 26 16";
 
-const PATHS_LIGHT = ["M 6 88 C 32 62, 66 46, 96 12"];
+const PATH_LIGHT_1 = "M 6 90 C 30 66, 55 58, 62 40 C 68 24, 88 18, 94 8";
+const PATH_LIGHT_2 = "M 62 40 C 48 46, 30 48, 20 62";
 
-const FANTASMAS_CLAROS = [
-  { icon: Users, position: "right-[16%] top-[10%]" },
-  { icon: IdCard, position: "right-[6%] bottom-[8%]" },
+/** Cards discretos do lado claro — mesma linguagem visual do lado escuro, tom mais suave. */
+const NODES_CLAROS: { icon: LucideIcon; position: string }[] = [
+  { icon: Users, position: "right-[9%] top-[7%]" },
+  { icon: CheckCircle2, position: "left-[10%] top-[46%]" },
+  { icon: IdCard, position: "left-[6%] bottom-[9%]" },
 ];
 
 function ativo(node: NodeId, state: RecruitaAnimationState) {
@@ -88,21 +91,33 @@ export function RecruitaNetworkAnimation({
     return (
       <div aria-hidden="true" className={`recruta-network recruta-network-light ${className}`}>
         <svg className="recruta-network-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path className="recruta-network-path" d={PATHS_LIGHT[0]} pathLength="100" />
-          <path
-            className="recruta-network-signal recruta-network-signal-1"
-            d={PATHS_LIGHT[0]}
-            pathLength="100"
-          />
+          <g>
+            <path className="recruta-network-path" d={PATH_LIGHT_1} pathLength="100" />
+            <path
+              className="recruta-network-signal recruta-network-signal-1"
+              d={PATH_LIGHT_1}
+              pathLength="100"
+            />
+          </g>
+          <g>
+            <path className="recruta-network-path" d={PATH_LIGHT_2} pathLength="100" />
+            <path
+              className="recruta-network-signal recruta-network-signal-2"
+              d={PATH_LIGHT_2}
+              pathLength="100"
+            />
+          </g>
         </svg>
-        {FANTASMAS_CLAROS.map((f, i) => {
-          const Icon = f.icon;
+        {NODES_CLAROS.map((node, i) => {
+          const Icon = node.icon;
           return (
             <span
               key={i}
-              className={`recruta-network-ghost recruta-network-ghost-${i + 1} ${f.position}`}
+              className={`recruta-network-node recruta-network-node-light recruta-network-node-${i + 1} ${node.position}`}
             >
-              <Icon />
+              <span className="recruta-network-node-icon">
+                <Icon />
+              </span>
             </span>
           );
         })}

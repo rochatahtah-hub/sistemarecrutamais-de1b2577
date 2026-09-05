@@ -453,6 +453,21 @@
   animation-duration: 19s;
   filter: drop-shadow(0 0 2px color-mix(in oklab, var(--color-gold) 55%, transparent));
 }
+.recruta-network-light .recruta-network-signal-2 { animation-duration: 23s; animation-delay: -8s; }
+
+/* Cards discretos do lado claro — mesma linguagem visual do lado escuro, em tom suave. */
+.recruta-network-node-light {
+  padding: 0.55rem 0.7rem;
+  border-color: color-mix(in oklab, var(--color-gold) 30%, transparent);
+  background: color-mix(in oklab, var(--color-gold-soft) 55%, transparent);
+  box-shadow: 0 10px 24px -16px rgba(17, 24, 39, 0.25);
+}
+.recruta-network-node-light .recruta-network-node-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  background: color-mix(in oklab, var(--color-gold) 18%, transparent);
+}
+.recruta-network-node-light .recruta-network-node-icon svg { width: 1rem; height: 1rem; }
 
 .recruta-auth-input {
   transition: border-color 260ms var(--ease-suave), box-shadow 260ms var(--ease-suave), transform 260ms var(--ease-suave);
