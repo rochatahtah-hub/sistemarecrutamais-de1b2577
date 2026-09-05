@@ -2,6 +2,7 @@ import {
   CalendarDays,
   CheckCircle2,
   FileText,
+  IdCard,
   ShieldCheck,
   Users,
   type LucideIcon,
@@ -13,7 +14,7 @@ export type RecruitaAnimationState =
 interface RecruitaNetworkAnimationProps {
   state?: RecruitaAnimationState;
   compact?: boolean;
-  /** "dark" (padrão, lado escuro) ou "light" — versão mínima (só linha + ponto) para fundo claro. */
+  /** "dark" (padrão, lado escuro) ou "light" — versão mínima (linha + silhuetas) para fundo claro. */
   tone?: "dark" | "light";
   className?: string;
 }
@@ -21,6 +22,8 @@ interface RecruitaNetworkAnimationProps {
 interface NetworkNode {
   id: Exclude<RecruitaAnimationState, "idle" | "loading" | "success">;
   icon: LucideIcon;
+  /** Rótulo curto, só aparece enquanto o card está ativo. */
+  rotulo: string;
   position: string;
 }
 
@@ -29,10 +32,10 @@ interface NetworkNode {
  * Cada um representa uma etapa do Recruta+: pessoa → vaga → calendário → confirmação.
  */
 const NODES: NetworkNode[] = [
-  { id: "people", icon: Users, position: "right-[10%] top-[6%]" },
-  { id: "connection", icon: CalendarDays, position: "right-[6%] top-[42%]" },
-  { id: "password", icon: ShieldCheck, position: "right-[12%] bottom-[18%]" },
-  { id: "documents", icon: FileText, position: "left-[6%] bottom-[14%]" },
+  { id: "people", icon: Users, rotulo: "Pessoas", position: "right-[12%] top-[6%]" },
+  { id: "connection", icon: CalendarDays, rotulo: "Agenda", position: "right-[6%] top-[40%]" },
+  { id: "password", icon: ShieldCheck, rotulo: "Confirmado", position: "right-[14%] bottom-[18%]" },
+  { id: "documents", icon: FileText, rotulo: "Nova vaga", position: "left-[6%] bottom-[14%]" },
 ];
 
 /** Curvas suaves e esparsas — não um fluxograma. */
@@ -44,6 +47,18 @@ const PATHS = [
 
 const PATHS_LIGHT = ["M 6 88 C 32 62, 66 46, 96 12"];
 
+/** Silhuetas bem discretas ao fundo — só textura, sem estado nem rótulo. */
+const FANTASMAS_ESCUROS = [
+  { icon: Users, position: "left-[24%] top-[16%]" },
+  { icon: Users, position: "right-[26%] top-[70%]" },
+  { icon: IdCard, position: "left-[15%] top-[62%]" },
+];
+
+const FANTASMAS_CLAROS = [
+  { icon: Users, position: "right-[16%] top-[10%]" },
+  { icon: IdCard, position: "right-[6%] bottom-[8%]" },
+];
+
 function ativo(node: NetworkNode["id"], state: RecruitaAnimationState) {
   if (state === "success") return node === "password";
   if (state === "loading") return true;
@@ -52,7 +67,8 @@ function ativo(node: NetworkNode["id"], state: RecruitaAnimationState) {
 
 /**
  * Camada decorativa "conexões em movimento": linhas douradas orgânicas com pontos de luz
- * percorrendo-as lentamente, e poucos ícones flutuando de forma independente e discreta.
+ * percorrendo-as lentamente, cards pequenos com ícone (+ rótulo só quando ativos) contando
+ * a jornada pessoa → vaga → calendário → confirmação, e silhuetas discretas ao fundo.
  * Puramente visual (aria-hidden) — não representa nem altera nenhum dado do formulário.
  */
 export function RecruitaNetworkAnimation({
@@ -72,6 +88,17 @@ export function RecruitaNetworkAnimation({
             pathLength="100"
           />
         </svg>
+        {FANTASMAS_CLAROS.map((f, i) => {
+          const Icon = f.icon;
+          return (
+            <span
+              key={i}
+              className={`recruta-network-ghost recruta-network-ghost-${i + 1} ${f.position}`}
+            >
+              <Icon />
+            </span>
+          );
+        })}
       </div>
     );
   }
@@ -95,6 +122,19 @@ export function RecruitaNetworkAnimation({
         ))}
       </svg>
 
+      {!compact &&
+        FANTASMAS_ESCUROS.map((f, i) => {
+          const Icon = f.icon;
+          return (
+            <span
+              key={i}
+              className={`recruta-network-ghost recruta-network-ghost-${i + 1} ${f.position}`}
+            >
+              <Icon />
+            </span>
+          );
+        })}
+
       {NODES.map((node, index) => {
         const Icon = node.icon;
         return (
@@ -102,7 +142,10 @@ export function RecruitaNetworkAnimation({
             key={node.id}
             className={`recruta-network-node recruta-network-node-${index + 1} ${node.position} ${ativo(node.id, state) ? "is-active" : ""}`}
           >
-            <Icon />
+            <span className="recruta-network-node-icon">
+              <Icon />
+            </span>
+            <span className="recruta-network-node-label">{node.rotulo}</span>
           </span>
         );
       })}
