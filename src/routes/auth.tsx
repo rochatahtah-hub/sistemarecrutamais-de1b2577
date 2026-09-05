@@ -161,31 +161,32 @@ function Pagina() {
     <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
       <aside className="malha-escura relative hidden overflow-hidden p-12 text-sidebar-foreground lg:block">
         <RecruitaNetworkAnimation state={estadoAnimacao} className="absolute inset-x-8 top-[14%] bottom-[12%]" />
-        <div className="relative z-10 flex h-full flex-col justify-between">
+        {/* Logo, rodapé e bloco de texto são camadas absolutas independentes (não flex) —
+            um `flex-col justify-between`/`flex-1` aqui calcula a altura errado dentro
+            deste grid e empurra o rodapé para fora da tela. */}
         <img
           src={logoLockup.url}
           alt="RECRUTA+ — Gestão inteligente de recrutamento"
-          className="h-14 w-auto select-none object-contain object-left"
+          className="absolute left-12 top-12 z-10 h-14 w-auto select-none object-contain object-left"
         />
-        <p className="text-xs text-sidebar-foreground/45">
+        <p className="absolute bottom-12 left-12 z-10 text-xs text-sidebar-foreground/45">
             Ambiente privado · Acesso individual e monitorado
         </p>
-        </div>
-        {/* Posicionamento absoluto: centraliza o bloco de texto sem contar na altura da
-            página (um `flex-1` normal aqui infla o grid da tela toda além da viewport). */}
         <div className="absolute inset-0 z-10 flex items-center p-12">
-        <div className="max-w-md">
+        {/* Largura contida (não max-w-md) para sobrar espaço real à direita — os cards da
+            animação vivem nessa faixa e não podem encostar no texto. */}
+        <div className="max-w-[19rem]">
           <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-sidebar-primary">
             Plataforma corporativa
           </p>
-          <h2 className="text-[34px] font-semibold leading-[1.15] tracking-tight">
+          <h2 className="text-[28px] font-semibold leading-[1.2] tracking-tight">
             Gestão inteligente de recrutamento e seleção.
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-sidebar-foreground/65">
             Programações, confirmações, metas e indicadores da operação reunidos em uma única
             plataforma corporativa.
           </p>
-          <div className="mt-10 grid grid-cols-3 gap-4 border-t border-sidebar-border pt-6 text-xs text-sidebar-foreground/60">
+          <div className="mt-10 grid grid-cols-3 gap-3 border-t border-sidebar-border pt-6 text-[11px] leading-snug text-sidebar-foreground/60">
             <span>Programação diária</span>
             <span>Indicadores em tempo real</span>
             <span>Histórico auditável</span>

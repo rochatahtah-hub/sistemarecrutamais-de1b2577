@@ -40,14 +40,14 @@ const NODES: NetworkNode[] = [
     id: "documents",
     icon: Briefcase,
     rotulo: "Nova oportunidade",
-    position: "right-[10%] bottom-[8%]",
+    position: "right-[2%] bottom-[6%]",
   },
   { id: "connection", icon: CalendarDays, position: "right-[19%] bottom-[30%]" },
   {
     id: "password",
     icon: CheckCircle2,
     rotulo: "Candidato confirmado",
-    position: "right-[7%] bottom-[52%]",
+    position: "right-[2%] bottom-[54%]",
   },
   { id: "resultado", icon: TrendingUp, position: "right-[18%] bottom-[74%]" },
 ];
