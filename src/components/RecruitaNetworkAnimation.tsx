@@ -1,66 +1,71 @@
-import {
-  BarChart3,
-  CalendarDays,
-  CheckCircle2,
-  FileText,
-  Link2,
-  ShieldCheck,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
+import { CheckCircle2, FileText, Link2, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 
 export type RecruitaAnimationState =
-  | "idle"
-  | "people"
-  | "documents"
-  | "connection"
-  | "password"
-  | "loading"
-  | "success";
+  "idle" | "people" | "documents" | "connection" | "password" | "loading" | "success";
 
 interface RecruitaNetworkAnimationProps {
   state?: RecruitaAnimationState;
   compact?: boolean;
+  /** "dark" (padrão, lado escuro) ou "light" — versão mínima (só linha + ponto) para fundo claro. */
+  tone?: "dark" | "light";
   className?: string;
 }
 
 interface NetworkNode {
-  id: Exclude<RecruitaAnimationState, "idle" | "loading" | "success"> | "schedule" | "results";
-  label: string;
+  id: Exclude<RecruitaAnimationState, "idle" | "loading" | "success">;
   icon: LucideIcon;
   position: string;
 }
 
+/** Poucos elementos, nos cantos/espaços vazios — nunca sobre o título ou o formulário. */
 const NODES: NetworkNode[] = [
-  { id: "people", label: "Pessoas", icon: Users, position: "left-[5%] top-[11%]" },
-  { id: "schedule", label: "Programações", icon: CalendarDays, position: "right-[4%] top-[25%]" },
-  { id: "documents", label: "Documentos", icon: FileText, position: "left-[10%] top-[48%]" },
-  { id: "connection", label: "Conexão", icon: Link2, position: "right-[9%] top-[59%]" },
-  { id: "password", label: "Confiança", icon: ShieldCheck, position: "left-[18%] bottom-[8%]" },
-  { id: "results", label: "Resultados", icon: BarChart3, position: "right-[4%] bottom-[4%]" },
+  { id: "people", icon: Users, position: "right-[10%] top-[6%]" },
+  { id: "connection", icon: Link2, position: "right-[6%] top-[42%]" },
+  { id: "password", icon: ShieldCheck, position: "right-[12%] bottom-[18%]" },
+  { id: "documents", icon: FileText, position: "left-[6%] bottom-[14%]" },
 ];
 
+/** Curvas suaves e esparsas — não um fluxograma. */
 const PATHS = [
-  "M 17 17 C 35 8, 52 22, 79 30",
-  "M 17 17 C 7 38, 15 45, 20 52",
-  "M 20 52 C 44 47, 55 57, 75 63",
-  "M 79 30 C 91 43, 83 53, 75 63",
-  "M 20 52 C 16 65, 21 76, 30 84",
-  "M 30 84 C 50 74, 65 86, 82 88",
-  "M 75 63 C 81 72, 82 80, 82 88",
+  "M 88 10 C 68 22, 90 32, 84 44",
+  "M 84 44 C 62 56, 74 74, 86 84",
+  "M 10 82 C 34 66, 55 58, 84 44",
 ];
+
+const PATHS_LIGHT = ["M 6 88 C 32 62, 66 46, 96 12"];
 
 function ativo(node: NetworkNode["id"], state: RecruitaAnimationState) {
-  if (state === "success") return node === "results" || node === "password";
+  if (state === "success") return node === "password";
   if (state === "loading") return true;
   return node === state;
 }
 
+/**
+ * Camada decorativa "conexões em movimento": linhas douradas orgânicas com pontos de luz
+ * percorrendo-as lentamente, e poucos ícones flutuando de forma independente e discreta.
+ * Puramente visual (aria-hidden) — não representa nem altera nenhum dado do formulário.
+ */
 export function RecruitaNetworkAnimation({
   state = "idle",
   compact = false,
+  tone = "dark",
   className = "",
 }: RecruitaNetworkAnimationProps) {
+  if (tone === "light") {
+    return (
+      <div aria-hidden="true" className={`recruta-network recruta-network-light ${className}`}>
+        <svg className="recruta-network-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path className="recruta-network-path" d={PATHS_LIGHT[0]} pathLength="100" />
+          <path
+            className="recruta-network-signal recruta-network-signal-1"
+            d={PATHS_LIGHT[0]}
+            pathLength="100"
+          />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <div
       aria-hidden="true"
@@ -83,20 +88,14 @@ export function RecruitaNetworkAnimation({
       {NODES.map((node, index) => {
         const Icon = node.icon;
         return (
-          <div
+          <span
             key={node.id}
-            className={`recruta-network-node ${node.position} ${ativo(node.id, state) ? "is-active" : ""}`}
-            style={{ animationDelay: `${index * -0.7}s` }}
+            className={`recruta-network-node recruta-network-node-${index + 1} ${node.position} ${ativo(node.id, state) ? "is-active" : ""}`}
           >
-            <span className="recruta-network-icon"><Icon /></span>
-            <span className="recruta-network-label">{node.label}</span>
-          </div>
+            <Icon />
+          </span>
         );
       })}
-
-      <span className="recruta-network-particle left-[31%] top-[25%]" />
-      <span className="recruta-network-particle right-[22%] top-[48%] [animation-delay:-2.1s]" />
-      <span className="recruta-network-particle bottom-[19%] left-[47%] [animation-delay:-4.2s]" />
 
       {state === "success" ? (
         <div className="recruta-network-success">

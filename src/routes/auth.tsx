@@ -189,8 +189,9 @@ function Pagina() {
         </div>
       </aside>
 
-      <main className="flex items-center justify-center px-4 py-10 sm:px-8">
-        <div className="w-full max-w-md">
+      <main className="relative flex items-center justify-center overflow-hidden px-4 py-10 sm:px-8">
+        <RecruitaNetworkAnimation tone="light" className="absolute inset-0 hidden lg:block" />
+        <div className="relative z-10 w-full max-w-md">
           <h1 className="sr-only">Entrar no RECRUTA+</h1>
 
           <div className="mb-8 flex flex-col items-center text-center">
