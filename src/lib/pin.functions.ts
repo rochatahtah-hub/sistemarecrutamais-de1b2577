@@ -40,23 +40,18 @@ export const entrarComPin = createServerFn({ method: "POST" })
 
     const ok = await conferirPin(data.pin, registro.pin_hash);
     if (!ok) {
-      const falhas = (registro.falhas ?? 0) + 1;
-      const espera = esperaMinutos(falhas, MAX_FALHAS, ESPERA_MIN);
-      await supabaseAdmin
-        .from("admin_pin")
-        .update({
-          falhas,
-          bloqueado_ate:
-            falhas >= MAX_FALHAS
-              ? new Date(Date.now() + espera * 60_000).toISOString()
-              : registro.bloqueado_ate,
-        })
-        .eq("id", true);
-      throw new Error(
-        falhas >= MAX_FALHAS
-          ? `PIN incorreto. Tente novamente em ${espera >= 60 ? `${Math.round(espera / 60)}h` : `${espera} minutos`}.`
-          : `PIN incorreto. Tente novamente. (tentativas restantes: ${MAX_FALHAS - falhas})`,
-      );
+      // Incremento atômico no banco (RPC) — evita que requisições em paralelo leiam o
+      // mesmo valor de "falhas" e furem o limite de tentativas (race condition).
+      const { data: resultado } = await supabaseAdmin.rpc("registrar_falha_pin");
+      const falhas = resultado?.[0]?.falhas ?? (registro.falhas ?? 0) + 1;
+      if (falhas >= MAX_FALHAS) {
+        const espera = esperaMinutos(falhas, MAX_FALHAS, ESPERA_MIN);
+        await supabaseAdmin
+          .from("admin_pin")
+          .update({ bloqueado_ate: new Date(Date.now() + espera * 60_000).toISOString() })
+          .eq("id", true);
+      }
+      throw new Error("PIN incorreto. Tente novamente.");
     }
 
     await supabaseAdmin.from("admin_pin").update({ falhas: 0, bloqueado_ate: null }).eq("id", true);
@@ -69,11 +64,15 @@ export const alterarPin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { novo: string }) => ({ novo: String(d.novo ?? "").trim() }))
   .handler(async ({ data, context }) => {
-    const { data: ehAdmin } = await context.supabase.rpc("has_role", {
+    // Este PIN dá acesso à sessão da conta administradora principal da plataforma
+    // inteira (todos os tenants) — só quem já é super-admin pode alterá-lo. `has_role`
+    // é uma flag global (sem tenant_id): um administrador comum de qualquer empresa
+    // cliente também recebe `role: 'admin'`, então usá-lo aqui permitiria que qualquer
+    // cliente assumisse a conta principal.
+    const { data: ehSuperAdmin } = await context.supabase.rpc("eh_super_admin", {
       _user_id: context.userId,
-      _role: "admin",
     });
-    if (!ehAdmin) throw new Error("Apenas o administrador pode alterar o PIN.");
+    if (!ehSuperAdmin) throw new Error("Apenas a administradora principal pode alterar este PIN.");
 
     const { gerarHashPin, pinForteValido } = await import("./pin.server");
     if (!pinForteValido(data.novo)) {

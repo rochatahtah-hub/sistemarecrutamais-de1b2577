@@ -11,14 +11,19 @@ import {
 } from "./metricas";
 import type { Metas } from "./tipos";
 
-export async function exportarExcel(registros: VagaRegistro[], nomeArquivo = "relatorio-vagas") {
+export async function exportarExcel(
+  registros: VagaRegistro[],
+  nomeArquivo = "relatorio-vagas",
+  /** Aplicada a nomes de colaborador/empresa — passe a máscara do modo privacidade quando ativo. */
+  mascarar: (texto: string) => string = (v) => v,
+) {
   const XLSX = await import("xlsx");
   const wb = XLSX.utils.book_new();
 
   const detalhe = registros.map((r) => ({
     Data: fmtData(r.data),
-    Colaborador: r.colaborador,
-    Empresa: r.empresa,
+    Colaborador: mascarar(r.colaborador),
+    Empresa: mascarar(r.empresa),
     Vaga: r.descricao,
     Quantidade: r.quantidade,
     Status: STATUS_LABEL[r.status] ?? r.status,
@@ -48,7 +53,7 @@ export async function exportarExcel(registros: VagaRegistro[], nomeArquivo = "re
     ["Empresas", "empresa"],
   ] as const) {
     const linhas = agregarPor(registros, campo).map((l) => ({
-      Nome: l.nome,
+      Nome: mascarar(l.nome),
       Vagas: l.vagas,
       Presenças: l.presencas,
       Faltas: l.faltas,
@@ -68,6 +73,8 @@ export async function exportarPdf(
   periodo: string,
   metas: Metas,
   nomeArquivo = "relatorio-vagas",
+  /** Aplicada a nomes de colaborador/empresa nos rankings — passe a máscara do modo privacidade quando ativo. */
+  mascarar: (texto: string) => string = (v) => v,
 ) {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
@@ -114,7 +121,7 @@ export async function exportarPdf(
     agregarPor(registros, "colaborador")
       .slice(0, 15)
       .map((l) => [
-        l.nome,
+        mascarar(l.nome),
         fmtNum(l.vagas),
         fmtNum(l.presencas),
         fmtNum(l.faltas),
@@ -129,7 +136,7 @@ export async function exportarPdf(
     agregarPor(registros, "empresa")
       .slice(0, 15)
       .map((l) => [
-        l.nome,
+        mascarar(l.nome),
         fmtNum(l.vagas),
         fmtNum(l.presencas),
         fmtNum(l.faltas),

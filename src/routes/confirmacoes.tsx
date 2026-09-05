@@ -116,7 +116,7 @@ function Pagina() {
             vaga, a empresa, o colaborador, o dashboard, os gráficos e os relatórios.
           </p>
         </div>
-        <Button variant="outline" onClick={() => void exportarExcel(lista, "confirmacoes")}>
+        <Button variant="outline" onClick={() => void exportarExcel(lista, "confirmacoes", priv.nome)}>
           <FileDown className="mr-2 h-4 w-4" /> Exportar Excel
         </Button>
       </div>

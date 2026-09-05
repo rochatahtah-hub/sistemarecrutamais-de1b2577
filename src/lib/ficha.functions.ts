@@ -22,7 +22,14 @@ export const extrairFicha = createServerFn({ method: "POST" })
       throw new Error("Arquivo muito grande. Envie uma imagem de até 5 MB.");
     return input;
   })
-  .handler(async ({ data }): Promise<FichaExtraida> => {
+  .handler(async ({ data, context }): Promise<FichaExtraida> => {
+    const { data: autorizado } = await context.supabase.rpc("tem_permissao", {
+      _user_id: context.userId,
+      _modulo: "programacao",
+      _acao: "criar",
+    });
+    if (!autorizado) throw new Error("Sem permissão para ler fichas automaticamente.");
+
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("Leitura automática indisponível no momento.");
 

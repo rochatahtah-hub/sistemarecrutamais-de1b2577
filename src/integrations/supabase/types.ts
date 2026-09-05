@@ -2465,6 +2465,13 @@ export type Database = {
       }
       perfil_do_usuario: { Args: { _user_id: string }; Returns: string }
       pode_operar: { Args: { _user_id: string }; Returns: boolean }
+      registrar_falha_pin: {
+        Args: never
+        Returns: {
+          falhas: number
+          bloqueado_ate: string | null
+        }[]
+      }
       programadoras_da_programacao: {
         Args: never
         Returns: {

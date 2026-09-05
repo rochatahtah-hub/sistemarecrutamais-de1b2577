@@ -136,8 +136,8 @@ function Pagina() {
     const linhas = [
       ["Nome", "Telefone", "CPF", "Cidade", "Bairro", "Disponível", "Períodos", "Função", "Transporte próprio", "Tipos de transporte", "Precisa de fretado", "Obs. transporte", "Status", "Cadastro"],
       ...lista.map((c) => [
-        c.full_name,
-        formatarTelefone(c.phone),
+        priv.nome(c.full_name),
+        priv.telefone(formatarTelefone(c.phone)),
         c.cpf_mascara || "—",
         c.city,
 

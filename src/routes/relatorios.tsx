@@ -11,6 +11,7 @@ import { exportarExcel, exportarPdf } from "@/lib/exportar";
 import { agregar, fmtNum, fmtPct } from "@/lib/metricas";
 import { METAS_PADRAO } from "@/lib/tipos";
 import { SemPlanilha } from "@/components/PlanilhaAtiva";
+import { usePrivacidade } from "@/lib/privacidade";
 
 export const Route = createFileRoute("/relatorios")({
   head: () => ({
@@ -34,6 +35,7 @@ function Pagina() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
   const { filtros, filtrar } = useFiltros();
+  const priv = usePrivacidade();
   const [gerando, setGerando] = useState(false);
 
   const filtrados = useMemo(() => filtrar(registros), [registros, filtros, filtrar]);
@@ -48,9 +50,9 @@ function Pagina() {
     setGerando(true);
     try {
       if (tipo === "pdf") {
-        await exportarPdf(filtrados, periodo, config?.metas ?? METAS_PADRAO);
+        await exportarPdf(filtrados, periodo, config?.metas ?? METAS_PADRAO, "relatorio-vagas", priv.nome);
       } else {
-        await exportarExcel(filtrados);
+        await exportarExcel(filtrados, "relatorio-vagas", priv.nome);
       }
       toast.success("Relatório gerado com sucesso.");
     } catch (e) {
