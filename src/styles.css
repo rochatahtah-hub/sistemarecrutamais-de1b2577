@@ -375,6 +375,28 @@
 
 .recruta-network-success svg { width: 2rem; height: 2rem; }
 
+/* Pequeno "resultado subindo" ao lado do check de confirmação. */
+.recruta-network-result {
+  position: absolute;
+  z-index: 4;
+  inset: 50% auto auto calc(50% + 3rem);
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 1rem;
+  transform: translateY(-50%);
+}
+.recruta-network-result span {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--color-gold);
+  transform-origin: bottom;
+  animation: network-result 900ms var(--ease-suave) both;
+}
+.recruta-network-result span:nth-child(1) { height: 40%; animation-delay: 80ms; }
+.recruta-network-result span:nth-child(2) { height: 70%; animation-delay: 200ms; }
+.recruta-network-result span:nth-child(3) { height: 100%; animation-delay: 320ms; }
+
 .recruta-network[data-state="loading"] .recruta-network-signal { animation-duration: 5s; }
 .recruta-network[data-state="success"] .recruta-network-signal { animation-duration: 3s; }
 .recruta-network[data-state="loading"] .recruta-network-path,
@@ -415,6 +437,7 @@
 @keyframes network-breathe { 0%, 100% { opacity: 0.4; transform: scale(0.96); } 50% { opacity: 0.65; transform: scale(1.02); } }
 @keyframes network-breathe-line { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.6; } }
 @keyframes network-success { from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+@keyframes network-result { from { opacity: 0; transform: scaleY(0); } to { opacity: 1; transform: scaleY(1); } }
 
 @media (max-width: 639px) {
   .recruta-network-compact { min-height: 6rem; }
@@ -426,7 +449,8 @@
   .recruta-network-node,
   .recruta-network-path,
   .recruta-network-signal,
-  .recruta-network-success {
+  .recruta-network-success,
+  .recruta-network-result span {
     animation: none !important;
   }
   .recruta-network-signal { stroke-dasharray: 4 96; opacity: 0.45; }

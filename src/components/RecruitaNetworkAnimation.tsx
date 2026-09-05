@@ -1,4 +1,11 @@
-import { CheckCircle2, FileText, Link2, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import {
+  CalendarDays,
+  CheckCircle2,
+  FileText,
+  ShieldCheck,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 
 export type RecruitaAnimationState =
   "idle" | "people" | "documents" | "connection" | "password" | "loading" | "success";
@@ -17,10 +24,13 @@ interface NetworkNode {
   position: string;
 }
 
-/** Poucos elementos, nos cantos/espaços vazios — nunca sobre o título ou o formulário. */
+/**
+ * Poucos elementos, nos cantos/espaços vazios — nunca sobre o título ou o formulário.
+ * Cada um representa uma etapa do Recruta+: pessoa → vaga → calendário → confirmação.
+ */
 const NODES: NetworkNode[] = [
   { id: "people", icon: Users, position: "right-[10%] top-[6%]" },
-  { id: "connection", icon: Link2, position: "right-[6%] top-[42%]" },
+  { id: "connection", icon: CalendarDays, position: "right-[6%] top-[42%]" },
   { id: "password", icon: ShieldCheck, position: "right-[12%] bottom-[18%]" },
   { id: "documents", icon: FileText, position: "left-[6%] bottom-[14%]" },
 ];
@@ -98,9 +108,16 @@ export function RecruitaNetworkAnimation({
       })}
 
       {state === "success" ? (
-        <div className="recruta-network-success">
-          <CheckCircle2 />
-        </div>
+        <>
+          <div className="recruta-network-success">
+            <CheckCircle2 />
+          </div>
+          <div className="recruta-network-result" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+        </>
       ) : null}
     </div>
   );
