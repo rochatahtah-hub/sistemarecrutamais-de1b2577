@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronDown, Lock } from "lucide-react";
+import { ChevronDown, Lock, UserCog } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { entrarComPin, pinDefinido } from "@/lib/pin.functions";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
+import logoMarca from "@/assets/recruta-mark.png.asset.json";
 import { RecruitaNetworkAnimation, type RecruitaAnimationState } from "@/components/RecruitaNetworkAnimation";
 
 export const Route = createFileRoute("/auth")({
@@ -193,39 +194,78 @@ function Pagina() {
         </div>
       </aside>
 
-      <main className="relative flex items-center justify-center overflow-hidden px-4 py-10 sm:px-8">
+      <main className="relative flex items-center justify-center overflow-hidden px-4 py-10 sm:px-8 max-lg:malha-escura max-lg:text-sidebar-foreground">
         <RecruitaNetworkAnimation tone="light" className="absolute inset-0 hidden lg:block" />
+        {/* Marca d'água + linha dourada — só no celular; substitui a rede de cards nesta tela. */}
+        <img
+          src={logoMarca.url}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 select-none opacity-[0.06] lg:hidden"
+        />
+        <img
+          src={logoMarca.url}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-14 -left-10 h-56 w-56 select-none opacity-[0.05] lg:hidden"
+        />
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 h-full w-full lg:hidden"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          <path
+            className="recruta-network-path"
+            d="M 70 4 C 40 14, 96 34, 60 46 C 30 56, 14 72, 42 88"
+            pathLength="100"
+          />
+          <path
+            className="recruta-network-signal recruta-network-signal-1"
+            d="M 70 4 C 40 14, 96 34, 60 46 C 30 56, 14 72, 42 88"
+            pathLength="100"
+          />
+        </svg>
         <div className="relative z-10 w-full max-w-md">
           <h1 className="sr-only">Entrar no RECRUTA+</h1>
 
           <div className="mb-8 flex flex-col items-center text-center">
-            <div className="malha-escura flex w-full max-w-[320px] items-center justify-center rounded-2xl px-6 py-5 shadow-sm">
+            <div className="malha-escura flex w-full max-w-[320px] items-center justify-center rounded-2xl px-6 py-5 shadow-sm max-lg:auth-mobile-logo max-lg:shadow-none">
               <img
                 src={logoLockup.url}
                 alt="RECRUTA+ — Gestão inteligente de recrutamento"
                 className="h-12 w-auto select-none object-contain sm:h-14"
               />
             </div>
-            <p className="mt-4 text-sm font-medium tracking-wide text-muted-foreground">
+            <p className="mt-4 text-sm font-medium tracking-wide text-muted-foreground max-lg:text-sidebar-foreground/70">
               Gestão inteligente de recrutamento.
             </p>
-            <RecruitaNetworkAnimation state={estadoAnimacao} compact className="mt-3 w-full lg:hidden" />
+            {/* Destaque exclusivo do celular — mesma informação, apresentação premium. */}
+            <div className="mt-8 w-full text-left lg:hidden">
+              <p className="text-2xl font-semibold uppercase leading-tight tracking-[0.12em] text-sidebar-foreground">
+                Grandes
+                <br />
+                Talentos
+              </p>
+              <p className="mt-1 text-2xl italic text-sidebar-primary">começam aqui.</p>
+              <span className="mt-4 block h-px w-10 bg-sidebar-primary/70" />
+            </div>
           </div>
 
-          <div className="surface-panel filete-ouro entrada-suave rounded-2xl p-7 sm:p-8">
+          <div className="surface-panel filete-ouro entrada-suave rounded-2xl p-7 sm:p-8 max-lg:auth-mobile-panel">
             <button
               type="button"
               aria-expanded={acessoAberto}
               aria-controls="form-programador"
               onClick={() => setAcessoAberto((v) => !v)}
-              className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-left transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-left transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring max-lg:auth-mobile-btn max-lg:hover:brightness-125"
             >
               <span className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide">
-                <Lock className="h-4 w-4 text-primary" />
+                <Lock className="h-4 w-4 text-primary max-lg:text-sidebar-primary" />
                 Acesso do programador
               </span>
               <ChevronDown
-                className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${acessoAberto ? "rotate-180" : ""}`}
+                className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform max-lg:text-sidebar-primary ${acessoAberto ? "rotate-180" : ""}`}
               />
             </button>
 
@@ -276,9 +316,11 @@ function Pagina() {
             <button
               type="button"
               onClick={() => void abrirAcessoAdmin()}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-sm font-semibold uppercase tracking-wide transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring max-lg:auth-mobile-btn max-lg:hover:brightness-125"
             >
-              🔐 Administrador
+              <span className="max-lg:hidden">🔐</span>
+              <UserCog className="hidden h-4 w-4 max-lg:inline" />
+              Administrador
             </button>
           </div>
         </div>

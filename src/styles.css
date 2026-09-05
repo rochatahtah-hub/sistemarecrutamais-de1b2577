@@ -218,6 +218,22 @@
   }
 }
 
+/* Visual exclusivo do login em celular (abaixo de lg) — painel/botões escuros com
+   borda dourada fina, integrados ao fundo malha-escura. Nunca usado no desktop. */
+@utility auth-mobile-panel {
+  background-color: color-mix(in oklab, var(--color-sidebar) 45%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-gold) 26%, transparent);
+  backdrop-filter: blur(6px);
+}
+@utility auth-mobile-btn {
+  border: 1px solid color-mix(in oklab, var(--color-gold) 38%, transparent);
+  background-color: color-mix(in oklab, var(--color-sidebar) 35%, transparent);
+  color: var(--color-gold);
+}
+@utility auth-mobile-logo {
+  border: 1px solid color-mix(in oklab, var(--color-gold) 32%, transparent);
+}
+
 /* Filete dourado de destaque no topo de um card. */
 @utility filete-ouro {
   position: relative;
