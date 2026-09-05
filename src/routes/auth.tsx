@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { entrarComPin, pinDefinido } from "@/lib/pin.functions";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
+import { RecruitaNetworkAnimation, type RecruitaAnimationState } from "@/components/RecruitaNetworkAnimation";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -58,6 +59,15 @@ function Pagina() {
   const [jaTemPin, setJaTemPin] = useState(true);
   const [erroPin, setErroPin] = useState("");
   const [recuperando, setRecuperando] = useState(false);
+  const [campoAtivo, setCampoAtivo] = useState<"email" | "senha" | null>(null);
+
+  const estadoAnimacao: RecruitaAnimationState = enviando
+    ? "loading"
+    : campoAtivo === "senha" || senha
+      ? "password"
+      : campoAtivo === "email" || email
+        ? "people"
+        : "idle";
 
   useEffect(() => {
     if (!carregando && session) void navigate({ to: "/", replace: true });
@@ -148,7 +158,9 @@ function Pagina() {
 
   return (
     <div className="grid min-h-screen bg-background lg:grid-cols-[1.05fr_1fr]">
-      <aside className="malha-escura hidden flex-col justify-between p-12 text-sidebar-foreground lg:flex">
+      <aside className="malha-escura relative hidden overflow-hidden p-12 text-sidebar-foreground lg:block">
+        <RecruitaNetworkAnimation state={estadoAnimacao} className="absolute inset-x-8 top-[14%] bottom-[12%]" />
+        <div className="relative z-10 flex h-full flex-col justify-between">
         <img
           src={logoLockup.url}
           alt="RECRUTA+ — Gestão inteligente de recrutamento"
@@ -174,6 +186,7 @@ function Pagina() {
         <p className="text-xs text-sidebar-foreground/45">
             Ambiente privado · Acesso individual e monitorado
         </p>
+        </div>
       </aside>
 
       <main className="flex items-center justify-center px-4 py-10 sm:px-8">
@@ -191,6 +204,7 @@ function Pagina() {
             <p className="mt-4 text-sm font-medium tracking-wide text-muted-foreground">
               Gestão inteligente de recrutamento.
             </p>
+            <RecruitaNetworkAnimation state={estadoAnimacao} compact className="mt-3 w-full lg:hidden" />
           </div>
 
           <div className="surface-panel filete-ouro entrada-suave rounded-2xl p-7 sm:p-8">
@@ -221,6 +235,9 @@ function Pagina() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setCampoAtivo("email")}
+                  onBlur={() => setCampoAtivo(null)}
+                  className="recruta-auth-input"
                 />
               </div>
               <div className="space-y-1.5">
@@ -231,6 +248,9 @@ function Pagina() {
                   required
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
+                   onFocus={() => setCampoAtivo("senha")}
+                   onBlur={() => setCampoAtivo(null)}
+                   className="recruta-auth-input"
                 />
               </div>
               <Button type="submit" className="w-full" disabled={enviando}>
