@@ -21,6 +21,7 @@ import {
 } from "@/lib/diarias";
 import { CamposTransporte } from "@/components/programacao/CamposTransporte";
 import { TRANSPORTE_PADRAO, type DadosTransporte } from "@/lib/programacao";
+import { RecruitaNetworkAnimation, type RecruitaAnimationState } from "@/components/RecruitaNetworkAnimation";
 
 function alternar(lista: string[], valor: string) {
   return lista.includes(valor) ? lista.filter((v) => v !== valor) : [...lista, valor];
@@ -59,6 +60,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
   const [consentimento, setConsentimento] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [concluido, setConcluido] = useState(false);
+  const [estadoFormulario, setEstadoFormulario] = useState<RecruitaAnimationState>("idle");
   /**
    * Empresa vem exclusivamente do link (slug) e é validada no banco.
    * Só declaramos o link indisponível quando o servidor respondeu que a
@@ -66,6 +68,11 @@ export function PortalCaptacao({ slug }: { slug: string }) {
    */
   const linkIndisponivel = !slugEmpresa || (!carregandoEmpresa && !falhaEmpresa && !empresa);
   const falhaCarregamento = Boolean(slugEmpresa) && falhaEmpresa;
+  const estadoAnimacao: RecruitaAnimationState = concluido
+    ? "success"
+    : enviando || carregandoEmpresa
+      ? "loading"
+      : estadoFormulario;
 
   const valido =
     Boolean(empresa?.id) &&
@@ -113,6 +120,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
         <h1 className="mb-6 text-center font-display text-2xl font-bold tracking-tight sm:text-3xl">
           {empresa ? `Cadastre-se para trabalhar na ${empresa.nome}` : "Cadastro para trabalho por diária"}
         </h1>
+        <RecruitaNetworkAnimation state={estadoAnimacao} compact className="mb-6" />
 
         {carregandoEmpresa && slugEmpresa && (
           <p className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-border/70 p-4 text-center text-sm text-muted-foreground">
@@ -160,7 +168,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2" onFocusCapture={() => setEstadoFormulario("people")}>
                 <div className="space-y-1.5">
                   <Label htmlFor="nome">Nome completo *</Label>
                   <Input
@@ -205,7 +213,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
               </div>
 
 
-              <div className="flex items-center justify-between rounded-xl border border-border/70 px-3.5 py-3">
+              <div className="flex items-center justify-between rounded-xl border border-border/70 px-3.5 py-3" onFocusCapture={() => setEstadoFormulario("connection")}>
                 <div>
                   <p className="text-sm font-medium">Tenho disponibilidade para diárias</p>
                   <p className="text-xs text-muted-foreground">Você pode alterar isso a qualquer momento com a equipe.</p>
@@ -213,12 +221,14 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                 <Switch checked={disponivel} onCheckedChange={setDisponivel} />
               </div>
 
-              <CamposTransporte
-                valor={transporte}
-                onChange={(parcial) => setTransporte((a) => ({ ...a, ...parcial }))}
-              />
+              <div onFocusCapture={() => setEstadoFormulario("connection")}>
+                <CamposTransporte
+                  valor={transporte}
+                  onChange={(parcial) => setTransporte((a) => ({ ...a, ...parcial }))}
+                />
+              </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2" onFocusCapture={() => setEstadoFormulario("connection")}>
                 <Label>Períodos disponíveis</Label>
                 <div className="flex flex-wrap gap-2">
                   {PERIODOS.map((p) => (
@@ -256,6 +266,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                   }
                 }}
                 className="flex cursor-pointer items-start gap-3 rounded-xl border border-border/70 px-3.5 py-3 text-left text-sm"
+                onFocusCapture={() => setEstadoFormulario("password")}
               >
                 <Checkbox
                   checked={consentimento}

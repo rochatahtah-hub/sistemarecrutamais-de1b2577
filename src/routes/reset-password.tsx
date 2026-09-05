@@ -6,6 +6,7 @@ import { CampoSenha } from "@/components/CampoSenha";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { RecruitaNetworkAnimation, type RecruitaAnimationState } from "@/components/RecruitaNetworkAnimation";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -29,6 +30,8 @@ function Pagina() {
   const [autorizado, setAutorizado] = useState(false);
   const [verificando, setVerificando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [campoAtivo, setCampoAtivo] = useState(false);
+  const estadoAnimacao: RecruitaAnimationState = salvando || verificando ? "loading" : campoAtivo ? "password" : "idle";
 
   useEffect(() => {
     let ativo = true;
@@ -72,8 +75,9 @@ function Pagina() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <section className="surface-panel filete-ouro w-full max-w-md rounded-2xl p-7 sm:p-8">
+    <main className="malha-escura relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <RecruitaNetworkAnimation state={estadoAnimacao} className="absolute inset-6 hidden sm:block" />
+      <section className="surface-panel filete-ouro relative z-10 w-full max-w-md rounded-2xl p-7 sm:p-8">
         <h1 className="text-2xl font-semibold text-foreground">Redefinir senha</h1>
         {verificando ? (
           <p className="mt-3 text-sm text-muted-foreground">Validando o link seguro...</p>
@@ -81,11 +85,11 @@ function Pagina() {
           <form className="mt-6 space-y-4" onSubmit={salvar}>
             <div className="space-y-1.5">
               <Label htmlFor="nova-senha">Nova senha</Label>
-              <CampoSenha id="nova-senha" autoComplete="new-password" required value={senha} onChange={(e) => setSenha(e.target.value)} />
+              <CampoSenha id="nova-senha" autoComplete="new-password" required value={senha} onChange={(e) => setSenha(e.target.value)} onFocus={() => setCampoAtivo(true)} onBlur={() => setCampoAtivo(false)} className="recruta-auth-input" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="confirmar-senha">Confirmar nova senha</Label>
-              <CampoSenha id="confirmar-senha" autoComplete="new-password" required value={confirmacao} onChange={(e) => setConfirmacao(e.target.value)} />
+              <CampoSenha id="confirmar-senha" autoComplete="new-password" required value={confirmacao} onChange={(e) => setConfirmacao(e.target.value)} onFocus={() => setCampoAtivo(true)} onBlur={() => setCampoAtivo(false)} className="recruta-auth-input" />
             </div>
             <Button type="submit" className="w-full" disabled={salvando}>
               {salvando ? "Salvando..." : "Salvar nova senha"}
