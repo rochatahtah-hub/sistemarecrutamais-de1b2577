@@ -2475,17 +2475,24 @@ export type Database = {
       }
       vagas: {
         Row: {
+          bairro: string | null
           candidato_id: string | null
           cargo: string
+          cidade: string | null
           colaborador_id: string | null
           created_at: string
           data: string
           descricao: string | null
           empresa_id: string | null
+          genero: string | null
           hash_registro: string | null
           horario: string
+          horario_fim: string | null
+          horario_inicio: string | null
           id: string
           importacao_id: string | null
+          intervalo_fim: string | null
+          intervalo_inicio: string | null
           local: string
           observacao: string | null
           origem: string
@@ -2495,20 +2502,29 @@ export type Database = {
           situacao: string
           status: string
           tenant_id: string
+          transporte_detalhes: string | null
+          transporte_tipo: string | null
           updated_at: string
         }
         Insert: {
+          bairro?: string | null
           candidato_id?: string | null
           cargo?: string
+          cidade?: string | null
           colaborador_id?: string | null
           created_at?: string
           data: string
           descricao?: string | null
           empresa_id?: string | null
+          genero?: string | null
           hash_registro?: string | null
           horario?: string
+          horario_fim?: string | null
+          horario_inicio?: string | null
           id?: string
           importacao_id?: string | null
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
           local?: string
           observacao?: string | null
           origem?: string
@@ -2518,20 +2534,29 @@ export type Database = {
           situacao?: string
           status: string
           tenant_id?: string
+          transporte_detalhes?: string | null
+          transporte_tipo?: string | null
           updated_at?: string
         }
         Update: {
+          bairro?: string | null
           candidato_id?: string | null
           cargo?: string
+          cidade?: string | null
           colaborador_id?: string | null
           created_at?: string
           data?: string
           descricao?: string | null
           empresa_id?: string | null
+          genero?: string | null
           hash_registro?: string | null
           horario?: string
+          horario_fim?: string | null
+          horario_inicio?: string | null
           id?: string
           importacao_id?: string | null
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
           local?: string
           observacao?: string | null
           origem?: string
@@ -2541,6 +2566,8 @@ export type Database = {
           situacao?: string
           status?: string
           tenant_id?: string
+          transporte_detalhes?: string | null
+          transporte_tipo?: string | null
           updated_at?: string
         }
         Relationships: [
