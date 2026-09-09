@@ -202,5 +202,5 @@ export const candidatarPublico = createServerFn({ method: "POST" })
       throw new Error("Não foi possível concluir a candidatura. Tente novamente.");
     }
 
-    return { ok: true };
+    return { ok: true as const, motivo: null };
   });
