@@ -21,6 +21,7 @@ import { Route as BancoColaboradoresRouteImport } from './routes/banco-colaborad
 import { Route as BancoDadosRouteImport } from './routes/banco-dados'
 import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
+import { Route as CaptacaoRouteImport } from './routes/captacao'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
@@ -111,6 +112,11 @@ const BloqueiosRoute = BloqueiosRouteImport.update({
 const CandidatosRoute = CandidatosRouteImport.update({
   id: '/candidatos',
   path: '/candidatos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaptacaoRoute = CaptacaoRouteImport.update({
+  id: '/captacao',
+  path: '/captacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
+  '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
+  '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -374,6 +382,7 @@ export interface FileRoutesById {
   '/banco-dados': typeof BancoDadosRoute
   '/bloqueios': typeof BloqueiosRoute
   '/candidatos': typeof CandidatosRoute
+  '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
@@ -421,6 +430,7 @@ export interface FileRouteTypes {
     | '/banco-dados'
     | '/bloqueios'
     | '/candidatos'
+    | '/captacao'
     | '/chat'
     | '/comparar'
     | '/configuracoes'
@@ -466,6 +476,7 @@ export interface FileRouteTypes {
     | '/banco-dados'
     | '/bloqueios'
     | '/candidatos'
+    | '/captacao'
     | '/chat'
     | '/comparar'
     | '/configuracoes'
@@ -511,6 +522,7 @@ export interface FileRouteTypes {
     | '/banco-dados'
     | '/bloqueios'
     | '/candidatos'
+    | '/captacao'
     | '/chat'
     | '/comparar'
     | '/configuracoes'
@@ -557,6 +569,7 @@ export interface RootRouteChildren {
   BancoDadosRoute: typeof BancoDadosRoute
   BloqueiosRoute: typeof BloqueiosRoute
   CandidatosRoute: typeof CandidatosRoute
+  CaptacaoRoute: typeof CaptacaoRoute
   ChatRoute: typeof ChatRoute
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
@@ -674,6 +687,13 @@ declare module '@tanstack/react-router' {
       path: '/candidatos'
       fullPath: '/candidatos'
       preLoaderRoute: typeof CandidatosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/captacao': {
+      id: '/captacao'
+      path: '/captacao'
+      fullPath: '/captacao'
+      preLoaderRoute: typeof CaptacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -909,6 +929,7 @@ const rootRouteChildren: RootRouteChildren = {
   BancoDadosRoute: BancoDadosRoute,
   BloqueiosRoute: BloqueiosRoute,
   CandidatosRoute: CandidatosRoute,
+  CaptacaoRoute: CaptacaoRoute,
   ChatRoute: ChatRoute,
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,

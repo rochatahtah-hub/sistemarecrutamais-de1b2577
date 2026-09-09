@@ -18,6 +18,8 @@ export type Acao =
   | "resolver_divergencia"
   | "historico"
   | "processar"
+  | "arquivar"
+  | "restaurar"
   | "editar_aguardando_confirmacao";
 
 export interface ModuloInfo {
@@ -86,6 +88,11 @@ export const MODULOS: ModuloInfo[] = [
   { chave: "feedback_respostas", nome: "Feedback — Respostas", acoes: ["visualizar"] },
   { chave: "feedback_dashboard", nome: "Feedback — Dashboard", acoes: ["visualizar"] },
 
+  {
+    chave: "captacao",
+    nome: "Captação de Candidatos",
+    acoes: ["visualizar", "criar", "editar", "arquivar", "restaurar", "excluir", "administrar"],
+  },
   { chave: "chat", nome: "Chat", acoes: ["utilizar"] },
   { chave: "importar", nome: "Importar Excel", acoes: ["visualizar", "criar"] },
   {
@@ -137,6 +144,8 @@ export const ACAO_ROTULO: Record<Acao, string> = {
   resolver_divergencia: "Resolver divergência",
   historico: "Histórico",
   processar: "Processar",
+  arquivar: "Arquivar",
+  restaurar: "Restaurar",
   editar_aguardando_confirmacao: "Editar aguardando confirmação",
 };
 
@@ -163,6 +172,7 @@ export const MODULO_POR_ROTA: Record<string, string> = {
   "/feedback/dashboard": "feedback_dashboard",
   "/feedback": "feedback",
 
+  "/captacao": "captacao",
   "/chat": "chat",
   "/administracao": "administracao",
   "/importar": "importar",
