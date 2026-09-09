@@ -574,6 +574,186 @@ export type Database = {
           },
         ]
       }
+      captacao_candidaturas: {
+        Row: {
+          cpf: string
+          created_at: string
+          curriculo_nome: string
+          curriculo_path: string
+          daily_worker_id: string | null
+          id: string
+          nome: string
+          observacao: string
+          oportunidade_id: string
+          status: string
+          telefone: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          cpf?: string
+          created_at?: string
+          curriculo_nome?: string
+          curriculo_path?: string
+          daily_worker_id?: string | null
+          id?: string
+          nome?: string
+          observacao?: string
+          oportunidade_id: string
+          status?: string
+          telefone?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          cpf?: string
+          created_at?: string
+          curriculo_nome?: string
+          curriculo_path?: string
+          daily_worker_id?: string | null
+          id?: string
+          nome?: string
+          observacao?: string
+          oportunidade_id?: string
+          status?: string
+          telefone?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "captacao_candidaturas_daily_worker_id_fkey"
+            columns: ["daily_worker_id"]
+            isOneToOne: false
+            referencedRelation: "daily_workers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "captacao_candidaturas_oportunidade_id_fkey"
+            columns: ["oportunidade_id"]
+            isOneToOne: false
+            referencedRelation: "captacao_oportunidades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "captacao_candidaturas_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      captacao_config: {
+        Row: {
+          clt_ativa: boolean
+          created_at: string
+          diarias_ativa: boolean
+          id: string
+          oportunidades_ativa: boolean
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          clt_ativa?: boolean
+          created_at?: string
+          diarias_ativa?: boolean
+          id?: string
+          oportunidades_ativa?: boolean
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          clt_ativa?: boolean
+          created_at?: string
+          diarias_ativa?: boolean
+          id?: string
+          oportunidades_ativa?: boolean
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "captacao_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      captacao_oportunidades: {
+        Row: {
+          arquivada_em: string | null
+          created_at: string
+          criado_por: string | null
+          criado_por_nome: string
+          curriculo_obrigatorio: boolean
+          data_oportunidade: string | null
+          descricao: string
+          id: string
+          informacoes_adicionais: string
+          modalidade: string
+          requisitos: string
+          status: string
+          tenant_id: string
+          titulo: string
+          updated_at: string
+          vaga_id: string | null
+        }
+        Insert: {
+          arquivada_em?: string | null
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          curriculo_obrigatorio?: boolean
+          data_oportunidade?: string | null
+          descricao?: string
+          id?: string
+          informacoes_adicionais?: string
+          modalidade: string
+          requisitos?: string
+          status?: string
+          tenant_id?: string
+          titulo?: string
+          updated_at?: string
+          vaga_id?: string | null
+        }
+        Update: {
+          arquivada_em?: string | null
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          curriculo_obrigatorio?: boolean
+          data_oportunidade?: string | null
+          descricao?: string
+          id?: string
+          informacoes_adicionais?: string
+          modalidade?: string
+          requisitos?: string
+          status?: string
+          tenant_id?: string
+          titulo?: string
+          updated_at?: string
+          vaga_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "captacao_oportunidades_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "captacao_oportunidades_vaga_id_fkey"
+            columns: ["vaga_id"]
+            isOneToOne: false
+            referencedRelation: "vagas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       colaboradores: {
         Row: {
           ativo: boolean
