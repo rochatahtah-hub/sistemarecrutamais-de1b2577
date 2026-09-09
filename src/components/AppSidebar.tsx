@@ -31,6 +31,7 @@ import {
   BarChart3,
   ClipboardList,
   ListChecks,
+  Megaphone,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -71,6 +72,7 @@ const gestao = [
   { title: "Metas", url: "/metas", icon: Target },
   { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
   { title: "Banco de Colaboradores", url: "/banco-colaboradores", icon: Database },
+  { title: "Configuração de Captação", url: "/captacao", icon: Megaphone },
 ] as const;
 
 const analises = [
