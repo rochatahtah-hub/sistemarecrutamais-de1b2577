@@ -165,7 +165,8 @@ export const candidatarPublico = createServerFn({ method: "POST" })
       .eq("oportunidade_id", oportunidade.id)
       .eq("daily_worker_id", colaboradorId)
       .maybeSingle();
-    if (jaInscrito) throw new Error("Você já está cadastrado nesta oportunidade.");
+    // Situação esperada (não é erro): a pessoa já se cadastrou nesta oportunidade.
+    if (jaInscrito) return { ok: false as const, motivo: "duplicado" as const };
 
     let curriculoPath = "";
     let curriculoNome = "";
