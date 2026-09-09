@@ -1,10 +1,31 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Archive, FileText, Loader2, Plus, RotateCcw, Trash2, Users } from "lucide-react";
+import {
+  Archive,
+  ChevronRight,
+  FileText,
+  Loader2,
+  MessageCircle,
+  Phone,
+  Plus,
+  RotateCcw,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/PageHeader";
 import { RequerPermissao } from "@/components/RequerPermissao";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,10 +58,14 @@ import {
   useSalvarOportunidade,
   useVagasParaCaptacao,
   urlCurriculo,
+  type Candidatura,
   type DadosOportunidade,
   type Oportunidade,
 } from "@/lib/captacao";
 import { usePermissoes } from "@/lib/permissoes";
+import { usePrivacidade } from "@/lib/privacidade";
+import { formatarCPF, formatarTelefone } from "@/lib/programacao";
+import { linkWhatsApp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/captacao")({
   head: () => ({
@@ -466,6 +491,11 @@ function DialogOportunidade({
   );
 }
 
+const STATUS_CANDIDATURA_ROTULO: Record<Candidatura["status"], string> = {
+  ativa: "Ativa",
+  arquivada: "Arquivada",
+};
+
 function DialogCandidatos({
   oportunidade,
   onFechar,
@@ -474,8 +504,11 @@ function DialogCandidatos({
   onFechar: () => void;
 }) {
   const { pode } = usePermissoes();
+  const priv = usePrivacidade();
   const { data: lista, isPending } = useCandidaturas(oportunidade.id);
   const excluir = useExcluirCandidatura();
+  const [detalhe, setDetalhe] = useState<Candidatura | null>(null);
+  const [excluindo, setExcluindo] = useState<Candidatura | null>(null);
 
   async function abrirCurriculo(caminho: string) {
     try {
@@ -486,56 +519,253 @@ function DialogCandidatos({
     }
   }
 
+  function confirmarExclusao() {
+    if (!excluindo) return;
+    excluir.mutate(excluindo.id, {
+      onSuccess: () => {
+        toast.success("Cadastro excluído. O colaborador continua no RECRUTA+.");
+        if (detalhe?.id === excluindo.id) setDetalhe(null);
+        setExcluindo(null);
+      },
+      onError: () => toast.error("Não foi possível excluir."),
+    });
+  }
+
   return (
-    <Dialog open onOpenChange={(v) => !v && onFechar()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+    <>
+      <Dialog open onOpenChange={(v) => !v && onFechar()}>
+        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              Cadastros
+            </p>
+            <DialogTitle className="text-xl leading-snug">{oportunidade.titulo}</DialogTitle>
+            <DialogDescription className="text-xs">
+              Excluir um cadastro remove apenas esta candidatura — o colaborador continua cadastrado
+              no RECRUTA+.
+            </DialogDescription>
+          </DialogHeader>
+
+          {isPending ? (
+            <Skeleton className="h-32 w-full" />
+          ) : (lista ?? []).length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Nenhum cadastro ainda.</p>
+          ) : (
+            <ul className="space-y-3">
+              {(lista ?? []).map((c) => {
+                const link = priv.privado ? null : linkWhatsApp(c.telefone);
+                const telefoneExibido = priv.privado ? priv.telefone(c.telefone) : formatarTelefone(c.telefone);
+                return (
+                  <li key={c.id} className="rounded-2xl border border-border bg-card p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setDetalhe(c)}
+                        className="group min-w-0 flex-1 text-left"
+                      >
+                        <p className="truncate text-base font-semibold leading-tight group-hover:text-primary">
+                          {priv.nome(c.nome)}
+                        </p>
+                        <span className="mt-0.5 inline-flex items-center gap-0.5 text-xs text-primary/80 group-hover:underline">
+                          Ver cadastro <ChevronRight className="h-3 w-3" />
+                        </span>
+                      </button>
+                      <Badge variant={c.status === "ativa" ? "gold" : "secondary"} className="shrink-0">
+                        {STATUS_CANDIDATURA_ROTULO[c.status] ?? c.status}
+                      </Badge>
+                    </div>
+
+                    {c.telefone &&
+                      (link ? (
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:underline"
+                        >
+                          <Phone className="h-3.5 w-3.5 shrink-0" /> {telefoneExibido}
+                        </a>
+                      ) : (
+                        <span className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                          <Phone className="h-3.5 w-3.5 shrink-0" /> {telefoneExibido}
+                        </span>
+                      ))}
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {link && (
+                        <Button asChild size="sm" className="bg-emerald-600 text-white hover:bg-emerald-500">
+                          <a href={link} target="_blank" rel="noreferrer">
+                            <MessageCircle className="mr-1.5 h-4 w-4" /> WhatsApp
+                          </a>
+                        </Button>
+                      )}
+                      <Button size="sm" variant="outline" onClick={() => setDetalhe(c)}>
+                        Ver cadastro
+                      </Button>
+                      {c.curriculo_path && (
+                        <Button size="sm" variant="outline" onClick={() => void abrirCurriculo(c.curriculo_path)}>
+                          <FileText className="mr-1.5 h-4 w-4" /> Currículo
+                        </Button>
+                      )}
+                    </div>
+
+                    {pode("captacao", "excluir") && (
+                      <div className="mt-3 border-t border-border/60 pt-3">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => setExcluindo(c)}
+                        >
+                          <Trash2 className="mr-1.5 h-4 w-4" /> Excluir cadastro
+                        </Button>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <DialogDetalheCandidatura
+        candidatura={detalhe}
+        oportunidade={oportunidade}
+        onFechar={() => setDetalhe(null)}
+        onAbrirCurriculo={abrirCurriculo}
+      />
+
+      <AlertDialog open={Boolean(excluindo)} onOpenChange={(v) => !v && setExcluindo(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir este cadastro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação remove somente a candidatura
+              {excluindo ? ` de ${priv.nome(excluindo.nome)}` : ""} nesta vaga. O colaborador
+              continuará cadastrado no RECRUTA+.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={excluir.isPending}
+              onClick={confirmarExclusao}
+            >
+              {excluir.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Excluir cadastro
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+/** Painel de leitura com os dados já existentes da candidatura — nada é inventado nem editado aqui. */
+function DialogDetalheCandidatura({
+  candidatura,
+  oportunidade,
+  onFechar,
+  onAbrirCurriculo,
+}: {
+  candidatura: Candidatura | null;
+  oportunidade: Oportunidade;
+  onFechar: () => void;
+  onAbrirCurriculo: (caminho: string) => void;
+}) {
+  const priv = usePrivacidade();
+  const link = candidatura && !priv.privado ? linkWhatsApp(candidatura.telefone) : null;
+
+  return (
+    <Dialog open={Boolean(candidatura)} onOpenChange={(v) => !v && onFechar()}>
+      <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Cadastros — {oportunidade.titulo}</DialogTitle>
-          <DialogDescription>
-            Excluir um cadastro remove apenas esta candidatura, nunca o colaborador.
-          </DialogDescription>
+          <DialogTitle>Dados do cadastro</DialogTitle>
         </DialogHeader>
-        {isPending ? (
-          <Skeleton className="h-32 w-full" />
-        ) : (lista ?? []).length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">Nenhum cadastro ainda.</p>
-        ) : (
-          <ul className="space-y-2">
-            {(lista ?? []).map((c) => (
-              <li key={c.id} className="rounded-xl border border-border p-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{c.nome}</p>
-                    <p className="text-xs text-muted-foreground">{c.telefone}</p>
-                  </div>
-                  <Badge variant={c.status === "ativa" ? "gold" : "secondary"}>{c.status}</Badge>
+
+        {candidatura && (
+          <div className="space-y-4">
+            <div>
+              <p className="text-lg font-semibold leading-tight">{priv.nome(candidatura.nome)}</p>
+              <Badge
+                variant={candidatura.status === "ativa" ? "gold" : "secondary"}
+                className="mt-2"
+              >
+                {STATUS_CANDIDATURA_ROTULO[candidatura.status] ?? candidatura.status}
+              </Badge>
+            </div>
+
+            <dl className="grid gap-3 text-sm sm:grid-cols-2">
+              {candidatura.telefone && (
+                <div>
+                  <dt className="text-xs text-muted-foreground">Telefone</dt>
+                  <dd className="font-medium">
+                    {priv.privado ? priv.telefone(candidatura.telefone) : formatarTelefone(candidatura.telefone)}
+                  </dd>
                 </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {c.curriculo_path && (
-                    <Button size="sm" variant="outline" onClick={() => void abrirCurriculo(c.curriculo_path)}>
-                      <FileText className="mr-1 h-4 w-4" /> Currículo
-                    </Button>
-                  )}
-                  {pode("captacao", "excluir") && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={excluir.isPending}
-                      onClick={() => {
-                        if (!window.confirm("Excluir somente esta candidatura?")) return;
-                        excluir.mutate(c.id, {
-                          onSuccess: () => toast.success("Candidatura excluída."),
-                          onError: () => toast.error("Não foi possível excluir."),
-                        });
-                      }}
-                    >
-                      <Trash2 className="mr-1 h-4 w-4" /> Excluir
-                    </Button>
-                  )}
+              )}
+              {candidatura.cpf && (
+                <div>
+                  <dt className="text-xs text-muted-foreground">CPF</dt>
+                  <dd className="font-medium">
+                    {priv.privado ? priv.cpf(candidatura.cpf) : formatarCPF(candidatura.cpf)}
+                  </dd>
                 </div>
-              </li>
-            ))}
-          </ul>
+              )}
+              <div>
+                <dt className="text-xs text-muted-foreground">Data do cadastro</dt>
+                <dd className="font-medium">
+                  {new Date(candidatura.created_at).toLocaleDateString("pt-BR")}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">Tipo de cadastro</dt>
+                <dd className="font-medium">{MODALIDADE_ROTULO[oportunidade.modalidade]}</dd>
+              </div>
+              <div className="sm:col-span-2">
+                <dt className="text-xs text-muted-foreground">Vaga</dt>
+                <dd className="font-medium">{oportunidade.titulo}</dd>
+              </div>
+              {oportunidade.data_oportunidade && (
+                <div>
+                  <dt className="text-xs text-muted-foreground">Data da oportunidade</dt>
+                  <dd className="font-medium">
+                    {new Date(`${oportunidade.data_oportunidade}T12:00:00`).toLocaleDateString("pt-BR")}
+                  </dd>
+                </div>
+              )}
+            </dl>
+
+            {oportunidade.requisitos && (
+              <div>
+                <p className="text-xs text-muted-foreground">Requisitos da oportunidade</p>
+                <p className="mt-1 whitespace-pre-line text-sm">{oportunidade.requisitos}</p>
+              </div>
+            )}
+
+            {candidatura.curriculo_path && (
+              <div>
+                <p className="mb-1.5 text-xs text-muted-foreground">Currículo</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onAbrirCurriculo(candidatura.curriculo_path)}
+                >
+                  <FileText className="mr-1.5 h-4 w-4" /> Visualizar currículo
+                </Button>
+              </div>
+            )}
+
+            {link && (
+              <Button asChild className="w-full bg-emerald-600 text-white hover:bg-emerald-500">
+                <a href={link} target="_blank" rel="noreferrer">
+                  <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
+                </a>
+              </Button>
+            )}
+          </div>
         )}
       </DialogContent>
     </Dialog>
