@@ -68,7 +68,7 @@ function Pagina() {
           <Label htmlFor="f-usuario">Usuário</Label>
           <select
             id="f-usuario"
-            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
             value={usuarioId}
             onChange={(e) => setUsuarioId(e.target.value)}
           >
