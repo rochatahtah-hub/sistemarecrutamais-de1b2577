@@ -78,6 +78,10 @@ export function CandidaturaOportunidade({
           curriculo,
         },
       });
+      if (retorno && retorno.ok === false) {
+        toast.info("Você já se cadastrou nesta oportunidade. Aguarde nosso contato.");
+        return;
+      }
       setConcluido(true);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível enviar sua candidatura.");
