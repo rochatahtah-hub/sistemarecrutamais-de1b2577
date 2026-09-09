@@ -49,12 +49,12 @@ export const Route = createFileRoute("/captacao")({
       {
         name: "description",
         content:
-          "Escolha quais oportunidades ficam disponíveis para os candidatos: diárias, oportunidades específicas e vagas CLT.",
+          "Escolha quais oportunidades ficam disponíveis para os candidatos: diárias, diárias selecionadas e vagas CLT.",
       },
       { property: "og:title", content: "Configuração de Captação | RECRUTA+" },
       {
         property: "og:description",
-        content: "Gerencie diárias, oportunidades específicas e vagas CLT disponíveis para candidatura.",
+        content: "Gerencie diárias, diárias selecionadas e vagas CLT disponíveis para candidatura.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -131,7 +131,7 @@ function Pagina() {
       <Tabs defaultValue="diarias">
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="diarias">DIÁRIAS</TabsTrigger>
-          <TabsTrigger value="especifica">OPORTUNIDADES ESPECÍFICAS</TabsTrigger>
+          <TabsTrigger value="especifica">DIÁRIAS SELECIONADAS</TabsTrigger>
           <TabsTrigger value="clt">VAGAS CLT</TabsTrigger>
         </TabsList>
         <TabsContent value="diarias" className="pt-4">
@@ -345,7 +345,7 @@ function DialogOportunidade({
     <Dialog open onOpenChange={(v) => !v && onFechar()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{clt ? "Vaga CLT" : "Oportunidade específica"}</DialogTitle>
+          <DialogTitle>{clt ? "Vaga CLT" : "Diária selecionada"}</DialogTitle>
           <DialogDescription>
             Use uma vaga que já existe no sistema e complete as informações do anúncio.
           </DialogDescription>

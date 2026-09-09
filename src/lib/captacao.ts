@@ -8,13 +8,13 @@ export type ModalidadeCaptacao = "diarias" | "especifica" | "clt";
 
 export const MODALIDADE_ROTULO: Record<ModalidadeCaptacao, string> = {
   diarias: "DIÁRIAS",
-  especifica: "OPORTUNIDADES ESPECÍFICAS",
+  especifica: "DIÁRIAS SELECIONADAS",
   clt: "VAGAS CLT",
 };
 
 export const MODALIDADE_DESCRICAO: Record<ModalidadeCaptacao, string> = {
   diarias: "Encontre diárias abertas",
-  especifica: "Escolha uma oportunidade",
+  especifica: "Escolha uma diária selecionada",
   clt: "Encontre oportunidades efetivas",
 };
 
