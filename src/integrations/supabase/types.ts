@@ -2681,6 +2681,12 @@ export type Database = {
         }
         Returns: string
       }
+      registrar_falha_pin: {
+        Args: never
+        Returns: {
+          falhas: number
+        }[]
+      }
       registrar_log_tenant: {
         Args: { _acao: string; _detalhe: string; _tenant: string }
         Returns: undefined
