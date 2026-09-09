@@ -355,7 +355,7 @@ function DialogOportunidade({
             <Label htmlFor="vaga">Vaga existente</Label>
             <select
               id="vaga"
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
               value={form.vaga_id ?? ""}
               onChange={(e) => {
                 const id = e.target.value || null;
