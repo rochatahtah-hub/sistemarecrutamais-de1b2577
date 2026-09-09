@@ -66,7 +66,7 @@ export function CandidaturaOportunidade({
         if (arquivo.size > 8 * 1024 * 1024) throw new Error("O currículo deve ter até 8 MB.");
         curriculo = { nome: arquivo.name, tipo: arquivo.type, base64: await lerArquivo(arquivo) };
       }
-      await candidatarPublico({
+      const retorno = await candidatarPublico({
         data: {
           slug,
           oportunidadeId: oportunidade.id,
@@ -78,6 +78,10 @@ export function CandidaturaOportunidade({
           curriculo,
         },
       });
+      if (retorno && retorno.ok === false) {
+        toast.info("Você já se cadastrou nesta oportunidade. Aguarde nosso contato.");
+        return;
+      }
       setConcluido(true);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível enviar sua candidatura.");
