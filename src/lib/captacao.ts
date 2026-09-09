@@ -33,18 +33,6 @@ export const CONFIG_PADRAO: ConfigCaptacao = {
   clt_ativa: false,
 };
 
-export interface VagaResumo {
-  genero: string | null;
-  cidade: string | null;
-  bairro: string | null;
-  horario_inicio: string | null;
-  horario_fim: string | null;
-  intervalo_inicio: string | null;
-  intervalo_fim: string | null;
-  transporte_tipo: string | null;
-  transporte_detalhes: string | null;
-}
-
 export interface Oportunidade {
   id: string;
   modalidade: "especifica" | "clt";
@@ -57,8 +45,6 @@ export interface Oportunidade {
   curriculo_obrigatorio: boolean;
   status: "ativa" | "arquivada";
   created_at: string;
-  /** Condições da vaga vinculada (gênero, local, horário, transporte) — null se não houver vaga vinculada. */
-  vaga: VagaResumo | null;
 }
 
 export interface Candidatura {
@@ -75,8 +61,7 @@ export interface Candidatura {
 }
 
 const CAMPOS_OPORTUNIDADE =
-  "id,modalidade,vaga_id,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio,status,created_at," +
-  "vaga:vagas(genero,cidade,bairro,horario_inicio,horario_fim,intervalo_inicio,intervalo_fim,transporte_tipo,transporte_detalhes)";
+  "id,modalidade,vaga_id,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio,status,created_at";
 
 /** Configuração de modalidades da empresa atual (o banco isola por empresa). */
 export function useConfigCaptacao() {
@@ -133,7 +118,7 @@ export function useOportunidades(modalidade: "especifica" | "clt", status: "ativ
         .order("created_at", { ascending: false })
         .limit(300);
       if (error) throw error;
-      return (data ?? []) as unknown as Oportunidade[];
+      return (data ?? []) as Oportunidade[];
     },
   });
 }
@@ -295,7 +280,7 @@ export function useVagasParaCaptacao() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vagas")
-        .select("id,data,cargo,descricao,empresas(nome),genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo")
+        .select("id,data,cargo,descricao,empresas(nome)")
         .order("data", { ascending: false })
         .limit(200);
       if (error) throw error;
@@ -306,12 +291,6 @@ export function useVagasParaCaptacao() {
           data: v.data as string,
           cargo: (v.cargo as string) || (v.descricao as string) || "Vaga",
           empresa: empresa?.nome ?? "",
-          genero: v.genero as string | null,
-          cidade: v.cidade as string | null,
-          bairro: v.bairro as string | null,
-          horario_inicio: v.horario_inicio as string | null,
-          horario_fim: v.horario_fim as string | null,
-          transporte_tipo: v.transporte_tipo as string | null,
         };
       });
     },

@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -26,16 +25,7 @@ import { usePrivacidade } from "@/lib/privacidade";
 import { usePermissoes } from "@/lib/permissoes";
 import { useEmpresas } from "@/lib/programacao";
 import { agregar, fmtData, fmtNum, fmtPct } from "@/lib/metricas";
-import {
-  formatarResumoVaga,
-  GENERO_LABEL,
-  GENEROS,
-  SITUACOES,
-  SITUACAO_LABEL,
-  STATUS_LABEL,
-  TRANSPORTE_VAGA_LABEL,
-  type VagaRegistro,
-} from "@/lib/tipos";
+import { SITUACOES, SITUACAO_LABEL, STATUS_LABEL, type VagaRegistro } from "@/lib/tipos";
 
 const STATUS = ["AGUARDANDO", "PRESENCA", "FALTA", "CANCELAMENTO"] as const;
 
@@ -65,15 +55,6 @@ export function FichaVaga({
   const [observacao, setObservacao] = useState("");
   const [empresaId, setEmpresaId] = useState("");
   const [dataInicio, setDataInicio] = useState("");
-  const [genero, setGenero] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [horarioInicio, setHorarioInicio] = useState("");
-  const [horarioFim, setHorarioFim] = useState("");
-  const [intervaloInicio, setIntervaloInicio] = useState("");
-  const [intervaloFim, setIntervaloFim] = useState("");
-  const [transporteTipo, setTransporteTipo] = useState("");
-  const [transporteDetalhes, setTransporteDetalhes] = useState("");
 
   useEffect(() => {
     if (!vaga) return;
@@ -86,15 +67,6 @@ export function FichaVaga({
     setObservacao(vaga.observacao);
     setEmpresaId(vaga.empresa_id ?? "");
     setDataInicio(vaga.data);
-    setGenero(vaga.genero);
-    setCidade(vaga.cidade);
-    setBairro(vaga.bairro);
-    setHorarioInicio(vaga.horario_inicio);
-    setHorarioFim(vaga.horario_fim);
-    setIntervaloInicio(vaga.intervalo_inicio);
-    setIntervaloFim(vaga.intervalo_fim);
-    setTransporteTipo(vaga.transporte_tipo);
-    setTransporteDetalhes(vaga.transporte_detalhes);
   }, [vaga]);
 
   const editavel =
@@ -115,39 +87,16 @@ export function FichaVaga({
 
   async function salvar() {
     if (!vaga) return;
-    if (Boolean(horarioInicio) !== Boolean(horarioFim)) {
-      toast.error("Informe início e fim do horário, ou deixe os dois em branco.");
-      return;
-    }
-    if (horarioInicio && horarioFim && horarioFim <= horarioInicio) {
-      toast.error("O horário de término deve ser depois do horário de início.");
-      return;
-    }
-    if (Boolean(intervaloInicio) !== Boolean(intervaloFim)) {
-      toast.error("Informe início e fim do intervalo, ou deixe os dois em branco.");
-      return;
-    }
-    const horarioTexto =
-      horarioInicio && horarioFim ? `${horarioInicio} às ${horarioFim}` : horario.trim();
     try {
       await atualizar.mutateAsync({
         id: vaga.id,
         cargo: cargo.trim(),
-        horario: horarioTexto,
+        horario: horario.trim(),
         local: local.trim(),
         responsavel: responsavel.trim(),
         situacao,
         quantidade: Number.isFinite(quantidade) && quantidade > 0 ? quantidade : 1,
         observacao: observacao.trim(),
-        genero: genero || null,
-        cidade: cidade.trim() || null,
-        bairro: bairro.trim() || null,
-        horario_inicio: horarioInicio || null,
-        horario_fim: horarioFim || null,
-        intervalo_inicio: intervaloInicio || null,
-        intervalo_fim: intervaloFim || null,
-        transporte_tipo: transporteTipo || null,
-        transporte_detalhes: transporteTipo === "FRETADO" ? transporteDetalhes.trim() || null : null,
         ...(editavel ? { empresa_id: empresaId, data: dataInicio } : {}),
       });
       toast.success("Ficha da vaga atualizada.");
@@ -234,15 +183,11 @@ export function FichaVaga({
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="fv-hora">Horário (anotação livre)</Label>
+            <Label htmlFor="fv-hora">Horário</Label>
             <Input
               id="fv-hora"
-              value={
-                horarioInicio && horarioFim
-                  ? valorProtegido(`${horarioInicio} às ${horarioFim}`)
-                  : valorProtegido(horario)
-              }
-              readOnly={priv.privado || Boolean(horarioInicio && horarioFim)}
+              value={valorProtegido(horario)}
+              readOnly={priv.privado}
               placeholder="ex.: 08:00 às 17:00"
               onChange={(e) => setHorario(e.target.value)}
             />
@@ -291,131 +236,6 @@ export function FichaVaga({
             </Select>
           </div>
         </div>
-
-        <section className="space-y-4 rounded-xl border border-border/70 bg-muted/20 p-4">
-          <h3 className="rotulo-secao">Perfil e transporte</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Gênero</Label>
-              <RadioGroup className="flex flex-wrap gap-4" value={genero} onValueChange={setGenero}>
-                {GENEROS.map((g) => (
-                  <div key={g} className="flex items-center gap-2">
-                    <RadioGroupItem value={g} id={`fv-genero-${g}`} />
-                    <Label htmlFor={`fv-genero-${g}`} className="font-normal">
-                      {GENERO_LABEL[g]}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-            <div className="space-y-2">
-              <Label>Transporte</Label>
-              <RadioGroup
-                className="flex flex-wrap gap-4"
-                value={transporteTipo}
-                onValueChange={(v) => {
-                  setTransporteTipo(v);
-                  if (v !== "FRETADO") setTransporteDetalhes("");
-                }}
-              >
-                {(Object.keys(TRANSPORTE_VAGA_LABEL) as (keyof typeof TRANSPORTE_VAGA_LABEL)[]).map((t) => (
-                  <div key={t} className="flex items-center gap-2">
-                    <RadioGroupItem value={t} id={`fv-transporte-${t}`} />
-                    <Label htmlFor={`fv-transporte-${t}`} className="font-normal">
-                      {TRANSPORTE_VAGA_LABEL[t]}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </div>
-          </div>
-          {transporteTipo === "FRETADO" && (
-            <div className="space-y-1.5">
-              <Label htmlFor="fv-transporte-detalhes">Detalhes do fretado (opcional)</Label>
-              <Textarea
-                id="fv-transporte-detalhes"
-                rows={2}
-                value={transporteDetalhes}
-                onChange={(e) => setTransporteDetalhes(e.target.value)}
-                placeholder="Ex.: embarque às 6h na praça central, ônibus fretado, observações..."
-              />
-            </div>
-          )}
-        </section>
-
-        <section className="space-y-4 rounded-xl border border-border/70 bg-muted/20 p-4">
-          <h3 className="rotulo-secao">Local e horário</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="fv-cidade">Cidade</Label>
-              <Input id="fv-cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="fv-bairro">Bairro</Label>
-              <Input id="fv-bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="fv-hora-inicio">Horário de início</Label>
-              <Input
-                id="fv-hora-inicio"
-                type="time"
-                value={horarioInicio}
-                onChange={(e) => setHorarioInicio(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="fv-hora-fim">Horário de término</Label>
-              <Input
-                id="fv-hora-fim"
-                type="time"
-                value={horarioFim}
-                onChange={(e) => setHorarioFim(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="fv-intervalo-inicio">Intervalo — início (opcional)</Label>
-              <Input
-                id="fv-intervalo-inicio"
-                type="time"
-                value={intervaloInicio}
-                onChange={(e) => setIntervaloInicio(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="fv-intervalo-fim">Intervalo — fim (opcional)</Label>
-              <Input
-                id="fv-intervalo-fim"
-                type="time"
-                value={intervaloFim}
-                onChange={(e) => setIntervaloFim(e.target.value)}
-              />
-            </div>
-          </div>
-        </section>
-
-        {(() => {
-          const linhasResumo = formatarResumoVaga({
-            cidade,
-            bairro,
-            horario_inicio: horarioInicio,
-            horario_fim: horarioFim,
-            genero,
-            transporte_tipo: transporteTipo,
-            transporte_detalhes: transporteDetalhes,
-          });
-          return linhasResumo.length > 0 ? (
-            <div className="space-y-1 rounded-xl border border-gold/25 bg-gold-soft/40 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Resumo — como aparecerá para o candidato
-              </p>
-              {linhasResumo.map((linha) => (
-                <p key={linha} className="text-sm">
-                  {linha}
-                </p>
-              ))}
-            </div>
-          ) : null;
-        })()}
 
         <div className="space-y-1.5">
           <Label htmlFor="fv-obs">Observações</Label>

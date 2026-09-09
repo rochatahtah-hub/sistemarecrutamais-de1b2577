@@ -65,7 +65,6 @@ import {
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
 import { formatarCPF, formatarTelefone } from "@/lib/programacao";
-import { GENERO_LABEL, TRANSPORTE_VAGA_LABEL } from "@/lib/tipos";
 import { linkWhatsApp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/captacao")({
@@ -367,16 +366,6 @@ function DialogOportunidade({
 
   const opcoes = useMemo(() => vagas ?? [], [vagas]);
 
-  const vagaSelecionada = opcoes.find((v) => v.id === form.vaga_id);
-  const camposFaltando = vagaSelecionada
-    ? ([
-        !vagaSelecionada.genero && "Gênero",
-        !(vagaSelecionada.cidade && vagaSelecionada.bairro) && "Cidade/Bairro",
-        !(vagaSelecionada.horario_inicio && vagaSelecionada.horario_fim) && "Horário",
-        !vagaSelecionada.transporte_tipo && "Transporte",
-      ].filter(Boolean) as string[])
-    : [];
-
   return (
     <Dialog open onOpenChange={(v) => !v && onFechar()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
@@ -476,18 +465,13 @@ function DialogOportunidade({
               />
             </div>
           )}
-          {camposFaltando.length > 0 && (
-            <p className="text-xs text-destructive">
-              Complete estes dados na ficha da vaga antes de publicar: {camposFaltando.join(", ")}.
-            </p>
-          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onFechar}>
             Cancelar
           </Button>
           <Button
-            disabled={form.titulo.trim().length < 3 || camposFaltando.length > 0 || salvar.isPending}
+            disabled={form.titulo.trim().length < 3 || salvar.isPending}
             onClick={() =>
               salvar.mutate(form, {
                 onSuccess: () => {
@@ -749,41 +733,6 @@ function DialogDetalheCandidatura({
                   <dt className="text-xs text-muted-foreground">Data da oportunidade</dt>
                   <dd className="font-medium">
                     {new Date(`${oportunidade.data_oportunidade}T12:00:00`).toLocaleDateString("pt-BR")}
-                  </dd>
-                </div>
-              )}
-              {oportunidade.vaga?.genero && (
-                <div>
-                  <dt className="text-xs text-muted-foreground">Gênero</dt>
-                  <dd className="font-medium">
-                    {GENERO_LABEL[oportunidade.vaga.genero] ?? oportunidade.vaga.genero}
-                  </dd>
-                </div>
-              )}
-              {oportunidade.vaga && (oportunidade.vaga.cidade || oportunidade.vaga.bairro) && (
-                <div>
-                  <dt className="text-xs text-muted-foreground">Local</dt>
-                  <dd className="font-medium">
-                    {[oportunidade.vaga.cidade, oportunidade.vaga.bairro].filter(Boolean).join(" — ")}
-                  </dd>
-                </div>
-              )}
-              {oportunidade.vaga?.horario_inicio && oportunidade.vaga?.horario_fim && (
-                <div>
-                  <dt className="text-xs text-muted-foreground">Horário</dt>
-                  <dd className="font-medium">
-                    {oportunidade.vaga.horario_inicio} às {oportunidade.vaga.horario_fim}
-                  </dd>
-                </div>
-              )}
-              {oportunidade.vaga?.transporte_tipo && (
-                <div className="sm:col-span-2">
-                  <dt className="text-xs text-muted-foreground">Transporte</dt>
-                  <dd className="font-medium">
-                    {TRANSPORTE_VAGA_LABEL[oportunidade.vaga.transporte_tipo] ?? oportunidade.vaga.transporte_tipo}
-                    {oportunidade.vaga.transporte_tipo === "FRETADO" && oportunidade.vaga.transporte_detalhes
-                      ? ` — ${oportunidade.vaga.transporte_detalhes}`
-                      : ""}
                   </dd>
                 </div>
               )}

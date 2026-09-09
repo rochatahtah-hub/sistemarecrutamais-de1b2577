@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { candidatarPublico } from "@/lib/captacao.functions";
 import { cpfValido, formatarCpf, formatarTelefone, soDigitosTelefone } from "@/lib/diarias";
-import { formatarResumoVaga } from "@/lib/tipos";
 
 export interface OportunidadePublica {
   id: string;
@@ -19,15 +18,6 @@ export interface OportunidadePublica {
   requisitos: string;
   informacoes_adicionais: string;
   curriculo_obrigatorio: boolean;
-  vaga: {
-    genero: string | null;
-    cidade: string | null;
-    bairro: string | null;
-    horario_inicio: string | null;
-    horario_fim: string | null;
-    transporte_tipo: string | null;
-    transporte_detalhes: string | null;
-  } | null;
 }
 
 const TIPOS = ["application/pdf", "image/jpeg", "image/png"];
@@ -133,13 +123,6 @@ export function CandidaturaOportunidade({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        {formatarResumoVaga(oportunidade.vaga ?? {}).length > 0 && (
-          <div className="space-y-1 text-sm text-sidebar-foreground/80">
-            {formatarResumoVaga(oportunidade.vaga ?? {}).map((linha) => (
-              <p key={linha}>{linha}</p>
-            ))}
-          </div>
-        )}
         {oportunidade.requisitos && (
           <div className="rounded-xl border border-sidebar-border/60 p-3.5">
             <p className="mb-1 text-xs font-semibold uppercase text-sidebar-foreground/70">Requisitos</p>

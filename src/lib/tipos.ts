@@ -51,57 +51,6 @@ export interface VagaRegistro {
   responsavel: string;
   situacao: string;
   candidato: string;
-  genero: string;
-  cidade: string;
-  bairro: string;
-  horario_inicio: string;
-  horario_fim: string;
-  intervalo_inicio: string;
-  intervalo_fim: string;
-  transporte_tipo: string;
-  transporte_detalhes: string;
-}
-
-export const GENERO_LABEL: Record<string, string> = {
-  FEMININO: "Feminino",
-  MASCULINO: "Masculino",
-  UNISSEX: "Unissex",
-};
-
-export const GENEROS = ["FEMININO", "MASCULINO", "UNISSEX"] as const;
-
-export const TRANSPORTE_VAGA_LABEL: Record<string, string> = {
-  FRETADO: "Tem fretado",
-  CONTA_PROPRIA: "Precisa ir por conta própria",
-};
-
-/**
- * Resumo pronto pra exibir (admin ou candidato) das condições da vaga — cada
- * linha só aparece se o dado realmente existir, nunca inventa nem mostra vazio.
- */
-export function formatarResumoVaga(v: {
-  cidade?: string | null;
-  bairro?: string | null;
-  horario_inicio?: string | null;
-  horario_fim?: string | null;
-  genero?: string | null;
-  transporte_tipo?: string | null;
-  transporte_detalhes?: string | null;
-}): string[] {
-  const linhas: string[] = [];
-  if (v.cidade || v.bairro) {
-    linhas.push(`📍 ${[v.cidade, v.bairro].filter(Boolean).join(" — ")}`);
-  }
-  if (v.horario_inicio && v.horario_fim) {
-    linhas.push(`🕐 ${v.horario_inicio} às ${v.horario_fim}`);
-  }
-  if (v.genero) linhas.push(`👤 ${GENERO_LABEL[v.genero] ?? v.genero}`);
-  if (v.transporte_tipo === "FRETADO") {
-    linhas.push(`🚌 Tem fretado${v.transporte_detalhes ? ` — ${v.transporte_detalhes}` : ""}`);
-  } else if (v.transporte_tipo === "CONTA_PROPRIA") {
-    linhas.push("🚗 Deslocamento por conta própria");
-  }
-  return linhas;
 }
 
 export interface Metas {

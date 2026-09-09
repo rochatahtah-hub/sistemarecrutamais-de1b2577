@@ -45,39 +45,17 @@ export const portalCaptacaoPublico = createServerFn({ method: "GET" })
       clt: config?.clt_ativa ?? false,
     };
 
-    const { data: oportunidadesBrutas } = await supabaseAdmin
+    const { data: oportunidades } = await supabaseAdmin
       .from("captacao_oportunidades")
       .select(
-        "id,modalidade,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio," +
-          "vaga:vagas(genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo,transporte_detalhes)",
+        "id,modalidade,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio",
       )
       .eq("tenant_id", empresa.id)
       .eq("status", "ativa")
       .order("data_oportunidade", { ascending: true })
       .limit(200);
 
-    interface OportunidadePortalRow {
-      id: string;
-      modalidade: string;
-      titulo: string;
-      data_oportunidade: string | null;
-      descricao: string;
-      requisitos: string;
-      informacoes_adicionais: string;
-      curriculo_obrigatorio: boolean;
-      vaga: {
-        genero: string | null;
-        cidade: string | null;
-        bairro: string | null;
-        horario_inicio: string | null;
-        horario_fim: string | null;
-        transporte_tipo: string | null;
-        transporte_detalhes: string | null;
-      } | null;
-    }
-    const oportunidades = (oportunidadesBrutas ?? []) as unknown as OportunidadePortalRow[];
-
-    const visiveis = oportunidades.filter((o) =>
+    const visiveis = (oportunidades ?? []).filter((o) =>
       o.modalidade === "clt" ? modalidades.clt : modalidades.oportunidades,
     );
 

@@ -26,15 +26,6 @@ type LinhaVaga = {
   local: string | null;
   responsavel: string | null;
   situacao: string | null;
-  genero: string | null;
-  cidade: string | null;
-  bairro: string | null;
-  horario_inicio: string | null;
-  horario_fim: string | null;
-  intervalo_inicio: string | null;
-  intervalo_fim: string | null;
-  transporte_tipo: string | null;
-  transporte_detalhes: string | null;
   colaboradores: { nome: string } | null;
   empresas: { nome: string } | null;
   candidatos: { nome: string } | null;
@@ -47,7 +38,7 @@ export async function buscarVagas(): Promise<VagaRegistro[]> {
     const { data, error } = await supabase
       .from("vagas")
       .select(
-        "id,data,quantidade,status,descricao,observacao,colaborador_id,empresa_id,programadora_id,cargo,horario,local,responsavel,situacao,genero,cidade,bairro,horario_inicio,horario_fim,intervalo_inicio,intervalo_fim,transporte_tipo,transporte_detalhes,colaboradores(nome),empresas(nome),candidatos(nome)",
+        "id,data,quantidade,status,descricao,observacao,colaborador_id,empresa_id,programadora_id,cargo,horario,local,responsavel,situacao,colaboradores(nome),empresas(nome),candidatos(nome)",
       )
       .order("data", { ascending: false })
       .range(pagina * tamanho, pagina * tamanho + tamanho - 1);
@@ -72,15 +63,6 @@ export async function buscarVagas(): Promise<VagaRegistro[]> {
         responsavel: l.responsavel ?? "",
         situacao: l.situacao || "ABERTA",
         candidato: l.candidatos?.nome ?? "",
-        genero: l.genero ?? "",
-        cidade: l.cidade ?? "",
-        bairro: l.bairro ?? "",
-        horario_inicio: l.horario_inicio ? l.horario_inicio.slice(0, 5) : "",
-        horario_fim: l.horario_fim ? l.horario_fim.slice(0, 5) : "",
-        intervalo_inicio: l.intervalo_inicio ? l.intervalo_inicio.slice(0, 5) : "",
-        intervalo_fim: l.intervalo_fim ? l.intervalo_fim.slice(0, 5) : "",
-        transporte_tipo: l.transporte_tipo ?? "",
-        transporte_detalhes: l.transporte_detalhes ?? "",
       });
     }
     if (linhas.length < tamanho) break;
@@ -107,15 +89,6 @@ export function useAtualizarVaga() {
       observacao?: string;
       empresa_id?: string;
       data?: string;
-      genero?: string | null;
-      cidade?: string | null;
-      bairro?: string | null;
-      horario_inicio?: string | null;
-      horario_fim?: string | null;
-      intervalo_inicio?: string | null;
-      intervalo_fim?: string | null;
-      transporte_tipo?: string | null;
-      transporte_detalhes?: string | null;
     }) => {
       const { id, ...campos } = dados;
       const { error } = await supabase.from("vagas").update(campos).eq("id", id);
