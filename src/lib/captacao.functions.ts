@@ -196,7 +196,10 @@ export const candidatarPublico = createServerFn({ method: "POST" })
       curriculo_nome: curriculoNome,
       status: "ativa",
     });
-    if (error) throw new Error("Não foi possível concluir a candidatura. Tente novamente.");
+    if (error) {
+      console.error("[captacao] falha ao registrar candidatura", error.message);
+      throw new Error("Não foi possível concluir a candidatura. Tente novamente.");
+    }
 
     return { ok: true };
   });
