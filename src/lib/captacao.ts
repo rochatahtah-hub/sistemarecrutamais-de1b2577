@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { formatarResumoVaga } from "@/lib/tipos";
 
 export const BUCKET_CURRICULOS = "curriculos";
 
@@ -57,8 +58,51 @@ export interface Oportunidade {
   curriculo_obrigatorio: boolean;
   status: "ativa" | "arquivada";
   created_at: string;
-  /** Condições da vaga vinculada (gênero, local, horário, transporte) — null se não houver vaga vinculada. */
+  genero: string | null;
+  cidade: string | null;
+  bairro: string | null;
+  horario_inicio: string | null;
+  horario_fim: string | null;
+  intervalo_inicio: string | null;
+  intervalo_fim: string | null;
+  transporte_tipo: string | null;
+  transporte_detalhes: string | null;
+  /** Condições da vaga vinculada, usadas só como respaldo quando a própria oportunidade não tem o campo preenchido. */
   vaga: VagaResumo | null;
+}
+
+/**
+ * Resumo pronto pra exibir: usa os dados preenchidos na própria oportunidade
+ * e só recorre à vaga vinculada como respaldo (ex.: oportunidades antigas,
+ * criadas antes desses campos existirem aqui).
+ */
+export function resumoOportunidade(o: {
+  genero: string | null;
+  cidade: string | null;
+  bairro: string | null;
+  horario_inicio: string | null;
+  horario_fim: string | null;
+  transporte_tipo: string | null;
+  transporte_detalhes: string | null;
+  vaga?: {
+    genero: string | null;
+    cidade: string | null;
+    bairro: string | null;
+    horario_inicio: string | null;
+    horario_fim: string | null;
+    transporte_tipo: string | null;
+    transporte_detalhes: string | null;
+  } | null;
+}): string[] {
+  return formatarResumoVaga({
+    genero: o.genero ?? o.vaga?.genero ?? null,
+    cidade: o.cidade ?? o.vaga?.cidade ?? null,
+    bairro: o.bairro ?? o.vaga?.bairro ?? null,
+    horario_inicio: o.horario_inicio ?? o.vaga?.horario_inicio ?? null,
+    horario_fim: o.horario_fim ?? o.vaga?.horario_fim ?? null,
+    transporte_tipo: o.transporte_tipo ?? o.vaga?.transporte_tipo ?? null,
+    transporte_detalhes: o.transporte_detalhes ?? o.vaga?.transporte_detalhes ?? null,
+  });
 }
 
 export interface Candidatura {
@@ -76,6 +120,7 @@ export interface Candidatura {
 
 const CAMPOS_OPORTUNIDADE =
   "id,modalidade,vaga_id,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio,status,created_at," +
+  "genero,cidade,bairro,horario_inicio,horario_fim,intervalo_inicio,intervalo_fim,transporte_tipo,transporte_detalhes," +
   "vaga:vagas(genero,cidade,bairro,horario_inicio,horario_fim,intervalo_inicio,intervalo_fim,transporte_tipo,transporte_detalhes)";
 
 /** Configuração de modalidades da empresa atual (o banco isola por empresa). */
@@ -121,6 +166,30 @@ export function useSalvarConfigCaptacao() {
   });
 }
 
+/** Postgres devolve "HH:MM:SS" — corta pra "HH:MM" (formato do input/exibição). */
+function sliceHora(v: string | null | undefined): string | null {
+  return v ? v.slice(0, 5) : null;
+}
+
+function normalizarOportunidade(o: Oportunidade): Oportunidade {
+  return {
+    ...o,
+    horario_inicio: sliceHora(o.horario_inicio),
+    horario_fim: sliceHora(o.horario_fim),
+    intervalo_inicio: sliceHora(o.intervalo_inicio),
+    intervalo_fim: sliceHora(o.intervalo_fim),
+    vaga: o.vaga
+      ? {
+          ...o.vaga,
+          horario_inicio: sliceHora(o.vaga.horario_inicio),
+          horario_fim: sliceHora(o.vaga.horario_fim),
+          intervalo_inicio: sliceHora(o.vaga.intervalo_inicio),
+          intervalo_fim: sliceHora(o.vaga.intervalo_fim),
+        }
+      : null,
+  };
+}
+
 export function useOportunidades(modalidade: "especifica" | "clt", status: "ativa" | "arquivada") {
   return useQuery({
     queryKey: ["captacao-oportunidades", modalidade, status],
@@ -133,7 +202,7 @@ export function useOportunidades(modalidade: "especifica" | "clt", status: "ativ
         .order("created_at", { ascending: false })
         .limit(300);
       if (error) throw error;
-      return (data ?? []) as unknown as Oportunidade[];
+      return ((data ?? []) as unknown as Oportunidade[]).map(normalizarOportunidade);
     },
   });
 }
@@ -168,6 +237,15 @@ export interface DadosOportunidade {
   requisitos: string;
   informacoes_adicionais: string;
   curriculo_obrigatorio: boolean;
+  genero: string;
+  cidade: string;
+  bairro: string;
+  horario_inicio: string;
+  horario_fim: string;
+  intervalo_inicio: string;
+  intervalo_fim: string;
+  transporte_tipo: string;
+  transporte_detalhes: string;
 }
 
 function invalidarCaptacao(qc: ReturnType<typeof useQueryClient>) {
@@ -189,6 +267,15 @@ export function useSalvarOportunidade() {
         requisitos: dados.requisitos.trim(),
         informacoes_adicionais: dados.informacoes_adicionais.trim(),
         curriculo_obrigatorio: dados.curriculo_obrigatorio,
+        genero: dados.genero || null,
+        cidade: dados.cidade.trim() || null,
+        bairro: dados.bairro.trim() || null,
+        horario_inicio: dados.horario_inicio || null,
+        horario_fim: dados.horario_fim || null,
+        intervalo_inicio: dados.intervalo_inicio || null,
+        intervalo_fim: dados.intervalo_fim || null,
+        transporte_tipo: dados.transporte_tipo || null,
+        transporte_detalhes: dados.transporte_tipo === "FRETADO" ? dados.transporte_detalhes.trim() || null : null,
       };
       if (dados.id) {
         const { error } = await supabase
@@ -309,8 +396,8 @@ export function useVagasParaCaptacao() {
           genero: v.genero as string | null,
           cidade: v.cidade as string | null,
           bairro: v.bairro as string | null,
-          horario_inicio: v.horario_inicio as string | null,
-          horario_fim: v.horario_fim as string | null,
+          horario_inicio: v.horario_inicio ? (v.horario_inicio as string).slice(0, 5) : null,
+          horario_fim: v.horario_fim ? (v.horario_fim as string).slice(0, 5) : null,
           transporte_tipo: v.transporte_tipo as string | null,
         };
       });

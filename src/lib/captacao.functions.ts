@@ -49,6 +49,7 @@ export const portalCaptacaoPublico = createServerFn({ method: "GET" })
       .from("captacao_oportunidades")
       .select(
         "id,modalidade,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio," +
+          "genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo,transporte_detalhes," +
           "vaga:vagas(genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo,transporte_detalhes)",
       )
       .eq("tenant_id", empresa.id)
@@ -56,7 +57,16 @@ export const portalCaptacaoPublico = createServerFn({ method: "GET" })
       .order("data_oportunidade", { ascending: true })
       .limit(200);
 
-    interface OportunidadePortalRow {
+    interface VagaResumoRow {
+      genero: string | null;
+      cidade: string | null;
+      bairro: string | null;
+      horario_inicio: string | null;
+      horario_fim: string | null;
+      transporte_tipo: string | null;
+      transporte_detalhes: string | null;
+    }
+    interface OportunidadePortalRow extends VagaResumoRow {
       id: string;
       modalidade: string;
       titulo: string;
@@ -65,17 +75,17 @@ export const portalCaptacaoPublico = createServerFn({ method: "GET" })
       requisitos: string;
       informacoes_adicionais: string;
       curriculo_obrigatorio: boolean;
-      vaga: {
-        genero: string | null;
-        cidade: string | null;
-        bairro: string | null;
-        horario_inicio: string | null;
-        horario_fim: string | null;
-        transporte_tipo: string | null;
-        transporte_detalhes: string | null;
-      } | null;
+      vaga: VagaResumoRow | null;
     }
-    const oportunidades = (oportunidadesBrutas ?? []) as unknown as OportunidadePortalRow[];
+    const sliceHora = (v: string | null) => (v ? v.slice(0, 5) : null);
+    const oportunidades = ((oportunidadesBrutas ?? []) as unknown as OportunidadePortalRow[]).map((o) => ({
+      ...o,
+      horario_inicio: sliceHora(o.horario_inicio),
+      horario_fim: sliceHora(o.horario_fim),
+      vaga: o.vaga
+        ? { ...o.vaga, horario_inicio: sliceHora(o.vaga.horario_inicio), horario_fim: sliceHora(o.vaga.horario_fim) }
+        : null,
+    }));
 
     const visiveis = oportunidades.filter((o) =>
       o.modalidade === "clt" ? modalidades.clt : modalidades.oportunidades,

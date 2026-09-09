@@ -7,10 +7,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { candidatarPublico } from "@/lib/captacao.functions";
+import { resumoOportunidade } from "@/lib/captacao";
 import { cpfValido, formatarCpf, formatarTelefone, soDigitosTelefone } from "@/lib/diarias";
-import { formatarResumoVaga } from "@/lib/tipos";
 
-export interface OportunidadePublica {
+interface VagaResumoPublica {
+  genero: string | null;
+  cidade: string | null;
+  bairro: string | null;
+  horario_inicio: string | null;
+  horario_fim: string | null;
+  transporte_tipo: string | null;
+  transporte_detalhes: string | null;
+}
+
+export interface OportunidadePublica extends VagaResumoPublica {
   id: string;
   modalidade: "especifica" | "clt";
   titulo: string;
@@ -19,15 +29,7 @@ export interface OportunidadePublica {
   requisitos: string;
   informacoes_adicionais: string;
   curriculo_obrigatorio: boolean;
-  vaga: {
-    genero: string | null;
-    cidade: string | null;
-    bairro: string | null;
-    horario_inicio: string | null;
-    horario_fim: string | null;
-    transporte_tipo: string | null;
-    transporte_detalhes: string | null;
-  } | null;
+  vaga: VagaResumoPublica | null;
 }
 
 const TIPOS = ["application/pdf", "image/jpeg", "image/png"];
@@ -133,9 +135,9 @@ export function CandidaturaOportunidade({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
-        {formatarResumoVaga(oportunidade.vaga ?? {}).length > 0 && (
+        {resumoOportunidade(oportunidade).length > 0 && (
           <div className="space-y-1 text-sm text-sidebar-foreground/80">
-            {formatarResumoVaga(oportunidade.vaga ?? {}).map((linha) => (
+            {resumoOportunidade(oportunidade).map((linha) => (
               <p key={linha}>{linha}</p>
             ))}
           </div>

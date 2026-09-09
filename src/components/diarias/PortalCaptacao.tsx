@@ -12,8 +12,7 @@ import {
   type OportunidadePublica,
 } from "@/components/diarias/CandidaturaOportunidade";
 import { portalCaptacaoPublico } from "@/lib/captacao.functions";
-import { FRASE_INSTITUCIONAL, MODALIDADE_DESCRICAO, MODALIDADE_ROTULO } from "@/lib/captacao";
-import { formatarResumoVaga } from "@/lib/tipos";
+import { FRASE_INSTITUCIONAL, MODALIDADE_DESCRICAO, MODALIDADE_ROTULO, resumoOportunidade } from "@/lib/captacao";
 
 type Modalidade = "diarias" | "especifica" | "clt";
 
@@ -191,9 +190,9 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        {formatarResumoVaga(o.vaga ?? {}).length > 0 && (
+                        {resumoOportunidade(o).length > 0 && (
                           <div className="space-y-1 text-sm text-sidebar-foreground/80">
-                            {formatarResumoVaga(o.vaga ?? {}).map((linha) => (
+                            {resumoOportunidade(o).map((linha) => (
                               <p key={linha}>{linha}</p>
                             ))}
                           </div>

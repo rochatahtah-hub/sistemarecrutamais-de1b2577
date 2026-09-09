@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -65,7 +66,7 @@ import {
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
 import { formatarCPF, formatarTelefone } from "@/lib/programacao";
-import { GENERO_LABEL, TRANSPORTE_VAGA_LABEL } from "@/lib/tipos";
+import { formatarResumoVaga, GENERO_LABEL, GENEROS, TRANSPORTE_VAGA_LABEL } from "@/lib/tipos";
 import { linkWhatsApp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/captacao")({
@@ -196,6 +197,15 @@ const VAZIO: DadosOportunidade = {
   requisitos: "",
   informacoes_adicionais: "",
   curriculo_obrigatorio: false,
+  genero: "",
+  cidade: "",
+  bairro: "",
+  horario_inicio: "",
+  horario_fim: "",
+  intervalo_inicio: "",
+  intervalo_fim: "",
+  transporte_tipo: "",
+  transporte_detalhes: "",
 };
 
 function ListaOportunidades({ modalidade }: { modalidade: "especifica" | "clt" }) {
@@ -262,7 +272,24 @@ function ListaOportunidades({ modalidade }: { modalidade: "especifica" | "clt" }
                     Cadastros
                   </Button>
                   {pode("captacao", "editar") && aba === "ativa" && (
-                    <Button size="sm" variant="outline" onClick={() => setFormulario({ ...o })}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() =>
+                        setFormulario({
+                          ...o,
+                          genero: o.genero ?? "",
+                          cidade: o.cidade ?? "",
+                          bairro: o.bairro ?? "",
+                          horario_inicio: o.horario_inicio ?? "",
+                          horario_fim: o.horario_fim ?? "",
+                          intervalo_inicio: o.intervalo_inicio ?? "",
+                          intervalo_fim: o.intervalo_fim ?? "",
+                          transporte_tipo: o.transporte_tipo ?? "",
+                          transporte_detalhes: o.transporte_detalhes ?? "",
+                        })
+                      }
+                    >
                       Editar
                     </Button>
                   )}
@@ -367,15 +394,23 @@ function DialogOportunidade({
 
   const opcoes = useMemo(() => vagas ?? [], [vagas]);
 
-  const vagaSelecionada = opcoes.find((v) => v.id === form.vaga_id);
-  const camposFaltando = vagaSelecionada
-    ? ([
-        !vagaSelecionada.genero && "Gênero",
-        !(vagaSelecionada.cidade && vagaSelecionada.bairro) && "Cidade/Bairro",
-        !(vagaSelecionada.horario_inicio && vagaSelecionada.horario_fim) && "Horário",
-        !vagaSelecionada.transporte_tipo && "Transporte",
-      ].filter(Boolean) as string[])
-    : [];
+  const camposFaltando = [
+    !form.genero && "Gênero",
+    !(form.cidade.trim() && form.bairro.trim()) && "Cidade/Bairro",
+    !(form.horario_inicio && form.horario_fim) && "Horário",
+    !form.transporte_tipo && "Transporte",
+  ].filter(Boolean) as string[];
+
+  const erroHorario =
+    Boolean(form.horario_inicio) !== Boolean(form.horario_fim)
+      ? "Informe início e fim do horário, ou deixe os dois em branco."
+      : form.horario_inicio && form.horario_fim && form.horario_fim <= form.horario_inicio
+        ? "O horário de término deve ser depois do horário de início."
+        : Boolean(form.intervalo_inicio) !== Boolean(form.intervalo_fim)
+          ? "Informe início e fim do intervalo, ou deixe os dois em branco."
+          : null;
+
+  const resumo = formatarResumoVaga(form);
 
   return (
     <Dialog open onOpenChange={(v) => !v && onFechar()}>
@@ -401,6 +436,13 @@ function DialogOportunidade({
                   vaga_id: id,
                   titulo: a.titulo || (escolhida ? escolhida.cargo : ""),
                   data_oportunidade: a.data_oportunidade ?? escolhida?.data ?? null,
+                  // Preenche a partir da vaga só o que ainda estiver em branco — nunca sobrescreve o que já foi digitado.
+                  genero: a.genero || escolhida?.genero || "",
+                  cidade: a.cidade || escolhida?.cidade || "",
+                  bairro: a.bairro || escolhida?.bairro || "",
+                  horario_inicio: a.horario_inicio || escolhida?.horario_inicio || "",
+                  horario_fim: a.horario_fim || escolhida?.horario_fim || "",
+                  transporte_tipo: a.transporte_tipo || escolhida?.transporte_tipo || "",
                 }));
               }}
             >
@@ -434,6 +476,135 @@ function DialogOportunidade({
               />
             </div>
           )}
+          <section className="space-y-4 rounded-xl border border-border bg-muted/20 p-4">
+            <h3 className="rotulo-secao">Perfil e transporte</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Gênero</Label>
+                <RadioGroup
+                  className="flex flex-wrap gap-4"
+                  value={form.genero}
+                  onValueChange={(v) => setForm((a) => ({ ...a, genero: v }))}
+                >
+                  {GENEROS.map((g) => (
+                    <div key={g} className="flex items-center gap-2">
+                      <RadioGroupItem value={g} id={`op-genero-${g}`} />
+                      <Label htmlFor={`op-genero-${g}`} className="font-normal">
+                        {GENERO_LABEL[g]}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+              <div className="space-y-2">
+                <Label>Transporte</Label>
+                <RadioGroup
+                  className="flex flex-wrap gap-4"
+                  value={form.transporte_tipo}
+                  onValueChange={(v) =>
+                    setForm((a) => ({
+                      ...a,
+                      transporte_tipo: v,
+                      transporte_detalhes: v === "FRETADO" ? a.transporte_detalhes : "",
+                    }))
+                  }
+                >
+                  {(Object.keys(TRANSPORTE_VAGA_LABEL) as (keyof typeof TRANSPORTE_VAGA_LABEL)[]).map((t) => (
+                    <div key={t} className="flex items-center gap-2">
+                      <RadioGroupItem value={t} id={`op-transporte-${t}`} />
+                      <Label htmlFor={`op-transporte-${t}`} className="font-normal">
+                        {TRANSPORTE_VAGA_LABEL[t]}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+            </div>
+            {form.transporte_tipo === "FRETADO" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="op-transporte-detalhes">Detalhes do fretado (opcional)</Label>
+                <Textarea
+                  id="op-transporte-detalhes"
+                  rows={2}
+                  value={form.transporte_detalhes}
+                  onChange={(e) => setForm((a) => ({ ...a, transporte_detalhes: e.target.value }))}
+                  placeholder="Ex.: embarque às 6h na praça central, ônibus fretado, observações..."
+                />
+              </div>
+            )}
+          </section>
+
+          <section className="space-y-4 rounded-xl border border-border bg-muted/20 p-4">
+            <h3 className="rotulo-secao">Local e horário</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="op-cidade">Cidade</Label>
+                <Input
+                  id="op-cidade"
+                  value={form.cidade}
+                  onChange={(e) => setForm((a) => ({ ...a, cidade: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="op-bairro">Bairro</Label>
+                <Input
+                  id="op-bairro"
+                  value={form.bairro}
+                  onChange={(e) => setForm((a) => ({ ...a, bairro: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="op-hora-inicio">Horário de início</Label>
+                <Input
+                  id="op-hora-inicio"
+                  type="time"
+                  value={form.horario_inicio}
+                  onChange={(e) => setForm((a) => ({ ...a, horario_inicio: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="op-hora-fim">Horário de término</Label>
+                <Input
+                  id="op-hora-fim"
+                  type="time"
+                  value={form.horario_fim}
+                  onChange={(e) => setForm((a) => ({ ...a, horario_fim: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="op-intervalo-inicio">Intervalo — início (opcional)</Label>
+                <Input
+                  id="op-intervalo-inicio"
+                  type="time"
+                  value={form.intervalo_inicio}
+                  onChange={(e) => setForm((a) => ({ ...a, intervalo_inicio: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="op-intervalo-fim">Intervalo — fim (opcional)</Label>
+                <Input
+                  id="op-intervalo-fim"
+                  type="time"
+                  value={form.intervalo_fim}
+                  onChange={(e) => setForm((a) => ({ ...a, intervalo_fim: e.target.value }))}
+                />
+              </div>
+            </div>
+          </section>
+
+          {resumo.length > 0 && (
+            <div className="space-y-1 rounded-xl border border-gold/25 bg-gold-soft/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Resumo — como aparecerá para o candidato
+              </p>
+              {resumo.map((linha) => (
+                <p key={linha} className="text-sm">
+                  {linha}
+                </p>
+              ))}
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Label htmlFor="descricao">Descrição</Label>
             <Textarea
@@ -476,9 +647,10 @@ function DialogOportunidade({
               />
             </div>
           )}
-          {camposFaltando.length > 0 && (
+          {erroHorario && <p className="text-xs text-destructive">{erroHorario}</p>}
+          {!erroHorario && camposFaltando.length > 0 && (
             <p className="text-xs text-destructive">
-              Complete estes dados na ficha da vaga antes de publicar: {camposFaltando.join(", ")}.
+              Complete estes dados antes de publicar: {camposFaltando.join(", ")}.
             </p>
           )}
         </div>
@@ -487,7 +659,12 @@ function DialogOportunidade({
             Cancelar
           </Button>
           <Button
-            disabled={form.titulo.trim().length < 3 || camposFaltando.length > 0 || salvar.isPending}
+            disabled={
+              form.titulo.trim().length < 3 ||
+              camposFaltando.length > 0 ||
+              Boolean(erroHorario) ||
+              salvar.isPending
+            }
             onClick={() =>
               salvar.mutate(form, {
                 onSuccess: () => {
@@ -693,6 +870,14 @@ function DialogDetalheCandidatura({
 }) {
   const priv = usePrivacidade();
   const link = candidatura && !priv.privado ? linkWhatsApp(candidatura.telefone) : null;
+  const generoResolvido = oportunidade.genero ?? oportunidade.vaga?.genero ?? null;
+  const cidadeResolvida = oportunidade.cidade ?? oportunidade.vaga?.cidade ?? null;
+  const bairroResolvido = oportunidade.bairro ?? oportunidade.vaga?.bairro ?? null;
+  const horarioInicioResolvido = oportunidade.horario_inicio ?? oportunidade.vaga?.horario_inicio ?? null;
+  const horarioFimResolvido = oportunidade.horario_fim ?? oportunidade.vaga?.horario_fim ?? null;
+  const transporteTipoResolvido = oportunidade.transporte_tipo ?? oportunidade.vaga?.transporte_tipo ?? null;
+  const transporteDetalhesResolvido =
+    oportunidade.transporte_detalhes ?? oportunidade.vaga?.transporte_detalhes ?? null;
 
   return (
     <Dialog open={Boolean(candidatura)} onOpenChange={(v) => !v && onFechar()}>
@@ -752,37 +937,35 @@ function DialogDetalheCandidatura({
                   </dd>
                 </div>
               )}
-              {oportunidade.vaga?.genero && (
+              {generoResolvido && (
                 <div>
                   <dt className="text-xs text-muted-foreground">Gênero</dt>
-                  <dd className="font-medium">
-                    {GENERO_LABEL[oportunidade.vaga.genero] ?? oportunidade.vaga.genero}
-                  </dd>
+                  <dd className="font-medium">{GENERO_LABEL[generoResolvido] ?? generoResolvido}</dd>
                 </div>
               )}
-              {oportunidade.vaga && (oportunidade.vaga.cidade || oportunidade.vaga.bairro) && (
+              {(cidadeResolvida || bairroResolvido) && (
                 <div>
                   <dt className="text-xs text-muted-foreground">Local</dt>
                   <dd className="font-medium">
-                    {[oportunidade.vaga.cidade, oportunidade.vaga.bairro].filter(Boolean).join(" — ")}
+                    {[cidadeResolvida, bairroResolvido].filter(Boolean).join(" — ")}
                   </dd>
                 </div>
               )}
-              {oportunidade.vaga?.horario_inicio && oportunidade.vaga?.horario_fim && (
+              {horarioInicioResolvido && horarioFimResolvido && (
                 <div>
                   <dt className="text-xs text-muted-foreground">Horário</dt>
                   <dd className="font-medium">
-                    {oportunidade.vaga.horario_inicio} às {oportunidade.vaga.horario_fim}
+                    {horarioInicioResolvido} às {horarioFimResolvido}
                   </dd>
                 </div>
               )}
-              {oportunidade.vaga?.transporte_tipo && (
+              {transporteTipoResolvido && (
                 <div className="sm:col-span-2">
                   <dt className="text-xs text-muted-foreground">Transporte</dt>
                   <dd className="font-medium">
-                    {TRANSPORTE_VAGA_LABEL[oportunidade.vaga.transporte_tipo] ?? oportunidade.vaga.transporte_tipo}
-                    {oportunidade.vaga.transporte_tipo === "FRETADO" && oportunidade.vaga.transporte_detalhes
-                      ? ` — ${oportunidade.vaga.transporte_detalhes}`
+                    {TRANSPORTE_VAGA_LABEL[transporteTipoResolvido] ?? transporteTipoResolvido}
+                    {transporteTipoResolvido === "FRETADO" && transporteDetalhesResolvido
+                      ? ` — ${transporteDetalhesResolvido}`
                       : ""}
                   </dd>
                 </div>

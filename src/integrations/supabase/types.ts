@@ -685,55 +685,82 @@ export type Database = {
       captacao_oportunidades: {
         Row: {
           arquivada_em: string | null
+          bairro: string | null
+          cidade: string | null
           created_at: string
           criado_por: string | null
           criado_por_nome: string
           curriculo_obrigatorio: boolean
           data_oportunidade: string | null
           descricao: string
+          genero: string | null
+          horario_fim: string | null
+          horario_inicio: string | null
           id: string
           informacoes_adicionais: string
+          intervalo_fim: string | null
+          intervalo_inicio: string | null
           modalidade: string
           requisitos: string
           status: string
           tenant_id: string
           titulo: string
+          transporte_detalhes: string | null
+          transporte_tipo: string | null
           updated_at: string
           vaga_id: string | null
         }
         Insert: {
           arquivada_em?: string | null
+          bairro?: string | null
+          cidade?: string | null
           created_at?: string
           criado_por?: string | null
           criado_por_nome?: string
           curriculo_obrigatorio?: boolean
           data_oportunidade?: string | null
           descricao?: string
+          genero?: string | null
+          horario_fim?: string | null
+          horario_inicio?: string | null
           id?: string
           informacoes_adicionais?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
           modalidade: string
           requisitos?: string
           status?: string
           tenant_id?: string
           titulo?: string
+          transporte_detalhes?: string | null
+          transporte_tipo?: string | null
           updated_at?: string
           vaga_id?: string | null
         }
         Update: {
           arquivada_em?: string | null
+          bairro?: string | null
+          cidade?: string | null
           created_at?: string
           criado_por?: string | null
           criado_por_nome?: string
           curriculo_obrigatorio?: boolean
           data_oportunidade?: string | null
           descricao?: string
+          genero?: string | null
+          horario_fim?: string | null
+          horario_inicio?: string | null
           id?: string
           informacoes_adicionais?: string
+          intervalo_fim?: string | null
+          intervalo_inicio?: string | null
           modalidade?: string
           requisitos?: string
           status?: string
           tenant_id?: string
           titulo?: string
+          transporte_detalhes?: string | null
+          transporte_tipo?: string | null
           updated_at?: string
           vaga_id?: string | null
         }
