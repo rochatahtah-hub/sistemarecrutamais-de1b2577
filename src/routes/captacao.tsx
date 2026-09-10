@@ -817,20 +817,57 @@ function DialogCandidatos({
 
           {isPending ? (
             <Skeleton className="h-32 w-full" />
-          ) : (lista ?? []).length === 0 ? (
+          ) : todos.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">Nenhum cadastro ainda.</p>
           ) : (
-            <ul className="space-y-3">
-              {(lista ?? []).map((c) => {
-                const link = priv.privado ? null : linkWhatsApp(c.telefone);
-                const telefoneExibido = priv.privado ? priv.telefone(c.telefone) : formatarTelefone(c.telefone);
-                return (
+            <>
+              <div className="flex flex-wrap gap-1.5 text-xs">
+                <span className="rounded-full border border-border px-2.5 py-1 text-muted-foreground">
+                  Total: {todos.length}
+                </span>
+                {SITUACOES.map((s) => (
+                  <span key={s} className={`rounded-full border px-2.5 py-1 ${SITUACAO_CLASSE[s]}`}>
+                    {SITUACAO_ROTULO[s]}: {contar(s)}
+                  </span>
+                ))}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="filtro-situacao" className="text-xs">
+                  Filtrar por situação
+                </Label>
+                <select
+                  id="filtro-situacao"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                  value={filtro}
+                  onChange={(e) => setFiltro(e.target.value as SituacaoCandidatura | "todas")}
+                >
+                  <option value="todas">Todas ({todos.length})</option>
+                  {SITUACOES.map((s) => (
+                    <option key={s} value={s}>
+                      {SITUACAO_ROTULO[s]} ({contar(s)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {visiveis.length === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  Nenhum cadastro nesta situação.
+                </p>
+              ) : (
+                <ul className="space-y-3">
+                  {visiveis.map((c) => {
+                    const situacao: SituacaoCandidatura = c.situacao ?? "aguardando_contato";
+                    const link = priv.privado ? null : linkWhatsApp(c.telefone);
+                    const telefoneExibido = priv.privado ? priv.telefone(c.telefone) : formatarTelefone(c.telefone);
+                    return (
                   <li key={c.id} className="rounded-2xl border border-border bg-card p-4">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <button
                         type="button"
                         onClick={() => setDetalhe(c)}
-                        className="group min-w-0 flex-1 text-left"
+                        className="group min-w-0 text-left"
                       >
                         <p className="truncate text-base font-semibold leading-tight group-hover:text-primary">
                           {priv.nome(c.nome)}
@@ -839,10 +876,13 @@ function DialogCandidatos({
                           Ver cadastro <ChevronRight className="h-3 w-3" />
                         </span>
                       </button>
-                      <Badge variant={c.status === "ativa" ? "gold" : "secondary"} className="shrink-0">
-                        {STATUS_CANDIDATURA_ROTULO[c.status] ?? c.status}
-                      </Badge>
+                      <span
+                        className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${SITUACAO_CLASSE[situacao]}`}
+                      >
+                        {SITUACAO_ROTULO[situacao]}
+                      </span>
                     </div>
+
 
                     {c.telefone &&
                       (link ? (
