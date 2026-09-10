@@ -105,6 +105,31 @@ export function resumoOportunidade(o: {
   });
 }
 
+/** Situação operacional da candidatura (não altera o cadastro do colaborador). */
+export type SituacaoCandidatura = "aguardando_contato" | "ja_chamada" | "em_vaga" | "blacklist";
+
+export const SITUACOES: SituacaoCandidatura[] = [
+  "aguardando_contato",
+  "ja_chamada",
+  "em_vaga",
+  "blacklist",
+];
+
+export const SITUACAO_ROTULO: Record<SituacaoCandidatura, string> = {
+  aguardando_contato: "Aguardando contato",
+  ja_chamada: "Já foi chamada",
+  em_vaga: "Já está em vaga",
+  blacklist: "Blacklist",
+};
+
+/** Cores discretas, alinhadas à identidade do sistema. */
+export const SITUACAO_CLASSE: Record<SituacaoCandidatura, string> = {
+  aguardando_contato: "border-border bg-muted text-muted-foreground",
+  ja_chamada: "border-gold/40 bg-gold-soft text-accent-foreground",
+  em_vaga: "border-sky-500/30 bg-sky-500/10 text-sky-300",
+  blacklist: "border-destructive/40 bg-destructive/10 text-destructive",
+};
+
 export interface Candidatura {
   id: string;
   oportunidade_id: string;
@@ -115,6 +140,7 @@ export interface Candidatura {
   curriculo_path: string;
   curriculo_nome: string;
   status: "ativa" | "arquivada";
+  situacao: SituacaoCandidatura;
   created_at: string;
 }
 
@@ -342,7 +368,7 @@ export function useCandidaturas(oportunidadeId: string | null) {
       const { data, error } = await supabase
         .from("captacao_candidaturas")
         .select(
-          "id,oportunidade_id,daily_worker_id,nome,cpf,telefone,curriculo_path,curriculo_nome,status,created_at",
+          "id,oportunidade_id,daily_worker_id,nome,cpf,telefone,curriculo_path,curriculo_nome,status,situacao,created_at",
         )
         .eq("oportunidade_id", oportunidadeId!)
         .order("created_at", { ascending: false })
@@ -350,6 +376,25 @@ export function useCandidaturas(oportunidadeId: string | null) {
       if (error) throw error;
       return (data ?? []) as Candidatura[];
     },
+  });
+}
+
+/**
+ * Altera apenas a situação da candidatura. Não cria programação, não altera
+ * presença, pagamento nem o cadastro do colaborador. A permissão é validada
+ * também no banco (política de atualização do módulo Captação).
+ */
+export function useAtualizarSituacaoCandidatura() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, situacao }: { id: string; situacao: SituacaoCandidatura }) => {
+      const { error } = await supabase
+        .from("captacao_candidaturas")
+        .update({ situacao })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidarCaptacao(qc),
   });
 }
 
