@@ -969,6 +969,44 @@ function DialogCandidatos({
         onAbrirCurriculo={abrirCurriculo}
       />
 
+      <Dialog open={Boolean(blacklist)} onOpenChange={(v) => !v && setBlacklist(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Colocar na Blacklist?</DialogTitle>
+            <DialogDescription>
+              Este colaborador será colocado na Blacklist do RECRUTA+ (bloqueio para todas as
+              empresas). Isso pode impedir sua participação em outras oportunidades, conforme as
+              regras do sistema.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="motivo-blacklist">Motivo *</Label>
+            <Input
+              id="motivo-blacklist"
+              value={motivoBlacklist}
+              maxLength={200}
+              onChange={(e) => setMotivoBlacklist(e.target.value)}
+              placeholder="Ex.: faltou sem aviso"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBlacklist(null)}>
+              Cancelar
+            </Button>
+            <Button
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={salvarBloqueio.isPending || atualizarSituacao.isPending}
+              onClick={() => void confirmarBlacklist()}
+            >
+              {(salvarBloqueio.isPending || atualizarSituacao.isPending) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Confirmar Blacklist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <AlertDialog open={Boolean(excluindo)} onOpenChange={(v) => !v && setExcluindo(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
