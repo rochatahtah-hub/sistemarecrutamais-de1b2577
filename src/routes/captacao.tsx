@@ -900,6 +900,28 @@ function DialogCandidatos({
                         </span>
                       ))}
 
+                    <div className="mt-3 space-y-1.5">
+                      <Label htmlFor={`sit-${c.id}`} className="text-xs text-muted-foreground">
+                        Situação do cadastro
+                      </Label>
+                      <select
+                        id={`sit-${c.id}`}
+                        className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground disabled:opacity-60"
+                        value={situacao}
+                        disabled={!podeAlterarSituacao || atualizarSituacao.isPending}
+                        onChange={(e) => {
+                          const nova = e.target.value as SituacaoCandidatura;
+                          if (nova !== situacao) aplicarSituacao(c, nova);
+                        }}
+                      >
+                        {SITUACOES.map((s) => (
+                          <option key={s} value={s}>
+                            {SITUACAO_ROTULO[s]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
                     <div className="mt-3 flex flex-wrap gap-2">
                       {link && (
                         <Button asChild size="sm" className="bg-emerald-600 text-white hover:bg-emerald-500">
@@ -931,9 +953,11 @@ function DialogCandidatos({
                       </div>
                     )}
                   </li>
-                );
-              })}
-            </ul>
+                    );
+                  })}
+                </ul>
+              )}
+            </>
           )}
         </DialogContent>
       </Dialog>
