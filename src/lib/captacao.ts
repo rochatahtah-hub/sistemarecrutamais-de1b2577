@@ -105,6 +105,31 @@ export function resumoOportunidade(o: {
   });
 }
 
+/** Situação operacional da candidatura (não altera o cadastro do colaborador). */
+export type SituacaoCandidatura = "aguardando_contato" | "ja_chamada" | "em_vaga" | "blacklist";
+
+export const SITUACOES: SituacaoCandidatura[] = [
+  "aguardando_contato",
+  "ja_chamada",
+  "em_vaga",
+  "blacklist",
+];
+
+export const SITUACAO_ROTULO: Record<SituacaoCandidatura, string> = {
+  aguardando_contato: "Aguardando contato",
+  ja_chamada: "Já foi chamada",
+  em_vaga: "Já está em vaga",
+  blacklist: "Blacklist",
+};
+
+/** Cores discretas, alinhadas à identidade do sistema. */
+export const SITUACAO_CLASSE: Record<SituacaoCandidatura, string> = {
+  aguardando_contato: "border-border bg-muted text-muted-foreground",
+  ja_chamada: "border-gold/40 bg-gold-soft text-accent-foreground",
+  em_vaga: "border-sky-500/30 bg-sky-500/10 text-sky-300",
+  blacklist: "border-destructive/40 bg-destructive/10 text-destructive",
+};
+
 export interface Candidatura {
   id: string;
   oportunidade_id: string;
@@ -115,6 +140,7 @@ export interface Candidatura {
   curriculo_path: string;
   curriculo_nome: string;
   status: "ativa" | "arquivada";
+  situacao: SituacaoCandidatura;
   created_at: string;
 }
 
