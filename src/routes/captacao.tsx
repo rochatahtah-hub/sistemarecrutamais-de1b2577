@@ -700,8 +700,78 @@ function DialogCandidatos({
   const priv = usePrivacidade();
   const { data: lista, isPending } = useCandidaturas(oportunidade.id);
   const excluir = useExcluirCandidatura();
+  const atualizarSituacao = useAtualizarSituacaoCandidatura();
+  const salvarBloqueio = useSalvarBloqueio();
   const [detalhe, setDetalhe] = useState<Candidatura | null>(null);
   const [excluindo, setExcluindo] = useState<Candidatura | null>(null);
+  const [filtro, setFiltro] = useState<SituacaoCandidatura | "todas">("todas");
+  const [blacklist, setBlacklist] = useState<Candidatura | null>(null);
+  const [motivoBlacklist, setMotivoBlacklist] = useState("");
+
+  const podeAlterarSituacao = pode("captacao", "editar");
+  const todos = lista ?? [];
+  const visiveis = filtro === "todas" ? todos : todos.filter((c) => (c.situacao ?? "aguardando_contato") === filtro);
+  const contar = (s: SituacaoCandidatura) =>
+    todos.filter((c) => (c.situacao ?? "aguardando_contato") === s).length;
+
+  function aplicarSituacao(c: Candidatura, situacao: SituacaoCandidatura) {
+    if (!podeAlterarSituacao) {
+      toast.error("Você não tem permissão para alterar a situação.");
+      return;
+    }
+    if (situacao === "blacklist") {
+      setMotivoBlacklist("");
+      setBlacklist(c);
+      return;
+    }
+    atualizarSituacao.mutate(
+      { id: c.id, situacao },
+      {
+        onSuccess: () => toast.success(`Situação alterada para "${SITUACAO_ROTULO[situacao]}".`),
+        onError: () => toast.error("Não foi possível alterar a situação."),
+      },
+    );
+  }
+
+  async function confirmarBlacklist() {
+    if (!blacklist) return;
+    const motivo = motivoBlacklist.trim();
+    if (motivo.length < 3) {
+      toast.error("Informe o motivo da blacklist.");
+      return;
+    }
+    if (!pode("bloqueios", "criar")) {
+      toast.error("Você não tem permissão para bloquear colaboradores.");
+      return;
+    }
+    try {
+      await salvarBloqueio.mutateAsync({
+        cpf: blacklist.cpf,
+        nome: blacklist.nome,
+        telefone: blacklist.telefone,
+        motivo,
+        tipo_bloqueio: "TODAS_EMPRESAS",
+      });
+    } catch (e) {
+      // Se o colaborador já estiver bloqueado, seguimos apenas marcando a situação.
+      const msg = e instanceof Error ? e.message : "";
+      if (!msg.includes("já possui um bloqueio ativo")) {
+        toast.error(msg || "Não foi possível registrar o bloqueio.");
+        return;
+      }
+    }
+    atualizarSituacao.mutate(
+      { id: blacklist.id, situacao: "blacklist" },
+      {
+        onSuccess: () => {
+          toast.success("Colaborador marcado como Blacklist.");
+          setBlacklist(null);
+        },
+        onError: () => toast.error("Não foi possível alterar a situação."),
+      },
+    );
+  }
+
 
   async function abrirCurriculo(caminho: string) {
     try {
