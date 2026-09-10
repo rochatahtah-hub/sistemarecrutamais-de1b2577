@@ -379,6 +379,25 @@ export function useCandidaturas(oportunidadeId: string | null) {
   });
 }
 
+/**
+ * Altera apenas a situação da candidatura. Não cria programação, não altera
+ * presença, pagamento nem o cadastro do colaborador. A permissão é validada
+ * também no banco (política de atualização do módulo Captação).
+ */
+export function useAtualizarSituacaoCandidatura() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, situacao }: { id: string; situacao: SituacaoCandidatura }) => {
+      const { error } = await supabase
+        .from("captacao_candidaturas")
+        .update({ situacao })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidarCaptacao(qc),
+  });
+}
+
 /** Exclui somente a candidatura escolhida — o colaborador e as demais permanecem. */
 export function useExcluirCandidatura() {
   const qc = useQueryClient();
