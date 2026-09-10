@@ -368,7 +368,7 @@ export function useCandidaturas(oportunidadeId: string | null) {
       const { data, error } = await supabase
         .from("captacao_candidaturas")
         .select(
-          "id,oportunidade_id,daily_worker_id,nome,cpf,telefone,curriculo_path,curriculo_nome,status,created_at",
+          "id,oportunidade_id,daily_worker_id,nome,cpf,telefone,curriculo_path,curriculo_nome,status,situacao,created_at",
         )
         .eq("oportunidade_id", oportunidadeId!)
         .order("created_at", { ascending: false })
