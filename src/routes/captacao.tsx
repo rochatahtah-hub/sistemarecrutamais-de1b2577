@@ -48,7 +48,12 @@ import {
   CONFIG_PADRAO,
   FRASE_INSTITUCIONAL,
   MODALIDADE_ROTULO,
+  SITUACAO_CLASSE,
+  SITUACAO_ROTULO,
+  SITUACOES,
   useArquivarOportunidade,
+  useAtualizarSituacaoCandidatura,
+  type SituacaoCandidatura,
   useCandidaturas,
   useConfigCaptacao,
   useContagemCandidaturas,
@@ -63,6 +68,7 @@ import {
   type DadosOportunidade,
   type Oportunidade,
 } from "@/lib/captacao";
+import { useSalvarBloqueio } from "@/lib/bloqueios";
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
 import { formatarCPF, formatarTelefone } from "@/lib/programacao";
