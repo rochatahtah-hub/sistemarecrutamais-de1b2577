@@ -26,3 +26,4 @@
 - [x] Documentar e validar separadamente AGIZZE, nova empresa, links, segurança e pagamentos.
 - [x] Definir preços iniciais editáveis e disponibilizar o link público único de venda.
 - [x] Exigir definição segura de senha no primeiro acesso após o pagamento aprovado.
+- [x] Corrigir duplicidade por e-mail/CNPJ, incluindo CNPJ opcional, tentativas abandonadas e concorrência.

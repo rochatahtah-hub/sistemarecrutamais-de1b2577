@@ -10,6 +10,22 @@ export function normalizarEmailComercial(valor: string) {
   return valor.trim().toLowerCase();
 }
 
+export type ConflitoContratacao = "email" | "cnpj" | "email_cnpj";
+
+export function mensagemConflitoContratacao(conflito: ConflitoContratacao) {
+  if (conflito === "email") return "Já existe uma contratação ativa para este e-mail.";
+  if (conflito === "cnpj") return "Já existe uma contratação ativa para este CNPJ.";
+  return "Já existe uma contratação ativa para este e-mail ou CNPJ.";
+}
+
+export function conflitoPorErroUnicidade(erro: { code?: string; message?: string; details?: string } | null) {
+  if (erro?.code !== "23505") return null;
+  const detalhe = `${erro.message ?? ""} ${erro.details ?? ""}`.toLowerCase();
+  if (detalhe.includes("email")) return "email" as const;
+  if (detalhe.includes("cnpj")) return "cnpj" as const;
+  return "email_cnpj" as const;
+}
+
 export function hashTokenCadastro(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
