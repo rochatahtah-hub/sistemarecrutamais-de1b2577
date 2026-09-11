@@ -10,12 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcessoRouteImport } from './routes/acesso'
 import { Route as AcessosRouteImport } from './routes/acessos'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AtendimentoRouteImport } from './routes/atendimento'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BancoColaboradoresRouteImport } from './routes/banco-colaboradores'
 import { Route as BancoDadosRouteImport } from './routes/banco-dados'
@@ -62,6 +62,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AcessoRoute = AcessoRouteImport.update({
+  id: '/acesso',
+  path: '/acesso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AcessosRoute = AcessosRouteImport.update({
   id: '/acessos',
   path: '/acessos',
@@ -85,11 +90,6 @@ const AtendimentoRoute = AtendimentoRouteImport.update({
 const AuditoriaRoute = AuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BackupsRoute = BackupsRouteImport.update({
@@ -298,12 +298,12 @@ const ApiPublicHooksMercadoPagoRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acesso': typeof AcessoRoute
   '/acessos': typeof AcessosRoute
   '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -347,12 +347,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acesso': typeof AcessoRoute
   '/acessos': typeof AcessosRoute
   '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -397,12 +397,12 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acesso': typeof AcessoRoute
   '/acessos': typeof AcessosRoute
   '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -448,12 +448,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/acesso'
     | '/acessos'
     | '/administracao'
     | '/analise'
     | '/atendimento'
     | '/auditoria'
-    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -497,12 +497,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/acesso'
     | '/acessos'
     | '/administracao'
     | '/analise'
     | '/atendimento'
     | '/auditoria'
-    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -546,12 +546,12 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/acesso'
     | '/acessos'
     | '/administracao'
     | '/analise'
     | '/atendimento'
     | '/auditoria'
-    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -596,12 +596,12 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcessoRoute: typeof AcessoRoute
   AcessosRoute: typeof AcessosRoute
   AdministracaoRoute: typeof AdministracaoRoute
   AnaliseRoute: typeof AnaliseRoute
   AtendimentoRoute: typeof AtendimentoRoute
   AuditoriaRoute: typeof AuditoriaRoute
-  AuthRoute: typeof AuthRoute
   BackupsRoute: typeof BackupsRoute
   BancoColaboradoresRoute: typeof BancoColaboradoresRoute
   BancoDadosRoute: typeof BancoDadosRoute
@@ -653,6 +653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/acesso': {
+      id: '/acesso'
+      path: '/acesso'
+      fullPath: '/acesso'
+      preLoaderRoute: typeof AcessoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/acessos': {
       id: '/acessos'
       path: '/acessos'
@@ -686,13 +693,6 @@ declare module '@tanstack/react-router' {
       path: '/auditoria'
       fullPath: '/auditoria'
       preLoaderRoute: typeof AuditoriaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/backups': {
@@ -980,12 +980,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcessoRoute: AcessoRoute,
   AcessosRoute: AcessosRoute,
   AdministracaoRoute: AdministracaoRoute,
   AnaliseRoute: AnaliseRoute,
   AtendimentoRoute: AtendimentoRoute,
   AuditoriaRoute: AuditoriaRoute,
-  AuthRoute: AuthRoute,
   BackupsRoute: BackupsRoute,
   BancoColaboradoresRoute: BancoColaboradoresRoute,
   BancoDadosRoute: BancoDadosRoute,
