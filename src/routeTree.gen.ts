@@ -55,6 +55,7 @@ import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
 import { Route as RsLevantamentoRouteImport } from './routes/rs.levantamento'
 import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 import { Route as ApiPublicHooksLevantamentoDiarioRouteImport } from './routes/api/public/hooks/levantamento-diario'
+import { Route as ApiPublicHooksMercadoPagoRouteImport } from './routes/api/public/hooks/mercado-pago'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -288,6 +289,12 @@ const ApiPublicHooksLevantamentoDiarioRoute =
     path: '/api/public/hooks/levantamento-diario',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMercadoPagoRoute =
+  ApiPublicHooksMercadoPagoRouteImport.update({
+    id: '/api/public/hooks/mercado-pago',
+    path: '/api/public/hooks/mercado-pago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -336,6 +343,7 @@ export interface FileRoutesByFullPath {
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
+  '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -384,6 +392,7 @@ export interface FileRoutesByTo {
   '/empresas': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
+  '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -433,6 +442,7 @@ export interface FileRoutesById {
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
+  '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -483,6 +493,7 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
+    | '/api/public/hooks/mercado-pago'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -531,6 +542,7 @@ export interface FileRouteTypes {
     | '/empresas'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
+    | '/api/public/hooks/mercado-pago'
   id:
     | '__root__'
     | '/'
@@ -579,6 +591,7 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
+    | '/api/public/hooks/mercado-pago'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -628,6 +641,7 @@ export interface RootRouteChildren {
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
   ApiPublicHooksLevantamentoDiarioRoute: typeof ApiPublicHooksLevantamentoDiarioRoute
+  ApiPublicHooksMercadoPagoRoute: typeof ApiPublicHooksMercadoPagoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -954,6 +968,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksLevantamentoDiarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/mercado-pago': {
+      id: '/api/public/hooks/mercado-pago'
+      path: '/api/public/hooks/mercado-pago'
+      fullPath: '/api/public/hooks/mercado-pago'
+      preLoaderRoute: typeof ApiPublicHooksMercadoPagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1004,6 +1025,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasIndexRoute: EmpresasIndexRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
   ApiPublicHooksLevantamentoDiarioRoute: ApiPublicHooksLevantamentoDiarioRoute,
+  ApiPublicHooksMercadoPagoRoute: ApiPublicHooksMercadoPagoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
