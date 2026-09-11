@@ -2872,7 +2872,7 @@ export type Database = {
           colaborador: string
           data: string
           id: string
-          programadora_id: string | null
+          programadora_id: string
           quantidade: number
           status: string
         }[]
@@ -2984,7 +2984,9 @@ export type Database = {
       }
       usuarios_com_permissao: {
         Args: { _acao: string; _modulo: string; _tenant: string }
-        Returns: { user_id: string }[]
+        Returns: {
+          user_id: string
+        }[]
       }
       verificar_bloqueio: {
         Args: { _cpf: string; _empresa_id?: string }
