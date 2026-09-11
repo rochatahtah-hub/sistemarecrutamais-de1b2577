@@ -27,7 +27,7 @@ import { registrarErroSistema } from "@/lib/system-health";
 import { acaoDeEntrada, moduloDaRota, usePermissoes } from "@/lib/permissoes";
 
 /** Rotas públicas: acessíveis sem login (portal de candidatura e tela de acesso). */
-const ROTAS_PUBLICAS = ["/auth", "/acesso", "/reset-password", "/primeiro-acesso", "/cadastro-diarias", "/leads", "/contratar", "/contratacao-status"];
+const ROTAS_PUBLICAS = ["/auth", "/acesso", "/reset-password", "/cadastro-diarias", "/leads", "/contratar", "/contratacao-status"];
 
 function NotFoundComponent() {
   return (
@@ -192,13 +192,12 @@ function RootComponent() {
 function Protegido() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { carregando, session, perfil } = useAuth();
+  const { carregando, session } = useAuth();
   const { pode, carregando: carregandoPermissoes } = usePermissoes();
   const rotaPublica = ROTAS_PUBLICAS.some(
     (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
   );
   const naTelaDeLogin = pathname === "/auth" || pathname === "/acesso";
-  const exigeTrocaSenha = !!session && perfil?.troca_senha_obrigatoria === true;
   // Bloqueio por permissão: o módulo da rota precisa estar liberado para o perfil.
   const modulo = moduloDaRota(pathname);
   const bloqueado =
@@ -218,12 +217,6 @@ function Protegido() {
   useEffect(() => {
     if (bloqueado) void navigate({ to: "/", replace: true });
   }, [bloqueado, navigate]);
-
-  useEffect(() => {
-    if (exigeTrocaSenha && pathname !== "/primeiro-acesso") {
-      void navigate({ to: "/primeiro-acesso", replace: true });
-    }
-  }, [exigeTrocaSenha, pathname, navigate]);
 
   if (rotaPublica)
     return (

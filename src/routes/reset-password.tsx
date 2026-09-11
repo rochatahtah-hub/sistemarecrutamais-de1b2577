@@ -69,10 +69,6 @@ function Pagina() {
       toast.error(`Não foi possível redefinir a senha: ${error.message}`);
       return;
     }
-    const { data: usuario } = await supabase.auth.getUser();
-    if (usuario.user) {
-      await supabase.from("profiles").update({ troca_senha_obrigatoria: false }).eq("id", usuario.user.id);
-    }
     await supabase.auth.signOut();
     toast.success("Senha redefinida. Entre novamente com sua nova senha.");
     void navigate({ to: "/acesso", replace: true });

@@ -44,13 +44,7 @@ export const iniciarContratacao = createServerFn({ method: "POST" })
     origem: string;
   }) => d)
   .handler(async ({ data }) => {
-    const {
-      conflitoPorErroUnicidade,
-      mensagemConflitoContratacao,
-      normalizarEmailComercial,
-      somenteDigitos,
-      mercadoPagoFetch,
-    } = await import("./comercial.server");
+    const { normalizarEmailComercial, somenteDigitos, mercadoPagoFetch } = await import("./comercial.server");
     const empresaNome = validarTexto(data.empresaNome, 2, 140, "empresa");
     const responsavelNome = validarTexto(data.responsavelNome, 2, 140, "responsável");
     const email = normalizarEmailComercial(data.email);
@@ -73,31 +67,38 @@ export const iniciarContratacao = createServerFn({ method: "POST" })
       .maybeSingle();
     if (erroPlano || !plano || plano.preco_mensal_centavos <= 0) throw new Error("Plano indisponível.");
 
-    const referencia = `recruta-${randomUUID()}`;
-    const { data: reservas, error: erroReserva } = await supabaseAdmin.rpc("reservar_contratacao_comercial", {
-      _plano_id: plano.id,
-      _empresa_nome: empresaNome,
-      _responsavel_nome: responsavelNome,
-      _email: email,
-      _telefone: telefone,
-      _cnpj: cnpj,
-      _forma_pagamento: data.formaPagamento,
-      _origem: data.origem,
-      _referencia: referencia,
-    });
-    const reserva = reservas?.[0];
-    if (erroReserva) {
-      const conflito = conflitoPorErroUnicidade(erroReserva);
-      if (conflito) throw new Error(mensagemConflitoContratacao(conflito));
-      console.error("[contratacao] falha ao reservar lead e pedido", erroReserva.code, erroReserva.message);
+    const { data: lead, error: erroLead } = await supabaseAdmin
+      .from("leads_comerciais")
+      .insert({
+        empresa_nome: empresaNome,
+        responsavel_nome: responsavelNome,
+        email,
+        telefone,
+        cnpj: cnpj || null,
+        status: "checkout_iniciado",
+        plano_interesse_id: plano.id,
+        origem: data.origem === "pagina_publica" ? "pagina_publica" : "link_direto",
+      })
+      .select("id")
+      .single();
+    if (erroLead || !lead) {
+      if (erroLead?.code === "23505") throw new Error("Já existe uma contratação ativa para este e-mail ou CNPJ.");
       throw new Error("Não foi possível iniciar a contratação.");
     }
-    if (reserva?.conflito) {
-      throw new Error(mensagemConflitoContratacao(reserva.conflito as "email" | "cnpj" | "email_cnpj"));
-    }
-    if (!reserva?.lead_id || !reserva.pedido_id) throw new Error("Não foi possível iniciar a contratação.");
-    const lead = { id: reserva.lead_id };
-    const pedido = { id: reserva.pedido_id };
+
+    const referencia = `recruta-${randomUUID()}`;
+    const { data: pedido, error: erroPedido } = await supabaseAdmin
+      .from("pedidos_comerciais")
+      .insert({
+        lead_id: lead.id,
+        plano_id: plano.id,
+        referencia,
+        valor_centavos: plano.preco_mensal_centavos,
+        forma_pagamento: data.formaPagamento,
+      })
+      .select("id")
+      .single();
+    if (erroPedido || !pedido) throw new Error("Não foi possível criar o pedido.");
 
     const idempotencyKey = `pedido:${pedido.id}`;
     try {
@@ -137,7 +138,6 @@ export const iniciarContratacao = createServerFn({ method: "POST" })
       return { ok: true as const, checkoutUrl: preferencia.init_point, pedidoId: pedido.id };
     } catch (erro) {
       await supabaseAdmin.from("pedidos_comerciais").update({ status: "cancelado" }).eq("id", pedido.id);
-      await supabaseAdmin.from("leads_comerciais").update({ status: "novo" }).eq("id", lead.id);
       throw erro;
     }
   });

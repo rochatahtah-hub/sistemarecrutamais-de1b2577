@@ -2471,7 +2471,6 @@ export type Database = {
           nome: string
           perfil_id: string | null
           tenant_id: string
-          troca_senha_obrigatoria: boolean
           ultimo_acesso: string | null
           ultimo_preenchimento: string | null
           updated_at: string
@@ -2489,7 +2488,6 @@ export type Database = {
           nome?: string
           perfil_id?: string | null
           tenant_id?: string
-          troca_senha_obrigatoria?: boolean
           ultimo_acesso?: string | null
           ultimo_preenchimento?: string | null
           updated_at?: string
@@ -2507,7 +2505,6 @@ export type Database = {
           nome?: string
           perfil_id?: string | null
           tenant_id?: string
-          troca_senha_obrigatoria?: boolean
           ultimo_acesso?: string | null
           ultimo_preenchimento?: string | null
           updated_at?: string
@@ -3334,24 +3331,6 @@ export type Database = {
       renomear_tenant: {
         Args: { _nome: string; _tenant: string }
         Returns: undefined
-      }
-      reservar_contratacao_comercial: {
-        Args: {
-          _cnpj: string
-          _email: string
-          _empresa_nome: string
-          _forma_pagamento: string
-          _origem: string
-          _plano_id: string
-          _referencia: string
-          _responsavel_nome: string
-          _telefone: string
-        }
-        Returns: {
-          conflito: string
-          lead_id: string
-          pedido_id: string
-        }[]
       }
       resumo_saude_sistema: {
         Args: never

@@ -50,16 +50,16 @@ export async function provisionarPedidoAprovado(pedidoId: string) {
   if ((configuracoes.data ?? []).length > 0) await supabaseAdmin.from("configuracoes").insert((configuracoes.data ?? []).map((c) => ({ tenant_id: tenant.id, chave: c.chave, valor: c.valor })));
 
   const senhaTemporaria = randomBytes(24).toString("base64url");
-  const { data: usuario, error: erroUsuario } = await supabaseAdmin.auth.admin.createUser({ email: lead.email, password: senhaTemporaria, email_confirm: true, user_metadata: { nome: lead.responsavel_nome, tenant_id: tenant.id, acesso_comercial: true } });
+  const { data: usuario, error: erroUsuario } = await supabaseAdmin.auth.admin.createUser({ email: lead.email, password: senhaTemporaria, email_confirm: true, user_metadata: { nome: lead.responsavel_nome, tenant_id: tenant.id } });
   if (erroUsuario || !usuario.user) throw new Error("A empresa foi criada, mas o primeiro acesso precisa de revisão pela equipe.");
   const { data: perfilAdmin } = await supabaseAdmin.from("perfis_acesso").select("id").eq("tenant_id", tenant.id).eq("chave", "admin").maybeSingle();
-  await supabaseAdmin.from("profiles").upsert({ id: usuario.user.id, nome: lead.responsavel_nome, email: lead.email, ativo: true, tenant_id: tenant.id, perfil_id: perfilAdmin?.id ?? null, troca_senha_obrigatoria: true }, { onConflict: "id" });
+  await supabaseAdmin.from("profiles").upsert({ id: usuario.user.id, nome: lead.responsavel_nome, email: lead.email, ativo: true, tenant_id: tenant.id, perfil_id: perfilAdmin?.id ?? null }, { onConflict: "id" });
   await supabaseAdmin.from("user_roles").upsert({ user_id: usuario.user.id, role: "admin" }, { onConflict: "user_id,role" });
   await supabaseAdmin.from("pedidos_comerciais").update({ tenant_id: tenant.id }).eq("id", pedido.id);
   await supabaseAdmin.from("leads_comerciais").update({ convertido_tenant_id: tenant.id, status: "convertido" }).eq("id", lead.id);
   await supabaseAdmin.from("assinaturas_comerciais").upsert({ tenant_id: tenant.id, pedido_id: pedido.id, plano_id: pedido.plano_id, status: "ativa", periodo_inicio: new Date().toISOString(), proxima_cobranca_em: new Date(Date.now() + 30 * 86400_000).toISOString() }, { onConflict: "pedido_id" });
   await supabaseAdmin.from("liberacoes_cadastro").update({ tenant_id: tenant.id, user_id: usuario.user.id }).eq("pedido_id", pedido.id);
-  const { error: erroRecuperacao } = await supabaseAdmin.auth.resetPasswordForEmail(lead.email, { redirectTo: `${process.env["APP_PUBLIC_URL"] ?? "https://recrutamaisrh.ia.br"}/primeiro-acesso` });
+  const { error: erroRecuperacao } = await supabaseAdmin.auth.resetPasswordForEmail(lead.email, { redirectTo: `${process.env["APP_PUBLIC_URL"] ?? "https://recrutamaisrh.ia.br"}/reset-password` });
   if (erroRecuperacao) console.error("[provisionamento] falha ao enviar definição de senha", erroRecuperacao.message);
   return { tenantId: tenant.id, criado: true };
 }
