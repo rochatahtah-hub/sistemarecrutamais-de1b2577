@@ -222,7 +222,7 @@ function Protegido() {
     return (
       <>
         <Outlet />
-        <AssinaturaMetis />
+        <AssinaturaMetis variant="public" />
       </>
     );
 
