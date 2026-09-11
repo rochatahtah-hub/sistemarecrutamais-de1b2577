@@ -136,7 +136,11 @@ export function useRegistrarConfirmacao() {
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { error } = await supabase
         .from("vagas")
-        .update({ status, situacao: situacaoPorStatus(status) })
+        .update({
+          status,
+          situacao: situacaoPorStatus(status),
+          confirmado_em: status === "AGUARDANDO" ? null : new Date().toISOString(),
+        })
         .eq("id", id);
       if (error) throw error;
     },

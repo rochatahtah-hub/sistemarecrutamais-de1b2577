@@ -32,6 +32,7 @@ import {
   ClipboardList,
   ListChecks,
   Megaphone,
+  CalendarClock,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -73,6 +74,7 @@ const gestao = [
   { title: "Bloqueios", url: "/bloqueios", icon: ShieldOff },
   { title: "Banco de Colaboradores", url: "/banco-colaboradores", icon: Database },
   { title: "Configuração de Captação", url: "/captacao", icon: Megaphone },
+  { title: "Levantamento Diário", url: "/levantamento-diario", icon: CalendarClock },
 ] as const;
 
 const analises = [

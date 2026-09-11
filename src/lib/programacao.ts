@@ -634,7 +634,11 @@ export async function confirmarProgramacao(p: {
   const { situacaoPorStatus } = await import("./tipos");
   const { error } = await supabase
     .from("vagas")
-    .update({ status: p.status, situacao: situacaoPorStatus(p.status) })
+    .update({
+      status: p.status,
+      situacao: situacaoPorStatus(p.status),
+      confirmado_em: p.status === "AGUARDANDO" ? null : new Date().toISOString(),
+    })
     .eq("id", p.id);
   if (error) throw error;
   const { data: sessao } = await supabase.auth.getUser();

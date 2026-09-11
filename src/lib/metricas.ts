@@ -29,7 +29,7 @@ function pct(parte: number, total: number) {
   return (parte / total) * 100;
 }
 
-export function agregar(registros: VagaRegistro[]): Agregado {
+export function agregar(registros: Array<Pick<VagaRegistro, "status" | "quantidade">>): Agregado {
   let vagas = 0;
   let pendentes = 0;
   let presencas = 0;
@@ -98,7 +98,7 @@ function chaveNome(valor: string): string {
  */
 export function criarResolucaoProgramadora(
   habilitadas: { id: string; nome: string }[],
-): (registro: VagaRegistro) => string | undefined {
+): (registro: Pick<VagaRegistro, "programadora_id" | "colaborador">) => string | undefined {
   const porId = new Set(habilitadas.map((p) => p.id));
   const porNome = new Map<string, string>();
   const primeiroNomeContagem = new Map<string, number>();

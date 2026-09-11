@@ -20,7 +20,11 @@ export type Acao =
   | "processar"
   | "arquivar"
   | "restaurar"
-  | "editar_aguardando_confirmacao";
+  | "editar_aguardando_confirmacao"
+  | "detalhar"
+  | "configurar"
+  | "reprocessar"
+  | "receber_notificacao";
 
 export interface ModuloInfo {
   chave: string;
@@ -128,6 +132,11 @@ export const MODULOS: ModuloInfo[] = [
   },
   { chave: "rs_dashboard", nome: "R&S — Dashboard", acoes: ["visualizar", "exportar"] },
   { chave: "rs_levantamento", nome: "R&S — Levantamento", acoes: ["visualizar", "exportar"] },
+  {
+    chave: "levantamento_diario",
+    nome: "Levantamento Diário",
+    acoes: ["visualizar", "detalhar", "configurar", "reprocessar", "exportar", "receber_notificacao"],
+  },
 ];
 
 export const ACAO_ROTULO: Record<Acao, string> = {
@@ -147,6 +156,10 @@ export const ACAO_ROTULO: Record<Acao, string> = {
   arquivar: "Arquivar",
   restaurar: "Restaurar",
   editar_aguardando_confirmacao: "Editar aguardando confirmação",
+  detalhar: "Detalhar",
+  configurar: "Configurar",
+  reprocessar: "Reprocessar",
+  receber_notificacao: "Receber notificação",
 };
 
 /** Rota → módulo correspondente (usado no menu e no bloqueio de rotas). */
@@ -188,6 +201,7 @@ export const MODULO_POR_ROTA: Record<string, string> = {
   "/rs/empresas": "rs_empresas",
   "/rs/dashboard": "rs_dashboard",
   "/rs/levantamento": "rs_levantamento",
+  "/levantamento-diario": "levantamento_diario",
 };
 
 /** Ação mínima exigida para abrir cada módulo. */

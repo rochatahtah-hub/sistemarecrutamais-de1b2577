@@ -29,6 +29,7 @@ import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
 import { Route as EmpresasSistemaRouteImport } from './routes/empresas-sistema'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as LevantamentoDiarioRouteImport } from './routes/levantamento-diario'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
 import { Route as PagamentosRouteImport } from './routes/pagamentos'
@@ -53,6 +54,7 @@ import { Route as RsDashboardRouteImport } from './routes/rs.dashboard'
 import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
 import { Route as RsLevantamentoRouteImport } from './routes/rs.levantamento'
 import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
+import { Route as ApiPublicHooksLevantamentoDiarioRouteImport } from './routes/api/public/hooks/levantamento-diario'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -152,6 +154,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LevantamentoDiarioRoute = LevantamentoDiarioRouteImport.update({
+  id: '/levantamento-diario',
+  path: '/levantamento-diario',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MetasRoute = MetasRouteImport.update({
@@ -275,6 +282,12 @@ const ApiPublicHooksBackupAgendadoRoute =
     path: '/api/public/hooks/backup-agendado',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksLevantamentoDiarioRoute =
+  ApiPublicHooksLevantamentoDiarioRouteImport.update({
+    id: '/api/public/hooks/levantamento-diario',
+    path: '/api/public/hooks/levantamento-diario',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -297,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/pagamentos': typeof PagamentosRoute
@@ -321,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
+  '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -343,6 +358,7 @@ export interface FileRoutesByTo {
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/pagamentos': typeof PagamentosRoute
@@ -367,6 +383,7 @@ export interface FileRoutesByTo {
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
+  '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -390,6 +407,7 @@ export interface FileRoutesById {
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
   '/pagamentos': typeof PagamentosRoute
@@ -414,6 +432,7 @@ export interface FileRoutesById {
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
+  '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -438,6 +457,7 @@ export interface FileRouteTypes {
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
     | '/pagamentos'
@@ -462,6 +482,7 @@ export interface FileRouteTypes {
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
+    | '/api/public/hooks/levantamento-diario'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -484,6 +505,7 @@ export interface FileRouteTypes {
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
     | '/pagamentos'
@@ -508,6 +530,7 @@ export interface FileRouteTypes {
     | '/colaboradores'
     | '/empresas'
     | '/api/public/hooks/backup-agendado'
+    | '/api/public/hooks/levantamento-diario'
   id:
     | '__root__'
     | '/'
@@ -530,6 +553,7 @@ export interface FileRouteTypes {
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
     | '/pagamentos'
@@ -554,6 +578,7 @@ export interface FileRouteTypes {
     | '/colaboradores/'
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
+    | '/api/public/hooks/levantamento-diario'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -577,6 +602,7 @@ export interface RootRouteChildren {
   EmpresasSistemaRoute: typeof EmpresasSistemaRoute
   HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
+  LevantamentoDiarioRoute: typeof LevantamentoDiarioRoute
   MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
   PagamentosRoute: typeof PagamentosRoute
@@ -601,6 +627,7 @@ export interface RootRouteChildren {
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
+  ApiPublicHooksLevantamentoDiarioRoute: typeof ApiPublicHooksLevantamentoDiarioRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -743,6 +770,13 @@ declare module '@tanstack/react-router' {
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/levantamento-diario': {
+      id: '/levantamento-diario'
+      path: '/levantamento-diario'
+      fullPath: '/levantamento-diario'
+      preLoaderRoute: typeof LevantamentoDiarioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/metas': {
@@ -913,6 +947,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksBackupAgendadoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/levantamento-diario': {
+      id: '/api/public/hooks/levantamento-diario'
+      path: '/api/public/hooks/levantamento-diario'
+      fullPath: '/api/public/hooks/levantamento-diario'
+      preLoaderRoute: typeof ApiPublicHooksLevantamentoDiarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -937,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasSistemaRoute: EmpresasSistemaRoute,
   HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
+  LevantamentoDiarioRoute: LevantamentoDiarioRoute,
   MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
   PagamentosRoute: PagamentosRoute,
@@ -961,6 +1003,7 @@ const rootRouteChildren: RootRouteChildren = {
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
+  ApiPublicHooksLevantamentoDiarioRoute: ApiPublicHooksLevantamentoDiarioRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

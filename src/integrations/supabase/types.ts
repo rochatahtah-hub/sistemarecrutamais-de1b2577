@@ -1573,6 +1573,181 @@ export type Database = {
           },
         ]
       }
+      levantamento_diario_config: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          hora_geracao: number
+          id: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          hora_geracao?: number
+          id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          hora_geracao?: number
+          id?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "levantamento_diario_config_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      levantamento_diario_programadores: {
+        Row: {
+          cancelamentos: number
+          created_at: string
+          faltas: number
+          id: string
+          levantamento_id: string
+          pct_cancelamento: number
+          pct_falta: number
+          pct_presenca: number
+          presencas: number
+          programadora_id: string
+          programadora_nome: string
+          tenant_id: string
+          updated_at: string
+          vaga_ids: string[]
+          vagas_fechadas: number
+        }
+        Insert: {
+          cancelamentos?: number
+          created_at?: string
+          faltas?: number
+          id?: string
+          levantamento_id: string
+          pct_cancelamento?: number
+          pct_falta?: number
+          pct_presenca?: number
+          presencas?: number
+          programadora_id: string
+          programadora_nome?: string
+          tenant_id?: string
+          updated_at?: string
+          vaga_ids?: string[]
+          vagas_fechadas?: number
+        }
+        Update: {
+          cancelamentos?: number
+          created_at?: string
+          faltas?: number
+          id?: string
+          levantamento_id?: string
+          pct_cancelamento?: number
+          pct_falta?: number
+          pct_presenca?: number
+          presencas?: number
+          programadora_id?: string
+          programadora_nome?: string
+          tenant_id?: string
+          updated_at?: string
+          vaga_ids?: string[]
+          vagas_fechadas?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "levantamento_diario_programadores_levantamento_id_fkey"
+            columns: ["levantamento_id"]
+            isOneToOne: false
+            referencedRelation: "levantamentos_diarios"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "levantamento_diario_programadores_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      levantamentos_diarios: {
+        Row: {
+          cancelamentos: number
+          created_at: string
+          data_referencia: string
+          faltas: number
+          gerado_em: string
+          id: string
+          origem: string
+          pct_cancelamento: number
+          pct_falta: number
+          pct_presenca: number
+          presencas: number
+          reprocessado_em: string | null
+          reprocessado_por: string | null
+          reprocessado_por_nome: string
+          tenant_id: string
+          updated_at: string
+          vagas_fechadas: number
+          vezes_reprocessado: number
+        }
+        Insert: {
+          cancelamentos?: number
+          created_at?: string
+          data_referencia: string
+          faltas?: number
+          gerado_em?: string
+          id?: string
+          origem?: string
+          pct_cancelamento?: number
+          pct_falta?: number
+          pct_presenca?: number
+          presencas?: number
+          reprocessado_em?: string | null
+          reprocessado_por?: string | null
+          reprocessado_por_nome?: string
+          tenant_id?: string
+          updated_at?: string
+          vagas_fechadas?: number
+          vezes_reprocessado?: number
+        }
+        Update: {
+          cancelamentos?: number
+          created_at?: string
+          data_referencia?: string
+          faltas?: number
+          gerado_em?: string
+          id?: string
+          origem?: string
+          pct_cancelamento?: number
+          pct_falta?: number
+          pct_presenca?: number
+          presencas?: number
+          reprocessado_em?: string | null
+          reprocessado_por?: string | null
+          reprocessado_por_nome?: string
+          tenant_id?: string
+          updated_at?: string
+          vagas_fechadas?: number
+          vezes_reprocessado?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "levantamentos_diarios_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mensagens: {
         Row: {
           anexo_mime: string
@@ -2507,6 +2682,7 @@ export type Database = {
           cargo: string
           cidade: string | null
           colaborador_id: string | null
+          confirmado_em: string | null
           created_at: string
           data: string
           descricao: string | null
@@ -2539,6 +2715,7 @@ export type Database = {
           cargo?: string
           cidade?: string | null
           colaborador_id?: string | null
+          confirmado_em?: string | null
           created_at?: string
           data: string
           descricao?: string | null
@@ -2571,6 +2748,7 @@ export type Database = {
           cargo?: string
           cidade?: string | null
           colaborador_id?: string | null
+          confirmado_em?: string | null
           created_at?: string
           data?: string
           descricao?: string | null
@@ -2685,6 +2863,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      levantamento_diario_vagas_do_dia: {
+        Args: { _data: string; _tenant: string }
+        Returns: {
+          colaborador: string
+          data: string
+          id: string
+          programadora_id: string | null
+          quantidade: number
+          status: string
+        }[]
+      }
       minhas_permissoes: {
         Args: never
         Returns: {
@@ -2701,6 +2890,13 @@ export type Database = {
       pode_operar: { Args: { _user_id: string }; Returns: boolean }
       programadoras_da_programacao: {
         Args: never
+        Returns: {
+          id: string
+          nome: string
+        }[]
+      }
+      programadoras_habilitadas_do_tenant: {
+        Args: { _tenant: string }
         Returns: {
           id: string
           nome: string
@@ -2782,6 +2978,10 @@ export type Database = {
           nome: string
           slug: string
         }[]
+      }
+      usuarios_com_permissao: {
+        Args: { _acao: string; _modulo: string; _tenant: string }
+        Returns: { user_id: string }[]
       }
       verificar_bloqueio: {
         Args: { _cpf: string; _empresa_id?: string }
