@@ -254,6 +254,7 @@ function Protegido() {
               </SystemErrorBoundary>
             </div>
           </main>
+          <AssinaturaMetis />
           <VoltarAoTopo />
         </div>
       </div>
