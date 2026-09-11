@@ -213,7 +213,13 @@ function Protegido() {
     if (bloqueado) void navigate({ to: "/", replace: true });
   }, [bloqueado, navigate]);
 
-  if (rotaPublica && (naTelaDeLogin || !session)) return <Outlet />;
+  if (rotaPublica && (naTelaDeLogin || !session))
+    return (
+      <>
+        <Outlet />
+        <AssinaturaMetis />
+      </>
+    );
 
   if (carregando || !session) {
     return (
