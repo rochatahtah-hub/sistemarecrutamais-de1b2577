@@ -16,6 +16,7 @@ import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AtendimentoRouteImport } from './routes/atendimento'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BancoColaboradoresRouteImport } from './routes/banco-colaboradores'
 import { Route as BancoDadosRouteImport } from './routes/banco-dados'
@@ -94,6 +95,11 @@ const AtendimentoRoute = AtendimentoRouteImport.update({
 const AuditoriaRoute = AuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BackupsRoute = BackupsRouteImport.update({
@@ -328,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
+  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByTo {
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
+  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -435,6 +443,7 @@ export interface FileRoutesById {
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
+  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -490,6 +499,7 @@ export interface FileRouteTypes {
     | '/analise'
     | '/atendimento'
     | '/auditoria'
+    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -543,6 +553,7 @@ export interface FileRouteTypes {
     | '/analise'
     | '/atendimento'
     | '/auditoria'
+    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -596,6 +607,7 @@ export interface FileRouteTypes {
     | '/analise'
     | '/atendimento'
     | '/auditoria'
+    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -650,6 +662,7 @@ export interface RootRouteChildren {
   AnaliseRoute: typeof AnaliseRoute
   AtendimentoRoute: typeof AtendimentoRoute
   AuditoriaRoute: typeof AuditoriaRoute
+  AuthRoute: typeof AuthRoute
   BackupsRoute: typeof BackupsRoute
   BancoColaboradoresRoute: typeof BancoColaboradoresRoute
   BancoDadosRoute: typeof BancoDadosRoute
@@ -745,6 +758,13 @@ declare module '@tanstack/react-router' {
       path: '/auditoria'
       fullPath: '/auditoria'
       preLoaderRoute: typeof AuditoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/backups': {
@@ -1066,6 +1086,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnaliseRoute: AnaliseRoute,
   AtendimentoRoute: AtendimentoRoute,
   AuditoriaRoute: AuditoriaRoute,
+  AuthRoute: AuthRoute,
   BackupsRoute: BackupsRoute,
   BancoColaboradoresRoute: BancoColaboradoresRoute,
   BancoDadosRoute: BancoDadosRoute,

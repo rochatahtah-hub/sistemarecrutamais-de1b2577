@@ -65,10 +65,9 @@ export function useEhSuperAdmin() {
     staleTime: 5 * 60_000,
     queryFn: async (): Promise<boolean> => {
       if (!user) return false;
-      // Somente a CEO enxerga mais de uma empresa (RLS de tenants).
-      const { data, error } = await supabase.from("tenants").select("id").limit(2);
+      const { data, error } = await supabase.rpc("eh_super_admin_atual");
       if (error) throw error;
-      return (data ?? []).length > 1;
+      return data === true;
     },
   });
 }
