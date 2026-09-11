@@ -23,4 +23,4 @@
 - [x] Liberar cadastro de empresa e primeiro administrador somente após pagamento confirmado.
 - [x] Criar gestão Master de Leads, Planos, Assinaturas, Pagamentos e clientes comerciais.
 - [x] Aplicar restrição por inadimplência somente a tenants originados pelo fluxo de Leads.
-- [ ] Documentar e validar separadamente AGIZZE, nova empresa, links, segurança e pagamentos.
+- [x] Documentar e validar separadamente AGIZZE, nova empresa, links, segurança e pagamentos.
