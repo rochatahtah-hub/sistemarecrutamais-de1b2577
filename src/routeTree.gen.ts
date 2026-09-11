@@ -26,6 +26,8 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
+import { Route as ContratacaoStatusRouteImport } from './routes/contratacao-status'
+import { Route as ContratarRouteImport } from './routes/contratar'
 import { Route as EmpresasSistemaRouteImport } from './routes/empresas-sistema'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
@@ -140,6 +142,16 @@ const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
 const ConfirmacoesRoute = ConfirmacoesRouteImport.update({
   id: '/confirmacoes',
   path: '/confirmacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratacaoStatusRoute = ContratacaoStatusRouteImport.update({
+  id: '/contratacao-status',
+  path: '/contratacao-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratarRoute = ContratarRouteImport.update({
+  id: '/contratar',
+  path: '/contratar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EmpresasSistemaRoute = EmpresasSistemaRouteImport.update({
@@ -314,6 +326,8 @@ export interface FileRoutesByFullPath {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/contratacao-status': typeof ContratacaoStatusRoute
+  '/contratar': typeof ContratarRoute
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
@@ -363,6 +377,8 @@ export interface FileRoutesByTo {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/contratacao-status': typeof ContratacaoStatusRoute
+  '/contratar': typeof ContratarRoute
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
@@ -413,6 +429,8 @@ export interface FileRoutesById {
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/contratacao-status': typeof ContratacaoStatusRoute
+  '/contratar': typeof ContratarRoute
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
@@ -464,6 +482,8 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/contratacao-status'
+    | '/contratar'
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
@@ -513,6 +533,8 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/contratacao-status'
+    | '/contratar'
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
@@ -562,6 +584,8 @@ export interface FileRouteTypes {
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/contratacao-status'
+    | '/contratar'
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
@@ -612,6 +636,8 @@ export interface RootRouteChildren {
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
+  ContratacaoStatusRoute: typeof ContratacaoStatusRoute
+  ContratarRoute: typeof ContratarRoute
   EmpresasSistemaRoute: typeof EmpresasSistemaRoute
   HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
@@ -763,6 +789,20 @@ declare module '@tanstack/react-router' {
       path: '/confirmacoes'
       fullPath: '/confirmacoes'
       preLoaderRoute: typeof ConfirmacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contratacao-status': {
+      id: '/contratacao-status'
+      path: '/contratacao-status'
+      fullPath: '/contratacao-status'
+      preLoaderRoute: typeof ContratacaoStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contratar': {
+      id: '/contratar'
+      path: '/contratar'
+      fullPath: '/contratar'
+      preLoaderRoute: typeof ContratarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/empresas-sistema': {
@@ -996,6 +1036,8 @@ const rootRouteChildren: RootRouteChildren = {
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,
+  ContratacaoStatusRoute: ContratacaoStatusRoute,
+  ContratarRoute: ContratarRoute,
   EmpresasSistemaRoute: EmpresasSistemaRoute,
   HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
