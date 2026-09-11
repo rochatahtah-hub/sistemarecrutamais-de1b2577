@@ -23,6 +23,7 @@ export interface Perfil {
   ultimo_preenchimento: string | null;
   /** Nome do perfil de acesso (perfis_acesso) vinculado — usado para exibir o nível de acesso real. */
   perfil_acesso_nome: string | null;
+  acesso_comercial_bloqueado: boolean;
 }
 
 export type Papel =
@@ -58,20 +59,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase
         .from("profiles")
         .select(
-          "id,nome,email,ativo,meta_quinzena,avatar_url,ultimo_acesso,ultimo_preenchimento,perfis_acesso(nome)",
+          "id,nome,email,ativo,meta_quinzena,avatar_url,ultimo_acesso,ultimo_preenchimento,perfis_acesso(nome),tenants(origem_comercial,isento_comercial,assinatura_status)",
         )
         .eq("id", uid)
         .maybeSingle(),
       supabase.from("user_roles").select("role").eq("user_id", uid),
     ]);
     const dados = p.data as
-      (Omit<Perfil, "perfil_acesso_nome"> & { perfis_acesso: { nome: string } | null }) | null;
-    setPerfil(dados ? { ...dados, perfil_acesso_nome: dados.perfis_acesso?.nome ?? null } : null);
+      (Omit<Perfil, "perfil_acesso_nome" | "acesso_comercial_bloqueado"> & {
+        perfis_acesso: { nome: string } | null;
+        tenants: { origem_comercial: string; isento_comercial: boolean; assinatura_status: string } | null;
+      }) | null;
+    const bloqueadoComercial = !!dados?.tenants
+      && dados.tenants.origem_comercial === "leads"
+      && !dados.tenants.isento_comercial
+      && dados.tenants.assinatura_status !== "ativa";
+    setPerfil(dados ? { ...dados, perfil_acesso_nome: dados.perfis_acesso?.nome ?? null, acesso_comercial_bloqueado: bloqueadoComercial } : null);
     const lista = (r.data ?? []).map((x) => x.role as Papel);
     setPapeis(lista);
     setIsAdmin(lista.includes("admin"));
     // Usuário desativado não permanece com sessão ativa.
-    if (dados && dados.ativo === false) {
+    if (dados && (dados.ativo === false || bloqueadoComercial)) {
       await supabase.auth.signOut();
     }
   }, []);

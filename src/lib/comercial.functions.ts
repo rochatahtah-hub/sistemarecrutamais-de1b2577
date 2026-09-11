@@ -82,7 +82,7 @@ export const iniciarContratacao = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (erroLead || !lead) {
-      if (erroLead?.code === "23505") throw new Error("Já existe uma contratação ativa para este CNPJ.");
+      if (erroLead?.code === "23505") throw new Error("Já existe uma contratação ativa para este e-mail ou CNPJ.");
       throw new Error("Não foi possível iniciar a contratação.");
     }
 

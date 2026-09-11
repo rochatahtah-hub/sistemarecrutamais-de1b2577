@@ -16,11 +16,11 @@
 
 # Plataforma SaaS comercial
 
-- [ ] Preservar a AGIZZE como tenant existente e permanentemente isento do fluxo comercial.
-- [ ] Separar a página pública de Leads do endereço de acesso atual.
-- [ ] Ampliar planos e criar leads, pedidos, pagamentos e assinaturas com auditoria e isolamento.
-- [ ] Integrar Mercado Pago no backend com webhook validado e idempotência.
-- [ ] Liberar cadastro de empresa e primeiro administrador somente após pagamento confirmado.
-- [ ] Criar gestão Master de Leads, Planos, Assinaturas, Pagamentos e clientes comerciais.
-- [ ] Aplicar restrição por inadimplência somente a tenants originados pelo fluxo de Leads.
+- [x] Preservar a AGIZZE como tenant existente e permanentemente isento do fluxo comercial.
+- [x] Separar a página pública de Leads do endereço de acesso atual.
+- [x] Ampliar planos e criar leads, pedidos, pagamentos e assinaturas com auditoria e isolamento.
+- [x] Integrar Mercado Pago no backend com webhook validado e idempotência.
+- [x] Liberar cadastro de empresa e primeiro administrador somente após pagamento confirmado.
+- [x] Criar gestão Master de Leads, Planos, Assinaturas, Pagamentos e clientes comerciais.
+- [x] Aplicar restrição por inadimplência somente a tenants originados pelo fluxo de Leads.
 - [ ] Documentar e validar separadamente AGIZZE, nova empresa, links, segurança e pagamentos.
