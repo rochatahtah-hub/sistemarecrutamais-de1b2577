@@ -1,0 +1,1 @@
+ALTER FUNCTION public.eh_super_admin_atual() SECURITY INVOKER;

@@ -124,6 +124,76 @@ export type Database = {
         }
         Relationships: []
       }
+      assinaturas_comerciais: {
+        Row: {
+          cancelada_em: string | null
+          created_at: string
+          id: string
+          pedido_id: string
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          plano_id: string
+          provedor: string
+          provedor_assinatura_id: string | null
+          proxima_cobranca_em: string | null
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          cancelada_em?: string | null
+          created_at?: string
+          id?: string
+          pedido_id: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          plano_id: string
+          provedor?: string
+          provedor_assinatura_id?: string | null
+          proxima_cobranca_em?: string | null
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          cancelada_em?: string | null
+          created_at?: string
+          id?: string
+          pedido_id?: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          plano_id?: string
+          provedor?: string
+          provedor_assinatura_id?: string | null
+          proxima_cobranca_em?: string | null
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinaturas_comerciais_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: true
+            referencedRelation: "pedidos_comerciais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_comerciais_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assinaturas_comerciais_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       atendimento_conferencias: {
         Row: {
           adicional_motivo: string
@@ -1576,6 +1646,69 @@ export type Database = {
           },
         ]
       }
+      leads_comerciais: {
+        Row: {
+          cnpj: string | null
+          convertido_tenant_id: string | null
+          created_at: string
+          email: string
+          empresa_nome: string
+          id: string
+          observacao: string
+          origem: string
+          plano_interesse_id: string | null
+          responsavel_nome: string
+          status: string
+          telefone: string
+          updated_at: string
+        }
+        Insert: {
+          cnpj?: string | null
+          convertido_tenant_id?: string | null
+          created_at?: string
+          email: string
+          empresa_nome: string
+          id?: string
+          observacao?: string
+          origem?: string
+          plano_interesse_id?: string | null
+          responsavel_nome: string
+          status?: string
+          telefone?: string
+          updated_at?: string
+        }
+        Update: {
+          cnpj?: string | null
+          convertido_tenant_id?: string | null
+          created_at?: string
+          email?: string
+          empresa_nome?: string
+          id?: string
+          observacao?: string
+          origem?: string
+          plano_interesse_id?: string | null
+          responsavel_nome?: string
+          status?: string
+          telefone?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_comerciais_convertido_tenant_id_fkey"
+            columns: ["convertido_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_comerciais_plano_interesse_id_fkey"
+            columns: ["plano_interesse_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       levantamento_diario_config: {
         Row: {
           ativo: boolean
@@ -1751,6 +1884,57 @@ export type Database = {
           },
         ]
       }
+      liberacoes_cadastro: {
+        Row: {
+          created_at: string
+          expira_em: string
+          id: string
+          pedido_id: string
+          tenant_id: string | null
+          token_hash: string
+          updated_at: string
+          usado_em: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expira_em: string
+          id?: string
+          pedido_id: string
+          tenant_id?: string | null
+          token_hash: string
+          updated_at?: string
+          usado_em?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expira_em?: string
+          id?: string
+          pedido_id?: string
+          tenant_id?: string | null
+          token_hash?: string
+          updated_at?: string
+          usado_em?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "liberacoes_cadastro_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: true
+            referencedRelation: "pedidos_comerciais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liberacoes_cadastro_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: true
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mensagens: {
         Row: {
           anexo_mime: string
@@ -1918,6 +2102,145 @@ export type Database = {
           },
         ]
       }
+      pagamentos_comerciais: {
+        Row: {
+          created_at: string
+          dados_seguros: Json
+          forma_pagamento: string
+          id: string
+          idempotency_key: string
+          moeda: string
+          pago_em: string | null
+          pedido_id: string
+          provedor: string
+          provedor_pagamento_id: string
+          status: string
+          tenant_id: string | null
+          updated_at: string
+          valor_centavos: number
+        }
+        Insert: {
+          created_at?: string
+          dados_seguros?: Json
+          forma_pagamento: string
+          id?: string
+          idempotency_key: string
+          moeda?: string
+          pago_em?: string | null
+          pedido_id: string
+          provedor?: string
+          provedor_pagamento_id: string
+          status: string
+          tenant_id?: string | null
+          updated_at?: string
+          valor_centavos: number
+        }
+        Update: {
+          created_at?: string
+          dados_seguros?: Json
+          forma_pagamento?: string
+          id?: string
+          idempotency_key?: string
+          moeda?: string
+          pago_em?: string | null
+          pedido_id?: string
+          provedor?: string
+          provedor_pagamento_id?: string
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamentos_comerciais_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos_comerciais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pagamentos_comerciais_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedidos_comerciais: {
+        Row: {
+          checkout_url: string | null
+          created_at: string
+          forma_pagamento: string
+          id: string
+          lead_id: string
+          moeda: string
+          plano_id: string
+          provedor: string
+          provedor_checkout_id: string | null
+          referencia: string
+          status: string
+          tenant_id: string | null
+          updated_at: string
+          valor_centavos: number
+        }
+        Insert: {
+          checkout_url?: string | null
+          created_at?: string
+          forma_pagamento: string
+          id?: string
+          lead_id: string
+          moeda?: string
+          plano_id: string
+          provedor?: string
+          provedor_checkout_id?: string | null
+          referencia: string
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+          valor_centavos: number
+        }
+        Update: {
+          checkout_url?: string | null
+          created_at?: string
+          forma_pagamento?: string
+          id?: string
+          lead_id?: string
+          moeda?: string
+          plano_id?: string
+          provedor?: string
+          provedor_checkout_id?: string | null
+          referencia?: string
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_comerciais_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads_comerciais"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_comerciais_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_comerciais_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       perfil_permissoes: {
         Row: {
           acao: string
@@ -2061,6 +2384,11 @@ export type Database = {
           limites: Json
           modulos: Json
           nome: string
+          ordem: number
+          periodicidade: string
+          preco_mensal_centavos: number
+          publico: boolean
+          recursos: Json
           updated_at: string
         }
         Insert: {
@@ -2072,6 +2400,11 @@ export type Database = {
           limites?: Json
           modulos?: Json
           nome: string
+          ordem?: number
+          periodicidade?: string
+          preco_mensal_centavos?: number
+          publico?: boolean
+          recursos?: Json
           updated_at?: string
         }
         Update: {
@@ -2083,6 +2416,11 @@ export type Database = {
           limites?: Json
           modulos?: Json
           nome?: string
+          ordem?: number
+          periodicidade?: string
+          preco_mensal_centavos?: number
+          publico?: boolean
+          recursos?: Json
           updated_at?: string
         }
         Relationships: []
@@ -2529,39 +2867,48 @@ export type Database = {
       }
       tenants: {
         Row: {
+          assinatura_status: string
           ativo: boolean
           configuracoes: Json
           created_at: string
           dados_comerciais: Json
           id: string
+          isento_comercial: boolean
           limites: Json
           nome: string
+          origem_comercial: string
           plano_id: string | null
           slug: string
           status: string
           updated_at: string
         }
         Insert: {
+          assinatura_status?: string
           ativo?: boolean
           configuracoes?: Json
           created_at?: string
           dados_comerciais?: Json
           id?: string
+          isento_comercial?: boolean
           limites?: Json
           nome: string
+          origem_comercial?: string
           plano_id?: string | null
           slug: string
           status?: string
           updated_at?: string
         }
         Update: {
+          assinatura_status?: string
           ativo?: boolean
           configuracoes?: Json
           created_at?: string
           dados_comerciais?: Json
           id?: string
+          isento_comercial?: boolean
           limites?: Json
           nome?: string
+          origem_comercial?: string
           plano_id?: string | null
           slug?: string
           status?: string
@@ -2816,6 +3163,42 @@ export type Database = {
           },
         ]
       }
+      webhook_eventos_comerciais: {
+        Row: {
+          erro: string
+          evento_chave: string
+          id: string
+          payload_minimo: Json
+          processado_em: string | null
+          provedor: string
+          recebido_em: string
+          status_processamento: string
+          tipo: string
+        }
+        Insert: {
+          erro?: string
+          evento_chave: string
+          id?: string
+          payload_minimo?: Json
+          processado_em?: string | null
+          provedor?: string
+          recebido_em?: string
+          status_processamento?: string
+          tipo: string
+        }
+        Update: {
+          erro?: string
+          evento_chave?: string
+          id?: string
+          payload_minimo?: Json
+          processado_em?: string | null
+          provedor?: string
+          recebido_em?: string
+          status_processamento?: string
+          tipo?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2855,6 +3238,7 @@ export type Database = {
       }
       eh_master: { Args: { _user_id: string }; Returns: boolean }
       eh_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      eh_super_admin_atual: { Args: never; Returns: boolean }
       excluir_tenant: {
         Args: { _confirmacao: string; _tenant: string }
         Returns: undefined

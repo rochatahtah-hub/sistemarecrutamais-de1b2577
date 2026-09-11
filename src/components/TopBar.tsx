@@ -242,7 +242,7 @@ export function TopBar() {
               onClick={() => {
                 void sair().then(() => {
                   toast.success("Sessão encerrada.");
-                  void navigate({ to: "/auth", replace: true });
+                  void navigate({ to: "/acesso", replace: true });
                 });
               }}
             >

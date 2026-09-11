@@ -10,12 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcessoRouteImport } from './routes/acesso'
 import { Route as AcessosRouteImport } from './routes/acessos'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
 import { Route as AnaliseRouteImport } from './routes/analise'
 import { Route as AtendimentoRouteImport } from './routes/atendimento'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BackupsRouteImport } from './routes/backups'
 import { Route as BancoColaboradoresRouteImport } from './routes/banco-colaboradores'
 import { Route as BancoDadosRouteImport } from './routes/banco-dados'
@@ -23,12 +23,16 @@ import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as CaptacaoRouteImport } from './routes/captacao'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ComercialSaasRouteImport } from './routes/comercial-saas'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
+import { Route as ContratacaoStatusRouteImport } from './routes/contratacao-status'
+import { Route as ContratarRouteImport } from './routes/contratar'
 import { Route as EmpresasSistemaRouteImport } from './routes/empresas-sistema'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as LevantamentoDiarioRouteImport } from './routes/levantamento-diario'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
@@ -55,10 +59,16 @@ import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
 import { Route as RsLevantamentoRouteImport } from './routes/rs.levantamento'
 import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 import { Route as ApiPublicHooksLevantamentoDiarioRouteImport } from './routes/api/public/hooks/levantamento-diario'
+import { Route as ApiPublicHooksMercadoPagoRouteImport } from './routes/api/public/hooks/mercado-pago'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcessoRoute = AcessoRouteImport.update({
+  id: '/acesso',
+  path: '/acesso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcessosRoute = AcessosRouteImport.update({
@@ -84,11 +94,6 @@ const AtendimentoRoute = AtendimentoRouteImport.update({
 const AuditoriaRoute = AuditoriaRouteImport.update({
   id: '/auditoria',
   path: '/auditoria',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BackupsRoute = BackupsRouteImport.update({
@@ -126,6 +131,11 @@ const ChatRoute = ChatRouteImport.update({
   path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComercialSaasRoute = ComercialSaasRouteImport.update({
+  id: '/comercial-saas',
+  path: '/comercial-saas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompararRoute = CompararRouteImport.update({
   id: '/comparar',
   path: '/comparar',
@@ -141,6 +151,16 @@ const ConfirmacoesRoute = ConfirmacoesRouteImport.update({
   path: '/confirmacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContratacaoStatusRoute = ContratacaoStatusRouteImport.update({
+  id: '/contratacao-status',
+  path: '/contratacao-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContratarRoute = ContratarRouteImport.update({
+  id: '/contratar',
+  path: '/contratar',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmpresasSistemaRoute = EmpresasSistemaRouteImport.update({
   id: '/empresas-sistema',
   path: '/empresas-sistema',
@@ -154,6 +174,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadsRoute = LeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LevantamentoDiarioRoute = LevantamentoDiarioRouteImport.update({
@@ -288,15 +313,21 @@ const ApiPublicHooksLevantamentoDiarioRoute =
     path: '/api/public/hooks/levantamento-diario',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMercadoPagoRoute =
+  ApiPublicHooksMercadoPagoRouteImport.update({
+    id: '/api/public/hooks/mercado-pago',
+    path: '/api/public/hooks/mercado-pago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acesso': typeof AcessoRoute
   '/acessos': typeof AcessosRoute
   '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -304,12 +335,16 @@ export interface FileRoutesByFullPath {
   '/candidatos': typeof CandidatosRoute
   '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
+  '/comercial-saas': typeof ComercialSaasRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/contratacao-status': typeof ContratacaoStatusRoute
+  '/contratar': typeof ContratarRoute
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/leads': typeof LeadsRoute
   '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
@@ -336,15 +371,16 @@ export interface FileRoutesByFullPath {
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
+  '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acesso': typeof AcessoRoute
   '/acessos': typeof AcessosRoute
   '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -352,12 +388,16 @@ export interface FileRoutesByTo {
   '/candidatos': typeof CandidatosRoute
   '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
+  '/comercial-saas': typeof ComercialSaasRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/contratacao-status': typeof ContratacaoStatusRoute
+  '/contratar': typeof ContratarRoute
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/leads': typeof LeadsRoute
   '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
@@ -384,16 +424,17 @@ export interface FileRoutesByTo {
   '/empresas': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
+  '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acesso': typeof AcessoRoute
   '/acessos': typeof AcessosRoute
   '/administracao': typeof AdministracaoRoute
   '/analise': typeof AnaliseRoute
   '/atendimento': typeof AtendimentoRoute
   '/auditoria': typeof AuditoriaRoute
-  '/auth': typeof AuthRoute
   '/backups': typeof BackupsRoute
   '/banco-colaboradores': typeof BancoColaboradoresRoute
   '/banco-dados': typeof BancoDadosRoute
@@ -401,12 +442,16 @@ export interface FileRoutesById {
   '/candidatos': typeof CandidatosRoute
   '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
+  '/comercial-saas': typeof ComercialSaasRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
+  '/contratacao-status': typeof ContratacaoStatusRoute
+  '/contratar': typeof ContratarRoute
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/leads': typeof LeadsRoute
   '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
@@ -433,17 +478,18 @@ export interface FileRoutesById {
   '/empresas/': typeof EmpresasIndexRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
+  '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/acesso'
     | '/acessos'
     | '/administracao'
     | '/analise'
     | '/atendimento'
     | '/auditoria'
-    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -451,12 +497,16 @@ export interface FileRouteTypes {
     | '/candidatos'
     | '/captacao'
     | '/chat'
+    | '/comercial-saas'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/contratacao-status'
+    | '/contratar'
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/leads'
     | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
@@ -483,15 +533,16 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
+    | '/api/public/hooks/mercado-pago'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/acesso'
     | '/acessos'
     | '/administracao'
     | '/analise'
     | '/atendimento'
     | '/auditoria'
-    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -499,12 +550,16 @@ export interface FileRouteTypes {
     | '/candidatos'
     | '/captacao'
     | '/chat'
+    | '/comercial-saas'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/contratacao-status'
+    | '/contratar'
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/leads'
     | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
@@ -531,15 +586,16 @@ export interface FileRouteTypes {
     | '/empresas'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
+    | '/api/public/hooks/mercado-pago'
   id:
     | '__root__'
     | '/'
+    | '/acesso'
     | '/acessos'
     | '/administracao'
     | '/analise'
     | '/atendimento'
     | '/auditoria'
-    | '/auth'
     | '/backups'
     | '/banco-colaboradores'
     | '/banco-dados'
@@ -547,12 +603,16 @@ export interface FileRouteTypes {
     | '/candidatos'
     | '/captacao'
     | '/chat'
+    | '/comercial-saas'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
+    | '/contratacao-status'
+    | '/contratar'
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/leads'
     | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
@@ -579,16 +639,17 @@ export interface FileRouteTypes {
     | '/empresas/'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
+    | '/api/public/hooks/mercado-pago'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcessoRoute: typeof AcessoRoute
   AcessosRoute: typeof AcessosRoute
   AdministracaoRoute: typeof AdministracaoRoute
   AnaliseRoute: typeof AnaliseRoute
   AtendimentoRoute: typeof AtendimentoRoute
   AuditoriaRoute: typeof AuditoriaRoute
-  AuthRoute: typeof AuthRoute
   BackupsRoute: typeof BackupsRoute
   BancoColaboradoresRoute: typeof BancoColaboradoresRoute
   BancoDadosRoute: typeof BancoDadosRoute
@@ -596,12 +657,16 @@ export interface RootRouteChildren {
   CandidatosRoute: typeof CandidatosRoute
   CaptacaoRoute: typeof CaptacaoRoute
   ChatRoute: typeof ChatRoute
+  ComercialSaasRoute: typeof ComercialSaasRoute
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
+  ContratacaoStatusRoute: typeof ContratacaoStatusRoute
+  ContratarRoute: typeof ContratarRoute
   EmpresasSistemaRoute: typeof EmpresasSistemaRoute
   HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
+  LeadsRoute: typeof LeadsRoute
   LevantamentoDiarioRoute: typeof LevantamentoDiarioRoute
   MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
@@ -628,6 +693,7 @@ export interface RootRouteChildren {
   EmpresasIndexRoute: typeof EmpresasIndexRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
   ApiPublicHooksLevantamentoDiarioRoute: typeof ApiPublicHooksLevantamentoDiarioRoute
+  ApiPublicHooksMercadoPagoRoute: typeof ApiPublicHooksMercadoPagoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -637,6 +703,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acesso': {
+      id: '/acesso'
+      path: '/acesso'
+      fullPath: '/acesso'
+      preLoaderRoute: typeof AcessoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/acessos': {
@@ -672,13 +745,6 @@ declare module '@tanstack/react-router' {
       path: '/auditoria'
       fullPath: '/auditoria'
       preLoaderRoute: typeof AuditoriaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/backups': {
@@ -730,6 +796,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comercial-saas': {
+      id: '/comercial-saas'
+      path: '/comercial-saas'
+      fullPath: '/comercial-saas'
+      preLoaderRoute: typeof ComercialSaasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/comparar': {
       id: '/comparar'
       path: '/comparar'
@@ -751,6 +824,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfirmacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contratacao-status': {
+      id: '/contratacao-status'
+      path: '/contratacao-status'
+      fullPath: '/contratacao-status'
+      preLoaderRoute: typeof ContratacaoStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contratar': {
+      id: '/contratar'
+      path: '/contratar'
+      fullPath: '/contratar'
+      preLoaderRoute: typeof ContratarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/empresas-sistema': {
       id: '/empresas-sistema'
       path: '/empresas-sistema'
@@ -770,6 +857,13 @@ declare module '@tanstack/react-router' {
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leads': {
+      id: '/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof LeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/levantamento-diario': {
@@ -954,17 +1048,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksLevantamentoDiarioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/mercado-pago': {
+      id: '/api/public/hooks/mercado-pago'
+      path: '/api/public/hooks/mercado-pago'
+      fullPath: '/api/public/hooks/mercado-pago'
+      preLoaderRoute: typeof ApiPublicHooksMercadoPagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcessoRoute: AcessoRoute,
   AcessosRoute: AcessosRoute,
   AdministracaoRoute: AdministracaoRoute,
   AnaliseRoute: AnaliseRoute,
   AtendimentoRoute: AtendimentoRoute,
   AuditoriaRoute: AuditoriaRoute,
-  AuthRoute: AuthRoute,
   BackupsRoute: BackupsRoute,
   BancoColaboradoresRoute: BancoColaboradoresRoute,
   BancoDadosRoute: BancoDadosRoute,
@@ -972,12 +1073,16 @@ const rootRouteChildren: RootRouteChildren = {
   CandidatosRoute: CandidatosRoute,
   CaptacaoRoute: CaptacaoRoute,
   ChatRoute: ChatRoute,
+  ComercialSaasRoute: ComercialSaasRoute,
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,
+  ContratacaoStatusRoute: ContratacaoStatusRoute,
+  ContratarRoute: ContratarRoute,
   EmpresasSistemaRoute: EmpresasSistemaRoute,
   HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
+  LeadsRoute: LeadsRoute,
   LevantamentoDiarioRoute: LevantamentoDiarioRoute,
   MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
@@ -1004,6 +1109,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasIndexRoute: EmpresasIndexRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
   ApiPublicHooksLevantamentoDiarioRoute: ApiPublicHooksLevantamentoDiarioRoute,
+  ApiPublicHooksMercadoPagoRoute: ApiPublicHooksMercadoPagoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

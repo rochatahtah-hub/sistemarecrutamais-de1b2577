@@ -24,7 +24,7 @@ import logoLockup from "@/assets/recruta-lockup.png.asset.json";
 import logoMarca from "@/assets/recruta-mark.png.asset.json";
 import { RecruitaNetworkAnimation, type RecruitaAnimationState } from "@/components/RecruitaNetworkAnimation";
 
-export const Route = createFileRoute("/auth")({
+export const Route = createFileRoute("/acesso")({
   head: () => ({
     meta: [
       { title: "Entrar | RECRUTA+" },
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "index, follow" },
     ],
-    links: [{ rel: "canonical", href: "/auth" }],
+    links: [{ rel: "canonical", href: "/acesso" }],
   }),
   component: Pagina,
 });

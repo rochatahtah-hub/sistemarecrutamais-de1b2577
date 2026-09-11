@@ -33,6 +33,7 @@ import {
   ListChecks,
   Megaphone,
   CalendarClock,
+  BadgeDollarSign,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -42,6 +43,7 @@ import { AvatarUsuario } from "@/components/AvatarUsuario";
 import { PAPEIS_ROTULO } from "@/components/SeletorPapel";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
 import logoMarca from "@/assets/recruta-mark.png.asset.json";
+import { useSuperAdmin } from "@/components/RequerSuperAdmin";
 
 import {
   Sidebar,
@@ -113,11 +115,15 @@ export function AppSidebar() {
   const { isAdmin, perfil, papeis } = useAuth();
   const { privado } = usePrivacidade();
   const { pode, carregando: carregandoPermissoes } = usePermissoes();
+  const { data: ehSuperAdmin } = useSuperAdmin();
   useChatRealtime();
   const naoLidas = useTotalNaoLidas();
   const itensFerramentas = isAdmin
     ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
     : ferramentas;
+  const itensSistema = ehSuperAdmin
+    ? [{ title: "Comercial SaaS", url: "/comercial-saas", icon: BadgeDollarSign }, ...itensFerramentas]
+    : itensFerramentas;
   const permitido = (url: string) => {
     if (carregandoPermissoes) return url === "/";
     const modulo = MODULO_POR_ROTA[url];
@@ -202,7 +208,7 @@ export function AppSidebar() {
             ["Recrutamento e Seleção", recrutamentoSelecao],
             ["Comunicação", comunicacao],
             ["Análises", analises],
-            ["Sistema", itensFerramentas],
+            ["Sistema", itensSistema],
           ] as const
         )
           .filter(([, itens]) => itens.some((item) => permitido(item.url)))
