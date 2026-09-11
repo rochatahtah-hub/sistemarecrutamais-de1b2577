@@ -22,6 +22,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { PrivacidadeProvider } from "@/lib/privacidade";
 import { SystemErrorBoundary } from "@/components/SystemErrorBoundary";
 import { VoltarAoTopo } from "@/components/VoltarAoTopo";
+import { AssinaturaMetis } from "@/components/AssinaturaMetis";
 import { registrarErroSistema } from "@/lib/system-health";
 import { acaoDeEntrada, moduloDaRota, usePermissoes } from "@/lib/permissoes";
 
