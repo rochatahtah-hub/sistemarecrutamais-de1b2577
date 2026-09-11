@@ -22,6 +22,7 @@ import { AuthProvider, useAuth } from "@/lib/auth";
 import { PrivacidadeProvider } from "@/lib/privacidade";
 import { SystemErrorBoundary } from "@/components/SystemErrorBoundary";
 import { VoltarAoTopo } from "@/components/VoltarAoTopo";
+import { AssinaturaMetis } from "@/components/AssinaturaMetis";
 import { registrarErroSistema } from "@/lib/system-health";
 import { acaoDeEntrada, moduloDaRota, usePermissoes } from "@/lib/permissoes";
 
@@ -213,7 +214,13 @@ function Protegido() {
     if (bloqueado) void navigate({ to: "/", replace: true });
   }, [bloqueado, navigate]);
 
-  if (rotaPublica && (naTelaDeLogin || !session)) return <Outlet />;
+  if (rotaPublica && (naTelaDeLogin || !session))
+    return (
+      <>
+        <Outlet />
+        <AssinaturaMetis />
+      </>
+    );
 
   if (carregando || !session) {
     return (
@@ -247,6 +254,7 @@ function Protegido() {
               </SystemErrorBoundary>
             </div>
           </main>
+          <AssinaturaMetis />
           <VoltarAoTopo />
         </div>
       </div>

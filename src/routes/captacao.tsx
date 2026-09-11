@@ -48,7 +48,12 @@ import {
   CONFIG_PADRAO,
   FRASE_INSTITUCIONAL,
   MODALIDADE_ROTULO,
+  SITUACAO_CLASSE,
+  SITUACAO_ROTULO,
+  SITUACOES,
   useArquivarOportunidade,
+  useAtualizarSituacaoCandidatura,
+  type SituacaoCandidatura,
   useCandidaturas,
   useConfigCaptacao,
   useContagemCandidaturas,
@@ -63,6 +68,7 @@ import {
   type DadosOportunidade,
   type Oportunidade,
 } from "@/lib/captacao";
+import { useSalvarBloqueio } from "@/lib/bloqueios";
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
 import { formatarCPF, formatarTelefone } from "@/lib/programacao";
@@ -700,8 +706,78 @@ function DialogCandidatos({
   const priv = usePrivacidade();
   const { data: lista, isPending } = useCandidaturas(oportunidade.id);
   const excluir = useExcluirCandidatura();
+  const atualizarSituacao = useAtualizarSituacaoCandidatura();
+  const salvarBloqueio = useSalvarBloqueio();
   const [detalhe, setDetalhe] = useState<Candidatura | null>(null);
   const [excluindo, setExcluindo] = useState<Candidatura | null>(null);
+  const [filtro, setFiltro] = useState<SituacaoCandidatura | "todas">("todas");
+  const [blacklist, setBlacklist] = useState<Candidatura | null>(null);
+  const [motivoBlacklist, setMotivoBlacklist] = useState("");
+
+  const podeAlterarSituacao = pode("captacao", "editar");
+  const todos = lista ?? [];
+  const visiveis = filtro === "todas" ? todos : todos.filter((c) => (c.situacao ?? "aguardando_contato") === filtro);
+  const contar = (s: SituacaoCandidatura) =>
+    todos.filter((c) => (c.situacao ?? "aguardando_contato") === s).length;
+
+  function aplicarSituacao(c: Candidatura, situacao: SituacaoCandidatura) {
+    if (!podeAlterarSituacao) {
+      toast.error("Você não tem permissão para alterar a situação.");
+      return;
+    }
+    if (situacao === "blacklist") {
+      setMotivoBlacklist("");
+      setBlacklist(c);
+      return;
+    }
+    atualizarSituacao.mutate(
+      { id: c.id, situacao },
+      {
+        onSuccess: () => toast.success(`Situação alterada para "${SITUACAO_ROTULO[situacao]}".`),
+        onError: () => toast.error("Não foi possível alterar a situação."),
+      },
+    );
+  }
+
+  async function confirmarBlacklist() {
+    if (!blacklist) return;
+    const motivo = motivoBlacklist.trim();
+    if (motivo.length < 3) {
+      toast.error("Informe o motivo da blacklist.");
+      return;
+    }
+    if (!pode("bloqueios", "criar")) {
+      toast.error("Você não tem permissão para bloquear colaboradores.");
+      return;
+    }
+    try {
+      await salvarBloqueio.mutateAsync({
+        cpf: blacklist.cpf,
+        nome: blacklist.nome,
+        telefone: blacklist.telefone,
+        motivo,
+        tipo_bloqueio: "TODAS_EMPRESAS",
+      });
+    } catch (e) {
+      // Se o colaborador já estiver bloqueado, seguimos apenas marcando a situação.
+      const msg = e instanceof Error ? e.message : "";
+      if (!msg.includes("já possui um bloqueio ativo")) {
+        toast.error(msg || "Não foi possível registrar o bloqueio.");
+        return;
+      }
+    }
+    atualizarSituacao.mutate(
+      { id: blacklist.id, situacao: "blacklist" },
+      {
+        onSuccess: () => {
+          toast.success("Colaborador marcado como Blacklist.");
+          setBlacklist(null);
+        },
+        onError: () => toast.error("Não foi possível alterar a situação."),
+      },
+    );
+  }
+
 
   async function abrirCurriculo(caminho: string) {
     try {
@@ -741,20 +817,57 @@ function DialogCandidatos({
 
           {isPending ? (
             <Skeleton className="h-32 w-full" />
-          ) : (lista ?? []).length === 0 ? (
+          ) : todos.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">Nenhum cadastro ainda.</p>
           ) : (
-            <ul className="space-y-3">
-              {(lista ?? []).map((c) => {
-                const link = priv.privado ? null : linkWhatsApp(c.telefone);
-                const telefoneExibido = priv.privado ? priv.telefone(c.telefone) : formatarTelefone(c.telefone);
-                return (
+            <>
+              <div className="flex flex-wrap gap-1.5 text-xs">
+                <span className="rounded-full border border-border px-2.5 py-1 text-muted-foreground">
+                  Total: {todos.length}
+                </span>
+                {SITUACOES.map((s) => (
+                  <span key={s} className={`rounded-full border px-2.5 py-1 ${SITUACAO_CLASSE[s]}`}>
+                    {SITUACAO_ROTULO[s]}: {contar(s)}
+                  </span>
+                ))}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="filtro-situacao" className="text-xs">
+                  Filtrar por situação
+                </Label>
+                <select
+                  id="filtro-situacao"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground"
+                  value={filtro}
+                  onChange={(e) => setFiltro(e.target.value as SituacaoCandidatura | "todas")}
+                >
+                  <option value="todas">Todas ({todos.length})</option>
+                  {SITUACOES.map((s) => (
+                    <option key={s} value={s}>
+                      {SITUACAO_ROTULO[s]} ({contar(s)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {visiveis.length === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  Nenhum cadastro nesta situação.
+                </p>
+              ) : (
+                <ul className="space-y-3">
+                  {visiveis.map((c) => {
+                    const situacao: SituacaoCandidatura = c.situacao ?? "aguardando_contato";
+                    const link = priv.privado ? null : linkWhatsApp(c.telefone);
+                    const telefoneExibido = priv.privado ? priv.telefone(c.telefone) : formatarTelefone(c.telefone);
+                    return (
                   <li key={c.id} className="rounded-2xl border border-border bg-card p-4">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                       <button
                         type="button"
                         onClick={() => setDetalhe(c)}
-                        className="group min-w-0 flex-1 text-left"
+                        className="group min-w-0 text-left"
                       >
                         <p className="truncate text-base font-semibold leading-tight group-hover:text-primary">
                           {priv.nome(c.nome)}
@@ -763,10 +876,13 @@ function DialogCandidatos({
                           Ver cadastro <ChevronRight className="h-3 w-3" />
                         </span>
                       </button>
-                      <Badge variant={c.status === "ativa" ? "gold" : "secondary"} className="shrink-0">
-                        {STATUS_CANDIDATURA_ROTULO[c.status] ?? c.status}
-                      </Badge>
+                      <span
+                        className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${SITUACAO_CLASSE[situacao]}`}
+                      >
+                        {SITUACAO_ROTULO[situacao]}
+                      </span>
                     </div>
+
 
                     {c.telefone &&
                       (link ? (
@@ -783,6 +899,28 @@ function DialogCandidatos({
                           <Phone className="h-3.5 w-3.5 shrink-0" /> {telefoneExibido}
                         </span>
                       ))}
+
+                    <div className="mt-3 space-y-1.5">
+                      <Label htmlFor={`sit-${c.id}`} className="text-xs text-muted-foreground">
+                        Situação do cadastro
+                      </Label>
+                      <select
+                        id={`sit-${c.id}`}
+                        className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground disabled:opacity-60"
+                        value={situacao}
+                        disabled={!podeAlterarSituacao || atualizarSituacao.isPending}
+                        onChange={(e) => {
+                          const nova = e.target.value as SituacaoCandidatura;
+                          if (nova !== situacao) aplicarSituacao(c, nova);
+                        }}
+                      >
+                        {SITUACOES.map((s) => (
+                          <option key={s} value={s}>
+                            {SITUACAO_ROTULO[s]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
                     <div className="mt-3 flex flex-wrap gap-2">
                       {link && (
@@ -815,9 +953,11 @@ function DialogCandidatos({
                       </div>
                     )}
                   </li>
-                );
-              })}
-            </ul>
+                    );
+                  })}
+                </ul>
+              )}
+            </>
           )}
         </DialogContent>
       </Dialog>
@@ -828,6 +968,44 @@ function DialogCandidatos({
         onFechar={() => setDetalhe(null)}
         onAbrirCurriculo={abrirCurriculo}
       />
+
+      <Dialog open={Boolean(blacklist)} onOpenChange={(v) => !v && setBlacklist(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Colocar na Blacklist?</DialogTitle>
+            <DialogDescription>
+              Este colaborador será colocado na Blacklist do RECRUTA+ (bloqueio para todas as
+              empresas). Isso pode impedir sua participação em outras oportunidades, conforme as
+              regras do sistema.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label htmlFor="motivo-blacklist">Motivo *</Label>
+            <Input
+              id="motivo-blacklist"
+              value={motivoBlacklist}
+              maxLength={200}
+              onChange={(e) => setMotivoBlacklist(e.target.value)}
+              placeholder="Ex.: faltou sem aviso"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBlacklist(null)}>
+              Cancelar
+            </Button>
+            <Button
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={salvarBloqueio.isPending || atualizarSituacao.isPending}
+              onClick={() => void confirmarBlacklist()}
+            >
+              {(salvarBloqueio.isPending || atualizarSituacao.isPending) && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Confirmar Blacklist
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={Boolean(excluindo)} onOpenChange={(v) => !v && setExcluindo(null)}>
         <AlertDialogContent>
