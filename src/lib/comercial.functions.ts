@@ -89,6 +89,7 @@ export const iniciarContratacao = createServerFn({ method: "POST" })
     if (erroReserva) {
       const conflito = conflitoPorErroUnicidade(erroReserva);
       if (conflito) throw new Error(mensagemConflitoContratacao(conflito));
+      console.error("[contratacao] falha ao reservar lead e pedido", erroReserva.code, erroReserva.message);
       throw new Error("Não foi possível iniciar a contratação.");
     }
     if (reserva?.conflito) {
