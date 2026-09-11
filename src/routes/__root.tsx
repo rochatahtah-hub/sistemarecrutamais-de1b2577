@@ -27,7 +27,7 @@ import { registrarErroSistema } from "@/lib/system-health";
 import { acaoDeEntrada, moduloDaRota, usePermissoes } from "@/lib/permissoes";
 
 /** Rotas públicas: acessíveis sem login (portal de candidatura e tela de acesso). */
-const ROTAS_PUBLICAS = ["/auth", "/reset-password", "/cadastro-diarias"];
+const ROTAS_PUBLICAS = ["/auth", "/acesso", "/reset-password", "/cadastro-diarias", "/leads", "/contratar", "/contratacao-status"];
 
 function NotFoundComponent() {
   return (
@@ -197,7 +197,7 @@ function Protegido() {
   const rotaPublica = ROTAS_PUBLICAS.some(
     (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
   );
-  const naTelaDeLogin = pathname === "/auth";
+  const naTelaDeLogin = pathname === "/auth" || pathname === "/acesso";
   // Bloqueio por permissão: o módulo da rota precisa estar liberado para o perfil.
   const modulo = moduloDaRota(pathname);
   const bloqueado =
@@ -210,7 +210,7 @@ function Protegido() {
 
   useEffect(() => {
     if (!carregando && !session && !rotaPublica) {
-      void navigate({ to: "/auth", replace: true });
+      void navigate({ to: "/acesso", replace: true });
     }
   }, [carregando, session, rotaPublica, navigate]);
 

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { iniciarContratacao, listarPlanosPublicos } from "@/lib/comercial.functions";
 
 export const Route = createFileRoute("/contratar")({
-  validateSearch: (search: Record<string, unknown>) => ({ plano: typeof search.plano === "string" ? search.plano : "" }),
+  validateSearch: (search: Record<string, unknown>) => ({ plano: typeof search["plano"] === "string" ? search["plano"] : "" }),
   head: () => ({ meta: [
     { title: "Contratar RECRUTA+ | Nova empresa" },
     { name: "description", content: "Escolha um plano e inicie com segurança a contratação do RECRUTA+ para sua empresa." },
@@ -26,7 +26,6 @@ export const Route = createFileRoute("/contratar")({
 });
 
 function PaginaContratar() {
-  const navigate = useNavigate();
   const search = Route.useSearch();
   const iniciar = useServerFn(iniciarContratacao);
   const { data: planos = [], isPending } = useQuery({ queryKey: ["planos-publicos"], queryFn: () => listarPlanosPublicos() });

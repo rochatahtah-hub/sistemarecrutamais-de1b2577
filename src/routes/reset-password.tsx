@@ -71,7 +71,7 @@ function Pagina() {
     }
     await supabase.auth.signOut();
     toast.success("Senha redefinida. Entre novamente com sua nova senha.");
-    void navigate({ to: "/auth", replace: true });
+    void navigate({ to: "/acesso", replace: true });
   }
 
   return (
@@ -98,7 +98,7 @@ function Pagina() {
         ) : (
           <div className="mt-4 space-y-4">
             <p className="text-sm text-destructive">Este link de recuperação é inválido ou expirou.</p>
-            <Button type="button" variant="outline" className="w-full" onClick={() => void navigate({ to: "/auth" })}>
+            <Button type="button" variant="outline" className="w-full" onClick={() => void navigate({ to: "/acesso" })}>
               Voltar ao login
             </Button>
           </div>

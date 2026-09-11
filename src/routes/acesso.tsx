@@ -41,7 +41,7 @@ export const Route = createFileRoute("/acesso")({
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "index, follow" },
     ],
-    links: [{ rel: "canonical", href: "/auth" }],
+    links: [{ rel: "canonical", href: "/acesso" }],
   }),
   component: Pagina,
 });
