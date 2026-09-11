@@ -120,6 +120,7 @@ export const MODULOS: ModuloInfo[] = [
   },
   { chave: "saude", nome: "Saúde do Sistema", acoes: ["visualizar", "exportar"] },
   { chave: "perfis", nome: "Perfis e Permissões", acoes: ["visualizar", "administrar"] },
+  { chave: "comercial_saas", nome: "Gestão comercial SaaS", acoes: ["visualizar", "administrar", "configurar", "exportar"] },
   {
     chave: "rs_candidatos",
     nome: "R&S — Meus Candidatos",

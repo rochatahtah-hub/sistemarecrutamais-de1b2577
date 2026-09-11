@@ -23,6 +23,7 @@ import { Route as BloqueiosRouteImport } from './routes/bloqueios'
 import { Route as CandidatosRouteImport } from './routes/candidatos'
 import { Route as CaptacaoRouteImport } from './routes/captacao'
 import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ComercialSaasRouteImport } from './routes/comercial-saas'
 import { Route as CompararRouteImport } from './routes/comparar'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as ConfirmacoesRouteImport } from './routes/confirmacoes'
@@ -128,6 +129,11 @@ const CaptacaoRoute = CaptacaoRouteImport.update({
 const ChatRoute = ChatRouteImport.update({
   id: '/chat',
   path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComercialSaasRoute = ComercialSaasRouteImport.update({
+  id: '/comercial-saas',
+  path: '/comercial-saas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompararRoute = CompararRouteImport.update({
@@ -329,6 +335,7 @@ export interface FileRoutesByFullPath {
   '/candidatos': typeof CandidatosRoute
   '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
+  '/comercial-saas': typeof ComercialSaasRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByTo {
   '/candidatos': typeof CandidatosRoute
   '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
+  '/comercial-saas': typeof ComercialSaasRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
@@ -434,6 +442,7 @@ export interface FileRoutesById {
   '/candidatos': typeof CandidatosRoute
   '/captacao': typeof CaptacaoRoute
   '/chat': typeof ChatRoute
+  '/comercial-saas': typeof ComercialSaasRoute
   '/comparar': typeof CompararRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/confirmacoes': typeof ConfirmacoesRoute
@@ -488,6 +497,7 @@ export interface FileRouteTypes {
     | '/candidatos'
     | '/captacao'
     | '/chat'
+    | '/comercial-saas'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
@@ -540,6 +550,7 @@ export interface FileRouteTypes {
     | '/candidatos'
     | '/captacao'
     | '/chat'
+    | '/comercial-saas'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
@@ -592,6 +603,7 @@ export interface FileRouteTypes {
     | '/candidatos'
     | '/captacao'
     | '/chat'
+    | '/comercial-saas'
     | '/comparar'
     | '/configuracoes'
     | '/confirmacoes'
@@ -645,6 +657,7 @@ export interface RootRouteChildren {
   CandidatosRoute: typeof CandidatosRoute
   CaptacaoRoute: typeof CaptacaoRoute
   ChatRoute: typeof ChatRoute
+  ComercialSaasRoute: typeof ComercialSaasRoute
   CompararRoute: typeof CompararRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   ConfirmacoesRoute: typeof ConfirmacoesRoute
@@ -781,6 +794,13 @@ declare module '@tanstack/react-router' {
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comercial-saas': {
+      id: '/comercial-saas'
+      path: '/comercial-saas'
+      fullPath: '/comercial-saas'
+      preLoaderRoute: typeof ComercialSaasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comparar': {
@@ -1053,6 +1073,7 @@ const rootRouteChildren: RootRouteChildren = {
   CandidatosRoute: CandidatosRoute,
   CaptacaoRoute: CaptacaoRoute,
   ChatRoute: ChatRoute,
+  ComercialSaasRoute: ComercialSaasRoute,
   CompararRoute: CompararRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   ConfirmacoesRoute: ConfirmacoesRoute,

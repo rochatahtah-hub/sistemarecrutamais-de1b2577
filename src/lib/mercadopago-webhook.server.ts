@@ -69,8 +69,9 @@ export async function processarWebhookMercadoPago(request: Request) {
         expira_em: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
       }, { onConflict: "pedido_id" });
       await supabaseAdmin.from("leads_comerciais").update({ status: "convertido" }).eq("id", pedido.lead_id);
-      // O token bruto será entregue por e-mail quando o provedor de e-mail for conectado.
-      console.info("[mercado-pago] pagamento aprovado; liberação emitida", pedido.id);
+      const { provisionarPedidoAprovado } = await import("./provisionamento-comercial.server");
+      await provisionarPedidoAprovado(pedido.id);
+      console.info("[mercado-pago] pagamento aprovado e empresa provisionada", pedido.id);
     }
     await supabaseAdmin.from("webhook_eventos_comerciais").update({ status_processamento: "processado", processado_em: new Date().toISOString() }).eq("evento_chave", eventoChave);
     return Response.json({ ok: true });
