@@ -31,6 +31,7 @@ import { Route as ContratarRouteImport } from './routes/contratar'
 import { Route as EmpresasSistemaRouteImport } from './routes/empresas-sistema'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ImportarRouteImport } from './routes/importar'
+import { Route as LeadsRouteImport } from './routes/leads'
 import { Route as LevantamentoDiarioRouteImport } from './routes/levantamento-diario'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao'
@@ -167,6 +168,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
 const ImportarRoute = ImportarRouteImport.update({
   id: '/importar',
   path: '/importar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeadsRoute = LeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LevantamentoDiarioRoute = LevantamentoDiarioRouteImport.update({
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/leads': typeof LeadsRoute
   '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
@@ -382,6 +389,7 @@ export interface FileRoutesByTo {
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/leads': typeof LeadsRoute
   '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
@@ -434,6 +442,7 @@ export interface FileRoutesById {
   '/empresas-sistema': typeof EmpresasSistemaRoute
   '/historico': typeof HistoricoRoute
   '/importar': typeof ImportarRoute
+  '/leads': typeof LeadsRoute
   '/levantamento-diario': typeof LevantamentoDiarioRoute
   '/metas': typeof MetasRoute
   '/minha-programacao': typeof MinhaProgramacaoRoute
@@ -487,6 +496,7 @@ export interface FileRouteTypes {
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/leads'
     | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
@@ -538,6 +548,7 @@ export interface FileRouteTypes {
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/leads'
     | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
@@ -589,6 +600,7 @@ export interface FileRouteTypes {
     | '/empresas-sistema'
     | '/historico'
     | '/importar'
+    | '/leads'
     | '/levantamento-diario'
     | '/metas'
     | '/minha-programacao'
@@ -641,6 +653,7 @@ export interface RootRouteChildren {
   EmpresasSistemaRoute: typeof EmpresasSistemaRoute
   HistoricoRoute: typeof HistoricoRoute
   ImportarRoute: typeof ImportarRoute
+  LeadsRoute: typeof LeadsRoute
   LevantamentoDiarioRoute: typeof LevantamentoDiarioRoute
   MetasRoute: typeof MetasRoute
   MinhaProgramacaoRoute: typeof MinhaProgramacaoRoute
@@ -824,6 +837,13 @@ declare module '@tanstack/react-router' {
       path: '/importar'
       fullPath: '/importar'
       preLoaderRoute: typeof ImportarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leads': {
+      id: '/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof LeadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/levantamento-diario': {
@@ -1041,6 +1061,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresasSistemaRoute: EmpresasSistemaRoute,
   HistoricoRoute: HistoricoRoute,
   ImportarRoute: ImportarRoute,
+  LeadsRoute: LeadsRoute,
   LevantamentoDiarioRoute: LevantamentoDiarioRoute,
   MetasRoute: MetasRoute,
   MinhaProgramacaoRoute: MinhaProgramacaoRoute,
