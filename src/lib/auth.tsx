@@ -24,6 +24,7 @@ export interface Perfil {
   /** Nome do perfil de acesso (perfis_acesso) vinculado — usado para exibir o nível de acesso real. */
   perfil_acesso_nome: string | null;
   acesso_comercial_bloqueado: boolean;
+  troca_senha_obrigatoria: boolean;
 }
 
 export type Papel =
@@ -59,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       supabase
         .from("profiles")
         .select(
-          "id,nome,email,ativo,meta_quinzena,avatar_url,ultimo_acesso,ultimo_preenchimento,perfis_acesso(nome),tenants(origem_comercial,isento_comercial,assinatura_status)",
+          "id,nome,email,ativo,meta_quinzena,avatar_url,ultimo_acesso,ultimo_preenchimento,troca_senha_obrigatoria,perfis_acesso(nome),tenants(origem_comercial,isento_comercial,assinatura_status)",
         )
         .eq("id", uid)
         .maybeSingle(),

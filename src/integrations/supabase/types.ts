@@ -2471,6 +2471,7 @@ export type Database = {
           nome: string
           perfil_id: string | null
           tenant_id: string
+          troca_senha_obrigatoria: boolean
           ultimo_acesso: string | null
           ultimo_preenchimento: string | null
           updated_at: string
@@ -2488,6 +2489,7 @@ export type Database = {
           nome?: string
           perfil_id?: string | null
           tenant_id?: string
+          troca_senha_obrigatoria?: boolean
           ultimo_acesso?: string | null
           ultimo_preenchimento?: string | null
           updated_at?: string
@@ -2505,6 +2507,7 @@ export type Database = {
           nome?: string
           perfil_id?: string | null
           tenant_id?: string
+          troca_senha_obrigatoria?: boolean
           ultimo_acesso?: string | null
           ultimo_preenchimento?: string | null
           updated_at?: string

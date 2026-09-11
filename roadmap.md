@@ -24,3 +24,5 @@
 - [x] Criar gestão Master de Leads, Planos, Assinaturas, Pagamentos e clientes comerciais.
 - [x] Aplicar restrição por inadimplência somente a tenants originados pelo fluxo de Leads.
 - [x] Documentar e validar separadamente AGIZZE, nova empresa, links, segurança e pagamentos.
+- [x] Definir preços iniciais editáveis e disponibilizar o link público único de venda.
+- [x] Exigir definição segura de senha no primeiro acesso após o pagamento aprovado.
