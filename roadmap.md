@@ -13,3 +13,14 @@
 - [x] Tela interna: modalidades, criação/edição, arquivar/restaurar, cadastros e exclusão individual.
 - [x] Portal público com escolha de modalidade, mantendo o cadastro de diárias igual ao atual.
 - [x] Validação real no celular e no computador: diárias, oportunidades, vaga efetiva, duplicidade e área interna.
+
+# Plataforma SaaS comercial
+
+- [ ] Preservar a AGIZZE como tenant existente e permanentemente isento do fluxo comercial.
+- [ ] Separar a página pública de Leads do endereço de acesso atual.
+- [ ] Ampliar planos e criar leads, pedidos, pagamentos e assinaturas com auditoria e isolamento.
+- [ ] Integrar Mercado Pago no backend com webhook validado e idempotência.
+- [ ] Liberar cadastro de empresa e primeiro administrador somente após pagamento confirmado.
+- [ ] Criar gestão Master de Leads, Planos, Assinaturas, Pagamentos e clientes comerciais.
+- [ ] Aplicar restrição por inadimplência somente a tenants originados pelo fluxo de Leads.
+- [ ] Documentar e validar separadamente AGIZZE, nova empresa, links, segurança e pagamentos.
