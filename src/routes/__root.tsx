@@ -222,7 +222,7 @@ function Protegido() {
     return (
       <>
         <Outlet />
-        <AssinaturaMetis />
+        <AssinaturaMetis variant="public" />
       </>
     );
 
@@ -258,7 +258,7 @@ function Protegido() {
               </SystemErrorBoundary>
             </div>
           </main>
-          <AssinaturaMetis />
+          <AssinaturaMetis variant="app" />
           <VoltarAoTopo />
         </div>
       </div>
