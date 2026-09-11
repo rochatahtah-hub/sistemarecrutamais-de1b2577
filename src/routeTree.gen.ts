@@ -40,6 +40,7 @@ import { Route as MinhaProgramacaoRouteImport } from './routes/minha-programacao
 import { Route as PagamentosRouteImport } from './routes/pagamentos'
 import { Route as PerfisRouteImport } from './routes/perfis'
 import { Route as PerformanceRouteImport } from './routes/performance'
+import { Route as PrimeiroAcessoRouteImport } from './routes/primeiro-acesso'
 import { Route as ProgramadorasRouteImport } from './routes/programadoras'
 import { Route as RadarRouteImport } from './routes/radar'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
@@ -217,6 +218,11 @@ const PerformanceRoute = PerformanceRouteImport.update({
   path: '/performance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrimeiroAcessoRoute = PrimeiroAcessoRouteImport.update({
+  id: '/primeiro-acesso',
+  path: '/primeiro-acesso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgramadorasRoute = ProgramadorasRouteImport.update({
   id: '/programadoras',
   path: '/programadoras',
@@ -358,6 +364,7 @@ export interface FileRoutesByFullPath {
   '/pagamentos': typeof PagamentosRoute
   '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
+  '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
@@ -412,6 +419,7 @@ export interface FileRoutesByTo {
   '/pagamentos': typeof PagamentosRoute
   '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
+  '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
@@ -467,6 +475,7 @@ export interface FileRoutesById {
   '/pagamentos': typeof PagamentosRoute
   '/perfis': typeof PerfisRoute
   '/performance': typeof PerformanceRoute
+  '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/programadoras': typeof ProgramadorasRoute
   '/radar': typeof RadarRoute
   '/relatorios': typeof RelatoriosRoute
@@ -523,6 +532,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/perfis'
     | '/performance'
+    | '/primeiro-acesso'
     | '/programadoras'
     | '/radar'
     | '/relatorios'
@@ -577,6 +587,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/perfis'
     | '/performance'
+    | '/primeiro-acesso'
     | '/programadoras'
     | '/radar'
     | '/relatorios'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/pagamentos'
     | '/perfis'
     | '/performance'
+    | '/primeiro-acesso'
     | '/programadoras'
     | '/radar'
     | '/relatorios'
@@ -686,6 +698,7 @@ export interface RootRouteChildren {
   PagamentosRoute: typeof PagamentosRoute
   PerfisRoute: typeof PerfisRoute
   PerformanceRoute: typeof PerformanceRoute
+  PrimeiroAcessoRoute: typeof PrimeiroAcessoRoute
   ProgramadorasRoute: typeof ProgramadorasRoute
   RadarRoute: typeof RadarRoute
   RelatoriosRoute: typeof RelatoriosRoute
@@ -928,6 +941,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/primeiro-acesso': {
+      id: '/primeiro-acesso'
+      path: '/primeiro-acesso'
+      fullPath: '/primeiro-acesso'
+      preLoaderRoute: typeof PrimeiroAcessoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/programadoras': {
       id: '/programadoras'
       path: '/programadoras'
@@ -1110,6 +1130,7 @@ const rootRouteChildren: RootRouteChildren = {
   PagamentosRoute: PagamentosRoute,
   PerfisRoute: PerfisRoute,
   PerformanceRoute: PerformanceRoute,
+  PrimeiroAcessoRoute: PrimeiroAcessoRoute,
   ProgramadorasRoute: ProgramadorasRoute,
   RadarRoute: RadarRoute,
   RelatoriosRoute: RelatoriosRoute,

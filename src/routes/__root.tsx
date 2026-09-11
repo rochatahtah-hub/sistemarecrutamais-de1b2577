@@ -192,7 +192,7 @@ function RootComponent() {
 function Protegido() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { carregando, session } = useAuth();
+  const { carregando, session, perfil } = useAuth();
   const { pode, carregando: carregandoPermissoes } = usePermissoes();
   const rotaPublica = ROTAS_PUBLICAS.some(
     (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
