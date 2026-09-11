@@ -258,7 +258,7 @@ function Protegido() {
               </SystemErrorBoundary>
             </div>
           </main>
-          <AssinaturaMetis />
+          <AssinaturaMetis variant="app" />
           <VoltarAoTopo />
         </div>
       </div>
