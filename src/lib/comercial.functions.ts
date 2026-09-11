@@ -98,7 +98,10 @@ export const iniciarContratacao = createServerFn({ method: "POST" })
       })
       .select("id")
       .single();
-    if (erroPedido || !pedido) throw new Error("Não foi possível criar o pedido.");
+    if (erroPedido || !pedido) {
+      await supabaseAdmin.from("leads_comerciais").update({ status: "novo" }).eq("id", lead.id);
+      throw new Error("Não foi possível criar o pedido.");
+    }
 
     const idempotencyKey = `pedido:${pedido.id}`;
     try {
@@ -138,6 +141,10 @@ export const iniciarContratacao = createServerFn({ method: "POST" })
       return { ok: true as const, checkoutUrl: preferencia.init_point, pedidoId: pedido.id };
     } catch (erro) {
       await supabaseAdmin.from("pedidos_comerciais").update({ status: "cancelado" }).eq("id", pedido.id);
+      // Sem isso, um lead que falha aqui fica preso em "checkout_iniciado" (status ativo
+      // para leads_comerciais_email_ativo_unico) e bloqueia para sempre uma nova tentativa
+      // com o mesmo e-mail, mesmo que nenhum pagamento tenha de fato ocorrido.
+      await supabaseAdmin.from("leads_comerciais").update({ status: "novo" }).eq("id", lead.id);
       throw erro;
     }
   });
