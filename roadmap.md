@@ -24,3 +24,9 @@
 - [x] Criar gestão Master de Leads, Planos, Assinaturas, Pagamentos e clientes comerciais.
 - [x] Aplicar restrição por inadimplência somente a tenants originados pelo fluxo de Leads.
 - [x] Documentar e validar separadamente AGIZZE, nova empresa, links, segurança e pagamentos.
+
+# Levantamento Diário pela inclusão da vaga
+
+- [ ] Considerar vagas pela data em que foram adicionadas, no horário de Brasília.
+- [ ] Exibir pendentes e sinalizar vagas com início posterior ao dia analisado.
+- [ ] Atualizar textos e PDF e validar o exemplo do dia 11 com início no dia 15.

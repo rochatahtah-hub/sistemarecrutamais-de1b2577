@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   calcularLevantamentoDiario,
+  foraDaDataDeInicio,
   rankingsLevantamentoDiario,
   type RegistroFechamento,
 } from "./levantamento-diario-calculo";
@@ -26,6 +27,18 @@ describe("calcularLevantamentoDiario", () => {
     expect(resultado.totais.vagas).toBe(0);
     expect(resultado.totais.pctPresenca).toBe(0);
     expect(resultado.porProgramador).toEqual([]);
+  });
+
+  it("vaga adicionada dia 11 para iniciar dia 15 conta como aguardando e fora da data de início", () => {
+    const registros = [
+      vaga({ id: "v-futura", programadora_id: "prog-1", status: "AGUARDANDO" }),
+    ];
+    const resultado = calcularLevantamentoDiario(registros, "2026-09-11", HABILITADAS);
+    expect(resultado.totais.vagas).toBe(1);
+    expect(resultado.totais.pendentes).toBe(1);
+    expect(resultado.totais.confirmadas).toBe(0);
+    expect(resultado.totais.pctPresenca).toBe(0);
+    expect(foraDaDataDeInicio("2026-09-15", resultado.dataReferencia)).toBe(true);
   });
 
   it("programador com zero vaga fechada nunca aparece", () => {

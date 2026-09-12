@@ -11,6 +11,7 @@ export interface LevantamentoDiarioResumo {
   id: string;
   dataReferencia: string;
   vagasFechadas: number;
+  pendentes: number;
   presencas: number;
   faltas: number;
   cancelamentos: number;
@@ -29,6 +30,7 @@ export interface LevantamentoDiarioProgramador {
   programadoraId: string;
   nome: string;
   vagasFechadas: number;
+  pendentes: number;
   presencas: number;
   faltas: number;
   cancelamentos: number;
@@ -52,6 +54,7 @@ type LinhaResumo = {
   id: string;
   data_referencia: string;
   vagas_fechadas: number;
+  pendentes: number;
   presencas: number;
   faltas: number;
   cancelamentos: number;
@@ -70,6 +73,7 @@ type LinhaProgramador = {
   programadora_id: string;
   programadora_nome: string;
   vagas_fechadas: number;
+  pendentes: number;
   presencas: number;
   faltas: number;
   cancelamentos: number;
@@ -84,6 +88,7 @@ function mapearResumo(r: LinhaResumo): LevantamentoDiarioResumo {
     id: r.id,
     dataReferencia: r.data_referencia,
     vagasFechadas: r.vagas_fechadas,
+    pendentes: r.pendentes,
     presencas: r.presencas,
     faltas: r.faltas,
     cancelamentos: r.cancelamentos,
@@ -104,6 +109,7 @@ function mapearProgramador(r: LinhaProgramador): LevantamentoDiarioProgramador {
     programadoraId: r.programadora_id,
     nome: r.programadora_nome,
     vagasFechadas: r.vagas_fechadas,
+    pendentes: r.pendentes,
     presencas: r.presencas,
     faltas: r.faltas,
     cancelamentos: r.cancelamentos,

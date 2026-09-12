@@ -22,7 +22,7 @@ export function horaAtualBrasilia(base = new Date()): number {
 }
 
 /** Forma mínima de vaga necessária para o cálculo — vem da RPC
- * `levantamento_diario_vagas_do_dia`, já filtrada pela data de fechamento. */
+ * `levantamento_diario_vagas_do_dia`, já filtrada pela data de inclusão. */
 export interface RegistroFechamento {
   id: string;
   quantidade: number;
@@ -47,7 +47,7 @@ export interface LevantamentoDiarioCalculado {
 /**
  * Única fonte de verdade dos números do Levantamento Diário — usada pelo job
  * automático, pelo reprocessamento manual, pelo PDF e pelo drill-down.
- * `registrosDoDia` já deve vir filtrado pela data de fechamento (nunca filtra
+ * `registrosDoDia` já deve vir filtrado pela data de inclusão (nunca filtra
  * data aqui). Reaproveita `agregar()`/`criarResolucaoProgramadora()` de
  * `metricas.ts` — nunca reimplementa a fórmula de percentual.
  *
@@ -87,6 +87,11 @@ export function calcularLevantamentoDiario(
     totais: agregar(registrosDoDia),
     porProgramador,
   };
+}
+
+/** Indica que a vaga foi adicionada no dia analisado, mas só começa depois. */
+export function foraDaDataDeInicio(dataProgramada: string, dataReferencia: string): boolean {
+  return dataProgramada > dataReferencia;
 }
 
 /** Os 4 rankings pedidos — sempre ascendente, sempre sem zero-vaga (já garantido acima). */
