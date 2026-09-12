@@ -18,6 +18,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -47,7 +48,7 @@ import {
 } from "@/components/ui/table";
 import { usePermissoes } from "@/lib/permissoes";
 import { fmtData, fmtNum, fmtPct, type Agregado, type LinhaAgregada } from "@/lib/metricas";
-import { ontemBrasilia } from "@/lib/levantamento-diario-calculo";
+import { foraDaDataDeInicio, ontemBrasilia } from "@/lib/levantamento-diario-calculo";
 import { STATUS_LABEL } from "@/lib/tipos";
 import {
   useConfigLevantamentoDiario,
@@ -67,7 +68,7 @@ export const Route = createFileRoute("/levantamento-diario")({
       { title: "Levantamento Diário | Recruta+" },
       {
         name: "description",
-        content: "Vagas fechadas no dia, agrupadas por programador, geradas automaticamente.",
+        content: "Vagas adicionadas no dia, agrupadas por programador, geradas automaticamente.",
       },
       { property: "og:title", content: "Levantamento Diário | Recruta+" },
       { property: "og:type", content: "website" },
@@ -79,7 +80,7 @@ export const Route = createFileRoute("/levantamento-diario")({
 const RANKINGS = [
   {
     chave: "vagas" as const,
-    titulo: "Vagas fechadas",
+    titulo: "Vagas adicionadas",
     campo: "vagasFechadas" as const,
     formatar: fmtNum,
   },
@@ -102,8 +103,8 @@ const RANKINGS = [
 function paraAgregado(r: LevantamentoDiarioResumo): Agregado {
   return {
     vagas: r.vagasFechadas,
-    pendentes: 0,
-    confirmadas: r.vagasFechadas,
+    pendentes: r.pendentes,
+    confirmadas: r.presencas + r.faltas + r.cancelamentos,
     presencas: r.presencas,
     faltas: r.faltas,
     cancelamentos: r.cancelamentos,
@@ -119,8 +120,8 @@ function paraLinhaAgregada(l: LevantamentoDiarioProgramador): LinhaAgregada {
     chave: l.programadoraId,
     nome: l.nome,
     vagas: l.vagasFechadas,
-    pendentes: 0,
-    confirmadas: l.vagasFechadas,
+    pendentes: l.pendentes,
+    confirmadas: l.presencas + l.faltas + l.cancelamentos,
     presencas: l.presencas,
     faltas: l.faltas,
     cancelamentos: l.cancelamentos,
@@ -132,9 +133,11 @@ function paraLinhaAgregada(l: LevantamentoDiarioProgramador): LinhaAgregada {
 
 function DrillDownDialog({
   linha,
+  dataReferencia,
   onFechar,
 }: {
   linha: LevantamentoDiarioProgramador | null;
+  dataReferencia: string;
   onFechar: () => void;
 }) {
   const { data: vagas = [], isLoading } = useDrillDownVagas(linha?.vagaIds ?? []);
@@ -144,7 +147,7 @@ function DrillDownDialog({
         <DialogHeader>
           <DialogTitle>{linha?.nome}</DialogTitle>
           <DialogDescription>
-            As {linha?.vagasFechadas} vagas exatas usadas neste cálculo — a mesma fonte da tabela,
+            As {linha?.vagasFechadas} vagas adicionadas usadas neste cálculo — a mesma fonte da tabela,
             dos gráficos e do PDF.
           </DialogDescription>
         </DialogHeader>
@@ -158,7 +161,7 @@ function DrillDownDialog({
                   <TableHead>Empresa</TableHead>
                   <TableHead>Vaga</TableHead>
                   <TableHead>Colaborador</TableHead>
-                  <TableHead>Data programada</TableHead>
+                  <TableHead>Data de início</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -168,8 +171,19 @@ function DrillDownDialog({
                     <TableCell>{v.empresa}</TableCell>
                     <TableCell>{v.cargo || "—"}</TableCell>
                     <TableCell>{v.colaborador}</TableCell>
-                    <TableCell>{fmtData(v.dataProgramada)}</TableCell>
-                    <TableCell>{STATUS_LABEL[v.status] ?? v.status}</TableCell>
+                    <TableCell>
+                      <div className="flex min-w-36 flex-col items-start gap-1">
+                        <span>{fmtData(v.dataProgramada)}</span>
+                        {foraDaDataDeInicio(v.dataProgramada, dataReferencia) && (
+                          <Badge variant="warning">Fora da data de início</Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {v.status === "AGUARDANDO"
+                        ? "Aguardando confirmação"
+                        : (STATUS_LABEL[v.status] ?? v.status)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -301,7 +315,7 @@ function Pagina() {
     <div className="space-y-6">
       <PageHeader
         titulo="Levantamento Diário"
-        descricao="Vagas fechadas no dia, agrupadas por programador — gerado automaticamente todo dia."
+        descricao="Vagas adicionadas no dia, agrupadas por programador — inclusive as que começam depois."
         icone={<CalendarClock className="h-5 w-5" />}
         acoes={
           <div className="flex flex-wrap items-center gap-2">
@@ -400,9 +414,10 @@ function Pagina() {
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {[
-              ["Vagas fechadas", fmtNum(levantamento.resumo.vagasFechadas)],
+              ["Vagas adicionadas", fmtNum(levantamento.resumo.vagasFechadas)],
+              ["Aguardando confirmação", fmtNum(levantamento.resumo.pendentes)],
               ["% Presença", fmtPct(levantamento.resumo.pctPresenca)],
               ["% Falta", fmtPct(levantamento.resumo.pctFalta)],
               ["% Cancelamento", fmtPct(levantamento.resumo.pctCancelamento)],
@@ -420,8 +435,8 @@ function Pagina() {
 
           {porProgramador.length === 0 ? (
             <EstadoVazio
-              titulo="Nenhuma vaga fechada nesta data"
-              descricao="Dia sem confirmações registradas — o levantamento existe, apenas zerado."
+              titulo="Nenhuma vaga adicionada nesta data"
+              descricao="Não há vagas registradas no sistema no dia analisado."
             />
           ) : (
             <>
@@ -435,7 +450,8 @@ function Pagina() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Programador</TableHead>
-                          <TableHead>Vagas fechadas</TableHead>
+                          <TableHead>Vagas adicionadas</TableHead>
+                          <TableHead>Aguardando</TableHead>
                           <TableHead>Presenças</TableHead>
                           <TableHead>Faltas</TableHead>
                           <TableHead>Cancelamentos</TableHead>
@@ -453,6 +469,7 @@ function Pagina() {
                           >
                             <TableCell className="font-medium">{l.nome}</TableCell>
                             <TableCell>{fmtNum(l.vagasFechadas)}</TableCell>
+                            <TableCell>{fmtNum(l.pendentes)}</TableCell>
                             <TableCell>{fmtNum(l.presencas)}</TableCell>
                             <TableCell>{fmtNum(l.faltas)}</TableCell>
                             <TableCell>{fmtNum(l.cancelamentos)}</TableCell>
@@ -523,7 +540,11 @@ function Pagina() {
         </>
       )}
 
-      <DrillDownDialog linha={drillDown} onFechar={() => setDrillDown(null)} />
+      <DrillDownDialog
+        linha={drillDown}
+        dataReferencia={levantamento?.resumo.dataReferencia ?? data}
+        onFechar={() => setDrillDown(null)}
+      />
     </div>
   );
 }

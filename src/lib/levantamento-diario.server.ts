@@ -7,8 +7,8 @@ import {
   type RegistroFechamento,
 } from "./levantamento-diario-calculo";
 
-/** Vagas do tenant cuja data de fechamento (já convertida a São Paulo pela
- * própria função SQL) cai em `dataReferencia` — nunca recalcula fuso em JS. */
+/** Vagas adicionadas ao tenant em `dataReferencia` (data de criação já
+ * convertida a São Paulo pela função SQL) — nunca recalcula fuso em JS. */
 async function buscarRegistrosDoDia(
   tenantId: string,
   dataReferencia: string,
@@ -72,6 +72,7 @@ export async function gerarOuReprocessarLevantamento(opcoes: {
     tenant_id: opcoes.tenantId,
     data_referencia: opcoes.dataReferencia,
     vagas_fechadas: calculado.totais.vagas,
+    pendentes: calculado.totais.pendentes,
     presencas: calculado.totais.presencas,
     faltas: calculado.totais.faltas,
     cancelamentos: calculado.totais.cancelamentos,
@@ -121,6 +122,7 @@ export async function gerarOuReprocessarLevantamento(opcoes: {
         programadora_id: l.programadoraId,
         programadora_nome: l.nome,
         vagas_fechadas: l.vagas,
+        pendentes: l.pendentes,
         presencas: l.presencas,
         faltas: l.faltas,
         cancelamentos: l.cancelamentos,

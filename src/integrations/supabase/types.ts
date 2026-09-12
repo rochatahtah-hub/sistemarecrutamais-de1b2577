@@ -1754,6 +1754,7 @@ export type Database = {
           pct_cancelamento: number
           pct_falta: number
           pct_presenca: number
+          pendentes: number
           presencas: number
           programadora_id: string
           programadora_nome: string
@@ -1771,6 +1772,7 @@ export type Database = {
           pct_cancelamento?: number
           pct_falta?: number
           pct_presenca?: number
+          pendentes?: number
           presencas?: number
           programadora_id: string
           programadora_nome?: string
@@ -1788,6 +1790,7 @@ export type Database = {
           pct_cancelamento?: number
           pct_falta?: number
           pct_presenca?: number
+          pendentes?: number
           presencas?: number
           programadora_id?: string
           programadora_nome?: string
@@ -1825,6 +1828,7 @@ export type Database = {
           pct_cancelamento: number
           pct_falta: number
           pct_presenca: number
+          pendentes: number
           presencas: number
           reprocessado_em: string | null
           reprocessado_por: string | null
@@ -1845,6 +1849,7 @@ export type Database = {
           pct_cancelamento?: number
           pct_falta?: number
           pct_presenca?: number
+          pendentes?: number
           presencas?: number
           reprocessado_em?: string | null
           reprocessado_por?: string | null
@@ -1865,6 +1870,7 @@ export type Database = {
           pct_cancelamento?: number
           pct_falta?: number
           pct_presenca?: number
+          pendentes?: number
           presencas?: number
           reprocessado_em?: string | null
           reprocessado_por?: string | null

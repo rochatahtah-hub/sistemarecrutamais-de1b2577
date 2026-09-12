@@ -45,7 +45,7 @@ const RANKINGS: Array<{
   chave: "vagas" | "pctPresenca" | "pctFalta" | "pctCancelamento";
   titulo: string;
 }> = [
-  { chave: "vagas", titulo: "Ranking — Vagas fechadas" },
+  { chave: "vagas", titulo: "Ranking — Vagas adicionadas" },
   { chave: "pctPresenca", titulo: "Ranking — % Presença" },
   { chave: "pctFalta", titulo: "Ranking — % Falta" },
   { chave: "pctCancelamento", titulo: "Ranking — % Cancelamento" },
@@ -102,7 +102,8 @@ export async function exportarLevantamentoDiarioPdf(opcoes: {
     startY: 110,
     head: [["Indicador", "Quantidade", "Percentual"]],
     body: [
-      ["Vagas fechadas", fmtNum(resumo.vagasFechadas), "—"],
+      ["Vagas adicionadas", fmtNum(resumo.vagasFechadas), "—"],
+      ["Aguardando confirmação", fmtNum(resumo.pendentes), "—"],
       ["Presenças", fmtNum(resumo.presencas), fmtPct(resumo.pctPresenca)],
       ["Faltas", fmtNum(resumo.faltas), fmtPct(resumo.pctFalta)],
       ["Cancelamentos", fmtNum(resumo.cancelamentos), fmtPct(resumo.pctCancelamento)],
@@ -121,7 +122,8 @@ export async function exportarLevantamentoDiarioPdf(opcoes: {
     head: [
       [
         "Programador",
-        "Vagas fechadas",
+        "Vagas adicionadas",
+        "Aguardando",
         "Presenças",
         "Faltas",
         "Cancel.",
@@ -133,6 +135,7 @@ export async function exportarLevantamentoDiarioPdf(opcoes: {
     body: porProgramador.map((l) => [
       l.nome,
       fmtNum(l.vagasFechadas),
+      fmtNum(l.pendentes),
       fmtNum(l.presencas),
       fmtNum(l.faltas),
       fmtNum(l.cancelamentos),
