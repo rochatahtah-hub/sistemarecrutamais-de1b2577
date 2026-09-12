@@ -20,6 +20,49 @@ const CABECALHO = {
 
 type DocPdf = jsPDF;
 
+/** Normaliza qualquer cor CSS válida (incluindo oklch(), que o html2canvas não
+ * sabe interpretar) para "rgb(...)"/"rgba(...)" — usa o próprio navegador via
+ * canvas 2D, que aceita e resolve qualquer espaço de cor suportado por ele. */
+function normalizarCor(valor: string): string {
+  if (!valor || valor === "none" || valor.startsWith("rgb")) return valor;
+  try {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return valor;
+    ctx.fillStyle = valor;
+    return ctx.fillStyle;
+  } catch {
+    return valor;
+  }
+}
+
+/** O tema deste app usa oklch() em toda a paleta (cards, textos, grade e
+ * cores dos gráficos recharts). O html2canvas só entende rgb()/hsl() e
+ * lança "Attempting to parse an unsupported color function" em qualquer
+ * elemento com oklch — por isso o PDF nunca saía. Via `onclone`, reescreve
+ * como inline (cor já resolvida em rgb) só na cópia usada pra captura,
+ * sem tocar no DOM real nem no tema do app. */
+function normalizarCoresDoClone(raiz: HTMLElement) {
+  for (const el of [raiz, ...raiz.querySelectorAll<HTMLElement>("*")]) {
+    const estilo = getComputedStyle(el);
+    el.style.setProperty("color", normalizarCor(estilo.color), "important");
+    el.style.setProperty("background-color", normalizarCor(estilo.backgroundColor), "important");
+    el.style.setProperty("border-color", normalizarCor(estilo.borderColor), "important");
+    if (el instanceof SVGElement) {
+      const fill = estilo.fill;
+      if (fill && fill !== "none") {
+        el.style.setProperty("fill", normalizarCor(fill), "important");
+        el.setAttribute("fill", normalizarCor(fill));
+      }
+      const stroke = estilo.stroke;
+      if (stroke && stroke !== "none") {
+        el.style.setProperty("stroke", normalizarCor(stroke), "important");
+        el.setAttribute("stroke", normalizarCor(stroke));
+      }
+    }
+  }
+}
+
 /** Captura um elemento do DOM já renderizado (gráfico recharts) e devolve a
  * altura ocupada, para encadear o próximo elemento logo abaixo. */
 async function desenharGrafico(
@@ -30,7 +73,11 @@ async function desenharGrafico(
 ) {
   if (!elemento) return y;
   const html2canvas = (await import("html2canvas")).default;
-  const canvas = await html2canvas(elemento, { backgroundColor: "#ffffff", scale: 2 });
+  const canvas = await html2canvas(elemento, {
+    backgroundColor: "#ffffff",
+    scale: 2,
+    onclone: (_doc, el) => normalizarCoresDoClone(el),
+  });
   const altura = (canvas.height / canvas.width) * largura;
   const alturaPagina = doc.internal.pageSize.getHeight();
   if (y + altura > alturaPagina - 40) {
