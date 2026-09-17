@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cancelarAvisoVagas, chavePublicaPush, inscreverAvisoVagas } from "@/lib/push.functions";
 
-type Estado = "carregando" | "sem_suporte" | "bloqueado" | "inativo" | "ativo";
+type Estado = "carregando" | "desligado" | "sem_suporte" | "bloqueado" | "inativo" | "ativo";
 
 function base64UrlParaBytes(valor: string): ArrayBuffer {
   const base64 = valor.replace(/-/g, "+").replace(/_/g, "/");
@@ -40,6 +40,19 @@ export function AvisoNovasVagas({ slug }: { slug: string }) {
   const [ocupado, setOcupado] = useState(false);
 
   const sincronizar = useCallback(async () => {
+    // Enquanto as chaves do push não estiverem configuradas no servidor, o
+    // recurso não existe para o colaborador — melhor não aparecer do que
+    // aparecer e não funcionar.
+    try {
+      const { chave } = await chavePublicaPush();
+      if (!chave) {
+        setEstado("desligado");
+        return;
+      }
+    } catch {
+      setEstado("desligado");
+      return;
+    }
     if (!temSuporte()) {
       setEstado("sem_suporte");
       return;
@@ -110,7 +123,7 @@ export function AvisoNovasVagas({ slug }: { slug: string }) {
     }
   }
 
-  if (estado === "carregando") return null;
+  if (estado === "carregando" || estado === "desligado") return null;
 
   return (
     <div className="mb-6 rounded-xl border border-sidebar-border bg-sidebar-accent/40 p-4">
