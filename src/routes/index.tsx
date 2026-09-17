@@ -43,6 +43,7 @@ import {
 import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { useAuth } from "@/lib/auth";
 import { usePermissoes } from "@/lib/permissoes";
+import { MensagemDoDia } from "@/components/dashboard/MensagemDoDia";
 import { useCandidatos, useProgramadorasHabilitadas } from "@/lib/programacao";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import {
@@ -120,8 +121,7 @@ function ListaTop({
 }) {
   const priv = usePrivacidade();
   const ordenadas = [...linhas].sort((a, b) => Number(b[campo]) - Number(a[campo])).slice(0, 5);
-  if (ordenadas.length === 0)
-    return <p className="text-sm text-muted-foreground">Sem dados.</p>;
+  if (ordenadas.length === 0) return <p className="text-sm text-muted-foreground">Sem dados.</p>;
   return (
     <ol className="space-y-1">
       {ordenadas.map((l, i) => (
@@ -132,9 +132,7 @@ function ListaTop({
           <span className="flex min-w-0 items-center gap-2.5">
             <span
               className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold ${
-                i === 0
-                  ? "bg-gold-soft text-accent-foreground"
-                  : "bg-muted text-muted-foreground"
+                i === 0 ? "bg-gold-soft text-accent-foreground" : "bg-muted text-muted-foreground"
               }`}
             >
               {i + 1}
@@ -194,9 +192,7 @@ function Dashboard() {
     () => ({
       empresas: Array.from(new Set(registros.map((r) => r.empresa).filter(Boolean))) as string[],
       pessoas: Array.from(
-        new Set(
-          registros.flatMap((r) => [r.colaborador, r.candidato].filter(Boolean) as string[]),
-        ),
+        new Set(registros.flatMap((r) => [r.colaborador, r.candidato].filter(Boolean) as string[])),
       ),
     }),
     [registros],
@@ -229,6 +225,7 @@ function Dashboard() {
           <h1 className="mt-1.5 truncate text-[26px] font-semibold tracking-tight sm:text-[32px]">
             {saudacaoPorHorario()}, {priv.nome(perfil?.nome ?? "bem-vinda")}
           </h1>
+          <MensagemDoDia />
           <p className="mt-1 text-sm text-muted-foreground">
             {fmtNum(filtrados.length)} registros no filtro atual de {fmtNum(registros.length)} no
             total.
@@ -287,44 +284,48 @@ function Dashboard() {
       <section className="space-y-4">
         <h2 className="rotulo-secao">Indicadores complementares</h2>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
-        <CardIndicador
-          titulo="Vagas programadas"
-          valor={fmtNum(total.vagas)}
-          detalhe={`${fmtNum(total.pendentes)} aguardando confirmação`}
-          icon={Clock}
-          onClick={() => irPara("todos")}
-        />
-        <CardIndicador
-          titulo="Taxa de presença"
-          valor={fmtPct(total.pctPresenca)}
-          detalhe={`Meta ${metas.presenca}%`}
-          icon={CheckCircle2}
-          tom="positivo"
-          onClick={() => irPara("PRESENCA")}
-        />
-        <CardIndicador
-          titulo="Taxa de falta"
-          valor={fmtPct(total.pctFalta)}
-          detalhe={`Meta máx. ${metas.falta}%`}
-          icon={XCircle}
-          tom="negativo"
-          onClick={() => irPara("FALTA")}
-        />
-        <CardIndicador
-          titulo="Taxa de cancelamento"
-          valor={fmtPct(total.pctCancelamento)}
-          detalhe={`Meta máx. ${metas.cancelamento}%`}
-          icon={CalendarX2}
-          onClick={() => irPara("CANCELAMENTO")}
-        />
-        <CardIndicador
-          titulo="Total de candidatos"
-          valor={fmtNum(candidatos.length)}
-          icon={IdCard}
-          onClick={() => void navigate({ to: "/candidatos" })}
-        />
-        <CardIndicador titulo="Colaboradores" valor={fmtNum(porColaborador.length)} icon={Users} />
-        <CardIndicador titulo="Empresas" valor={fmtNum(porEmpresa.length)} icon={Building2} />
+          <CardIndicador
+            titulo="Vagas programadas"
+            valor={fmtNum(total.vagas)}
+            detalhe={`${fmtNum(total.pendentes)} aguardando confirmação`}
+            icon={Clock}
+            onClick={() => irPara("todos")}
+          />
+          <CardIndicador
+            titulo="Taxa de presença"
+            valor={fmtPct(total.pctPresenca)}
+            detalhe={`Meta ${metas.presenca}%`}
+            icon={CheckCircle2}
+            tom="positivo"
+            onClick={() => irPara("PRESENCA")}
+          />
+          <CardIndicador
+            titulo="Taxa de falta"
+            valor={fmtPct(total.pctFalta)}
+            detalhe={`Meta máx. ${metas.falta}%`}
+            icon={XCircle}
+            tom="negativo"
+            onClick={() => irPara("FALTA")}
+          />
+          <CardIndicador
+            titulo="Taxa de cancelamento"
+            valor={fmtPct(total.pctCancelamento)}
+            detalhe={`Meta máx. ${metas.cancelamento}%`}
+            icon={CalendarX2}
+            onClick={() => irPara("CANCELAMENTO")}
+          />
+          <CardIndicador
+            titulo="Total de candidatos"
+            valor={fmtNum(candidatos.length)}
+            icon={IdCard}
+            onClick={() => void navigate({ to: "/candidatos" })}
+          />
+          <CardIndicador
+            titulo="Colaboradores"
+            valor={fmtNum(porColaborador.length)}
+            icon={Users}
+          />
+          <CardIndicador titulo="Empresas" valor={fmtNum(porEmpresa.length)} icon={Building2} />
         </div>
       </section>
 
@@ -367,72 +368,85 @@ function Dashboard() {
       <section className="space-y-4">
         <h2 className="rotulo-secao">Desempenho da operação</h2>
         <div className="grid gap-4 xl:grid-cols-3">
-        <Painel
-          className="xl:col-span-2"
-          titulo="Evolução temporal"
-          descricao="Presenças, faltas e cancelamentos ao longo do tempo"
-          acao={
-            <Select value={granularidade} onValueChange={(v) => setGranularidade(v as Granularidade)}>
-              <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dia">Por dia</SelectItem>
-                <SelectItem value="semana">Por semana</SelectItem>
-                <SelectItem value="quinzena">Por quinzena</SelectItem>
-                <SelectItem value="mes">Por mês</SelectItem>
-              </SelectContent>
-            </Select>
-          }
-        >
-          <GraficoEvolucao dados={serie} />
-        </Painel>
-        <Painel titulo="Distribuição geral" descricao="Composição dos resultados confirmados">
-          <GraficoDistribuicao agregado={total} />
-        </Painel>
-        <Painel className="xl:col-span-2" titulo="Desempenho por colaborador">
-          <GraficoBarrasStatus linhas={porColaborador.slice(0, 10)} sensivel />
-        </Painel>
-        <Painel
-          titulo="Ranking de empresas"
-          acao={
-            <Select
-              value={metricaEmpresa as string}
-              onValueChange={(v) => setMetricaEmpresa(v as keyof LinhaAgregada)}
-            >
-              <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {Object.entries(rotuloMetrica).map(([v, l]) => (
-                  <SelectItem key={v} value={v}>{l}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          }
-        >
-          <GraficoBarraMetrica
-            linhas={[...porEmpresa]
-              .sort((a, b) => Number(b[metricaEmpresa]) - Number(a[metricaEmpresa]))
-              .slice(0, 10)}
-            metrica={metricaEmpresa}
-            rotulo={rotuloMetrica[metricaEmpresa as string] ?? ""}
-          />
-        </Painel>
+          <Painel
+            className="xl:col-span-2"
+            titulo="Evolução temporal"
+            descricao="Presenças, faltas e cancelamentos ao longo do tempo"
+            acao={
+              <Select
+                value={granularidade}
+                onValueChange={(v) => setGranularidade(v as Granularidade)}
+              >
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dia">Por dia</SelectItem>
+                  <SelectItem value="semana">Por semana</SelectItem>
+                  <SelectItem value="quinzena">Por quinzena</SelectItem>
+                  <SelectItem value="mes">Por mês</SelectItem>
+                </SelectContent>
+              </Select>
+            }
+          >
+            <GraficoEvolucao dados={serie} />
+          </Painel>
+          <Painel titulo="Distribuição geral" descricao="Composição dos resultados confirmados">
+            <GraficoDistribuicao agregado={total} />
+          </Painel>
+          <Painel className="xl:col-span-2" titulo="Desempenho por colaborador">
+            <GraficoBarrasStatus linhas={porColaborador.slice(0, 10)} sensivel />
+          </Painel>
+          <Painel
+            titulo="Ranking de empresas"
+            acao={
+              <Select
+                value={metricaEmpresa as string}
+                onValueChange={(v) => setMetricaEmpresa(v as keyof LinhaAgregada)}
+              >
+                <SelectTrigger className="w-44">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(rotuloMetrica).map(([v, l]) => (
+                    <SelectItem key={v} value={v}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            }
+          >
+            <GraficoBarraMetrica
+              linhas={[...porEmpresa]
+                .sort((a, b) => Number(b[metricaEmpresa]) - Number(a[metricaEmpresa]))
+                .slice(0, 10)}
+              metrica={metricaEmpresa}
+              rotulo={rotuloMetrica[metricaEmpresa as string] ?? ""}
+            />
+          </Painel>
         </div>
       </section>
 
       <section className="space-y-4">
         <h2 className="rotulo-secao">Rankings de empresas</h2>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Painel titulo="Top empresas em presenças">
-          <ListaTop linhas={porEmpresa} campo="presencas" sufixo="num" />
-        </Painel>
-        <Painel titulo="Top empresas em faltas (qtd.)">
-          <ListaTop linhas={porEmpresa} campo="faltas" sufixo="num" />
-        </Painel>
-        <Painel titulo="Maior taxa de faltas (%)">
-          <ListaTop linhas={porEmpresa.filter((e) => e.vagas >= 5)} campo="pctFalta" sufixo="pct" />
-        </Painel>
-        <Painel titulo="Top empresas em cancelamentos">
-          <ListaTop linhas={porEmpresa} campo="cancelamentos" sufixo="num" />
-        </Painel>
+          <Painel titulo="Top empresas em presenças">
+            <ListaTop linhas={porEmpresa} campo="presencas" sufixo="num" />
+          </Painel>
+          <Painel titulo="Top empresas em faltas (qtd.)">
+            <ListaTop linhas={porEmpresa} campo="faltas" sufixo="num" />
+          </Painel>
+          <Painel titulo="Maior taxa de faltas (%)">
+            <ListaTop
+              linhas={porEmpresa.filter((e) => e.vagas >= 5)}
+              campo="pctFalta"
+              sufixo="pct"
+            />
+          </Painel>
+          <Painel titulo="Top empresas em cancelamentos">
+            <ListaTop linhas={porEmpresa} campo="cancelamentos" sufixo="num" />
+          </Painel>
         </div>
       </section>
 

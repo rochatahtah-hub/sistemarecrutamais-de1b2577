@@ -1941,6 +1941,48 @@ export type Database = {
           },
         ]
       }
+      mensagens_diarias: {
+        Row: {
+          ativa: boolean
+          created_at: string
+          criado_por: string | null
+          criado_por_nome: string
+          data_especifica: string | null
+          id: string
+          referencia: string | null
+          tenant_id: string | null
+          texto: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          ativa?: boolean
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          data_especifica?: string | null
+          id?: string
+          referencia?: string | null
+          tenant_id?: string | null
+          texto: string
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          ativa?: boolean
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          data_especifica?: string | null
+          id?: string
+          referencia?: string | null
+          tenant_id?: string | null
+          texto?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mensagens: {
         Row: {
           anexo_mime: string

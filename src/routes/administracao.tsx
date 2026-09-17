@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GerenciarMensagensDiarias } from "@/components/administracao/GerenciarMensagensDiarias";
 import { PainelBanco } from "@/components/admin/PainelBanco";
 import { PainelColaboradores } from "@/components/admin/PainelColaboradores";
 import { PainelManutencao } from "@/components/admin/PainelManutencao";
@@ -39,7 +40,8 @@ export const Route = createFileRoute("/administracao")({
       { property: "og:title", content: "Central de Administração | RECRUTA+" },
       {
         property: "og:description",
-        content: "Gerencie usuários, empresas, colaboradores e monitore o banco de dados do RECRUTA+.",
+        content:
+          "Gerencie usuários, empresas, colaboradores e monitore o banco de dados do RECRUTA+.",
       },
     ],
   }),
@@ -97,6 +99,7 @@ function Pagina() {
           <TabsTrigger value="banco">🗄️ Banco de dados</TabsTrigger>
           <TabsTrigger value="manutencao">🛠️ Manutenção</TabsTrigger>
           <TabsTrigger value="email-backup">📧 Backups por e-mail</TabsTrigger>
+          <TabsTrigger value="mensagens">💬 Mensagem do Dia</TabsTrigger>
         </TabsList>
         <TabsContent value="usuarios" className="space-y-4 pt-4">
           <ResumoAcessos />
@@ -116,6 +119,9 @@ function Pagina() {
         </TabsContent>
         <TabsContent value="email-backup" className="pt-4">
           <PainelEmailBackup />
+        </TabsContent>
+        <TabsContent value="mensagens" className="pt-4">
+          <GerenciarMensagensDiarias />
         </TabsContent>
       </Tabs>
     </div>

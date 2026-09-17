@@ -120,7 +120,11 @@ export const MODULOS: ModuloInfo[] = [
   },
   { chave: "saude", nome: "Saúde do Sistema", acoes: ["visualizar", "exportar"] },
   { chave: "perfis", nome: "Perfis e Permissões", acoes: ["visualizar", "administrar"] },
-  { chave: "comercial_saas", nome: "Gestão comercial SaaS", acoes: ["visualizar", "administrar", "configurar", "exportar"] },
+  {
+    chave: "comercial_saas",
+    nome: "Gestão comercial SaaS",
+    acoes: ["visualizar", "administrar", "configurar", "exportar"],
+  },
   {
     chave: "rs_candidatos",
     nome: "R&S — Meus Candidatos",
@@ -134,9 +138,21 @@ export const MODULOS: ModuloInfo[] = [
   { chave: "rs_dashboard", nome: "R&S — Dashboard", acoes: ["visualizar", "exportar"] },
   { chave: "rs_levantamento", nome: "R&S — Levantamento", acoes: ["visualizar", "exportar"] },
   {
+    chave: "mensagens_diarias",
+    nome: "Mensagem do Dia",
+    acoes: ["visualizar", "criar", "editar", "excluir"],
+  },
+  {
     chave: "levantamento_diario",
     nome: "Levantamento Diário",
-    acoes: ["visualizar", "detalhar", "configurar", "reprocessar", "exportar", "receber_notificacao"],
+    acoes: [
+      "visualizar",
+      "detalhar",
+      "configurar",
+      "reprocessar",
+      "exportar",
+      "receber_notificacao",
+    ],
   },
 ];
 
