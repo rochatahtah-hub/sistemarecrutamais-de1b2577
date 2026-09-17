@@ -30,10 +30,13 @@ CREATE INDEX IF NOT EXISTS push_inscricoes_tenant_idx
 
 ALTER TABLE public.push_inscricoes ENABLE ROW LEVEL SECURITY;
 
--- Sem GRANT para anon/authenticated e sem policy permissiva: ninguém alcança
--- esta tabela pelo navegador, nem para ler nem para escrever. Todo acesso passa
--- pelas funções de servidor, que resolvem a empresa pelo slug do link — nunca
--- por um tenant informado pelo cliente.
+-- Sem policy permissiva: com RLS ligado e nenhuma policy, anon/authenticated não
+-- leem nem escrevem uma linha sequer. O REVOKE é cinto e suspensório — o projeto
+-- concede privilégio a esses papéis por padrão em tabela nova, e deixar isso de
+-- pé significaria que uma policy acrescentada sem cuidado no futuro abriria a
+-- tabela inteira. Todo acesso passa pelas funções de servidor, que resolvem a
+-- empresa pelo slug do link — nunca por um tenant informado pelo cliente.
+REVOKE ALL ON public.push_inscricoes FROM anon, authenticated;
 GRANT ALL ON public.push_inscricoes TO service_role;
 
 DROP TRIGGER IF EXISTS trg_push_inscricoes_updated ON public.push_inscricoes;
