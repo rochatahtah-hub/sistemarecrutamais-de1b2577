@@ -6,6 +6,7 @@ import {
   reprocessarLevantamentoDiario,
   salvarConfigLevantamentoDiario,
 } from "./levantamento-diario.functions";
+import { consolidarQuinzena, type QuinzenaConsolidada } from "./levantamento-quinzena";
 
 export interface LevantamentoDiarioResumo {
   id: string;
@@ -145,6 +146,52 @@ export function useLevantamentoDiario(dataReferencia: string) {
         resumo: mapearResumo(resumo),
         porProgramador: (linhas ?? []).map(mapearProgramador),
       };
+    },
+  });
+}
+
+/**
+ * Consolidação de uma quinzena a partir dos levantamentos diários já gravados
+ * no período. Só leitura: nunca gera, reprocessa nem grava nada — se um dia do
+ * intervalo ainda não foi gerado, ele simplesmente não entra na soma.
+ */
+export function useLevantamentoQuinzena(periodo: { inicio: string; fim: string }) {
+  return useQuery({
+    queryKey: ["levantamento-quinzena", periodo.inicio, periodo.fim],
+    enabled: Boolean(periodo.inicio && periodo.fim),
+    queryFn: async (): Promise<QuinzenaConsolidada> => {
+      const { data: dias, error } = await supabase
+        .from("levantamentos_diarios")
+        .select("id,data_referencia")
+        .gte("data_referencia", periodo.inicio)
+        .lte("data_referencia", periodo.fim)
+        .order("data_referencia");
+      if (error) throw error;
+
+      const porId = new Map((dias ?? []).map((d) => [d.id, d.data_referencia]));
+      if (porId.size === 0) return consolidarQuinzena([], periodo);
+
+      const { data: linhas, error: erroLinhas } = await supabase
+        .from("levantamento_diario_programadores")
+        .select(
+          "levantamento_id,programadora_id,programadora_nome,vagas_fechadas,pendentes,presencas,faltas,cancelamentos",
+        )
+        .in("levantamento_id", Array.from(porId.keys()));
+      if (erroLinhas) throw erroLinhas;
+
+      return consolidarQuinzena(
+        (linhas ?? []).map((l) => ({
+          dataReferencia: porId.get(l.levantamento_id) ?? "",
+          programadoraId: l.programadora_id,
+          nome: l.programadora_nome,
+          vagas: l.vagas_fechadas,
+          pendentes: l.pendentes,
+          presencas: l.presencas,
+          faltas: l.faltas,
+          cancelamentos: l.cancelamentos,
+        })),
+        periodo,
+      );
     },
   });
 }

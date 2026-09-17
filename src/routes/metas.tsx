@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/lib/auth";
+import { usePermissoes } from "@/lib/permissoes";
 import { useConfiguracoes, useSalvarConfiguracao, useVagas } from "@/lib/dados";
 import { fmtNum, fmtPct } from "@/lib/metricas";
 import { quinzenaAtual } from "@/lib/quinzena";
@@ -43,7 +43,8 @@ export const Route = createFileRoute("/metas")({
 });
 
 function Pagina() {
-  const { isAdmin } = useAuth();
+  const { pode } = usePermissoes();
+  const podeEditar = pode("metas", "editar");
   const q = quinzenaAtual();
   const { data: config } = useConfiguracoes();
   const salvarConfig = useSalvarConfiguracao();
@@ -88,7 +89,7 @@ function Pagina() {
               type="number"
               min={0}
               value={meta}
-              disabled={!isAdmin}
+              disabled={!podeEditar}
               onChange={(e) => setMeta(Number(e.target.value) || 0)}
             />
           </div>
@@ -111,7 +112,7 @@ function Pagina() {
             {realizado > meta ? "META SUPERADA" : "META ATINGIDA"}
           </p>
         )}
-        {isAdmin && (
+        {podeEditar && (
           <Button
             onClick={() =>
               salvarConfig.mutate(
@@ -143,7 +144,7 @@ function Pagina() {
                   <Sigiloso valor={p.nome} />
                 </TableCell>
                 <TableCell className="text-right">
-                  {isAdmin ? (
+                  {podeEditar ? (
                     <Input
                       type="number"
                       min={0}

@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/table";
 import { useConfiguracoes, useVagas } from "@/lib/dados";
 import { useAuth } from "@/lib/auth";
+import { usePermissoes } from "@/lib/permissoes";
 import { useCandidatos, useProgramadorasHabilitadas } from "@/lib/programacao";
 import { aplicarFiltros, useFiltros } from "@/lib/filtros";
 import {
@@ -168,7 +169,8 @@ function saudacaoPorHorario(hora = new Date().getHours()) {
 function Dashboard() {
   const { data: registros = [], isLoading } = useVagas();
   const { data: config } = useConfiguracoes();
-  const { perfil, isAdmin, podeOperar } = useAuth();
+  const { perfil, podeOperar } = useAuth();
+  const podeVerAcessos = usePermissoes().pode("acessos", "visualizar");
   const { data: candidatos = [] } = useCandidatos("", podeOperar);
   const { data: programadorasHabilitadas = [] } = useProgramadorasHabilitadas();
   const priv = usePrivacidade();
@@ -239,7 +241,7 @@ function Dashboard() {
         <FiltrosBar registros={registros} />
       </div>
 
-      {isAdmin && <ResumoAcessos />}
+      {podeVerAcessos && <ResumoAcessos />}
 
       <section className="space-y-4">
         <h2 className="rotulo-secao">Indicadores principais</h2>

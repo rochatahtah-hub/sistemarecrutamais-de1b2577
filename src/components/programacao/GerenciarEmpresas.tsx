@@ -15,12 +15,18 @@ import {
 } from "@/components/ui/table";
 import { useEmpresas, useSalvarEmpresa } from "@/lib/programacao";
 import { usePrivacidade } from "@/lib/privacidade";
+import { usePermissoes } from "@/lib/permissoes";
 
-/** Cadastro e manutenção das empresas parceiras (visível para o admin). */
+/** Cadastro e manutenção das empresas parceiras. Cada ação é liberada pela sua
+ * própria permissão — quem só pode criar não consegue ativar/desativar, e
+ * vice-versa. A mesma separação vale nas policies do banco. */
 export function GerenciarEmpresas() {
   const { data: empresas = [] } = useEmpresas();
   const salvar = useSalvarEmpresa();
   const priv = usePrivacidade();
+  const { pode } = usePermissoes();
+  const podeCriar = pode("empresas", "criar");
+  const podeEditar = pode("empresas", "editar");
   const [nome, setNome] = useState("");
 
   const adicionar = () => {
@@ -46,48 +52,51 @@ export function GerenciarEmpresas() {
         <Building2 className="h-4 w-4 text-primary" />
         <h2 className="font-display text-lg font-semibold">Gerenciar empresas</h2>
       </div>
-      <div className="flex gap-2">
-        <Input
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          placeholder="Nome da empresa"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") adicionar();
-          }}
-        />
-        <Button onClick={adicionar} disabled={salvar.isPending}>
-          <Plus className="mr-2 h-4 w-4" /> Adicionar
-        </Button>
-      </div>
+      {podeCriar && (
+        <div className="flex gap-2">
+          <Input
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            placeholder="Nome da empresa"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") adicionar();
+            }}
+          />
+          <Button onClick={adicionar} disabled={salvar.isPending}>
+            <Plus className="mr-2 h-4 w-4" /> Adicionar
+          </Button>
+        </div>
+      )}
       <div className="overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Empresa</TableHead>
-            <TableHead className="w-28 text-right">Ativa</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {empresas.map((e) => (
-            <TableRow key={e.id}>
-              <TableCell className="font-medium">{priv.empresa(e.nome)}</TableCell>
-              <TableCell className="text-right">
-                <Switch
-                  checked={e.ativo}
-                  onCheckedChange={(v) => salvar.mutate({ id: e.id, nome: e.nome, ativo: v })}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-          {empresas.length === 0 && (
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={2} className="py-6 text-center text-muted-foreground">
-                Nenhuma empresa cadastrada.
-              </TableCell>
+              <TableHead>Empresa</TableHead>
+              <TableHead className="w-28 text-right">Ativa</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {empresas.map((e) => (
+              <TableRow key={e.id}>
+                <TableCell className="font-medium">{priv.empresa(e.nome)}</TableCell>
+                <TableCell className="text-right">
+                  <Switch
+                    checked={e.ativo}
+                    disabled={!podeEditar}
+                    onCheckedChange={(v) => salvar.mutate({ id: e.id, nome: e.nome, ativo: v })}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+            {empresas.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={2} className="py-6 text-center text-muted-foreground">
+                  Nenhuma empresa cadastrada.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

@@ -24,7 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuth } from "@/lib/auth";
 import { useExcluirFicha, useVagas } from "@/lib/dados";
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
@@ -52,7 +51,7 @@ export const Route = createFileRoute("/historico")({
 });
 
 function Pagina() {
-  const { isAdmin } = useAuth();
+  const podeArquivar = usePermissoes().pode("historico", "editar");
   const { data: registros = [] } = useVagas();
   const { data: arquivadas = [] } = useHistoricoQuinzenas();
   const fechar = useFecharQuinzena();
@@ -138,7 +137,7 @@ function Pagina() {
               <TableHead className="text-right">Cancel.</TableHead>
               <TableHead className="text-right">% Presença</TableHead>
               <TableHead>Situação</TableHead>
-              {isAdmin && <TableHead />}
+              {podeArquivar && <TableHead />}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -162,7 +161,7 @@ function Pagina() {
                       ? "Arquivada"
                       : "Encerrada"}
                 </TableCell>
-                {isAdmin && (
+                {podeArquivar && (
                   <TableCell className="text-right">
                     {l.chave !== atual.chave && !arquivadasSet.has(l.chave) && (
                       <Button

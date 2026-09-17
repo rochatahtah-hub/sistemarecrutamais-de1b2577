@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfiguracoes, useSalvarConfiguracao } from "@/lib/dados";
-import { useAuth } from "@/lib/auth";
+import { usePermissoes } from "@/lib/permissoes";
 import {
   MAPEAMENTO_PADRAO,
   METAS_PADRAO,
@@ -46,7 +46,8 @@ const GRUPOS: { chave: keyof MapeamentoStatus; titulo: string; ajuda: string }[]
 function Pagina() {
   const { data: config } = useConfiguracoes();
   const salvar = useSalvarConfiguracao();
-  const { isAdmin } = useAuth();
+  const { pode } = usePermissoes();
+  const podeVer = pode("configuracoes", "visualizar");
 
   const [metas, setMetas] = useState<Metas>(METAS_PADRAO);
   const [mapeamento, setMapeamento] = useState<MapeamentoStatus>(MAPEAMENTO_PADRAO);
@@ -76,7 +77,7 @@ function Pagina() {
     }
   }
 
-  if (!isAdmin) {
+  if (!podeVer) {
     return (
       <div className="surface-panel rounded-2xl p-8 text-center">
         <ShieldAlert className="mx-auto h-8 w-8 text-muted-foreground" />

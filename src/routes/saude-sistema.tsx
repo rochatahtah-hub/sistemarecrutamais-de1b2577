@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
+import { usePermissoes } from "@/lib/permissoes";
 import { arquivarErrosResolvidos, definirErroResolvido, listarErrosSistema } from "@/lib/system-health";
 import { exportarSaudeExcel, exportarSaudePDF } from "@/lib/exportar-saude";
 
@@ -37,14 +37,15 @@ export const Route = createFileRoute("/saude-sistema")({
 });
 
 function Pagina() {
-  const { isAdmin } = useAuth();
+  const { pode } = usePermissoes();
+  const podeVer = pode("saude", "visualizar");
   const qc = useQueryClient();
   const [filtro, setFiltro] = useState<"pendente" | "resolvido">("pendente");
   const [arquivar, setArquivar] = useState<string | "todos" | null>(null);
   const consulta = useQuery({
     queryKey: ["saude-sistema"],
     queryFn: listarErrosSistema,
-    enabled: isAdmin,
+    enabled: podeVer,
     refetchInterval: 60_000,
     retry: false,
   });
@@ -52,7 +53,7 @@ function Pagina() {
   const visiveis = erros.filter((erro) => erro.status === filtro);
   const backup = useQuery({
     queryKey: ["saude-backup"],
-    enabled: isAdmin,
+    enabled: podeVer,
     retry: false,
     queryFn: async () => {
       const { data } = await supabase
@@ -104,7 +105,7 @@ function Pagina() {
     }
   }
 
-  if (!isAdmin) {
+  if (!podeVer) {
     return (
       <div className="surface-panel p-8 text-center">
         <ShieldAlert className="mx-auto h-8 w-8 text-muted-foreground" />

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Bell, Camera, Eye, EyeOff, LogOut, Settings, ShieldCheck } from "lucide-react";
+import { Bell, Camera, Download, Eye, EyeOff, LogOut, Settings, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +22,7 @@ import { SeletorEmpresa } from "@/components/SeletorEmpresa";
 import { useAuth } from "@/lib/auth";
 import { usePrivacidade } from "@/lib/privacidade";
 import { useMarcarNotificacoesLidas, useNotificacoes } from "@/lib/programacao";
+import { useInstalacaoPwa } from "@/lib/pwa";
 
 /** Nome da seção atual, apenas para exibição no topo. */
 const SECOES: Record<string, string> = {
@@ -80,6 +81,7 @@ export function TopBar() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const { perfil, user, isAdmin, sair } = useAuth();
+  const { podeInstalar, abrirConvite } = useInstalacaoPwa();
   const { privado, alternar } = usePrivacidade();
   const { data: notificacoes = [] } = useNotificacoes();
   const marcarLidas = useMarcarNotificacoesLidas();
@@ -225,6 +227,11 @@ export function TopBar() {
             <DropdownMenuItem onSelect={() => setFotoAberta(true)}>
               <Camera className="mr-2 h-4 w-4" /> Alterar foto de perfil
             </DropdownMenuItem>
+            {podeInstalar && (
+              <DropdownMenuItem onSelect={abrirConvite}>
+                <Download className="mr-2 h-4 w-4" /> Instalar Recruta+
+              </DropdownMenuItem>
+            )}
             {isAdmin && (
               <DropdownMenuItem asChild>
                 <Link to="/administracao">

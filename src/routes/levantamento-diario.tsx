@@ -61,6 +61,8 @@ import {
   type LevantamentoDiarioResumo,
 } from "@/lib/levantamento-diario";
 import { GraficoBarraMetrica, GraficoDistribuicao } from "@/components/dashboard/Graficos";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LevantamentoQuinzena } from "@/components/levantamento/LevantamentoQuinzena";
 
 export const Route = createFileRoute("/levantamento-diario")({
   head: () => ({
@@ -552,7 +554,18 @@ function Pagina() {
 function PaginaProtegida() {
   return (
     <RequerPermissao modulo="levantamento_diario" area="Levantamento Diário">
-      <Pagina />
+      <Tabs defaultValue="diario" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="diario">Diário</TabsTrigger>
+          <TabsTrigger value="quinzena">Quinzena</TabsTrigger>
+        </TabsList>
+        <TabsContent value="diario">
+          <Pagina />
+        </TabsContent>
+        <TabsContent value="quinzena">
+          <LevantamentoQuinzena />
+        </TabsContent>
+      </Tabs>
     </RequerPermissao>
   );
 }

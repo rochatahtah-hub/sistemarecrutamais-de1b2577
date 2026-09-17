@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useVagas } from "@/lib/dados";
-import { useAuth } from "@/lib/auth";
+import { usePermissoes } from "@/lib/permissoes";
 import { GerenciarUsuarios } from "@/components/programacao/GerenciarUsuarios";
 import { fmtNum, fmtPct } from "@/lib/metricas";
 import { quinzenaAtual } from "@/lib/quinzena";
@@ -48,7 +48,9 @@ function quando(iso: string | null) {
 }
 
 function Pagina() {
-  const { isAdmin } = useAuth();
+  const { pode } = usePermissoes();
+  const podeGerirEquipe = pode("equipe", "criar") || pode("equipe", "editar");
+  const podeEditar = pode("programadoras", "editar");
   const { data: perfis = [] } = useProgramadoras();
   const { data: registros = [] } = useVagas();
   const atualizar = useAtualizarPerfil();
@@ -95,7 +97,7 @@ function Pagina() {
         </p>
       </div>
 
-      {isAdmin && <GerenciarUsuarios />}
+      {podeGerirEquipe && <GerenciarUsuarios />}
 
       <div className="surface-panel overflow-x-auto rounded-2xl p-4">
         <Table>
@@ -114,7 +116,7 @@ function Pagina() {
               <TableHead className="text-right">Meta</TableHead>
               <TableHead className="text-right">% Meta</TableHead>
               <TableHead>Último preenchimento</TableHead>
-              {isAdmin && <TableHead className="text-center">Ativa</TableHead>}
+              {podeEditar && <TableHead className="text-center">Ativa</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -136,7 +138,7 @@ function Pagina() {
                 <TableCell className="text-right">{fmtPct(l.pctFalta)}</TableCell>
                 <TableCell className="text-right">{fmtPct(l.pctCancelamento)}</TableCell>
                 <TableCell className="text-right">
-                  {isAdmin ? (
+                  {podeEditar ? (
                     <Input
                       type="number"
                       min={0}
@@ -165,7 +167,7 @@ function Pagina() {
                   )}
                 </TableCell>
                 <TableCell>{quando(l.ultimo_preenchimento)}</TableCell>
-                {isAdmin && (
+                {podeEditar && (
                   <TableCell className="text-center">
                     <Switch
                       checked={l.ativo}

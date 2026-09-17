@@ -112,15 +112,18 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (r) => r.location.pathname });
-  const { isAdmin, perfil, papeis } = useAuth();
+  const { perfil, papeis } = useAuth();
   const { privado } = usePrivacidade();
   const { pode, carregando: carregandoPermissoes } = usePermissoes();
   const { data: ehSuperAdmin } = useSuperAdmin();
   useChatRealtime();
   const naoLidas = useTotalNaoLidas();
-  const itensFerramentas = isAdmin
-    ? [...ferramentas, { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity }]
-    : ferramentas;
+  // A visibilidade de cada item fica por conta de permitido(), que consulta a
+  // permissão do módulo — nunca o papel legado.
+  const itensFerramentas = [
+    ...ferramentas,
+    { title: "Saúde do Sistema", url: "/saude-sistema", icon: Activity },
+  ];
   const itensSistema = ehSuperAdmin
     ? [{ title: "Comercial SaaS", url: "/comercial-saas", icon: BadgeDollarSign }, ...itensFerramentas]
     : itensFerramentas;

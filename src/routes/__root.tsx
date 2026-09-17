@@ -25,6 +25,8 @@ import { VoltarAoTopo } from "@/components/VoltarAoTopo";
 import { AssinaturaMetis } from "@/components/AssinaturaMetis";
 import { registrarErroSistema } from "@/lib/system-health";
 import { acaoDeEntrada, moduloDaRota, usePermissoes } from "@/lib/permissoes";
+import { registrarServiceWorker } from "@/lib/pwa";
+import { ConviteInstalacao } from "@/components/ConviteInstalacao";
 
 /** Rotas públicas: acessíveis sem login (portal de candidatura e tela de acesso). */
 const ROTAS_PUBLICAS = ["/auth", "/acesso", "/reset-password", "/cadastro-diarias", "/leads", "/contratar", "/contratacao-status"];
@@ -94,6 +96,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "theme-color", content: "#141416" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "Recruta+" },
       { title: "RECRUTA+ — Gestão inteligente de recrutamento" },
       {
         name: "description",
@@ -117,7 +122,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
-      { rel: "apple-touch-icon", href: "/favicon.png" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -168,6 +174,7 @@ function RootComponent() {
     };
     window.addEventListener("error", erroGlobal);
     window.addEventListener("unhandledrejection", rejeicao);
+    registrarServiceWorker();
     return () => {
       window.removeEventListener("error", erroGlobal);
       window.removeEventListener("unhandledrejection", rejeicao);
@@ -260,6 +267,7 @@ function Protegido() {
           </main>
           <AssinaturaMetis variant="app" />
           <VoltarAoTopo />
+          <ConviteInstalacao />
         </div>
       </div>
     </SidebarProvider>
