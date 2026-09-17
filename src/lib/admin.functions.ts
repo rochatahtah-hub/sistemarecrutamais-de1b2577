@@ -45,6 +45,27 @@ async function garantirMesmaEmpresa(
   return tenantId as string;
 }
 
+/**
+ * Lê o nível de acesso garantindo que ele é da mesma empresa de quem administra.
+ *
+ * A consulta usa a chave privilegiada, que ignora as regras de linha do banco —
+ * então o `perfilId` que chega do navegador precisa ser conferido aqui. Sem esta
+ * checagem, um administrador poderia apontar um usuário da sua empresa para o
+ * perfil de outra, e as permissões dele passariam a ser resolvidas pela matriz
+ * da empresa errada.
+ */
+async function perfilDaEmpresa(perfilId: string, tenantId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: perfil } = await supabaseAdmin
+    .from("perfis_acesso")
+    .select("chave")
+    .eq("id", perfilId)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+  if (!perfil) throw new Error("Nível de acesso de outra empresa: acesso negado.");
+  return perfil;
+}
+
 /** Cria um usuário com senha definida pelo administrador principal. */
 export const criarUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -64,12 +85,8 @@ export const criarUsuario = createServerFn({ method: "POST" })
     const { normalizarEmail } = await import("./admin.server");
     const email = normalizarEmail(data.email);
 
-    const { data: perfilEscolhido } = await supabaseAdmin
-      .from("perfis_acesso")
-      .select("chave")
-      .eq("id", data.perfilId)
-      .maybeSingle();
-    const papel = derivarRoleDoPerfil(perfilEscolhido?.chave);
+    const perfilEscolhido = await perfilDaEmpresa(data.perfilId, tenantId);
+    const papel = derivarRoleDoPerfil(perfilEscolhido.chave);
 
     const { data: criado, error } = await supabaseAdmin.auth.admin.createUser({
       email,
@@ -130,17 +147,13 @@ export const definirPermissao = createServerFn({ method: "POST" })
     });
     if (!ehAdmin) throw new Error("Apenas o administrador pode alterar permissões.");
     if (!data.perfilId) throw new Error("Selecione o nível de acesso.");
-    await garantirMesmaEmpresa(context.supabase, data.userId);
+    const tenantId = await garantirMesmaEmpresa(context.supabase, data.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { EMAIL_ADMIN_PRINCIPAL, acharUsuarioPorEmail } = await import("./admin.server");
 
-    const { data: perfilEscolhido } = await supabaseAdmin
-      .from("perfis_acesso")
-      .select("chave")
-      .eq("id", data.perfilId)
-      .maybeSingle();
-    const papel = derivarRoleDoPerfil(perfilEscolhido?.chave);
+    const perfilEscolhido = await perfilDaEmpresa(data.perfilId, tenantId);
+    const papel = derivarRoleDoPerfil(perfilEscolhido.chave);
 
     const principal = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
     if (principal && principal.id === data.userId && papel !== "admin") {
