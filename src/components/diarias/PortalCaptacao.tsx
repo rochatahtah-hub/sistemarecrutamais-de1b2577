@@ -5,14 +5,23 @@ import { Briefcase, CalendarDays, ChevronLeft, HandHeart, Loader2, Sparkles } fr
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
-import { RecruitaNetworkAnimation, type RecruitaAnimationState } from "@/components/RecruitaNetworkAnimation";
+import { ConviteInstalacaoPortal } from "@/components/diarias/ConviteInstalacaoPortal";
+import {
+  RecruitaNetworkAnimation,
+  type RecruitaAnimationState,
+} from "@/components/RecruitaNetworkAnimation";
 import { FormularioDiariasPublico } from "@/components/diarias/FormularioDiariasPublico";
 import {
   CandidaturaOportunidade,
   type OportunidadePublica,
 } from "@/components/diarias/CandidaturaOportunidade";
 import { portalCaptacaoPublico } from "@/lib/captacao.functions";
-import { FRASE_INSTITUCIONAL, MODALIDADE_DESCRICAO, MODALIDADE_ROTULO, resumoOportunidade } from "@/lib/captacao";
+import {
+  FRASE_INSTITUCIONAL,
+  MODALIDADE_DESCRICAO,
+  MODALIDADE_ROTULO,
+  resumoOportunidade,
+} from "@/lib/captacao";
 
 type Modalidade = "diarias" | "especifica" | "clt";
 
@@ -76,7 +85,11 @@ export function PortalCaptacao({ slug }: { slug: string }) {
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-3 flex justify-center">
           <span className="inline-flex items-center justify-center rounded-2xl border border-gold/25 bg-[#0b0f19] px-6 py-3 shadow-lg">
-            <img src={logoLockup.url} alt="Recruta+" className="h-10 w-auto object-contain sm:h-12" />
+            <img
+              src={logoLockup.url}
+              alt="Recruta+"
+              className="h-10 w-auto object-contain sm:h-12"
+            />
           </span>
         </div>
         <p className="mb-6 text-center font-display text-sm tracking-wide text-gold sm:text-base">
@@ -84,9 +97,13 @@ export function PortalCaptacao({ slug }: { slug: string }) {
         </p>
 
         <h1 className="mb-5 text-center font-display text-2xl font-bold tracking-tight text-sidebar-foreground sm:text-3xl">
-          {empresa ? `Encontre sua próxima oportunidade na ${empresa.nome}` : "Encontre sua próxima oportunidade"}
+          {empresa
+            ? `Encontre sua próxima oportunidade na ${empresa.nome}`
+            : "Encontre sua próxima oportunidade"}
         </h1>
         <RecruitaNetworkAnimation state={estadoAnimacao} compact className="mb-6" />
+
+        <ConviteInstalacaoPortal />
 
         {carregando && slugEmpresa && (
           <p className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-sidebar-border p-4 text-center text-sm text-sidebar-foreground/70">
@@ -95,8 +112,16 @@ export function PortalCaptacao({ slug }: { slug: string }) {
         )}
         {falhaCarregamento && (
           <div className="mb-6 space-y-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-sidebar-foreground">
-            <p>Não conseguimos carregar os dados da empresa agora. Verifique sua conexão e tente novamente.</p>
-            <Button variant="outline" size="sm" disabled={buscando} onClick={() => void recarregar()}>
+            <p>
+              Não conseguimos carregar os dados da empresa agora. Verifique sua conexão e tente
+              novamente.
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={buscando}
+              onClick={() => void recarregar()}
+            >
               {buscando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Tentar novamente
             </Button>
@@ -104,12 +129,15 @@ export function PortalCaptacao({ slug }: { slug: string }) {
         )}
         {linkIndisponivel && (
           <p className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-center text-sm text-destructive-foreground">
-            Este cadastro não está disponível no momento. Verifique o link recebido ou peça o endereço
-            correto de cadastro para a equipe.
+            Este cadastro não está disponível no momento. Verifique o link recebido ou peça o
+            endereço correto de cadastro para a equipe.
           </p>
         )}
 
-        {linkIndisponivel || falhaCarregamento || carregando || !empresa ? null : disponiveis.length === 0 ? (
+        {linkIndisponivel ||
+        falhaCarregamento ||
+        carregando ||
+        !empresa ? null : disponiveis.length === 0 ? (
           <p className="rounded-lg border border-sidebar-border p-5 text-center text-sm text-sidebar-foreground/70">
             No momento não há oportunidades abertas para cadastro. Volte em breve.
           </p>
@@ -185,7 +213,9 @@ export function PortalCaptacao({ slug }: { slug: string }) {
                         <CardDescription className="flex items-center gap-1.5 text-sidebar-foreground/65">
                           <CalendarDays className="h-3.5 w-3.5" />
                           {o.data_oportunidade
-                            ? new Date(`${o.data_oportunidade}T12:00:00`).toLocaleDateString("pt-BR")
+                            ? new Date(`${o.data_oportunidade}T12:00:00`).toLocaleDateString(
+                                "pt-BR",
+                              )
                             : "Vaga efetiva"}
                         </CardDescription>
                       </CardHeader>
