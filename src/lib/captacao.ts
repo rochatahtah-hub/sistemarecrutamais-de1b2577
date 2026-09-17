@@ -76,6 +76,22 @@ export interface Oportunidade {
  * e só recorre à vaga vinculada como respaldo (ex.: oportunidades antigas,
  * criadas antes desses campos existirem aqui).
  */
+/**
+ * Avisa quem se inscreveu no portal que saiu vaga nova.
+ *
+ * De propósito sem throw: publicar a vaga é o que importa. Se o aviso falhar
+ * (rede, chave VAPID ausente, serviço de push fora), a publicação continua
+ * valendo e o erro fica no console — nunca na cara de quem publicou.
+ */
+async function avisarInscritos(oportunidadeId: string) {
+  try {
+    const { avisarNovaVaga } = await import("./push.functions");
+    await avisarNovaVaga({ data: { oportunidadeId } });
+  } catch (e) {
+    console.error("[captacao] aviso de nova vaga não enviado:", e);
+  }
+}
+
 export function resumoOportunidade(o: {
   genero: string | null;
   cidade: string | null;
@@ -301,7 +317,8 @@ export function useSalvarOportunidade() {
         intervalo_inicio: dados.intervalo_inicio || null,
         intervalo_fim: dados.intervalo_fim || null,
         transporte_tipo: dados.transporte_tipo || null,
-        transporte_detalhes: dados.transporte_tipo === "FRETADO" ? dados.transporte_detalhes.trim() || null : null,
+        transporte_detalhes:
+          dados.transporte_tipo === "FRETADO" ? dados.transporte_detalhes.trim() || null : null,
       };
       if (dados.id) {
         const { error } = await supabase
@@ -311,8 +328,14 @@ export function useSalvarOportunidade() {
         if (error) throw error;
         return;
       }
-      const { error } = await supabase.from("captacao_oportunidades").insert(registro);
+      const { data: criada, error } = await supabase
+        .from("captacao_oportunidades")
+        .insert(registro)
+        .select("id")
+        .single();
       if (error) throw error;
+      // Aviso de nova vaga: falhar aqui não pode desfazer a publicação.
+      if (criada?.id) await avisarInscritos(criada.id);
     },
     onSuccess: () => invalidarCaptacao(qc),
   });
@@ -348,6 +371,7 @@ export function useRestaurarOportunidade() {
         .update({ status: "ativa", arquivada_em: null })
         .eq("id", id);
       if (error) throw error;
+      await avisarInscritos(id);
       if (!comCadastros) return;
       const { error: erroCad } = await supabase
         .from("captacao_candidaturas")
@@ -427,7 +451,9 @@ export function useVagasParaCaptacao() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vagas")
-        .select("id,data,cargo,descricao,empresas(nome),genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo")
+        .select(
+          "id,data,cargo,descricao,empresas(nome),genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo",
+        )
         .order("data", { ascending: false })
         .limit(200);
       if (error) throw error;

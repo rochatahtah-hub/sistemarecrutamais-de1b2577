@@ -35,6 +35,46 @@ self.addEventListener("activate", (evento) => {
   );
 });
 
+/*
+ * Aviso de nova vaga.
+ *
+ * O push chega SEM conteúdo — de propósito. O texto abaixo é fixo e mora aqui,
+ * então nada sobre a vaga, a empresa ou a pessoa passa pelo serviço de push nem
+ * aparece na tela bloqueada do celular. Os detalhes só existem dentro do portal.
+ */
+const AVISO_TITULO = "Nova vaga disponível no Recruta+";
+const AVISO_CORPO = "Acesse o portal para consultar os detalhes.";
+
+self.addEventListener("push", (evento) => {
+  evento.waitUntil(
+    self.registration.showNotification(AVISO_TITULO, {
+      body: AVISO_CORPO,
+      icon: "/icon-192.png",
+      badge: "/icon-192.png",
+      // Uma vaga nova substitui o aviso anterior em vez de empilhar avisos.
+      tag: "recruta-mais-nova-vaga",
+      renotify: true,
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (evento) => {
+  evento.notification.close();
+  evento.waitUntil(
+    (async () => {
+      const abertas = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      // Se o portal já está aberto numa aba, traz ela para frente.
+      for (const cliente of abertas) {
+        if (cliente.url.includes("/cadastro-diarias") && "focus" in cliente) {
+          return cliente.focus();
+        }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow("/");
+      return undefined;
+    })(),
+  );
+});
+
 self.addEventListener("fetch", (evento) => {
   const requisicao = evento.request;
 

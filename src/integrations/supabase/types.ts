@@ -2380,6 +2380,44 @@ export type Database = {
           },
         ]
       }
+      push_inscricoes: {
+        Row: {
+          cancelada_em: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          cancelada_em?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          cancelada_em?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_inscricoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       planos: {
         Row: {
           ativo: boolean

@@ -5,6 +5,7 @@ import { Briefcase, CalendarDays, ChevronLeft, HandHeart, Loader2, Sparkles } fr
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import logoLockup from "@/assets/recruta-lockup.png.asset.json";
+import { AvisoNovasVagas } from "@/components/diarias/AvisoNovasVagas";
 import { ConviteInstalacaoPortal } from "@/components/diarias/ConviteInstalacaoPortal";
 import {
   RecruitaNetworkAnimation,
@@ -104,6 +105,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
         <RecruitaNetworkAnimation state={estadoAnimacao} compact className="mb-6" />
 
         <ConviteInstalacaoPortal />
+        {empresa && <AvisoNovasVagas slug={slugEmpresa} />}
 
         {carregando && slugEmpresa && (
           <p className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-sidebar-border p-4 text-center text-sm text-sidebar-foreground/70">
