@@ -1,17 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
+import { erroSeguro } from "./erro-seguro";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function garantirAdmin(context: { supabase: { rpc: Function }; userId: string }) {
-  const { data: ehAdmin } = await (context.supabase.rpc as (n: string, p: unknown) => Promise<{ data: boolean | null }>)(
-    "has_role",
-    { _user_id: context.userId, _role: "admin" },
-  );
+  const { data: ehAdmin } = await (
+    context.supabase.rpc as (n: string, p: unknown) => Promise<{ data: boolean | null }>
+  )("has_role", { _user_id: context.userId, _role: "admin" });
   if (!ehAdmin) throw new Error("Apenas o administrador pode executar esta ação.");
 }
 
 /** Empresa ativa do administrador autenticado — todo acesso é limitado a ela. */
 async function tenantDoContexto(context: { supabase: { rpc: Function } }) {
-  const { data } = await (context.supabase.rpc as (n: string) => Promise<{ data: string | null }>)("tenant_atual");
+  const { data } = await (context.supabase.rpc as (n: string) => Promise<{ data: string | null }>)(
+    "tenant_atual",
+  );
   if (!data) throw new Error("Não foi possível identificar a empresa ativa.");
   return data as string;
 }
@@ -26,7 +28,8 @@ async function garantirUsuarioDaEmpresa(
     .select("id,tenant_id")
     .eq("id", userId)
     .maybeSingle();
-  if (!data || data.tenant_id !== tenantId) throw new Error("Usuário de outra empresa: acesso negado.");
+  if (!data || data.tenant_id !== tenantId)
+    throw new Error("Usuário de outra empresa: acesso negado.");
 }
 
 /** Lista os usuários com perfil, permissão, status e último acesso. */
@@ -40,7 +43,9 @@ export const listarUsuarios = createServerFn({ method: "POST" })
     const [{ data: perfis }, { data: papeis }, auth] = await Promise.all([
       supabaseAdmin
         .from("profiles")
-        .select("id,nome,email,ativo,meta_quinzena,ultimo_acesso,last_login_at,ultimo_preenchimento,created_at")
+        .select(
+          "id,nome,email,ativo,meta_quinzena,ultimo_acesso,last_login_at,ultimo_preenchimento,created_at",
+        )
         .eq("tenant_id", tenantId)
         .order("nome"),
       supabaseAdmin.from("user_roles").select("user_id,role"),
@@ -64,17 +69,19 @@ export const listarUsuarios = createServerFn({ method: "POST" })
       ultima_atividade: p.ultimo_preenchimento,
       criado_em: p.created_at,
       admin: (papeis ?? []).some((r) => r.user_id === p.id && r.role === "admin"),
-      papel: ([
-        "admin",
+      papel:
+        (
+          [
+            "admin",
+            "programadora",
+            "supervisor",
+            "coordenador",
+            "comercial",
+            "rs",
+            "coordenador_rs",
+          ] as const
+        ).find((papel) => (papeis ?? []).some((r) => r.user_id === p.id && r.role === papel)) ??
         "programadora",
-        "supervisor",
-        "coordenador",
-        "comercial",
-        "rs",
-        "coordenador_rs",
-      ] as const).find(
-        (papel) => (papeis ?? []).some((r) => r.user_id === p.id && r.role === papel),
-      ) ?? "programadora",
     }));
   });
 
@@ -91,14 +98,16 @@ export const definirStatusUsuario = createServerFn({ method: "POST" })
 
     if (!data.ativo) {
       const principal = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
-      if (principal?.id === data.userId) throw new Error("O administrador principal não pode ser desativado.");
-      if (data.userId === context.userId) throw new Error("Você não pode desativar o próprio acesso.");
+      if (principal?.id === data.userId)
+        throw new Error("O administrador principal não pode ser desativado.");
+      if (data.userId === context.userId)
+        throw new Error("Você não pode desativar o próprio acesso.");
     }
 
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       ban_duration: data.ativo ? "none" : "876000h",
     });
-    if (error) throw new Error(error.message);
+    if (error) throw erroSeguro(error, "definirStatusUsuario");
     await supabaseAdmin.from("profiles").update({ ativo: data.ativo }).eq("id", data.userId);
     await supabaseAdmin.from("auditoria").insert({
       tabela: "usuarios",
@@ -140,7 +149,7 @@ export const atualizarUsuario = createServerFn({ method: "POST" })
       email_confirm: true,
       user_metadata: { nome: data.nome.trim() },
     });
-    if (error) throw new Error(error.message);
+    if (error) throw erroSeguro(error, "atualizarUsuario");
     await supabaseAdmin
       .from("profiles")
       .update({ nome: data.nome.trim(), email })
@@ -175,7 +184,8 @@ export const excluirUsuario = createServerFn({ method: "POST" })
     const { EMAIL_ADMIN_PRINCIPAL, acharUsuarioPorEmail } = await import("./admin.server");
     await garantirUsuarioDaEmpresa(supabaseAdmin, tenantId, data.userId);
     const principal = await acharUsuarioPorEmail(supabaseAdmin, EMAIL_ADMIN_PRINCIPAL);
-    if (principal?.id === data.userId) throw new Error("O administrador principal não pode ser excluído.");
+    if (principal?.id === data.userId)
+      throw new Error("O administrador principal não pode ser excluído.");
 
     const { data: perfil } = await supabaseAdmin
       .from("profiles")
@@ -185,24 +195,37 @@ export const excluirUsuario = createServerFn({ method: "POST" })
 
     // Libera todos os vínculos históricos antes de excluir a identidade de acesso.
     const operacoes = await Promise.all([
-      supabaseAdmin.from("vagas").update({ programadora_id: null }).eq("programadora_id", data.userId),
+      supabaseAdmin
+        .from("vagas")
+        .update({ programadora_id: null })
+        .eq("programadora_id", data.userId),
       supabaseAdmin.from("candidatos").update({ criado_por: null }).eq("criado_por", data.userId),
-      supabaseAdmin.from("alertas_operacao").update({ resolvido_por: null }).eq("resolvido_por", data.userId),
+      supabaseAdmin
+        .from("alertas_operacao")
+        .update({ resolvido_por: null })
+        .eq("resolvido_por", data.userId),
       supabaseAdmin.from("auditoria").update({ usuario_id: null }).eq("usuario_id", data.userId),
       supabaseAdmin.from("backups").update({ criado_por: null }).eq("criado_por", data.userId),
-      supabaseAdmin.from("colaboradores_bloqueados").update({ bloqueado_por: null }).eq("bloqueado_por", data.userId),
+      supabaseAdmin
+        .from("colaboradores_bloqueados")
+        .update({ bloqueado_por: null })
+        .eq("bloqueado_por", data.userId),
       supabaseAdmin.from("erros_sistema").update({ user_id: null }).eq("user_id", data.userId),
       supabaseAdmin.from("notificacoes").update({ user_id: null }).eq("user_id", data.userId),
       supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId),
     ]);
     const erroVinculo = operacoes.find((resultado) => resultado.error)?.error;
-    if (erroVinculo) throw new Error(`Não foi possível preservar os vínculos históricos: ${erroVinculo.message}`);
+    if (erroVinculo)
+      throw new Error(`Não foi possível preservar os vínculos históricos: ${erroVinculo.message}`);
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
     if (error) throw new Error(`Não foi possível excluir o acesso: ${error.message}`);
 
     // Remove o perfil caso o cascade não tenha sido aplicado.
-    const { error: perfilErro } = await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
+    const { error: perfilErro } = await supabaseAdmin
+      .from("profiles")
+      .delete()
+      .eq("id", data.userId);
     if (perfilErro) throw new Error(`Não foi possível remover o cadastro: ${perfilErro.message}`);
 
     const { data: restante } = await supabaseAdmin
@@ -210,7 +233,8 @@ export const excluirUsuario = createServerFn({ method: "POST" })
       .select("id")
       .eq("id", data.userId)
       .maybeSingle();
-    if (restante) throw new Error("O acesso foi removido, mas o cadastro permaneceu. Tente novamente.");
+    if (restante)
+      throw new Error("O acesso foi removido, mas o cadastro permaneceu. Tente novamente.");
 
     await supabaseAdmin.from("auditoria").insert({
       tabela: "usuarios",

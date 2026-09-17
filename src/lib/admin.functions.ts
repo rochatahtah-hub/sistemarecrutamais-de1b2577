@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { erroSeguro } from "./erro-seguro";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type PapelUsuario =
@@ -95,7 +96,7 @@ export const criarUsuario = createServerFn({ method: "POST" })
       user_metadata: { nome: data.nome.trim(), tenant_id: tenantId },
     });
     if (error || !criado.user)
-      throw new Error(error?.message ?? "Não foi possível criar o acesso.");
+      throw erroSeguro(error, "criarUsuario", "Não foi possível criar o acesso.");
 
     await supabaseAdmin.from("profiles").upsert(
       {
@@ -132,7 +133,7 @@ export const definirSenha = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       password: data.senha,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw erroSeguro(error, "definirSenha", "Não foi possível definir a senha.");
     return { ok: true };
   });
 

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { erroSeguro } from "./erro-seguro";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -106,7 +107,9 @@ export const excluirBackup = createServerFn({ method: "POST" })
 export const salvarEmailBackup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { email: string }) => ({
-    email: String(d.email ?? "").trim().slice(0, 200),
+    email: String(d.email ?? "")
+      .trim()
+      .slice(0, 200),
   }))
   .handler(async ({ data, context }) => {
     await exigirAdmin(context as unknown as Contexto);
@@ -120,7 +123,7 @@ export const salvarEmailBackup = createServerFn({ method: "POST" })
         { tenant_id: await tenantDo(context as unknown as Contexto), email_destino: data.email },
         { onConflict: "tenant_id" },
       );
-    if (error) throw new Error(error.message);
+    if (error) throw erroSeguro(error, "salvarEmailBackup");
     return { ok: true, email: data.email };
   });
 
@@ -160,41 +163,41 @@ export const testarEnvioBackup = createServerFn({ method: "POST" })
 /** Salva o agendamento da exportação automática. */
 export const salvarAgendamento = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: {
-    ativo: boolean;
-    frequencia: "diaria" | "semanal" | "mensal";
-    hora: number;
-    dia_semana: number;
-    dia_mes: number;
-    formato: "sql" | "csv";
-    retencao_dias: number;
-    email_destino?: string;
-  }) => ({
-    ativo: Boolean(d.ativo),
-    frequencia: (["diaria", "semanal", "mensal"] as const).includes(d.frequencia)
-      ? d.frequencia
-      : ("diaria" as const),
-    hora: Math.min(23, Math.max(0, Number(d.hora) || 0)),
-    dia_semana: Math.min(6, Math.max(0, Number(d.dia_semana) || 0)),
-    dia_mes: Math.min(28, Math.max(1, Number(d.dia_mes) || 1)),
-    formato: d.formato === "csv" ? ("csv" as const) : ("sql" as const),
-    retencao_dias: Math.min(365, Math.max(0, Number(d.retencao_dias) || 0)),
-    email_destino: (d.email_destino ?? "rochatahtah@gmail.com").trim().slice(0, 200),
-  }))
+  .inputValidator(
+    (d: {
+      ativo: boolean;
+      frequencia: "diaria" | "semanal" | "mensal";
+      hora: number;
+      dia_semana: number;
+      dia_mes: number;
+      formato: "sql" | "csv";
+      retencao_dias: number;
+      email_destino?: string;
+    }) => ({
+      ativo: Boolean(d.ativo),
+      frequencia: (["diaria", "semanal", "mensal"] as const).includes(d.frequencia)
+        ? d.frequencia
+        : ("diaria" as const),
+      hora: Math.min(23, Math.max(0, Number(d.hora) || 0)),
+      dia_semana: Math.min(6, Math.max(0, Number(d.dia_semana) || 0)),
+      dia_mes: Math.min(28, Math.max(1, Number(d.dia_mes) || 1)),
+      formato: d.formato === "csv" ? ("csv" as const) : ("sql" as const),
+      retencao_dias: Math.min(365, Math.max(0, Number(d.retencao_dias) || 0)),
+      email_destino: (d.email_destino ?? "rochatahtah@gmail.com").trim().slice(0, 200),
+    }),
+  )
   .handler(async ({ data, context }) => {
     await exigirAdmin(context as unknown as Contexto);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { calcularProximaExecucao } = await import("./backup.server");
-    const { error } = await supabaseAdmin
-      .from("backup_agendamento")
-      .upsert(
-        {
-          tenant_id: await tenantDo(context as unknown as Contexto),
-          ...data,
-          proxima_execucao: data.ativo ? calcularProximaExecucao(data) : null,
-        },
-        { onConflict: "tenant_id" },
-      );
-    if (error) throw new Error(error.message);
+    const { error } = await supabaseAdmin.from("backup_agendamento").upsert(
+      {
+        tenant_id: await tenantDo(context as unknown as Contexto),
+        ...data,
+        proxima_execucao: data.ativo ? calcularProximaExecucao(data) : null,
+      },
+      { onConflict: "tenant_id" },
+    );
+    if (error) throw erroSeguro(error, "salvarAgendamento");
     return { ok: true };
   });

@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { erroSeguro } from "./erro-seguro";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /**
@@ -62,6 +63,6 @@ export const salvarConfigLevantamentoDiario = createServerFn({ method: "POST" })
         { tenant_id: tenantId, hora_geracao: data.horaGeracao, ativo: data.ativo },
         { onConflict: "tenant_id" },
       );
-    if (error) throw new Error(error.message);
+    if (error) throw erroSeguro(error, "salvarConfigLevantamentoDiario");
     return { ok: true };
   });

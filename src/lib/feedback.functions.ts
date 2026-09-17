@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { escaparHtml } from "@/lib/html-seguro";
+import { linkFeedback } from "@/lib/portal-url";
 
 /**
  * Carrega os dados públicos de um feedback pelo token do link.
@@ -113,9 +115,11 @@ export const responderFeedback = createServerFn({ method: "POST" })
 /** Envia o link do feedback para o e-mail configurado da própria empresa. */
 export const enviarFeedbackPorEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string; origem: string }) => ({
+  // A origem do link NÃO vem mais do navegador: era possível mandar o cliente
+  // da empresa para um domínio qualquer num e-mail assinado como Recruta+.
+  // O endereço público agora sai de portal-url, fixo no servidor.
+  .inputValidator((d: { id: string }) => ({
     id: String(d?.id ?? "").slice(0, 40),
-    origem: String(d?.origem ?? "").slice(0, 200),
   }))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -136,15 +140,23 @@ export const enviarFeedbackPorEmail = createServerFn({ method: "POST" })
     if (feedback.status !== "PENDENTE") throw new Error("Este feedback não está pendente.");
 
     const consultaConfig = supabase.from("feedback_config").select("email_responsavel");
-    const { data: config } = await (feedback.escopo === "diaria"
-      ? consultaConfig.eq("empresa_id", feedback.empresa_id ?? "")
-      : consultaConfig.eq("rs_empresa_id", feedback.rs_empresa_id ?? "")
+    const { data: config } = await (
+      feedback.escopo === "diaria"
+        ? consultaConfig.eq("empresa_id", feedback.empresa_id ?? "")
+        : consultaConfig.eq("rs_empresa_id", feedback.rs_empresa_id ?? "")
     ).maybeSingle();
 
     const destino = (config?.email_responsavel ?? "").trim();
     if (!destino) throw new Error("Cadastre o e-mail do responsável na configuração da empresa.");
 
-    const link = `${data.origem.replace(/\/$/, "")}/responder-feedback/${feedback.token}`;
+    const link = linkFeedback(feedback.token);
+    // O nome da empresa é digitado por usuário do sistema. Sem escapar, ele
+    // vira marcação dentro de um e-mail que sai para o contato do cliente —
+    // é o caminho para phishing com a nossa assinatura.
+    const empresaSegura = escaparHtml(feedback.empresa_nome ?? "");
+    const assuntoSeguro = String(feedback.empresa_nome ?? "")
+      .replace(/[\r\n]+/g, " ")
+      .slice(0, 120);
     const chave = process.env["RESEND_API_KEY"];
     let envio_status = "pendente_dominio";
     let erro = "";
@@ -157,8 +169,8 @@ export const enviarFeedbackPorEmail = createServerFn({ method: "POST" })
           body: JSON.stringify({
             from: "Recruta+ <onboarding@resend.dev>",
             to: [destino],
-            subject: `Feedback — ${feedback.empresa_nome}`,
-            html: `<p>Olá, equipe <strong>${feedback.empresa_nome}</strong>.</p><p>Leva menos de 1 minuto para avaliar o atendimento. É só clicar no botão abaixo.</p><p><a href="${link}" style="background:#0f172a;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none">Responder feedback</a></p><p>Ou copie o link: ${link}</p>`,
+            subject: `Feedback — ${assuntoSeguro}`,
+            html: `<p>Olá, equipe <strong>${empresaSegura}</strong>.</p><p>Leva menos de 1 minuto para avaliar o atendimento. É só clicar no botão abaixo.</p><p><a href="${link}" rel="noopener noreferrer" style="background:#0f172a;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none">Responder feedback</a></p><p>Ou copie o link: ${link}</p>`,
           }),
         });
         if (!resposta.ok) throw new Error(await resposta.text());

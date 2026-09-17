@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { erroSeguro } from "./erro-seguro";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const MAX_FALHAS = 5;
@@ -82,9 +83,12 @@ export const alterarPin = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("admin_pin")
-      .upsert({ id: true, pin_hash: await gerarHashPin(data.novo), falhas: 0, bloqueado_ate: null });
-    if (error) throw new Error(error.message);
+    const { error } = await supabaseAdmin.from("admin_pin").upsert({
+      id: true,
+      pin_hash: await gerarHashPin(data.novo),
+      falhas: 0,
+      bloqueado_ate: null,
+    });
+    if (error) throw erroSeguro(error, "alterarPin");
     return { ok: true };
   });

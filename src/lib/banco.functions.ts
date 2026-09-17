@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { erroSeguro } from "./erro-seguro";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ENTIDADES, entidadePorChave } from "@/lib/banco-entidades";
@@ -28,7 +29,10 @@ interface Contexto {
     rpc: (nome: string, args: Record<string, unknown>) => Promise<{ data: unknown }>;
     from: (t: string) => {
       select: (c: string) => {
-        eq: (c: string, v: unknown) => { maybeSingle: () => Promise<{ data: { nome?: string } | null }> };
+        eq: (
+          c: string,
+          v: unknown,
+        ) => { maybeSingle: () => Promise<{ data: { nome?: string } | null }> };
       };
     };
   };
@@ -42,18 +46,25 @@ async function exigir(context: unknown, acao: Acao) {
     _modulo: "banco_dados",
     _acao: acao,
   });
-  if (data !== true) throw new Error("Seu perfil não tem permissão para esta operação no banco de dados.");
+  if (data !== true)
+    throw new Error("Seu perfil não tem permissão para esta operação no banco de dados.");
   return ctx;
 }
 
 async function nomeUsuario(ctx: Contexto) {
-  const { data } = await ctx.supabase.from("profiles").select("nome").eq("id", ctx.userId).maybeSingle();
+  const { data } = await ctx.supabase
+    .from("profiles")
+    .select("nome")
+    .eq("id", ctx.userId)
+    .maybeSingle();
   return data?.nome ?? "Administrador";
 }
 
 /** Empresa ativa do usuário — todo o painel de banco é limitado a ela. */
 async function tenantDo(ctx: Contexto) {
-  const { data } = await (ctx.supabase.rpc as unknown as (n: string) => Promise<{ data: string | null }>)("tenant_atual");
+  const { data } = await (
+    ctx.supabase.rpc as unknown as (n: string) => Promise<{ data: string | null }>
+  )("tenant_atual");
   if (!data) throw new Error("Não foi possível identificar a empresa ativa.");
   return data as string;
 }
@@ -80,7 +91,10 @@ export const panoramaBanco = createServerFn({ method: "GET" })
     const db = await admin();
     const contagens: { chave: string; nome: string; total: number }[] = [];
     for (const ent of ENTIDADES) {
-      const { count } = await db.from(ent.tabela).select("id", { count: "exact", head: true }).eq("tenant_id", tenantId);
+      const { count } = await db
+        .from(ent.tabela)
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId);
       contagens.push({ chave: ent.chave, nome: ent.nome, total: count ?? 0 });
     }
     const [ultimasVagas, ultimoBackup, ultimoDrive] = await Promise.all([
@@ -106,7 +120,10 @@ export const panoramaBanco = createServerFn({ method: "GET" })
         .limit(1)
         .maybeSingle(),
     ]);
-    const { data: somaBackups } = await db.from("backups").select("tamanho_bytes").eq("tenant_id", tenantId);
+    const { data: somaBackups } = await db
+      .from("backups")
+      .select("tamanho_bytes")
+      .eq("tenant_id", tenantId);
     const armazenamentoBackups = (somaBackups ?? []).reduce(
       (s: number, b: { tamanho_bytes: number | null }) => s + (b.tamanho_bytes ?? 0),
       0,
@@ -130,7 +147,9 @@ export const listarRegistros = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { entidade: string; busca?: string; status?: string; pagina?: number }) => ({
     entidade: String(d.entidade),
-    busca: String(d.busca ?? "").trim().slice(0, 120),
+    busca: String(d.busca ?? "")
+      .trim()
+      .slice(0, 120),
     status: String(d.status ?? ""),
     pagina: Math.max(0, Number(d.pagina ?? 0)),
   }))
@@ -156,8 +175,12 @@ export const listarRegistros = createServerFn({ method: "POST" })
     if (data.status && ent.filtroStatus) q = q.eq(ent.filtroStatus.coluna, data.status);
 
     const { data: linhas, count, error } = await q;
-    if (error) throw new Error(error.message);
-    return { linhas: serializavel((linhas ?? []) as unknown[]), total: (count ?? 0) as number, porPagina };
+    if (error) throw erroSeguro(error, "listarRegistros");
+    return {
+      linhas: serializavel((linhas ?? []) as unknown[]),
+      total: (count ?? 0) as number,
+      porPagina,
+    };
   });
 
 /** Atualiza campos permitidos de um registro, com auditoria. */
@@ -172,7 +195,8 @@ export const atualizarRegistro = createServerFn({ method: "POST" })
     const ctx = await exigir(context, "editar");
     const ent = entidadePorChave(data.entidade);
     if (!ent) throw new Error("Entidade não disponível.");
-    if (ent.somenteLeitura) throw new Error("Esta entidade é somente leitura (histórico protegido).");
+    if (ent.somenteLeitura)
+      throw new Error("Esta entidade é somente leitura (histórico protegido).");
 
     const editaveis = new Set(ent.campos.filter((c) => c.editavel).map((c) => c.chave));
     const patch: Record<string, unknown> = {};
@@ -181,10 +205,19 @@ export const atualizarRegistro = createServerFn({ method: "POST" })
 
     const db = await admin();
     const tenantId = await tenantDo(ctx);
-    const { data: antes } = await db.from(ent.tabela).select("*").eq("tenant_id", tenantId).eq("id", data.id).maybeSingle();
+    const { data: antes } = await db
+      .from(ent.tabela)
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .eq("id", data.id)
+      .maybeSingle();
     if (!antes) throw new Error("Registro não encontrado.");
-    const { error } = await db.from(ent.tabela).update(patch).eq("tenant_id", tenantId).eq("id", data.id);
-    if (error) throw new Error(error.message);
+    const { error } = await db
+      .from(ent.tabela)
+      .update(patch)
+      .eq("tenant_id", tenantId)
+      .eq("id", data.id);
+    if (error) throw erroSeguro(error, "atualizarRegistro");
 
     const nome = await nomeUsuario(ctx);
     const linhas = Object.entries(patch)
@@ -193,7 +226,11 @@ export const atualizarRegistro = createServerFn({ method: "POST" })
         tabela: ent.tabela,
         registro_id: data.id,
         acao: "UPDATE",
-        descricao: texto((antes as Record<string, unknown>)["nome"] ?? (antes as Record<string, unknown>)["full_name"] ?? ""),
+        descricao: texto(
+          (antes as Record<string, unknown>)["nome"] ??
+            (antes as Record<string, unknown>)["full_name"] ??
+            "",
+        ),
         campo: k,
         valor_anterior: texto((antes as Record<string, unknown>)[k]),
         valor_novo: texto(v),
@@ -220,19 +257,28 @@ export const arquivarRegistro = createServerFn({ method: "POST" })
     const db = await admin();
     const tenantId = await tenantDo(ctx);
     const valor = data.arquivar ? ent.arquivar.inativo : ent.arquivar.ativo;
-    const { data: antes } = await db.from(ent.tabela).select("*").eq("tenant_id", tenantId).eq("id", data.id).maybeSingle();
+    const { data: antes } = await db
+      .from(ent.tabela)
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .eq("id", data.id)
+      .maybeSingle();
     if (!antes) throw new Error("Registro não encontrado nesta empresa.");
     const { error } = await db
       .from(ent.tabela)
       .update({ [ent.arquivar.coluna]: valor })
       .eq("tenant_id", tenantId)
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw erroSeguro(error, "arquivarRegistro");
     await db.from("auditoria").insert({
       tabela: ent.tabela,
       registro_id: data.id,
       acao: "UPDATE",
-      descricao: texto((antes as Record<string, unknown> | null)?.["nome"] ?? (antes as Record<string, unknown> | null)?.["full_name"] ?? ""),
+      descricao: texto(
+        (antes as Record<string, unknown> | null)?.["nome"] ??
+          (antes as Record<string, unknown> | null)?.["full_name"] ??
+          "",
+      ),
       campo: ent.arquivar.coluna,
       valor_anterior: texto((antes as Record<string, unknown> | null)?.[ent.arquivar.coluna]),
       valor_novo: texto(valor),
@@ -246,7 +292,10 @@ export const arquivarRegistro = createServerFn({ method: "POST" })
 /** Verifica dependências antes de excluir um registro. */
 export const dependenciasRegistro = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { entidade: string; id: string }) => ({ entidade: String(d.entidade), id: String(d.id) }))
+  .inputValidator((d: { entidade: string; id: string }) => ({
+    entidade: String(d.entidade),
+    id: String(d.id),
+  }))
   .handler(async ({ data, context }) => {
     await exigir(context, "visualizar");
     const ent = entidadePorChave(data.entidade);
@@ -278,10 +327,12 @@ export const excluirRegistro = createServerFn({ method: "POST" })
     const ent = entidadePorChave(data.entidade);
     if (!ent) throw new Error("Entidade não disponível.");
     if (ent.somenteLeitura || ent.protegida) {
-      throw new Error("Registros históricos e usuários não podem ser excluídos por esta área. Use arquivar/desativar.");
+      throw new Error(
+        "Registros históricos e usuários não podem ser excluídos por esta área. Use arquivar/desativar.",
+      );
     }
     if (data.confirmacao.trim().toUpperCase() !== "EXCLUIR") {
-      throw new Error('Digite EXCLUIR para confirmar a remoção definitiva.');
+      throw new Error("Digite EXCLUIR para confirmar a remoção definitiva.");
     }
     const db = await admin();
     const tenantId = await tenantDo(ctx);
@@ -297,15 +348,28 @@ export const excluirRegistro = createServerFn({ method: "POST" })
         );
       }
     }
-    const { data: antes } = await db.from(ent.tabela).select("*").eq("tenant_id", tenantId).eq("id", data.id).maybeSingle();
+    const { data: antes } = await db
+      .from(ent.tabela)
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .eq("id", data.id)
+      .maybeSingle();
     if (!antes) throw new Error("Registro não encontrado nesta empresa.");
-    const { error } = await db.from(ent.tabela).delete().eq("tenant_id", tenantId).eq("id", data.id);
-    if (error) throw new Error(error.message);
+    const { error } = await db
+      .from(ent.tabela)
+      .delete()
+      .eq("tenant_id", tenantId)
+      .eq("id", data.id);
+    if (error) throw erroSeguro(error, "excluirRegistro");
     await db.from("auditoria").insert({
       tabela: ent.tabela,
       registro_id: data.id,
       acao: "DELETE",
-      descricao: texto((antes as Record<string, unknown> | null)?.["nome"] ?? (antes as Record<string, unknown> | null)?.["full_name"] ?? ""),
+      descricao: texto(
+        (antes as Record<string, unknown> | null)?.["nome"] ??
+          (antes as Record<string, unknown> | null)?.["full_name"] ??
+          "",
+      ),
       campo: "",
       valor_anterior: "",
       valor_novo: "",
@@ -333,6 +397,6 @@ export const auditoriaBanco = createServerFn({ method: "POST" })
     const ent = data.entidade ? entidadePorChave(data.entidade) : null;
     if (ent) q = q.eq("tabela", ent.tabela);
     const { data: linhas, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throw erroSeguro(error, "auditoriaBanco");
     return serializavel((linhas ?? []) as unknown[]);
   });
