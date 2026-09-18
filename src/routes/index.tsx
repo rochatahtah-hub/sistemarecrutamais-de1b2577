@@ -226,10 +226,6 @@ function Dashboard() {
             {saudacaoPorHorario()}, {priv.nome(perfil?.nome ?? "bem-vinda")}
           </h1>
           <MensagemDoDia />
-          <p className="mt-1 text-sm text-muted-foreground">
-            {fmtNum(filtrados.length)} registros no filtro atual de {fmtNum(registros.length)} no
-            total.
-          </p>
         </div>
       </header>
 

@@ -36,12 +36,38 @@ function diasDesdeEpoca(dataIso: string): number {
 }
 
 /**
- * A mensagem daquele dia. `mensagens` já deve vir só com as ativas.
+ * Número estável a partir do id da pessoa.
  *
- * Mensagem marcada para uma data específica tem prioridade sobre o rodízio —
- * é o caso de uma data comemorativa ou de um recado pontual da empresa.
+ * É o que faz cada uma receber a sua própria frase no mesmo dia, em vez de a
+ * equipe inteira abrir o sistema e ler a mesma coisa — a mensagem é para soar
+ * como se fosse para ela. Sendo derivado do id, o resultado não muda de uma
+ * sessão para outra.
  */
-export function mensagemDoDia(mensagens: MensagemDiaria[], dataIso: string): MensagemDiaria {
+function numeroDaPessoa(chave: string): number {
+  let h = 0;
+  for (let i = 0; i < chave.length; i++) {
+    h = (h * 31 + chave.charCodeAt(i)) % 1_000_003;
+  }
+  return h;
+}
+
+/**
+ * A mensagem daquela pessoa naquele dia. `mensagens` já deve vir só com as
+ * ativas.
+ *
+ * `chaveUsuario` desloca o ponto de partida do rodízio: no mesmo dia, cada
+ * pessoa cai numa frase diferente, e cada uma continua andando um passo por
+ * dia — então ninguém lê a mesma coisa dois dias seguidos.
+ *
+ * Mensagem marcada para uma data específica escapa disso e vale para todo
+ * mundo: é o caso de uma data comemorativa ou de um recado da empresa, que
+ * faz sentido a equipe inteira ver junto.
+ */
+export function mensagemDoDia(
+  mensagens: MensagemDiaria[],
+  dataIso: string,
+  chaveUsuario = "",
+): MensagemDiaria {
   const doDia = mensagens.filter((m) => m.dataEspecifica === dataIso);
   if (doDia.length > 0) {
     // Ordem estável para o caso raro de haver mais de uma na mesma data.
@@ -53,8 +79,8 @@ export function mensagemDoDia(mensagens: MensagemDiaria[], dataIso: string): Men
     .sort((a, b) => a.id.localeCompare(b.id));
   if (rodizio.length === 0) return MENSAGEM_PADRAO;
 
-  const indice = ((diasDesdeEpoca(dataIso) % rodizio.length) + rodizio.length) % rodizio.length;
-  return rodizio[indice]!;
+  const passo = diasDesdeEpoca(dataIso) + numeroDaPessoa(chaveUsuario);
+  return rodizio[((passo % rodizio.length) + rodizio.length) % rodizio.length]!;
 }
 
 /** Texto pronto para exibir: versículo ganha a referência ao final. */

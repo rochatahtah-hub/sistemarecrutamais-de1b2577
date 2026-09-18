@@ -107,3 +107,39 @@ describe("textoParaExibir", () => {
     expect(textoParaExibir(v)).toBe("Tenha fé.");
   });
 });
+
+describe("uma frase por pessoa", () => {
+  const lista = Array.from({ length: 12 }, (_, i) => msg(`m${String(i).padStart(2, "0")}`));
+
+  it("pessoas diferentes recebem frases diferentes no mesmo dia", () => {
+    const ana = mensagemDoDia(lista, "2026-09-17", "user-ana");
+    const bruna = mensagemDoDia(lista, "2026-09-17", "user-bruna");
+    const carla = mensagemDoDia(lista, "2026-09-17", "user-carla");
+    expect(new Set([ana.id, bruna.id, carla.id]).size).toBeGreaterThan(1);
+  });
+
+  it("a mesma pessoa no mesmo dia recebe sempre a mesma frase", () => {
+    const primeira = mensagemDoDia(lista, "2026-09-17", "user-ana");
+    for (let i = 0; i < 20; i++) {
+      expect(mensagemDoDia(lista, "2026-09-17", "user-ana").id).toBe(primeira.id);
+    }
+  });
+
+  it("cada pessoa também não repete em dias seguidos", () => {
+    for (const pessoa of ["user-ana", "user-bruna", "user-carla"]) {
+      const dias = ["2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18"];
+      const ids = dias.map((d) => mensagemDoDia(lista, d, pessoa).id);
+      for (let i = 1; i < ids.length; i++) expect(ids[i]).not.toBe(ids[i - 1]);
+    }
+  });
+
+  it("data específica vale para todo mundo, independente da pessoa", () => {
+    const comData = [...lista, msg("natal", { dataEspecifica: "2026-12-25" })];
+    expect(mensagemDoDia(comData, "2026-12-25", "user-ana").id).toBe("natal");
+    expect(mensagemDoDia(comData, "2026-12-25", "user-bruna").id).toBe("natal");
+  });
+
+  it("sem identificar a pessoa continua funcionando", () => {
+    expect(mensagemDoDia(lista, "2026-09-17").id).toBeTruthy();
+  });
+});

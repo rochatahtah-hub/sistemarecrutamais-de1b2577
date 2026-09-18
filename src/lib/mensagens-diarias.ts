@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/auth";
 import { mensagemDoDia, type MensagemDiaria, type TipoMensagem } from "./mensagem-do-dia";
 
 export interface MensagemDiariaRegistro extends MensagemDiaria {
@@ -46,8 +47,11 @@ export function hojeBrasilia(base = new Date()): string {
  */
 export function useMensagemDoDia() {
   const hoje = hojeBrasilia();
+  const { session } = useAuth();
+  const uid = session?.user.id ?? "";
   return useQuery({
-    queryKey: ["mensagem-do-dia", hoje],
+    queryKey: ["mensagem-do-dia", hoje, uid],
+    enabled: Boolean(uid),
     // A lista muda raramente; não faz sentido rebuscar a cada foco de janela.
     staleTime: 60 * 60 * 1000,
     queryFn: async () => {
@@ -56,7 +60,8 @@ export function useMensagemDoDia() {
         .select("id,tenant_id,texto,tipo,referencia,ativa,data_especifica,criado_por_nome")
         .eq("ativa", true);
       if (error) throw error;
-      return mensagemDoDia((data ?? []).map(mapear), hoje);
+      // O id entra na escolha para que cada pessoa receba a sua própria frase.
+      return mensagemDoDia((data ?? []).map(mapear), hoje, uid);
     },
   });
 }
