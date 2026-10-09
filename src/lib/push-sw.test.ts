@@ -2,12 +2,12 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 
-async function receber(resultado: unknown, falhar = false) {
+async function receber(resultado: unknown, falhar = false, existentes: { tag: string; close: () => void }[] = []) {
   const handlers: Record<string, (e: unknown) => void> = {};
   const showNotification = vi.fn(async (_titulo: string, _opcoes: unknown) => undefined);
   const self = {
     addEventListener: (tipo: string, handler: (e: unknown) => void) => { handlers[tipo] = handler; },
-    registration: { pushManager: { getSubscription: async () => ({ endpoint: "https://fcm.googleapis.com/push/test" }) }, showNotification },
+    registration: { pushManager: { getSubscription: async () => ({ endpoint: "https://fcm.googleapis.com/push/test" }) }, showNotification, getNotifications: async () => existentes },
   };
   runInNewContext(readFileSync("public/sw.js", "utf8"), {
     self,
@@ -32,10 +32,16 @@ describe("notificações do aplicativo fechado", () => {
   });
   it("não inventa nova vaga quando a consulta falha", async () => {
     const mostrar = await receber(null, true);
-    expect(mostrar.mock.calls[0]?.[0]).toBe("Recruta+");
+    expect(mostrar).not.toHaveBeenCalled();
   });
   it("preserva aviso real do portal", async () => {
     const mostrar = await receber({ interno: false, mensagens: [] });
     expect(mostrar.mock.calls[0]?.[0]).toBe("Nova vaga disponível no Recruta+");
+  });
+  it("nenhuma pendência não gera aviso genérico e fecha alerta resolvido", async () => {
+    const fechar = vi.fn();
+    const mostrar = await receber({ interno: true, mensagens: [] }, false, [{ tag: "recruta-alerta-atendimento_pendente", close: fechar }]);
+    expect(mostrar).not.toHaveBeenCalled();
+    expect(fechar).toHaveBeenCalledTimes(1);
   });
 });

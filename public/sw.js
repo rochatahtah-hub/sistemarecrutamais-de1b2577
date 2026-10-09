@@ -15,7 +15,7 @@
  * a antes de existir service worker.
  */
 
-const VERSAO = "recruta-mais-v3";
+const VERSAO = "recruta-mais-v4";
 const ESTATICOS = /\.(?:js|mjs|css|woff2?|ttf|otf|png|jpe?g|svg|gif|webp|avif|ico)$/i;
 const NUNCA_CACHEAR = /^\/(?:api|_serverFn)\//;
 
@@ -72,6 +72,13 @@ self.addEventListener("push", (evento) => {
   evento.waitUntil(
     (async () => {
       const { mensagens: alertas, interno } = await buscarAlertas();
+      if (interno && alertas.length === 0) {
+        const existentes = await self.registration.getNotifications();
+        for (const aviso of existentes) {
+          if (aviso.tag.startsWith("recruta-alerta-") || aviso.tag === "recruta-atualizacoes") aviso.close();
+        }
+        return;
+      }
       if (alertas.length > 0) {
         await Promise.all(
           alertas.map((a) =>
@@ -86,11 +93,11 @@ self.addEventListener("push", (evento) => {
         );
         return;
       }
-      await self.registration.showNotification(interno ? "Recruta+" : AVISO_TITULO, {
-        body: interno ? "Acesse o Recruta+ para consultar as atualizações." : AVISO_CORPO,
+      await self.registration.showNotification(AVISO_TITULO, {
+        body: AVISO_CORPO,
         icon: "/icon-192.png",
         badge: "/icon-192.png",
-        tag: interno ? "recruta-atualizacoes" : "recruta-mais-nova-vaga",
+        tag: "recruta-mais-nova-vaga",
         renotify: true,
       });
     })(),

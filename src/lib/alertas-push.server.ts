@@ -50,7 +50,6 @@ export async function rodarAlertasPush(agora = new Date()) {
     const mensagens: { titulo: string; corpo: string; url: string; tipo: string }[] = [];
 
     for (const tipo of tipos) {
-      if (enviadosHoje.has(`${perfil.id}:${tipo}`)) continue;
       const regra = REGRAS_ALERTA[tipo];
       const { data: pode } = await supabaseAdmin.rpc("tem_permissao", {
         _user_id: perfil.id,
@@ -62,18 +61,34 @@ export async function rodarAlertasPush(agora = new Date()) {
         continue;
       mensagens.push({ titulo: regra.titulo, corpo: regra.corpo, url: regra.url, tipo });
     }
-    if (mensagens.length === 0) continue;
+    // Refresh pending state even for already-notified users: resolved items
+    // must not remain queued merely because today's dedup claim exists.
+    const { data: dispositivos, error: erroDispositivos } = await supabaseAdmin.from("push_usuarios")
+      .select("endpoint,mensagens,mensagens_em").eq("user_id", perfil.id).eq("status", "ativa");
+    if (erroDispositivos) throw new Error("Não foi possível atualizar os alertas pendentes.");
+    const ativos = new Set(mensagens.map((m) => m.tipo));
+    for (const dispositivo of dispositivos ?? []) {
+      if (!Array.isArray(dispositivo.mensagens)) continue;
+      const validas = dispositivo.mensagens.filter((m) => m && typeof m === "object" && !Array.isArray(m) && typeof m['tipo'] === "string" && ativos.has(m['tipo']));
+      if (validas.length === dispositivo.mensagens.length) continue;
+      let limpeza = supabaseAdmin.from("push_usuarios").update({ mensagens: validas }).eq("endpoint", dispositivo.endpoint);
+      if (dispositivo.mensagens_em) limpeza = limpeza.eq("mensagens_em", dispositivo.mensagens_em);
+      const { error } = await limpeza;
+      if (error) throw new Error("Não foi possível limpar os alertas resolvidos.");
+    }
+    const naoEnviadas = mensagens.filter((m) => !enviadosHoje.has(`${perfil.id}:${m.tipo}`));
+    if (naoEnviadas.length === 0) continue;
 
     // Registra antes de enviar: se o envio repetir, o log impede duplicidade.
     const { data: gravados } = await supabaseAdmin
       .from("push_alertas_log")
       .upsert(
-        mensagens.map((m) => ({ user_id: perfil.id, tipo: m.tipo, dia })),
+        naoEnviadas.map((m) => ({ user_id: perfil.id, tipo: m.tipo, dia })),
         { onConflict: "user_id,tipo,dia", ignoreDuplicates: true },
       )
       .select("tipo");
     const novos = new Set((gravados ?? []).map((g) => g.tipo));
-    const finais = mensagens.filter((m) => novos.has(m.tipo));
+    const finais = naoEnviadas.filter((m) => novos.has(m.tipo));
     if (finais.length === 0) continue;
 
     const endpoints = porUsuario.get(perfil.id) ?? [];
@@ -111,7 +126,7 @@ export async function condicaoVerdadeira(
 ): Promise<boolean> {
   const contar = async (q: PromiseLike<{ count: number | null; error: unknown }>) => {
     const { count, error } = await q;
-    if (error) throw new Error("Não foi possível verificar a condição do alerta.");
+    if (error || count === null) throw new Error("Não foi possível verificar a condição do alerta.");
     return (count ?? 0) > 0;
   };
   const vagas = () =>
@@ -120,16 +135,45 @@ export async function condicaoVerdadeira(
     case "sem_vaga_hoje":
       return !(await contar(vagas().gte("created_at", inicioDiaUtc).lt("created_at", new Date(new Date(inicioDiaUtc).getTime() + 86400000).toISOString())));
     case "aguardando_confirmacao":
-      return contar(vagas().eq("status", "AGUARDANDO").lt("data", dia));
+      return contar(vagas().eq("status", "AGUARDANDO").lte("data", dia));
     case "finalizar_programacoes":
       return contar(vagas().eq("status", "AGUARDANDO").eq("data", dia));
     case "atendimento_pendente":
       return contar(
         db
           .from("atendimento_conferencias")
-          .select("id", { count: "exact", head: true })
+          .select("id,vagas!inner(id)", { count: "exact", head: true })
           .eq("tenant_id", tenantId)
+          .eq("vagas.tenant_id", tenantId)
+          .eq("vagas.programadora_id", userId)
+          .in("vagas.status", ["PRESENCA", "FALTA", "CANCELAMENTO"])
           .eq("status_validacao", "PENDENTE"),
       );
   }
+}
+
+/** Re-check identity, permissions and live conditions at the last delivery step. */
+export async function alertasAtuaisDoUsuario(
+  db: Parameters<typeof condicaoVerdadeira>[0],
+  userId: string,
+  candidatos: TipoAlerta[],
+  agora = new Date(),
+) {
+  const { dia, hora, semana } = agoraBrasilia(agora);
+  const { data: perfil, error } = await db.from("profiles")
+    .select("ativo,tenant_id,tenants(ativo,status)").eq("id", userId).maybeSingle();
+  if (error) throw new Error("Não foi possível verificar o usuário do alerta.");
+  if (!perfil?.ativo || !perfil.tenant_id || !perfil.tenants?.ativo || perfil.tenants.status !== "ativo") return [];
+  const mensagens = [];
+  for (const tipo of new Set(candidatos)) {
+    const regra = REGRAS_ALERTA[tipo];
+    if (!alertaNoHorario(tipo, hora, semana)) continue;
+    const { data: pode, error: erroPermissao } = await db.rpc("tem_permissao", {
+      _user_id: userId, _modulo: regra.modulo, _acao: regra.acao,
+    });
+    if (erroPermissao) throw new Error("Não foi possível verificar a permissão do alerta.");
+    if (!pode || !(await condicaoVerdadeira(db, tipo, userId, perfil.tenant_id, dia, `${dia}T03:00:00.000Z`))) continue;
+    mensagens.push({ tipo, titulo: regra.titulo, corpo: regra.corpo, url: regra.url });
+  }
+  return mensagens;
 }

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { agoraBrasilia, alertaNoHorario, REGRAS_ALERTA, type TipoAlerta } from "@/lib/alertas-push";
+import { REGRAS_ALERTA, type TipoAlerta } from "@/lib/alertas-push";
 import { endpointPushValido } from "@/lib/push-endpoint";
 
 /**
@@ -28,23 +28,19 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           .maybeSingle();
         const recente =
           data?.mensagens_em && Date.now() - new Date(data.mensagens_em).getTime() < 2 * 3600 * 1000;
-        const { hora, semana } = agoraBrasilia();
-        const mensagens = [];
+        let mensagens: { tipo: TipoAlerta; titulo: string; corpo: string; url: string }[] = [];
         if (recente && data && Array.isArray(data.mensagens)) {
-          const { data: perfil } = await supabaseAdmin.from("profiles")
-            .select("ativo,tenant_id,tenants(ativo,status)").eq("id", data.user_id).maybeSingle();
-          if (perfil?.ativo && perfil.tenants?.ativo && perfil.tenants.status === "ativo") {
-            for (const mensagem of data.mensagens) {
-              if (!mensagem || typeof mensagem !== "object" || Array.isArray(mensagem)) continue;
-              const tipo = mensagem['tipo'];
-              if (typeof tipo !== "string" || !Object.hasOwn(REGRAS_ALERTA, tipo)) continue;
-              const regra = REGRAS_ALERTA[tipo as TipoAlerta];
-              if (!alertaNoHorario(tipo as TipoAlerta, hora, semana)) continue;
-              const { data: pode } = await supabaseAdmin.rpc("tem_permissao", {
-                _user_id: data.user_id, _modulo: regra.modulo, _acao: regra.acao,
-              });
-              if (pode) mensagens.push({ tipo, titulo: regra.titulo, corpo: regra.corpo, url: regra.url });
-            }
+          const tipos = data.mensagens.flatMap((m) => {
+            if (!m || typeof m !== "object" || Array.isArray(m)) return [];
+            const tipo = m['tipo'];
+            return typeof tipo === "string" && Object.hasOwn(REGRAS_ALERTA, tipo) ? [tipo as TipoAlerta] : [];
+          });
+          const { alertasAtuaisDoUsuario } = await import("@/lib/alertas-push.server");
+          try {
+            mensagens = await alertasAtuaisDoUsuario(supabaseAdmin, data.user_id, tipos);
+          } catch {
+            // A failed live check is not evidence of a pending action.
+            return Response.json({ mensagens: [], interno: true }, { headers });
           }
         }
         if (data?.mensagens_em) {
@@ -52,7 +48,9 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           await supabaseAdmin.from("push_usuarios").update({ mensagens: [] })
             .eq("endpoint", endpoint).eq("mensagens_em", data.mensagens_em);
         }
-        return Response.json({ mensagens, interno: Boolean(data) }, { headers });
+        const { data: portal, error: erroPortal } = await supabaseAdmin.from("push_inscricoes")
+          .select("id").eq("endpoint", endpoint).eq("status", "ativa").maybeSingle();
+        return Response.json({ mensagens, interno: Boolean(data) || !portal || Boolean(erroPortal) }, { headers });
       },
     },
   },
