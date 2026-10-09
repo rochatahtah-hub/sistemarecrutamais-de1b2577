@@ -1,5 +1,6 @@
 - Keep heterogeneous backup reads behind a narrow typed query boundary; expanding generated relationship types for a union of tables can exceed compiler limits.
 - Validate Web Push endpoints through the shared browser-provider allowlist and forbid redirects before server requests; this prevents subscriptions from becoming arbitrary server-side requests.
+- Web Push fetch uses manual redirect mode and rejects 3xx responses; Workers does not support redirect:error and provider redirects must never be followed.
 - Determine internal notification activation from the authenticated user's server record, not just the browser subscription; portal and staff opt-ins share a browser but remain independent.
 - Reuse the same live pending-action evaluator for push scheduling and final message delivery; resolved conditions must suppress delivery rather than produce generic fallback alerts.
 - Scope attendance push alerts to the vacancy's assigned programmer while no separate validation assignee exists; tenant-wide permission is not evidence of individual responsibility.
