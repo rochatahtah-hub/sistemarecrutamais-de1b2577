@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { condicaoVerdadeira } from "./alertas-push.server";
+import { alertasAtuaisDoUsuario, condicaoVerdadeira } from "./alertas-push.server";
 
 function banco(count: number | null, error: unknown = null) {
   const chamadas: unknown[][] = [];
@@ -13,6 +13,20 @@ function banco(count: number | null, error: unknown = null) {
 }
 
 const args = ["user-test", "tenant-test", "2026-10-09", "2026-10-09T03:00:00.000Z"] as const;
+
+function bancoEntrega(count: number, permitido = true, ativo = true) {
+  const condicao = banco(count);
+  const perfil = { ativo, tenant_id: "tenant-test", tenants: { ativo: true, status: "ativo" } };
+  const cadeia: unknown = new Proxy({}, {
+    get: (_target, nome) => nome === "then"
+      ? (resolve: (v: unknown) => void) => resolve({ data: perfil, error: null })
+      : () => cadeia,
+  });
+  return {
+    from: (tabela: string) => tabela === "profiles" ? cadeia : condicao.db.from(tabela as "vagas"),
+    rpc: async () => ({ data: permitido, error: null }),
+  } as unknown as Parameters<typeof condicaoVerdadeira>[0];
+}
 
 describe("condições reais dos alertas", () => {
   it("só avisa ausência de cadastro quando o total do dia é zero", async () => {
@@ -56,5 +70,23 @@ describe("condições reais dos alertas", () => {
   });
   it("contagem desconhecida não gera aviso de ausência", async () => {
     await expect(condicaoVerdadeira(banco(null).db, "sem_vaga_hoje", ...args)).rejects.toThrow();
+  });
+  it("descarta aviso de ausência se uma vaga foi cadastrada antes da entrega", async () => {
+    const hora = new Date("2026-10-09T18:00:00Z");
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(0), "user-test", ["sem_vaga_hoje"], hora)).toHaveLength(1);
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(1), "user-test", ["sem_vaga_hoje"], hora)).toEqual([]);
+  });
+  it("descarta pendência resolvida antes da entrega", async () => {
+    const hora = new Date("2026-10-09T14:00:00Z");
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(1), "user-test", ["atendimento_pendente"], hora)).toHaveLength(1);
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(0), "user-test", ["atendimento_pendente"], hora)).toEqual([]);
+  });
+  it("bloqueia entrega quando a permissão foi retirada ou o usuário desativado", async () => {
+    const hora = new Date("2026-10-09T14:00:00Z");
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(1, false), "user-test", ["atendimento_pendente"], hora)).toEqual([]);
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(1, true, false), "user-test", ["atendimento_pendente"], hora)).toEqual([]);
+  });
+  it("deduplica tipos repetidos na mesma entrega", async () => {
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(1), "user-test", ["atendimento_pendente", "atendimento_pendente"], new Date("2026-10-09T14:00:00Z"))).toHaveLength(1);
   });
 });
