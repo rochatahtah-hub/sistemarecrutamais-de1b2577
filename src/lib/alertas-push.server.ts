@@ -10,6 +10,9 @@ export async function rodarAlertasPush(agora = new Date()) {
   const { dia, hora, semana } = agoraBrasilia(agora);
   const inicioDiaUtc = `${dia}T03:00:00.000Z`;
 
+  const { enviarAvisosLevantamento } = await import("./levantamento-aviso.server");
+  await enviarAvisosLevantamento(agora);
+
   const tipos = (Object.keys(REGRAS_ALERTA) as TipoAlerta[]).filter((t) =>
     alertaNoHorario(t, hora, semana),
   );
@@ -69,7 +72,7 @@ export async function rodarAlertasPush(agora = new Date()) {
     const ativos = new Set(mensagens.map((m) => m.tipo));
     for (const dispositivo of dispositivos ?? []) {
       if (!Array.isArray(dispositivo.mensagens)) continue;
-      const validas = dispositivo.mensagens.filter((m) => m && typeof m === "object" && !Array.isArray(m) && typeof m['tipo'] === "string" && ativos.has(m['tipo']));
+      const validas = dispositivo.mensagens.filter((m) => m && typeof m === "object" && !Array.isArray(m) && typeof m['tipo'] === "string" && (m['tipo'].startsWith('levantamento_pronto_') || ativos.has(m['tipo'])));
       if (validas.length === dispositivo.mensagens.length) continue;
       let limpeza = supabaseAdmin.from("push_usuarios").update({ mensagens: validas }).eq("endpoint", dispositivo.endpoint);
       if (dispositivo.mensagens_em) limpeza = limpeza.eq("mensagens_em", dispositivo.mensagens_em);
@@ -94,7 +97,7 @@ export async function rodarAlertasPush(agora = new Date()) {
     const endpoints = porUsuario.get(perfil.id) ?? [];
     const { error: erroFila } = await supabaseAdmin
       .from("push_usuarios")
-      .update({ mensagens: finais, mensagens_em: new Date().toISOString() })
+      .update({ mensagens: [...(dispositivos ?? []).flatMap(d => Array.isArray(d.mensagens) ? d.mensagens.filter(m => m && typeof m === "object" && !Array.isArray(m) && typeof m["tipo"] === "string" && m["tipo"].startsWith("levantamento_pronto_")) : []), ...finais], mensagens_em: new Date().toISOString() })
       .in("endpoint", endpoints);
     if (erroFila) {
       await supabaseAdmin.from("push_alertas_log").delete().eq("user_id", perfil.id)

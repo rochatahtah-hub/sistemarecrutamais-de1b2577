@@ -40,3 +40,9 @@
 - [x] Verificar inscrição por usuário, cancelamento, condições reais e destinos seguros; corrigir falhas encontradas.
 - [x] Executar testes automatizados e conferir a abertura do aplicativo e o botão com sessão real no navegador.
 - [ ] Comprovar recebimento em aparelhos reais após publicação (depende de aparelho compatível e autorização de notificações).
+
+# Avisos de levantamento pronto
+
+- [x] Personalizar o nome do administrador e especificar diário ou da quinzena após conclusão real.
+- [x] Integrar aviso ao push existente, com permissão, tenant e deduplicação.
+- [ ] Validar cenários automatizados.

@@ -15,7 +15,7 @@
  * a antes de existir service worker.
  */
 
-const VERSAO = "recruta-mais-v4";
+const VERSAO = "recruta-mais-v5";
 const ESTATICOS = /\.(?:js|mjs|css|woff2?|ttf|otf|png|jpe?g|svg|gif|webp|avif|ico)$/i;
 const NUNCA_CACHEAR = /^\/(?:api|_serverFn)\//;
 

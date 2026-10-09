@@ -8,3 +8,4 @@ type: constraint
 - Confirmação e retroativas somente para vagas ainda pendentes; futuras não exigem confirmação antecipada.
 - Atendimento somente para pendências atribuídas ao usuário, nunca contagem genérica de toda a empresa.
 - Sem pendência real não há notificação, nem aviso genérico substituto; situações resolvidas devem limpar o estado e não gerar alertas repetidos.
+- Levantamento pronto: personalizar com o nome real do administrador destinatário e especificar diário ou da quinzena: “Olá Talita Rocha, o levantamento diário já está pronto.” (substituir nome e modalidade conforme o destinatário e relatório).
