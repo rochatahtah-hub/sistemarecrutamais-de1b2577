@@ -7,7 +7,7 @@ function segredoConfere(recebido: string, esperado: string) {
   return d === 0;
 }
 
-/** Chamado de hora em hora (horário comercial) pelo agendador do banco. */
+/** Verificação horária contínua: alertas operacionais não têm janelas fixas. */
 export const Route = createFileRoute("/api/public/hooks/alertas-push")({
   server: {
     handlers: {

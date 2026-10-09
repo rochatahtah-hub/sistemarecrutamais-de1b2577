@@ -2520,6 +2520,7 @@ export type Database = {
           created_at: string
           email: string | null
           funcao_id: string | null
+          fuso_horario: string | null
           id: string
           last_login_at: string | null
           master: boolean
@@ -2538,6 +2539,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           funcao_id?: string | null
+          fuso_horario?: string | null
           id: string
           last_login_at?: string | null
           master?: boolean
@@ -2556,6 +2558,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           funcao_id?: string | null
+          fuso_horario?: string | null
           id?: string
           last_login_at?: string | null
           master?: boolean
@@ -3026,6 +3029,7 @@ export type Database = {
           configuracoes: Json
           created_at: string
           dados_comerciais: Json
+          fuso_horario: string
           id: string
           isento_comercial: boolean
           limites: Json
@@ -3042,6 +3046,7 @@ export type Database = {
           configuracoes?: Json
           created_at?: string
           dados_comerciais?: Json
+          fuso_horario?: string
           id?: string
           isento_comercial?: boolean
           limites?: Json
@@ -3058,6 +3063,7 @@ export type Database = {
           configuracoes?: Json
           created_at?: string
           dados_comerciais?: Json
+          fuso_horario?: string
           id?: string
           isento_comercial?: boolean
           limites?: Json

@@ -8,6 +8,13 @@
       "when": 1791511093866,
       "tag": "0000_push_usuarios_alertas",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791545923320,
+      "tag": "0001_push_fuso_horario",
+      "breakpoints": true
     }
   ]
 }

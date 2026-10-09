@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { endpointPushValido } from "./push-endpoint";
+import { fusoValido } from "./alertas-push";
 
 const endpointValido = endpointPushValido;
 
@@ -18,7 +19,7 @@ export const estadoAlertasUsuario = createServerFn({ method: "POST" })
 /** Inscreve o dispositivo do usuário logado para alertas automáticos. */
 export const ativarAlertasUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { endpoint: string }) => ({ endpoint: String(d?.endpoint ?? "").slice(0, 1000) }))
+  .inputValidator((d: { endpoint: string; fuso?: string }) => ({ endpoint: String(d?.endpoint ?? "").slice(0, 1000), fuso: d.fuso ? fusoValido(d.fuso) : null }))
   .handler(async ({ data, context }) => {
     if (!endpointValido(data.endpoint)) throw new Error("Dispositivo inválido para notificações.");
     const { data: perfil } = await context.supabase
@@ -27,6 +28,10 @@ export const ativarAlertasUsuario = createServerFn({ method: "POST" })
       .eq("id", context.userId)
       .maybeSingle();
     if (!perfil?.ativo || !perfil.tenant_id) throw new Error("Usuário indisponível para notificações.");
+    if (data.fuso) {
+      const { error: erroFuso } = await context.supabase.from("profiles").update({ fuso_horario: data.fuso }).eq("id", context.userId).is("fuso_horario", null);
+      if (erroFuso) throw new Error("Não foi possível salvar o fuso das notificações.");
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("push_usuarios").upsert(
       {
