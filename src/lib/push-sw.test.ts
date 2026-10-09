@@ -7,7 +7,7 @@ async function receber(resultado: unknown, falhar = false) {
   const showNotification = vi.fn(async (_titulo: string, _opcoes: unknown) => undefined);
   const self = {
     addEventListener: (tipo: string, handler: (e: unknown) => void) => { handlers[tipo] = handler; },
-    registration: { pushManager: { getSubscription: async () => ({ endpoint: "https://fcm.googleapis.com/push/test" }) }, showNotification },
+    registration: { pushManager: { getSubscription: async () => ({ endpoint: "https://fcm.googleapis.com/push/test" }) }, showNotification, getNotifications: async () => [] },
   };
   runInNewContext(readFileSync("public/sw.js", "utf8"), {
     self,
@@ -32,7 +32,7 @@ describe("notificações do aplicativo fechado", () => {
   });
   it("não inventa nova vaga quando a consulta falha", async () => {
     const mostrar = await receber(null, true);
-    expect(mostrar.mock.calls[0]?.[0]).toBe("Recruta+");
+    expect(mostrar).not.toHaveBeenCalled();
   });
   it("preserva aviso real do portal", async () => {
     const mostrar = await receber({ interno: false, mensagens: [] });

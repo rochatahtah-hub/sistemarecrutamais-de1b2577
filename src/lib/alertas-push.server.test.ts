@@ -45,5 +45,16 @@ describe("condições reais dos alertas", () => {
     await condicaoVerdadeira(atendimento.db, "atendimento_pendente", ...args);
     expect(atendimento.chamadas).toContainEqual(["eq", "tenant_id", "tenant-test"]);
     expect(atendimento.chamadas).toContainEqual(["eq", "status_validacao", "PENDENTE"]);
+    expect(atendimento.chamadas).toContainEqual(["eq", "vagas.programadora_id", "user-test"]);
+    expect(atendimento.chamadas).toContainEqual(["eq", "vagas.tenant_id", "tenant-test"]);
+  });
+  it("confirmação inclui hoje e dias retroativos, mas não datas futuras", async () => {
+    const { db, chamadas } = banco(1);
+    await condicaoVerdadeira(db, "aguardando_confirmacao", ...args);
+    expect(chamadas).toContainEqual(["lte", "data", "2026-10-09"]);
+    expect(chamadas).toContainEqual(["eq", "status", "AGUARDANDO"]);
+  });
+  it("contagem desconhecida não gera aviso de ausência", async () => {
+    await expect(condicaoVerdadeira(banco(null).db, "sem_vaga_hoje", ...args)).rejects.toThrow();
   });
 });
