@@ -60,6 +60,12 @@ describe("disparos semanais pelo mesmo backend Web Push", () => {
     expect(estado.envios).toBe(2);
     expect(estado.logs.map(l => l.tipo)).toEqual(["boa_semana", "boa_sexta"]);
   });
+  it("segunda seguinte gera uma nova mensagem", async () => {
+    await rodarAlertasPush(new Date("2026-10-05T12:00:00Z"));
+    await rodarAlertasPush(new Date("2026-10-12T12:00:00Z"));
+    expect(estado.envios).toBe(2);
+    expect(estado.logs.map(l => l.dia)).toEqual(["2026-10-05", "2026-10-12"]);
+  });
   it("sem inscrição não envia", async () => {
     estado.inscrito = false;
     await rodarAlertasPush(new Date("2026-10-09T12:00:00Z"));

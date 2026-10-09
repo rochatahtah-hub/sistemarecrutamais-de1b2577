@@ -29,7 +29,7 @@ export const ativarAlertasUsuario = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!perfil?.ativo || !perfil.tenant_id) throw new Error("Usuário indisponível para notificações.");
     if (data.fuso) {
-      const { error: erroFuso } = await context.supabase.from("profiles").update({ fuso_horario: data.fuso }).eq("id", context.userId);
+      const { error: erroFuso } = await context.supabase.from("profiles").update({ fuso_horario: data.fuso }).eq("id", context.userId).is("fuso_horario", null);
       if (erroFuso) throw new Error("Não foi possível salvar o fuso das notificações.");
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

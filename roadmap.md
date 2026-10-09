@@ -49,7 +49,7 @@
 
 # Notificações sem horário fixo e mensagens semanais
 
-- [ ] Remover janelas operacionais, respeitar fuso e manter validação atualizada.
-- [ ] Enviar mensagens independentes de segunda e sexta com deduplicação por usuário e data local.
-- [ ] Atualizar agendamento existente e testar frequência, condições, cancelamento e entrega.
+- [x] Remover janelas operacionais, respeitar fuso e manter validação atualizada.
+- [x] Enviar mensagens independentes de segunda e sexta com deduplicação por usuário e data local.
+- [x] Atualizar agendamento existente para verificação horária contínua e testar frequência, condições, cancelamento e entrega simulada.
 - [ ] Comprovar recebimento em celular e computador físicos (depende de dispositivos compatíveis e publicação).
