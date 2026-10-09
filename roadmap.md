@@ -58,4 +58,10 @@
 
 - [x] Solicitar disparo imediato e conferir resposta: serviço publicado respondeu com zero envios e nenhum registro semanal.
 - [x] Preparar segundo disparo somente hoje às 18h de São Paulo no agendamento horário existente, sem recorrência nas próximas semanas; 20 testes passaram.
-- [ ] Efetivar os dois envios no site publicado (bloqueado até publicar a versão atual; a versão publicada ainda não tem mensagens semanais).
+- [ ] Efetivar os dois envios no site publicado (a versão publicada falhou com redirect:error, não suportado pelo serviço).
+
+# Correção de entrega push após publicação
+
+- [x] Trocar modo de redirecionamento por manual com rejeição explícita de 3xx; 26 testes passaram e compilação sem erros.
+- [ ] Conferir aceitação real do provedor após disponibilização da correção (a tentativa no endereço de prévia ainda executou a versão anterior).
+- [ ] Atualizar publicação para o envio automático das 18h (depende de publicar a correção).

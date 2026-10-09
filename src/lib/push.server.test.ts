@@ -1,6 +1,6 @@
 import { createPublicKey, generateKeyPairSync, verify as verificarCru } from "node:crypto";
-import { describe, expect, it } from "vitest";
-import { cabecalhoVapid } from "./push.server";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { cabecalhoVapid, enviarAvisoPush } from "./push.server";
 
 /**
  * Conferência independente da assinatura VAPID.
@@ -82,5 +82,33 @@ describe("assinatura VAPID", () => {
     await expect(
       cabecalhoVapid("https://fcm.googleapis.com/fcm/send/x", "Zm9v", privada, "mailto:a@b.com"),
     ).rejects.toThrow(/VAPID_PUBLIC_KEY inválida/);
+  });
+});
+
+describe("transporte Web Push compatível com publicação", () => {
+  afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
+  function preparar(status: number) {
+    const chaves = parDeChaves();
+    vi.stubEnv("VAPID_PUBLIC_KEY", chaves.publica);
+    vi.stubEnv("VAPID_PRIVATE_KEY", chaves.privada);
+    const envio = vi.fn(async (_url: unknown, init?: RequestInit) => {
+      if (init?.redirect !== "manual") throw new Error("Redirect mode unsupported by Workers");
+      return new Response(null, { status });
+    });
+    vi.stubGlobal("fetch", envio);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    return envio;
+  }
+  it("envia com modo suportado e confirma aceitação pelo provedor", async () => {
+    const envio = preparar(201);
+    expect(await enviarAvisoPush(["https://fcm.googleapis.com/fcm/send/test"], 3600))
+      .toEqual({ enviados: 1, invalidos: [], falhas: 0 });
+    expect(envio).toHaveBeenCalledTimes(1);
+  });
+  it("bloqueia redirecionamentos sem visitar o destino", async () => {
+    const envio = preparar(302);
+    expect(await enviarAvisoPush(["https://fcm.googleapis.com/fcm/send/test"]))
+      .toEqual({ enviados: 0, invalidos: [], falhas: 1 });
+    expect(envio).toHaveBeenCalledTimes(1);
   });
 });

@@ -124,7 +124,9 @@ export async function enviarAvisoPush(endpoints: string[], ttl = 86400): Promise
     try {
       const resposta = await fetch(endpoint, {
         method: "POST",
-        redirect: "error",
+        // Workers supports manual/follow only. Manual never follows a
+        // provider redirect, preserving the endpoint allowlist boundary.
+        redirect: "manual",
         signal: AbortSignal.timeout(10000),
         headers: {
           Authorization: await cabecalhoVapid(endpoint, publica, privada, contato),
@@ -133,7 +135,10 @@ export async function enviarAvisoPush(endpoints: string[], ttl = 86400): Promise
           "Content-Length": "0",
         },
       });
-      if (resposta.ok) {
+      if (resposta.status >= 300 && resposta.status < 400) {
+        falhas++;
+        console.error("[push] redirecionamento do provedor bloqueado");
+      } else if (resposta.ok) {
         enviados++;
       } else if (resposta.status === 404 || resposta.status === 410) {
         // Inscrição morta (app desinstalado, navegador limpou): não insistir.
