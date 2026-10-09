@@ -6,3 +6,4 @@
 
 - Create report-ready events only after successful report writes; quinzenal readiness requires every daily report in the period, and delivery rechecks the named administrator, tenant and notification permission.
 - Use IANA user timezone with tenant fallback for push day boundaries and weekly greetings; claim queued batches atomically before delivery to prevent concurrent duplicate notifications.
+- One-day greeting exceptions use a distinct deduplication type in the shared weekly evaluator so scheduling and device delivery enforce the same rule without resetting previous delivery logs.

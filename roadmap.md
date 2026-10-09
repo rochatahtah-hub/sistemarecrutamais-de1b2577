@@ -53,3 +53,9 @@
 - [x] Enviar mensagens independentes de segunda e sexta com deduplicação por usuário e data local.
 - [x] Atualizar agendamento existente para verificação horária contínua e testar frequência, condições, cancelamento e entrega simulada.
 - [ ] Comprovar recebimento em celular e computador físicos (depende de dispositivos compatíveis e publicação).
+
+# Exceção de sexta-feira — 09/10/2026
+
+- [x] Solicitar disparo imediato e conferir resposta: serviço publicado respondeu com zero envios e nenhum registro semanal.
+- [x] Preparar segundo disparo somente hoje às 18h de São Paulo no agendamento horário existente, sem recorrência nas próximas semanas; 20 testes passaram.
+- [ ] Efetivar os dois envios no site publicado (bloqueado até publicar a versão atual; a versão publicada ainda não tem mensagens semanais).
