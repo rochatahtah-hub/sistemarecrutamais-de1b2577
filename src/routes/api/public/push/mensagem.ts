@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { REGRAS_ALERTA, type TipoAlerta } from "@/lib/alertas-push";
 import { endpointPushValido } from "@/lib/push-endpoint";
+import { mensagemSemanal } from "@/lib/push-semanal";
 
 /**
  * O service worker busca aqui o texto do alerta assim que o push chega.
@@ -30,6 +31,11 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           data?.mensagens_em && Date.now() - new Date(data.mensagens_em).getTime() < 2 * 3600 * 1000;
         let mensagens: { tipo: string; titulo: string; corpo: string; url: string }[] = [];
         if (recente && data && Array.isArray(data.mensagens)) {
+          // Claim once before live checks: simultaneous pushes cannot display the same batch twice.
+          const { data: consumidas, error: erroConsumo } = await supabaseAdmin.from("push_usuarios")
+            .update({ mensagens: [], mensagens_em: null }).eq("endpoint", endpoint).eq("status", "ativa")
+            .eq("user_id", data.user_id).eq("mensagens_em", data.mensagens_em ?? "").select("id");
+          if (erroConsumo || !consumidas?.length) return Response.json({ mensagens: [], interno: true }, { headers });
           const tipos = data.mensagens.flatMap((m) => {
             if (!m || typeof m !== "object" || Array.isArray(m)) return [];
             const tipo = m['tipo'];
@@ -38,6 +44,13 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           const { alertasAtuaisDoUsuario } = await import("@/lib/alertas-push.server");
           try {
             mensagens = await alertasAtuaisDoUsuario(supabaseAdmin, data.user_id, tipos);
+            const { data: perfil, error: erroPerfil } = await supabaseAdmin.from("profiles")
+              .select("ativo,tenant_id,fuso_horario,tenants(ativo,status,fuso_horario)").eq("id", data.user_id).maybeSingle();
+            if (erroPerfil) throw erroPerfil;
+            if (perfil?.ativo && perfil.tenants?.ativo && perfil.tenants.status === "ativo") {
+              const semanal = mensagemSemanal(new Date(), perfil.fuso_horario ?? perfil.tenants.fuso_horario);
+              if (semanal && data.mensagens.some(m => m && typeof m === "object" && !Array.isArray(m) && m["tipo"] === semanal.tipo && m["dia"] === semanal.dia)) mensagens.push(semanal);
+            }
             const { avisoLevantamentoAtual } = await import("@/lib/levantamento-aviso.server");
             for (const item of data.mensagens) {
               if (!item || typeof item !== "object" || Array.isArray(item) || typeof item["notificacaoId"] !== "string") continue;
@@ -51,7 +64,7 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
         }
         if (data?.mensagens_em) {
           // Do not erase a newer batch queued during this read.
-          await supabaseAdmin.from("push_usuarios").update({ mensagens: [] })
+          await supabaseAdmin.from("push_usuarios").update({ mensagens: [], mensagens_em: null })
             .eq("endpoint", endpoint).eq("mensagens_em", data.mensagens_em);
         }
         const { data: portal, error: erroPortal } = await supabaseAdmin.from("push_inscricoes")

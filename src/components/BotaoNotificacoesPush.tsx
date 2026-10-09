@@ -75,7 +75,7 @@ export function BotaoNotificacoesPush() {
       const sub =
         (await reg.pushManager.getSubscription()) ??
         (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytes(chave) }));
-      await ativar({ data: { endpoint: sub.endpoint } });
+      await ativar({ data: { endpoint: sub.endpoint, fuso: Intl.DateTimeFormat().resolvedOptions().timeZone } });
       setEstado("ativo");
       toast.success("Notificações ativadas. Você receberá alertas mesmo com o Recruta+ fechado.");
     } catch (e) {
