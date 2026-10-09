@@ -45,25 +45,73 @@ self.addEventListener("activate", (evento) => {
 const AVISO_TITULO = "Nova vaga disponível no Recruta+";
 const AVISO_CORPO = "Acesse o portal para consultar os detalhes.";
 
+/*
+ * Alertas automáticos de usuários internos: o push continua vazio; o texto é
+ * buscado no servidor pelo próprio endpoint (entregue uma vez). Se não houver
+ * alerta pendente, é um aviso de nova vaga do portal.
+ */
+async function buscarAlertas() {
+  try {
+    const sub = await self.registration.pushManager.getSubscription();
+    if (!sub) return [];
+    const r = await fetch("/api/public/push/mensagem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint: sub.endpoint }),
+      cache: "no-store",
+    });
+    if (!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j.mensagens) ? j.mensagens : [];
+  } catch {
+    return [];
+  }
+}
+
 self.addEventListener("push", (evento) => {
   evento.waitUntil(
-    self.registration.showNotification(AVISO_TITULO, {
-      body: AVISO_CORPO,
-      icon: "/icon-192.png",
-      badge: "/icon-192.png",
-      // Uma vaga nova substitui o aviso anterior em vez de empilhar avisos.
-      tag: "recruta-mais-nova-vaga",
-      renotify: true,
-    }),
+    (async () => {
+      const alertas = await buscarAlertas();
+      if (alertas.length > 0) {
+        await Promise.all(
+          alertas.map((a) =>
+            self.registration.showNotification(String(a.titulo || "Recruta+"), {
+              body: String(a.corpo || ""),
+              icon: "/icon-192.png",
+              badge: "/icon-192.png",
+              tag: "recruta-alerta-" + String(a.tipo || "geral"),
+              data: { url: typeof a.url === "string" && a.url.startsWith("/") ? a.url : "/" },
+            }),
+          ),
+        );
+        return;
+      }
+      await self.registration.showNotification(AVISO_TITULO, {
+        body: AVISO_CORPO,
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        tag: "recruta-mais-nova-vaga",
+        renotify: true,
+      });
+    })(),
   );
 });
 
 self.addEventListener("notificationclick", (evento) => {
   evento.notification.close();
+  const destino = (evento.notification.data && evento.notification.data.url) || null;
   evento.waitUntil(
     (async () => {
       const abertas = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-      // Se o portal já está aberto numa aba, traz ela para frente.
+      if (destino) {
+        for (const c of abertas) {
+          if ("navigate" in c && "focus" in c) {
+            await c.focus();
+            return c.navigate(destino);
+          }
+        }
+        return self.clients.openWindow ? self.clients.openWindow(destino) : undefined;
+      }
       for (const cliente of abertas) {
         if (cliente.url.includes("/cadastro-diarias") && "focus" in cliente) {
           return cliente.focus();

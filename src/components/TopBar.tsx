@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { BuscaGlobal } from "@/components/BuscaGlobal";
+import { BotaoNotificacoesPush } from "@/components/BotaoNotificacoesPush";
 import { AvatarUsuario } from "@/components/AvatarUsuario";
 import { DialogoFotoPerfil } from "@/components/DialogoFotoPerfil";
 import { SeletorEmpresa } from "@/components/SeletorEmpresa";
@@ -125,6 +126,7 @@ export function TopBar() {
       </div>
       <div className="ml-auto flex items-center gap-1.5">
         <BuscaGlobal />
+        <BotaoNotificacoesPush />
         <Button
           variant={privado ? "default" : "ghost"}
           size="sm"
