@@ -1,3 +1,5 @@
+import { endpointPushValido } from "./push-endpoint";
+
 /**
  * Envio de aviso de nova vaga por Web Push.
  *
@@ -101,7 +103,7 @@ export interface ResultadoEnvio {
  * push recusa em definitivo (404/410) voltam em `invalidos` para serem
  * marcados e não tentados de novo.
  */
-export async function enviarAvisoPush(endpoints: string[]): Promise<ResultadoEnvio> {
+export async function enviarAvisoPush(endpoints: string[], ttl = 86400): Promise<ResultadoEnvio> {
   const publica = process.env["VAPID_PUBLIC_KEY"];
   const privada = process.env["VAPID_PRIVATE_KEY"];
   const contato = process.env["VAPID_CONTATO"] ?? "mailto:contato@recrutamaisrh.ia.br";
@@ -115,12 +117,18 @@ export async function enviarAvisoPush(endpoints: string[]): Promise<ResultadoEnv
   const invalidos: string[] = [];
 
   for (const endpoint of endpoints) {
+    if (!endpointPushValido(endpoint)) {
+      invalidos.push(endpoint);
+      continue;
+    }
     try {
       const resposta = await fetch(endpoint, {
         method: "POST",
+        redirect: "error",
+        signal: AbortSignal.timeout(10000),
         headers: {
           Authorization: await cabecalhoVapid(endpoint, publica, privada, contato),
-          TTL: "86400",
+          TTL: String(ttl),
           // Sem corpo: o texto do aviso é fixo, no service worker.
           "Content-Length": "0",
         },
