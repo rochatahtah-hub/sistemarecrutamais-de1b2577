@@ -33,6 +33,9 @@
 
 # Continuação das notificações push
 
+- [ ] Revalidar dados e responsabilidades no disparo e na entrega, silenciar vazios e limpar situações resolvidas.
+- [ ] Testar presença/ausência de vagas, retroativas, atribuição de atendimento e resolução antes da entrega.
+
 - [x] Corrigir o erro de tipagem na exportação de backups sem alterar os dados exportados.
 - [x] Verificar inscrição por usuário, cancelamento, condições reais e destinos seguros; corrigir falhas encontradas.
 - [x] Executar testes automatizados e conferir a abertura do aplicativo e o botão com sessão real no navegador.
