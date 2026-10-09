@@ -77,11 +77,22 @@ export async function rodarAlertasPush(agora = new Date()) {
     if (finais.length === 0) continue;
 
     const endpoints = porUsuario.get(perfil.id) ?? [];
-    await supabaseAdmin
+    const { error: erroFila } = await supabaseAdmin
       .from("push_usuarios")
       .update({ mensagens: finais, mensagens_em: new Date().toISOString() })
       .in("endpoint", endpoints);
+    if (erroFila) {
+      await supabaseAdmin.from("push_alertas_log").delete().eq("user_id", perfil.id)
+        .eq("dia", dia).in("tipo", finais.map((m) => m.tipo));
+      throw new Error("Não foi possível preparar os alertas para envio.");
+    }
     const r = await enviarAvisoPush(endpoints, 3600);
+    // A total failure did not deliver anything: allow the next scheduled run
+    // to retry. Keep the claim if even one device accepted the push.
+    if (r.enviados === 0) {
+      await supabaseAdmin.from("push_alertas_log").delete().eq("user_id", perfil.id)
+        .eq("dia", dia).in("tipo", finais.map((m) => m.tipo));
+    }
     enviados += r.enviados;
     if (r.invalidos.length > 0) {
       await supabaseAdmin.from("push_usuarios").update({ status: "invalida" }).in("endpoint", r.invalidos);
@@ -90,7 +101,7 @@ export async function rodarAlertasPush(agora = new Date()) {
   return { usuarios: porUsuario.size, enviados, motivo: "ok" };
 }
 
-async function condicaoVerdadeira(
+export async function condicaoVerdadeira(
   db: Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"],
   tipo: TipoAlerta,
   userId: string,

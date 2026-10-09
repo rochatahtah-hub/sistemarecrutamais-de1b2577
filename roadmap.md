@@ -33,7 +33,7 @@
 
 # Continuação das notificações push
 
-- [ ] Corrigir o erro de tipagem na exportação de backups sem alterar os dados exportados.
-- [ ] Verificar inscrição, cancelamento, condições reais, isolamento, entrega e ausência de alertas indevidos.
-- [ ] Executar testes automatizados e conferir a abertura do aplicativo no navegador.
+- [x] Corrigir o erro de tipagem na exportação de backups sem alterar os dados exportados.
+- [x] Verificar inscrição por usuário, cancelamento, condições reais e destinos seguros; corrigir falhas encontradas.
+- [x] Executar testes automatizados e conferir a abertura do aplicativo e o botão com sessão real no navegador.
 - [ ] Comprovar recebimento em aparelhos reais após publicação (depende de aparelho compatível e autorização de notificações).
