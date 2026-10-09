@@ -2592,6 +2592,27 @@ export type Database = {
           },
         ]
       }
+      push_alertas_log: {
+        Row: {
+          dia: string
+          enviado_em: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          dia: string
+          enviado_em?: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          dia?: string
+          enviado_em?: string
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       push_inscricoes: {
         Row: {
           cancelada_em: string | null
@@ -2629,6 +2650,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      push_usuarios: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          mensagens: Json
+          mensagens_em: string | null
+          status: string
+          tenant_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          mensagens?: Json
+          mensagens_em?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          mensagens?: Json
+          mensagens_em?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       quinzenas_historico: {
         Row: {
