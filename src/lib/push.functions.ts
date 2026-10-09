@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { endpointPushValido } from "./push-endpoint";
 
 /**
  * Inscrição do colaborador para ser avisado de novas vagas.
@@ -18,14 +19,7 @@ function texto(valor: unknown, max: number) {
 }
 
 /** Só aceita endpoints http(s) de verdade — nada de javascript:, data:, etc. */
-function endpointValido(endpoint: string): boolean {
-  try {
-    const url = new URL(endpoint);
-    return url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
+const endpointValido = endpointPushValido;
 
 async function empresaDoSlug(slug: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

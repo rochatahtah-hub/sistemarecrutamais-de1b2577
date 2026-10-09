@@ -31,6 +31,15 @@ export type OrigemBackup = "manual" | "agendado";
 
 type Linha = Record<string, unknown>;
 
+// Boundary for heterogeneous export tables: avoid expanding the entire
+// generated relationship graph for a table-name union on every chained call.
+interface ConsultaBackup extends PromiseLike<{ data: Linha[] | null; error: { message: string } | null }> {
+  select(colunas: string): ConsultaBackup;
+  range(inicio: number, fim: number): ConsultaBackup;
+  eq(coluna: string, valor: unknown): ConsultaBackup;
+  in(coluna: string, valores: string[]): ConsultaBackup;
+}
+
 const PAGINA = 1000;
 
 /** Ids de usuários da empresa — usado nas tabelas que não têm coluna de empresa. */
@@ -41,21 +50,16 @@ async function usuariosDoTenant(tenantId: string): Promise<string[]> {
 
 async function lerTabela(tabela: string, tenantId: string, idsUsuarios: string[]): Promise<Linha[]> {
   const linhas: Linha[] = [];
+  const leitor = supabaseAdmin as unknown as { from(tabela: Tabela): ConsultaBackup };
   for (let inicio = 0; ; inicio += PAGINA) {
-    let consulta = supabaseAdmin
+    let consulta = leitor
       .from(tabela as Tabela)
       .select("*")
-      .range(inicio, inicio + PAGINA - 1) as unknown as {
-      eq: (c: string, v: unknown) => unknown;
-      in: (c: string, v: unknown[]) => unknown;
-    };
+      .range(inicio, inicio + PAGINA - 1);
     consulta = (tabela === "user_roles"
       ? consulta.in("user_id", idsUsuarios.length ? idsUsuarios : ["00000000-0000-0000-0000-000000000000"])
-      : consulta.eq("tenant_id", tenantId)) as typeof consulta;
-    const { data, error } = (await (consulta as unknown as Promise<unknown>)) as {
-      data: Linha[] | null;
-      error: { message: string } | null;
-    };
+      : consulta.eq("tenant_id", tenantId));
+    const { data, error } = await consulta;
     if (error) throw new Error(`Falha ao ler a tabela ${tabela}: ${error.message}`);
     const lote = (data ?? []) as Linha[];
     linhas.push(...lote);
@@ -321,7 +325,7 @@ export async function rodarAgendamento() {
   }
   if (!resultados.length) return { executado: false, motivo: "agendamento inativo" };
   const executado = resultados.find((r) => r.executado);
-  return executado ?? resultados[0]!;
+  return executado ?? resultados[0] ?? { executado: false, motivo: "agendamento inativo" };
 }
 
 type Agendamento = { [k: string]: unknown } & {

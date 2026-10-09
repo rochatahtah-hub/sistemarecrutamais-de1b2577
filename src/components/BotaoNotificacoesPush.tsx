@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { BellRing, BellOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import { chavePublicaPush } from "@/lib/push.functions";
-import { ativarAlertasUsuario, desativarAlertasUsuario } from "@/lib/push-usuario.functions";
+import { ativarAlertasUsuario, desativarAlertasUsuario, estadoAlertasUsuario } from "@/lib/push-usuario.functions";
+import { useAuth } from "@/lib/auth";
 
 type Estado = "oculto" | "bloqueado" | "inativo" | "ativo";
 
@@ -19,6 +21,11 @@ function bytes(valor: string): ArrayBuffer {
 
 /** Liga/desliga os alertas automáticos no dispositivo. Pede permissão só no clique. */
 export function BotaoNotificacoesPush() {
+  const { user } = useAuth();
+  const consultar = useServerFn(estadoAlertasUsuario);
+  const ativar = useServerFn(ativarAlertasUsuario);
+  const desativar = useServerFn(desativarAlertasUsuario);
+  const chavePublica = useServerFn(chavePublicaPush);
   const [estado, setEstado] = useState<Estado>("oculto");
   const [ocupado, setOcupado] = useState(false);
 
@@ -29,11 +36,12 @@ export function BotaoNotificacoesPush() {
     try {
       const reg = await navigator.serviceWorker.getRegistration();
       const sub = await reg?.pushManager.getSubscription();
-      setEstado(sub ? "ativo" : "inativo");
+      const inscricao = sub && user ? await consultar({ data: { endpoint: sub.endpoint } }) : null;
+      setEstado(inscricao?.ativo ? "ativo" : "inativo");
     } catch {
       setEstado("oculto");
     }
-  }, []);
+  }, [consultar, user?.id]);
 
   useEffect(() => {
     void sincronizar();
@@ -46,12 +54,11 @@ export function BotaoNotificacoesPush() {
     }
     setOcupado(true);
     try {
-      const reg = await navigator.serviceWorker.ready;
       if (estado === "ativo") {
+        const reg = await navigator.serviceWorker.ready;
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
-          await desativarAlertasUsuario({ data: { endpoint: sub.endpoint } });
-          await sub.unsubscribe();
+          await desativar({ data: { endpoint: sub.endpoint } });
         }
         setEstado("inativo");
         toast.success("Notificações desativadas neste dispositivo.");
@@ -62,12 +69,13 @@ export function BotaoNotificacoesPush() {
         setEstado(permissao === "denied" ? "bloqueado" : "inativo");
         return;
       }
-      const { chave } = await chavePublicaPush();
+      const reg = await navigator.serviceWorker.ready;
+      const { chave } = await chavePublica();
       if (!chave) throw new Error("Notificações ainda não disponíveis.");
       const sub =
         (await reg.pushManager.getSubscription()) ??
         (await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: bytes(chave) }));
-      await ativarAlertasUsuario({ data: { endpoint: sub.endpoint } });
+      await ativar({ data: { endpoint: sub.endpoint } });
       setEstado("ativo");
       toast.success("Notificações ativadas. Você receberá alertas mesmo com o Recruta+ fechado.");
     } catch (e) {

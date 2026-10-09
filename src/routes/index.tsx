@@ -70,6 +70,8 @@ export const Route = createFileRoute("/")({
           "Indicadores de vagas fechadas, presenças, faltas e cancelamentos com rankings e gráficos.",
       },
       { property: "og:title", content: "Dashboard | RECRUTA+" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         property: "og:description",
         content: "Acompanhe presenças, faltas e cancelamentos por colaborador, empresa e período.",

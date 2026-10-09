@@ -15,7 +15,7 @@
  * a antes de existir service worker.
  */
 
-const VERSAO = "recruta-mais-v1";
+const VERSAO = "recruta-mais-v3";
 const ESTATICOS = /\.(?:js|mjs|css|woff2?|ttf|otf|png|jpe?g|svg|gif|webp|avif|ico)$/i;
 const NUNCA_CACHEAR = /^\/(?:api|_serverFn)\//;
 
@@ -53,25 +53,25 @@ const AVISO_CORPO = "Acesse o portal para consultar os detalhes.";
 async function buscarAlertas() {
   try {
     const sub = await self.registration.pushManager.getSubscription();
-    if (!sub) return [];
+    if (!sub) return { mensagens: [], interno: true };
     const r = await fetch("/api/public/push/mensagem", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ endpoint: sub.endpoint }),
       cache: "no-store",
     });
-    if (!r.ok) return [];
+    if (!r.ok) return { mensagens: [], interno: true };
     const j = await r.json();
-    return Array.isArray(j.mensagens) ? j.mensagens : [];
+    return { mensagens: Array.isArray(j.mensagens) ? j.mensagens : [], interno: j.interno === true };
   } catch {
-    return [];
+    return { mensagens: [], interno: true };
   }
 }
 
 self.addEventListener("push", (evento) => {
   evento.waitUntil(
     (async () => {
-      const alertas = await buscarAlertas();
+      const { mensagens: alertas, interno } = await buscarAlertas();
       if (alertas.length > 0) {
         await Promise.all(
           alertas.map((a) =>
@@ -80,17 +80,17 @@ self.addEventListener("push", (evento) => {
               icon: "/icon-192.png",
               badge: "/icon-192.png",
               tag: "recruta-alerta-" + String(a.tipo || "geral"),
-              data: { url: typeof a.url === "string" && a.url.startsWith("/") ? a.url : "/" },
+               data: { url: typeof a.url === "string" && a.url.startsWith("/") && !a.url.startsWith("//") ? a.url : "/" },
             }),
           ),
         );
         return;
       }
-      await self.registration.showNotification(AVISO_TITULO, {
-        body: AVISO_CORPO,
+      await self.registration.showNotification(interno ? "Recruta+" : AVISO_TITULO, {
+        body: interno ? "Acesse o Recruta+ para consultar as atualizações." : AVISO_CORPO,
         icon: "/icon-192.png",
         badge: "/icon-192.png",
-        tag: "recruta-mais-nova-vaga",
+        tag: interno ? "recruta-atualizacoes" : "recruta-mais-nova-vaga",
         renotify: true,
       });
     })(),

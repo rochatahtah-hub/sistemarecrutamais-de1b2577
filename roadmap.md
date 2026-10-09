@@ -30,3 +30,10 @@
 - [ ] Considerar vagas pela data em que foram adicionadas, no horário de Brasília.
 - [ ] Exibir pendentes e sinalizar vagas com início posterior ao dia analisado.
 - [ ] Atualizar textos e PDF e validar o exemplo do dia 11 com início no dia 15.
+
+# Continuação das notificações push
+
+- [x] Corrigir o erro de tipagem na exportação de backups sem alterar os dados exportados.
+- [x] Verificar inscrição por usuário, cancelamento, condições reais e destinos seguros; corrigir falhas encontradas.
+- [x] Executar testes automatizados e conferir a abertura do aplicativo e o botão com sessão real no navegador.
+- [ ] Comprovar recebimento em aparelhos reais após publicação (depende de aparelho compatível e autorização de notificações).
