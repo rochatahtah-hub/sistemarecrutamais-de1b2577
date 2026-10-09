@@ -28,7 +28,7 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           .maybeSingle();
         const recente =
           data?.mensagens_em && Date.now() - new Date(data.mensagens_em).getTime() < 2 * 3600 * 1000;
-        let mensagens: { tipo: TipoAlerta; titulo: string; corpo: string; url: string }[] = [];
+        let mensagens: { tipo: string; titulo: string; corpo: string; url: string }[] = [];
         if (recente && data && Array.isArray(data.mensagens)) {
           const tipos = data.mensagens.flatMap((m) => {
             if (!m || typeof m !== "object" || Array.isArray(m)) return [];
@@ -38,6 +38,12 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           const { alertasAtuaisDoUsuario } = await import("@/lib/alertas-push.server");
           try {
             mensagens = await alertasAtuaisDoUsuario(supabaseAdmin, data.user_id, tipos);
+            const { avisoLevantamentoAtual } = await import("@/lib/levantamento-aviso.server");
+            for (const item of data.mensagens) {
+              if (!item || typeof item !== "object" || Array.isArray(item) || typeof item["notificacaoId"] !== "string") continue;
+              const aviso = await avisoLevantamentoAtual(data.user_id, item["notificacaoId"]);
+              if (aviso && !mensagens.some(m => m.tipo === aviso.tipo)) mensagens.push(aviso);
+            }
           } catch {
             // A failed live check is not evidence of a pending action.
             return Response.json({ mensagens: [], interno: true }, { headers });

@@ -3,3 +3,5 @@
 - Determine internal notification activation from the authenticated user's server record, not just the browser subscription; portal and staff opt-ins share a browser but remain independent.
 - Reuse the same live pending-action evaluator for push scheduling and final message delivery; resolved conditions must suppress delivery rather than produce generic fallback alerts.
 - Scope attendance push alerts to the vacancy's assigned programmer while no separate validation assignee exists; tenant-wide permission is not evidence of individual responsibility.
+
+- Create report-ready events only after successful report writes; quinzenal readiness requires every daily report in the period, and delivery rechecks the named administrator, tenant and notification permission.

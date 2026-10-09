@@ -1,5 +1,5 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { fmtData } from "./metricas";
+import { registrarAvisosLevantamento } from "./levantamento-aviso.server";
 import {
   calcularLevantamentoDiario,
   horaAtualBrasilia,
@@ -135,37 +135,12 @@ export async function gerarOuReprocessarLevantamento(opcoes: {
     if (error) throw error;
   }
 
-  return { levantamentoId, criado };
-}
-
-/** Notifica só quem tem a permissão "receber_notificacao" — nunca broadcast geral.
- * Idempotente: reprocessar/reexecutar não duplica notificação por usuário. */
-async function notificarLevantamentoPronto(tenantId: string, dataReferencia: string) {
-  const { data: destinatarios, error } = await supabaseAdmin.rpc("usuarios_com_permissao", {
-    _tenant: tenantId,
-    _modulo: "levantamento_diario",
-    _acao: "receber_notificacao",
-  });
-  if (error) {
-    console.error("[levantamento-diario] falha ao buscar destinatários:", error.message);
-    return;
+  try {
+    await registrarAvisosLevantamento(opcoes.tenantId, opcoes.dataReferencia);
+  } catch (erro) {
+    console.error("[levantamento-diario] falha no aviso de conclusão", erro);
   }
-  const usuarios = destinatarios ?? [];
-  if (usuarios.length === 0) return;
-
-  const { error: erroInsert } = await supabaseAdmin.from("notificacoes").upsert(
-    usuarios.map((u) => ({
-      user_id: u.user_id,
-      tenant_id: tenantId,
-      tipo: "levantamento_diario",
-      titulo: "Levantamento Diário de Vagas pronto.",
-      mensagem: `O levantamento referente a ${fmtData(dataReferencia)} já está disponível para consulta.`,
-      para_admin: false,
-      chave: `levantamento-diario-${dataReferencia}`,
-    })),
-    { onConflict: "tenant_id,user_id,chave", ignoreDuplicates: true },
-  );
-  if (erroInsert) console.error("[levantamento-diario] falha ao notificar:", erroInsert.message);
+  return { levantamentoId, criado };
 }
 
 /**
@@ -205,7 +180,6 @@ export async function rodarLevantamentoDiarioAutomatico() {
         dataReferencia: dataAlvo,
         origem: "automatico",
       });
-      await notificarLevantamentoPronto(config.tenant_id, dataAlvo);
       resultados.push({ tenantId: config.tenant_id, executado: true });
     } catch (e) {
       console.error(`[levantamento-diario] falha no tenant ${config.tenant_id}:`, e);
