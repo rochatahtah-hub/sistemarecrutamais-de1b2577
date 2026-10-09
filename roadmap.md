@@ -53,3 +53,9 @@
 - [x] Enviar mensagens independentes de segunda e sexta com deduplicação por usuário e data local.
 - [x] Atualizar agendamento existente para verificação horária contínua e testar frequência, condições, cancelamento e entrega simulada.
 - [ ] Comprovar recebimento em celular e computador físicos (depende de dispositivos compatíveis e publicação).
+
+# Exceção de sexta-feira — 09/10/2026
+
+- [ ] Disparar a mensagem de sexta agora pelo envio publicado existente.
+- [ ] Agendar um segundo disparo somente hoje às 18h de São Paulo, sem recorrência nas próximas semanas.
+- [ ] Conferir a resposta do envio e o agendamento no banco.
