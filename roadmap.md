@@ -62,6 +62,6 @@
 
 # Correção de entrega push após publicação
 
-- [ ] Trocar modo de redirecionamento por manual com rejeição explícita de 3xx e testar.
-- [ ] Tentar envio real com a versão corrigida e conferir aceitação do provedor.
+- [x] Trocar modo de redirecionamento por manual com rejeição explícita de 3xx; 26 testes passaram e compilação sem erros.
+- [ ] Conferir aceitação real do provedor após disponibilização da correção (a tentativa no endereço de prévia ainda executou a versão anterior).
 - [ ] Atualizar publicação para o envio automático das 18h (depende de publicar a correção).
