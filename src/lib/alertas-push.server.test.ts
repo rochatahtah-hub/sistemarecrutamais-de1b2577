@@ -89,4 +89,8 @@ describe("condições reais dos alertas", () => {
   it("deduplica tipos repetidos na mesma entrega", async () => {
     expect(await alertasAtuaisDoUsuario(bancoEntrega(1), "user-test", ["atendimento_pendente", "atendimento_pendente"], new Date("2026-10-09T14:00:00Z"))).toHaveLength(1);
   });
+  it("pendência real pode ser entregue fora das antigas janelas", async () => {
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(1), "user-test", ["atendimento_pendente"], new Date("2026-10-11T05:00:00Z"))).toHaveLength(1);
+    expect(await alertasAtuaisDoUsuario(bancoEntrega(0), "user-test", ["atendimento_pendente"], new Date("2026-10-11T05:00:00Z"))).toEqual([]);
+  });
 });

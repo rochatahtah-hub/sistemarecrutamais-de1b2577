@@ -44,4 +44,9 @@ describe("notificações do aplicativo fechado", () => {
     expect(mostrar).not.toHaveBeenCalled();
     expect(fechar).toHaveBeenCalledTimes(1);
   });
+  it("mostra mensagem semanal mesmo sem pendência operacional", async () => {
+    const mostrar = await receber({ interno: true, mensagens: [{ titulo: "🌷 Boa semana!", corpo: "Que seus dias sejam leves!", tipo: "boa_semana", url: "/" }] });
+    expect(mostrar).toHaveBeenCalledTimes(1);
+    expect(mostrar).toHaveBeenCalledWith("🌷 Boa semana!", expect.objectContaining({ tag: "recruta-alerta-boa_semana" }));
+  });
 });
