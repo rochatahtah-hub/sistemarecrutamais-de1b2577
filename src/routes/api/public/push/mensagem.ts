@@ -43,7 +43,12 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           });
           const { alertasAtuaisDoUsuario } = await import("@/lib/alertas-push.server");
           try {
-            mensagens = await alertasAtuaisDoUsuario(supabaseAdmin, data.user_id, tipos);
+            try {
+              mensagens = await alertasAtuaisDoUsuario(supabaseAdmin, data.user_id, tipos);
+            } catch {
+              // An operational read failure suppresses pending-action alerts only.
+              mensagens = [];
+            }
             const { data: perfil, error: erroPerfil } = await supabaseAdmin.from("profiles")
               .select("ativo,tenant_id,fuso_horario,tenants(ativo,status,fuso_horario)").eq("id", data.user_id).maybeSingle();
             if (erroPerfil) throw erroPerfil;
