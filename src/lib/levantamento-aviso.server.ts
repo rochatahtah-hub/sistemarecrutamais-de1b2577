@@ -40,7 +40,9 @@ export async function registrarAvisosLevantamento(tenantId: string, dataReferenc
 }
 
 /** Revalidate recipient and persisted report on device delivery. */
-export async function avisoLevantamentoAtual(userId: string, id: string) {
+export async function avisoLevantamentoAtual(userId: string, id: string, agora = new Date()) {
+  const { hora, semana } = agoraBrasilia(agora);
+  if (semana === 0 || hora < 9 || hora >= 20) return null;
   const { data: perfil, error } = await supabaseAdmin.from("profiles")
     .select("nome,ativo,tenant_id,tenants(ativo,status)").eq("id", userId).maybeSingle();
   if (error) throw error;
@@ -79,7 +81,7 @@ export async function enviarAvisosLevantamento(agora = new Date()) {
   const { enviarAvisoPush } = await import("./push.server");
   for (const aviso of avisos ?? []) {
     if (!aviso.user_id) continue;
-    const mensagem = await avisoLevantamentoAtual(aviso.user_id, aviso.id);
+    const mensagem = await avisoLevantamentoAtual(aviso.user_id, aviso.id, agora);
     if (!mensagem) continue;
     const { data: dispositivos, error: erroDispositivos } = await supabaseAdmin.from("push_usuarios")
       .select("endpoint,mensagens").eq("user_id", aviso.user_id).eq("status", "ativa");

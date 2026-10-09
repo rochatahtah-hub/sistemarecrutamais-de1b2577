@@ -45,4 +45,4 @@
 
 - [x] Personalizar o nome do administrador e especificar diário ou da quinzena após conclusão real.
 - [x] Integrar aviso ao push existente, com permissão, tenant e deduplicação.
-- [ ] Validar cenários automatizados.
+- [x] Validar cenários automatizados de nome, modalidade, período completo, permissão, tenant e horário.
