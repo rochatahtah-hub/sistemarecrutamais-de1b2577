@@ -4,7 +4,7 @@ import { mensagemSemanal } from "./push-semanal";
 /**
  * Avalia as condições reais de cada usuário inscrito e envia push.
  * Respeita: usuário ativo, permissão (tem_permissao), tenant do usuário,
-   * dia local e no máximo um alerta de cada tipo por dia (push_alertas_log).
+ * dia local e no máximo um alerta de cada tipo por dia (push_alertas_log).
  */
 export async function rodarAlertasPush(agora = new Date()) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -48,8 +48,14 @@ export async function rodarAlertasPush(agora = new Date()) {
       .select("tipo").eq("user_id", perfil.id).eq("dia", dia);
     if (erroLog) throw new Error("Não foi possível verificar duplicidades.");
     const enviadosHoje = new Set((jaEnviados ?? []).map(l => l.tipo));
-    const mensagens: { titulo: string; corpo: string; url: string; tipo: string; dia?: string }[] =
-      await alertasAtuaisDoUsuario(supabaseAdmin, perfil.id, tipos, agora);
+    let operacionaisVerificados = true;
+    let mensagens: { titulo: string; corpo: string; url: string; tipo: string; dia?: string }[] = [];
+    try {
+      mensagens = await alertasAtuaisDoUsuario(supabaseAdmin, perfil.id, tipos, agora);
+    } catch {
+      // Weekly greetings do not depend on the operational query succeeding.
+      operacionaisVerificados = false;
+    }
     const semanal = mensagemSemanal(agora, fuso);
     if (semanal) mensagens.push(semanal);
     // Refresh pending state even for already-notified users: resolved items
@@ -60,7 +66,7 @@ export async function rodarAlertasPush(agora = new Date()) {
     const ativos = new Set(mensagens.map((m) => m.tipo));
     for (const dispositivo of dispositivos ?? []) {
       if (!Array.isArray(dispositivo.mensagens)) continue;
-      const validas = dispositivo.mensagens.filter((m) => m && typeof m === "object" && !Array.isArray(m) && typeof m['tipo'] === "string" && (m['tipo'].startsWith('levantamento_pronto_') || ativos.has(m['tipo'])));
+      const validas = dispositivo.mensagens.filter((m) => m && typeof m === "object" && !Array.isArray(m) && typeof m['tipo'] === "string" && (m['tipo'].startsWith('levantamento_pronto_') || ativos.has(m['tipo']) || (!operacionaisVerificados && Object.hasOwn(REGRAS_ALERTA, m['tipo']))));
       if (validas.length === dispositivo.mensagens.length) continue;
       let limpeza = supabaseAdmin.from("push_usuarios").update({ mensagens: validas }).eq("endpoint", dispositivo.endpoint);
       if (dispositivo.mensagens_em) limpeza = limpeza.eq("mensagens_em", dispositivo.mensagens_em);
@@ -71,21 +77,30 @@ export async function rodarAlertasPush(agora = new Date()) {
     if (naoEnviadas.length === 0) continue;
 
     // Registra antes de enviar: se o envio repetir, o log impede duplicidade.
-    const { data: gravados } = await supabaseAdmin
+    const { data: gravados, error: erroClaim } = await supabaseAdmin
       .from("push_alertas_log")
        .upsert(
         naoEnviadas.map((m) => ({ user_id: perfil.id, tipo: m.tipo, dia })),
         { onConflict: "user_id,tipo,dia", ignoreDuplicates: true },
       )
       .select("tipo");
+    if (erroClaim) throw new Error("Não foi possível reservar o envio sem duplicidades.");
     const novos = new Set((gravados ?? []).map((g) => g.tipo));
     const finais = naoEnviadas.filter((m) => novos.has(m.tipo));
     if (finais.length === 0) continue;
 
     const endpoints = porUsuario.get(perfil.id) ?? [];
+    const preservadas = new Map<string, { [key: string]: import("@/integrations/supabase/types").Json | undefined }>();
+    for (const dispositivo of dispositivos ?? []) {
+      if (!Array.isArray(dispositivo.mensagens)) continue;
+      for (const m of dispositivo.mensagens) {
+        if (!m || typeof m !== "object" || Array.isArray(m) || typeof m["tipo"] !== "string") continue;
+        if (!novos.has(m["tipo"]) && (m["tipo"].startsWith("levantamento_pronto_") || ativos.has(m["tipo"]) || (!operacionaisVerificados && Object.hasOwn(REGRAS_ALERTA, m["tipo"])))) preservadas.set(m["tipo"], m);
+      }
+    }
     const { error: erroFila } = await supabaseAdmin
       .from("push_usuarios")
-      .update({ mensagens: [...(dispositivos ?? []).flatMap(d => Array.isArray(d.mensagens) ? d.mensagens.filter(m => m && typeof m === "object" && !Array.isArray(m) && typeof m["tipo"] === "string" && (m["tipo"].startsWith("levantamento_pronto_") || ativos.has(m["tipo"]))) : []).filter((m, i, arr) => arr.findIndex(outro => outro && typeof outro === "object" && !Array.isArray(outro) && outro["tipo"] === m["tipo"]) === i && !novos.has(String(m["tipo"]))), ...finais], mensagens_em: agora.toISOString() })
+      .update({ mensagens: [...preservadas.values(), ...finais], mensagens_em: agora.toISOString() })
       .in("endpoint", endpoints).eq("user_id", perfil.id).eq("status", "ativa");
     if (erroFila) {
       await supabaseAdmin.from("push_alertas_log").delete().eq("user_id", perfil.id)
