@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 async function receber(resultado: unknown, falhar = false) {
   const handlers: Record<string, (e: unknown) => void> = {};
-  const showNotification = vi.fn(async () => undefined);
+  const showNotification = vi.fn(async (_titulo: string, _opcoes: unknown) => undefined);
   const self = {
     addEventListener: (tipo: string, handler: (e: unknown) => void) => { handlers[tipo] = handler; },
     registration: { pushManager: { getSubscription: async () => ({ endpoint: "https://fcm.googleapis.com/push/test" }) }, showNotification },
@@ -17,7 +17,7 @@ async function receber(resultado: unknown, falhar = false) {
     },
   });
   let tarefa: Promise<void> | undefined;
-  const push = handlers.push;
+  const push = handlers['push'];
   if (!push) throw new Error("Handler de push ausente");
   push({ waitUntil: (p: Promise<void>) => { tarefa = p; } });
   await tarefa;

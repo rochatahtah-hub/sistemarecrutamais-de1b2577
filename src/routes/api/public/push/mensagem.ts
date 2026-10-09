@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           if (perfil?.ativo && perfil.tenants?.ativo && perfil.tenants.status === "ativo") {
             for (const mensagem of data.mensagens) {
               if (!mensagem || typeof mensagem !== "object" || Array.isArray(mensagem)) continue;
-              const tipo = mensagem.tipo;
+              const tipo = mensagem['tipo'];
               if (typeof tipo !== "string" || !Object.hasOwn(REGRAS_ALERTA, tipo)) continue;
               const regra = REGRAS_ALERTA[tipo as TipoAlerta];
               if (!alertaNoHorario(tipo as TipoAlerta, hora, semana)) continue;
