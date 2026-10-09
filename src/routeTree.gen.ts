@@ -58,9 +58,11 @@ import { Route as RsCandidatosRouteImport } from './routes/rs.candidatos'
 import { Route as RsDashboardRouteImport } from './routes/rs.dashboard'
 import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
 import { Route as RsLevantamentoRouteImport } from './routes/rs.levantamento'
+import { Route as ApiPublicHooksAlertasPushRouteImport } from './routes/api/public/hooks/alertas-push'
 import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 import { Route as ApiPublicHooksLevantamentoDiarioRouteImport } from './routes/api/public/hooks/levantamento-diario'
 import { Route as ApiPublicHooksMercadoPagoRouteImport } from './routes/api/public/hooks/mercado-pago'
+import { Route as ApiPublicPushMensagemRouteImport } from './routes/api/public/push/mensagem'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -307,6 +309,12 @@ const RsLevantamentoRoute = RsLevantamentoRouteImport.update({
   path: '/rs/levantamento',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksAlertasPushRoute =
+  ApiPublicHooksAlertasPushRouteImport.update({
+    id: '/api/public/hooks/alertas-push',
+    path: '/api/public/hooks/alertas-push',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksBackupAgendadoRoute =
   ApiPublicHooksBackupAgendadoRouteImport.update({
     id: '/api/public/hooks/backup-agendado',
@@ -325,6 +333,11 @@ const ApiPublicHooksMercadoPagoRoute =
     path: '/api/public/hooks/mercado-pago',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicPushMensagemRoute = ApiPublicPushMensagemRouteImport.update({
+  id: '/api/public/push/mensagem',
+  path: '/api/public/push/mensagem',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -376,9 +389,11 @@ export interface FileRoutesByFullPath {
   '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/api/public/hooks/alertas-push': typeof ApiPublicHooksAlertasPushRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
   '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
+  '/api/public/push/mensagem': typeof ApiPublicPushMensagemRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -430,9 +445,11 @@ export interface FileRoutesByTo {
   '/cadastro-diarias': typeof CadastroDiariasIndexRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
+  '/api/public/hooks/alertas-push': typeof ApiPublicHooksAlertasPushRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
   '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
+  '/api/public/push/mensagem': typeof ApiPublicPushMensagemRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -485,9 +502,11 @@ export interface FileRoutesById {
   '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/api/public/hooks/alertas-push': typeof ApiPublicHooksAlertasPushRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
   '/api/public/hooks/mercado-pago': typeof ApiPublicHooksMercadoPagoRoute
+  '/api/public/push/mensagem': typeof ApiPublicPushMensagemRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -541,9 +560,11 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
+    | '/api/public/hooks/alertas-push'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
     | '/api/public/hooks/mercado-pago'
+    | '/api/public/push/mensagem'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -595,9 +616,11 @@ export interface FileRouteTypes {
     | '/cadastro-diarias'
     | '/colaboradores'
     | '/empresas'
+    | '/api/public/hooks/alertas-push'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
     | '/api/public/hooks/mercado-pago'
+    | '/api/public/push/mensagem'
   id:
     | '__root__'
     | '/'
@@ -649,9 +672,11 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
+    | '/api/public/hooks/alertas-push'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
     | '/api/public/hooks/mercado-pago'
+    | '/api/public/push/mensagem'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -704,9 +729,11 @@ export interface RootRouteChildren {
   CadastroDiariasIndexRoute: typeof CadastroDiariasIndexRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
+  ApiPublicHooksAlertasPushRoute: typeof ApiPublicHooksAlertasPushRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
   ApiPublicHooksLevantamentoDiarioRoute: typeof ApiPublicHooksLevantamentoDiarioRoute
   ApiPublicHooksMercadoPagoRoute: typeof ApiPublicHooksMercadoPagoRoute
+  ApiPublicPushMensagemRoute: typeof ApiPublicPushMensagemRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1054,6 +1081,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RsLevantamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/alertas-push': {
+      id: '/api/public/hooks/alertas-push'
+      path: '/api/public/hooks/alertas-push'
+      fullPath: '/api/public/hooks/alertas-push'
+      preLoaderRoute: typeof ApiPublicHooksAlertasPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/backup-agendado': {
       id: '/api/public/hooks/backup-agendado'
       path: '/api/public/hooks/backup-agendado'
@@ -1073,6 +1107,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/mercado-pago'
       fullPath: '/api/public/hooks/mercado-pago'
       preLoaderRoute: typeof ApiPublicHooksMercadoPagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/push/mensagem': {
+      id: '/api/public/push/mensagem'
+      path: '/api/public/push/mensagem'
+      fullPath: '/api/public/push/mensagem'
+      preLoaderRoute: typeof ApiPublicPushMensagemRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1128,9 +1169,11 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroDiariasIndexRoute: CadastroDiariasIndexRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
+  ApiPublicHooksAlertasPushRoute: ApiPublicHooksAlertasPushRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
   ApiPublicHooksLevantamentoDiarioRoute: ApiPublicHooksLevantamentoDiarioRoute,
   ApiPublicHooksMercadoPagoRoute: ApiPublicHooksMercadoPagoRoute,
+  ApiPublicPushMensagemRoute: ApiPublicPushMensagemRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

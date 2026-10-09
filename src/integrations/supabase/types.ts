@@ -1941,48 +1941,6 @@ export type Database = {
           },
         ]
       }
-      mensagens_diarias: {
-        Row: {
-          ativa: boolean
-          created_at: string
-          criado_por: string | null
-          criado_por_nome: string
-          data_especifica: string | null
-          id: string
-          referencia: string | null
-          tenant_id: string | null
-          texto: string
-          tipo: string
-          updated_at: string
-        }
-        Insert: {
-          ativa?: boolean
-          created_at?: string
-          criado_por?: string | null
-          criado_por_nome?: string
-          data_especifica?: string | null
-          id?: string
-          referencia?: string | null
-          tenant_id?: string | null
-          texto: string
-          tipo?: string
-          updated_at?: string
-        }
-        Update: {
-          ativa?: boolean
-          created_at?: string
-          criado_por?: string | null
-          criado_por_nome?: string
-          data_especifica?: string | null
-          id?: string
-          referencia?: string | null
-          tenant_id?: string | null
-          texto?: string
-          tipo?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       mensagens: {
         Row: {
           anexo_mime: string
@@ -2045,6 +2003,56 @@ export type Database = {
             columns: ["responde_a"]
             isOneToOne: false
             referencedRelation: "mensagens"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mensagens_diarias: {
+        Row: {
+          ativa: boolean
+          created_at: string
+          criado_por: string | null
+          criado_por_nome: string
+          data_especifica: string | null
+          id: string
+          referencia: string | null
+          tenant_id: string | null
+          texto: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          ativa?: boolean
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          data_especifica?: string | null
+          id?: string
+          referencia?: string | null
+          tenant_id?: string | null
+          texto: string
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          ativa?: boolean
+          created_at?: string
+          criado_por?: string | null
+          criado_por_nome?: string
+          data_especifica?: string | null
+          id?: string
+          referencia?: string | null
+          tenant_id?: string | null
+          texto?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mensagens_diarias_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -2422,44 +2430,6 @@ export type Database = {
           },
         ]
       }
-      push_inscricoes: {
-        Row: {
-          cancelada_em: string | null
-          created_at: string
-          endpoint: string
-          id: string
-          status: string
-          tenant_id: string
-          updated_at: string
-        }
-        Insert: {
-          cancelada_em?: string | null
-          created_at?: string
-          endpoint: string
-          id?: string
-          status?: string
-          tenant_id: string
-          updated_at?: string
-        }
-        Update: {
-          cancelada_em?: string | null
-          created_at?: string
-          endpoint?: string
-          id?: string
-          status?: string
-          tenant_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "push_inscricoes_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       planos: {
         Row: {
           ativo: boolean
@@ -2621,6 +2591,101 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      push_alertas_log: {
+        Row: {
+          dia: string
+          enviado_em: string
+          tipo: string
+          user_id: string
+        }
+        Insert: {
+          dia: string
+          enviado_em?: string
+          tipo: string
+          user_id: string
+        }
+        Update: {
+          dia?: string
+          enviado_em?: string
+          tipo?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      push_inscricoes: {
+        Row: {
+          cancelada_em: string | null
+          created_at: string
+          endpoint: string
+          id: string
+          status: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          cancelada_em?: string | null
+          created_at?: string
+          endpoint: string
+          id?: string
+          status?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          cancelada_em?: string | null
+          created_at?: string
+          endpoint?: string
+          id?: string
+          status?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_inscricoes_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_usuarios: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          mensagens: Json
+          mensagens_em: string | null
+          status: string
+          tenant_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          mensagens?: Json
+          mensagens_em?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          mensagens?: Json
+          mensagens_em?: string | null
+          status?: string
+          tenant_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       quinzenas_historico: {
         Row: {
