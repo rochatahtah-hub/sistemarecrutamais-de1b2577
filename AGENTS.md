@@ -1,0 +1,1 @@
+- Keep heterogeneous backup reads behind a narrow typed query boundary; expanding generated relationship types for a union of tables can exceed compiler limits.
