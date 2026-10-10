@@ -62,6 +62,9 @@
 
 # Correção de entrega push após publicação
 
+- [x] Preservar fila até confirmação do dispositivo, repetir consultas transitórias e oferecer teste autenticado no sino ativo.
+- [ ] Confirmar recebimento físico pelo botão de teste (depende do aparelho da usuária e da atualização publicada).
+
 - [x] Trocar modo de redirecionamento por manual com rejeição explícita de 3xx; 26 testes passaram e compilação sem erros.
 - [ ] Conferir aceitação real do provedor após disponibilização da correção (a tentativa no endereço de prévia ainda executou a versão anterior).
 - [ ] Atualizar publicação para o envio automático das 18h (depende de publicar a correção).
