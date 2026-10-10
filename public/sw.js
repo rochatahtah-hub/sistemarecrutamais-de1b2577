@@ -15,7 +15,7 @@
  * a antes de existir service worker.
  */
 
-const VERSAO = "recruta-mais-v6";
+const VERSAO = "recruta-mais-v7";
 const ESTATICOS = /\.(?:js|mjs|css|woff2?|ttf|otf|png|jpe?g|svg|gif|webp|avif|ico)$/i;
 const NUNCA_CACHEAR = /^\/(?:api|_serverFn)\//;
 
@@ -51,6 +51,7 @@ const AVISO_CORPO = "Acesse o portal para consultar os detalhes.";
  * alerta pendente, é um aviso de nova vaga do portal.
  */
 async function buscarAlertas() {
+  for (let tentativa = 0; tentativa < 3; tentativa++) {
   try {
     const sub = await self.registration.pushManager.getSubscription();
     if (!sub) return { mensagens: [], interno: true };
@@ -60,37 +61,47 @@ async function buscarAlertas() {
       body: JSON.stringify({ endpoint: sub.endpoint }),
       cache: "no-store",
     });
-    if (!r.ok) return { mensagens: [], interno: true };
+    if (!r.ok) throw new Error("Consulta indisponível");
     const j = await r.json();
-    return { mensagens: Array.isArray(j.mensagens) ? j.mensagens : [], interno: j.interno === true };
+    return { mensagens: Array.isArray(j.mensagens) ? j.mensagens : [], interno: j.interno === true, lote: j.lote, endpoint: sub.endpoint, ok: true };
   } catch {
-    return { mensagens: [], interno: true };
+    if (tentativa < 2) await new Promise(resolve => setTimeout(resolve, 500 * (tentativa + 1)));
   }
+  }
+  return { mensagens: [], interno: true, ok: false };
 }
 
+let entrega = Promise.resolve();
 self.addEventListener("push", (evento) => {
-  evento.waitUntil(
+  entrega = entrega.catch(() => {}).then(
     (async () => {
-      const { mensagens: alertas, interno } = await buscarAlertas();
+      const { mensagens: alertas, interno, lote, endpoint, ok } = await buscarAlertas();
+      if (!ok) return; // A failed read is not proof that a pending action was resolved.
+      const existentes = await self.registration.getNotifications();
+      const confirmar = async () => {
+        if (!lote || !endpoint) return;
+        await fetch("/api/public/push/mensagem", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ endpoint, recebido: lote }), cache: "no-store" }).catch(() => {});
+      };
       if (interno && alertas.length === 0) {
-        const existentes = await self.registration.getNotifications();
         for (const aviso of existentes) {
           if (aviso.tag.startsWith("recruta-alerta-") || aviso.tag === "recruta-atualizacoes") aviso.close();
         }
+        await confirmar();
         return;
       }
       if (alertas.length > 0) {
         await Promise.all(
-          alertas.map((a) =>
+          alertas.filter(a => !lote || !existentes.some(n => n.tag === "recruta-alerta-" + a.tipo && n.data?.lote === lote)).map((a) =>
             self.registration.showNotification(String(a.titulo || "Recruta+"), {
               body: String(a.corpo || ""),
               icon: "/icon-192.png",
               badge: "/icon-192.png",
               tag: "recruta-alerta-" + String(a.tipo || "geral"),
-               data: { url: typeof a.url === "string" && a.url.startsWith("/") && !a.url.startsWith("//") ? a.url : "/" },
+               data: { url: typeof a.url === "string" && a.url.startsWith("/") && !a.url.startsWith("//") ? a.url : "/", ...(lote ? { lote } : {}) },
             }),
           ),
         );
+        await confirmar();
         return;
       }
       await self.registration.showNotification(AVISO_TITULO, {
@@ -100,8 +111,9 @@ self.addEventListener("push", (evento) => {
         tag: "recruta-mais-nova-vaga",
         renotify: true,
       });
-    })(),
+    }),
   );
+  evento.waitUntil(entrega);
 });
 
 self.addEventListener("notificationclick", (evento) => {

@@ -6,5 +6,5 @@
 - Scope attendance push alerts to the vacancy's assigned programmer while no separate validation assignee exists; tenant-wide permission is not evidence of individual responsibility.
 
 - Create report-ready events only after successful report writes; quinzenal readiness requires every daily report in the period, and delivery rechecks the named administrator, tenant and notification permission.
-- Use IANA user timezone with tenant fallback for push day boundaries and weekly greetings; claim queued batches atomically before delivery to prevent concurrent duplicate notifications.
+- Use IANA user timezone with tenant fallback for push day boundaries and weekly greetings; acknowledge queued batches only after device display, serialize service-worker deliveries and deduplicate by batch to avoid lost messages and concurrent duplicate notifications.
 - One-day greeting exceptions use a distinct deduplication type in the shared weekly evaluator so scheduling and device delivery enforce the same rule without resetting previous delivery logs.

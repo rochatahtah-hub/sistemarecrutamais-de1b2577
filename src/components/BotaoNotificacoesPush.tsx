@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { BellRing, BellOff, Loader2 } from "lucide-react";
+import { BellRing, BellOff, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 
 import { Button } from "@/components/ui/button";
 import { chavePublicaPush } from "@/lib/push.functions";
-import { ativarAlertasUsuario, desativarAlertasUsuario, estadoAlertasUsuario } from "@/lib/push-usuario.functions";
+import { ativarAlertasUsuario, desativarAlertasUsuario, estadoAlertasUsuario, testarAlertasUsuario } from "@/lib/push-usuario.functions";
 import { useAuth } from "@/lib/auth";
 
 type Estado = "oculto" | "bloqueado" | "inativo" | "ativo";
@@ -26,6 +26,7 @@ export function BotaoNotificacoesPush() {
   const ativar = useServerFn(ativarAlertasUsuario);
   const desativar = useServerFn(desativarAlertasUsuario);
   const chavePublica = useServerFn(chavePublicaPush);
+  const testar = useServerFn(testarAlertasUsuario);
   const [estado, setEstado] = useState<Estado>("oculto");
   const [ocupado, setOcupado] = useState(false);
 
@@ -34,7 +35,7 @@ export function BotaoNotificacoesPush() {
       return setEstado("oculto");
     if (Notification.permission === "denied") return setEstado("bloqueado");
     try {
-      const reg = await navigator.serviceWorker.getRegistration();
+      const reg = await navigator.serviceWorker.ready;
       const sub = await reg?.pushManager.getSubscription();
       const inscricao = sub && user ? await consultar({ data: { endpoint: sub.endpoint } }) : null;
       setEstado(inscricao?.ativo ? "ativo" : "inativo");
@@ -89,6 +90,7 @@ export function BotaoNotificacoesPush() {
   if (estado === "oculto") return null;
   const ativo = estado === "ativo";
   return (
+    <>
     <Button
       variant="ghost"
       size="icon"
@@ -100,5 +102,18 @@ export function BotaoNotificacoesPush() {
     >
       {ocupado ? <Loader2 className="h-4 w-4 animate-spin" /> : ativo ? <BellRing className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
     </Button>
+    {ativo && <Button variant="ghost" size="icon" disabled={ocupado} title="Enviar notificação de teste" aria-label="Enviar notificação de teste" onClick={async () => {
+      setOcupado(true);
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        await reg.update();
+        const sub = await reg.pushManager.getSubscription();
+        if (!sub) throw new Error("Ative as notificações novamente.");
+        await testar({ data: { endpoint: sub.endpoint } });
+        toast.info("Teste enviado. Confira a notificação na tela deste dispositivo.");
+      } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível enviar o teste."); }
+      finally { setOcupado(false); }
+    }}><Send className="h-4 w-4" /></Button>}
+    </>
   );
 }

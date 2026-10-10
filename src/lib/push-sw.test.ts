@@ -2,25 +2,28 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import { describe, expect, it, vi } from "vitest";
 
-async function receber(resultado: unknown, falhar = false, existentes: { tag: string; close: () => void }[] = []) {
+async function receber(resultado: unknown, falhar = false, existentes: { tag: string; close: () => void; data?: unknown }[] = [], falharExibicao = false) {
   const handlers: Record<string, (e: unknown) => void> = {};
-  const showNotification = vi.fn(async (_titulo: string, _opcoes: unknown) => undefined);
+  const showNotification = vi.fn(async (_titulo: string, _opcoes: unknown) => { if (falharExibicao) throw new Error("display failed"); });
+  const pedidos = vi.fn(async (_url: string, _opcoes?: { body?: string }) => {
+    if (falhar) throw new Error("offline");
+    return { ok: true, json: async () => resultado };
+  });
   const self = {
     addEventListener: (tipo: string, handler: (e: unknown) => void) => { handlers[tipo] = handler; },
     registration: { pushManager: { getSubscription: async () => ({ endpoint: "https://fcm.googleapis.com/push/test" }) }, showNotification, getNotifications: async () => existentes },
   };
   runInNewContext(readFileSync("public/sw.js", "utf8"), {
     self,
-    fetch: async () => {
-      if (falhar) throw new Error("offline");
-      return { ok: true, json: async () => resultado };
-    },
+    fetch: pedidos,
+    setTimeout: (f: () => void) => f(),
   });
   let tarefa: Promise<void> | undefined;
   const push = handlers['push'];
   if (!push) throw new Error("Handler de push ausente");
   push({ waitUntil: (p: Promise<void>) => { tarefa = p; } });
-  await tarefa;
+  await tarefa?.catch(() => {});
+  Object.assign(showNotification, { pedidos });
   return showNotification;
 }
 
@@ -48,5 +51,27 @@ describe("notificações do aplicativo fechado", () => {
     const mostrar = await receber({ interno: true, mensagens: [{ titulo: "🌷 Boa semana!", corpo: "Que seus dias sejam leves!", tipo: "boa_semana", url: "/" }] });
     expect(mostrar).toHaveBeenCalledTimes(1);
     expect(mostrar).toHaveBeenCalledWith("🌷 Boa semana!", expect.objectContaining({ tag: "recruta-alerta-boa_semana" }));
+  });
+  it("confirma o lote somente depois de mostrar o aviso", async () => {
+    const mostrar = await receber({ interno: true, lote: "2026-10-10T00:00:00Z", mensagens: [{ titulo: "Recruta+", tipo: "boa_sexta", corpo: "Boa sexta!" }] });
+    const pedidos = (mostrar as typeof mostrar & { pedidos: ReturnType<typeof vi.fn> }).pedidos;
+    expect(pedidos).toHaveBeenCalledTimes(2);
+    expect(JSON.parse(pedidos.mock.calls[1]?.[1].body).recebido).toBe("2026-10-10T00:00:00Z");
+    expect(mostrar.mock.invocationCallOrder[0]).toBeLessThan(pedidos.mock.invocationCallOrder[1] ?? 0);
+  });
+  it("não confirma lote quando a exibição falha", async () => {
+    const mostrar = await receber({ interno: true, lote: "lote", mensagens: [{ titulo: "Recruta+", tipo: "boa_sexta" }] }, false, [], true);
+    expect((mostrar as typeof mostrar & { pedidos: ReturnType<typeof vi.fn> }).pedidos).toHaveBeenCalledTimes(1);
+  });
+  it("consulta três vezes e não fecha alertas por falha de rede", async () => {
+    const fechar = vi.fn();
+    const mostrar = await receber(null, true, [{ tag: "recruta-alerta-atendimento_pendente", close: fechar }]);
+    expect((mostrar as typeof mostrar & { pedidos: ReturnType<typeof vi.fn> }).pedidos).toHaveBeenCalledTimes(3);
+    expect(fechar).not.toHaveBeenCalled();
+  });
+  it("não mostra novamente um lote já visível", async () => {
+    const mostrar = await receber({ interno: true, lote: "lote", mensagens: [{ titulo: "Recruta+", tipo: "boa_sexta" }] }, false, [{ tag: "recruta-alerta-boa_sexta", data: { lote: "lote" }, close: vi.fn() }]);
+    expect(mostrar).not.toHaveBeenCalled();
+    expect((mostrar as typeof mostrar & { pedidos: ReturnType<typeof vi.fn> }).pedidos).toHaveBeenCalledTimes(2);
   });
 });
