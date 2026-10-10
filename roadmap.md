@@ -66,5 +66,5 @@
 - [ ] Confirmar recebimento físico pelo botão de teste (depende do aparelho da usuária e da atualização publicada).
 
 - [x] Trocar modo de redirecionamento por manual com rejeição explícita de 3xx; 26 testes passaram e compilação sem erros.
-- [ ] Conferir aceitação real do provedor após disponibilização da correção (a tentativa no endereço de prévia ainda executou a versão anterior).
-- [ ] Atualizar publicação para o envio automático das 18h (depende de publicar a correção).
+- [x] Conferir registros de aceitação anteriores: existem reservas de envio de sexta e das 18h; isso não comprova exibição nos aparelhos.
+- [ ] Atualizar publicação com confirmação de exibição e botão de teste (depende de atualizar o site publicado).

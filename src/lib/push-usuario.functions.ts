@@ -66,12 +66,12 @@ export const testarAlertasUsuario = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!endpointValido(data.endpoint)) throw new Error("Dispositivo inválido.");
     const { data: inscricao, error } = await context.supabase.from("push_usuarios")
-      .select("id,mensagens_em").eq("endpoint", data.endpoint).eq("user_id", context.userId).eq("status", "ativa").maybeSingle();
+      .select("id,mensagens,mensagens_em").eq("endpoint", data.endpoint).eq("user_id", context.userId).eq("status", "ativa").maybeSingle();
     if (error || !inscricao) throw new Error("Ative as notificações neste dispositivo primeiro.");
     if (inscricao.mensagens_em && Date.now() - new Date(inscricao.mensagens_em).getTime() < 60000) throw new Error("Aguarde um minuto antes de testar novamente.");
     const lote = new Date().toISOString();
     const { error: erroFila } = await context.supabase.from("push_usuarios")
-      .update({ mensagens: [{ tipo: "teste_dispositivo" }], mensagens_em: lote })
+      .update({ mensagens: [...(Array.isArray(inscricao.mensagens) ? inscricao.mensagens : []), { tipo: "teste_dispositivo" }], mensagens_em: lote })
       .eq("id", inscricao.id).eq("user_id", context.userId);
     if (erroFila) throw new Error("Não foi possível preparar o teste.");
     const { enviarAvisoPush } = await import("./push.server");
