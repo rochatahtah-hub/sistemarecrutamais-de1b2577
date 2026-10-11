@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const estado = vi.hoisted(() => ({ logs: [] as { user_id: string; tipo: string; dia: string }[], fila: [] as Record<string, unknown>[], ativo: true, inscrito: true, count: 1, envios: 0, sucesso: true }));
+const estado = vi.hoisted(() => ({ logs: [] as { user_id: string; tipo: string; dia: string }[], fila: [] as Record<string, unknown>[], lote: null as string | null, ativo: true, inscrito: true, count: 1, envios: 0, sucesso: true }));
 vi.mock("./levantamento-aviso.server", () => ({ enviarAvisosLevantamento: async () => undefined }));
 vi.mock("./push.server", () => ({ enviarAvisoPush: async () => {
   estado.envios++;
@@ -21,8 +21,12 @@ vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: {
           data = unico ? perfil : [perfil];
         } else if (tabela === "tenants") data = [{ id: "tenant", fuso_horario: "America/Sao_Paulo" }];
         else if (tabela === "push_usuarios") {
-          if (operacao === "update") estado.fila = (payload as { mensagens: Record<string, unknown>[] }).mensagens;
-          data = estado.inscrito ? [{ user_id: "usuario", endpoint: "https://fcm.googleapis.com/push/test", mensagens: estado.fila, mensagens_em: null }] : [];
+          if (operacao === "update") {
+            const valores = payload as { mensagens?: Record<string, unknown>[]; mensagens_em?: string };
+            if (valores.mensagens) estado.fila = valores.mensagens;
+            if (valores.mensagens_em) estado.lote = valores.mensagens_em;
+          }
+          data = estado.inscrito ? [{ user_id: "usuario", endpoint: "https://fcm.googleapis.com/push/test", mensagens: estado.fila, mensagens_em: estado.lote }] : [];
         } else if (tabela === "push_alertas_log") {
           if (operacao === "upsert") {
             const rows = payload as typeof estado.logs;
@@ -45,7 +49,7 @@ vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: {
 } }));
 import { rodarAlertasPush } from "./alertas-push.server";
 
-beforeEach(() => Object.assign(estado, { logs: [], fila: [], ativo: true, inscrito: true, count: 1, envios: 0, sucesso: true }));
+beforeEach(() => Object.assign(estado, { logs: [], fila: [], lote: null, ativo: true, inscrito: true, count: 1, envios: 0, sucesso: true }));
 describe("disparos semanais pelo mesmo backend Web Push", () => {
   it("segunda sem pendência envia uma vez e não repete nas verificações seguintes", async () => {
     await rodarAlertasPush(new Date("2026-10-05T12:00:00Z"));
@@ -69,6 +73,9 @@ describe("disparos semanais pelo mesmo backend Web Push", () => {
   it("hoje envia agora e às 18h, sem repetir cada disparo", async () => {
     for (const hora of ["11:44:00", "12:00:00", "20:59:59", "21:00:00", "22:00:00"]) {
       await rodarAlertasPush(new Date(`2026-10-09T${hora}Z`));
+      // Device acknowledges each successful display in this frequency scenario.
+      estado.fila = [];
+      estado.lote = null;
     }
     expect(estado.envios).toBe(2);
     expect(estado.logs.map(l => l.tipo)).toEqual(["boa_sexta", "boa_sexta_18h"]);
@@ -96,5 +103,32 @@ describe("disparos semanais pelo mesmo backend Web Push", () => {
     await rodarAlertasPush(new Date("2026-10-09T13:00:00Z"));
     expect(estado.logs).toHaveLength(1);
     expect(estado.envios).toBe(2);
+  });
+  it("repete transporte de lote não confirmado sem duplicar a mensagem ou renovar o lote", async () => {
+    await rodarAlertasPush(new Date("2026-10-05T12:00:00Z"));
+    await rodarAlertasPush(new Date("2026-10-05T13:00:00Z"));
+    expect(estado.envios).toBe(2);
+    expect(estado.fila).toHaveLength(1);
+    expect(estado.logs).toHaveLength(1);
+    expect(estado.lote).toBe("2026-10-05T12:00:00.000Z");
+  });
+  it("confirmação do dispositivo impede nova tentativa", async () => {
+    await rodarAlertasPush(new Date("2026-10-05T12:00:00Z"));
+    estado.fila = [];
+    estado.lote = null;
+    await rodarAlertasPush(new Date("2026-10-05T13:00:00Z"));
+    expect(estado.envios).toBe(1);
+  });
+  it("lote expirado não é reenviado", async () => {
+    await rodarAlertasPush(new Date("2026-10-05T12:00:00Z"));
+    await rodarAlertasPush(new Date("2026-10-05T14:00:00Z"));
+    expect(estado.envios).toBe(1);
+  });
+  it("mantém teste solicitado até confirmação do aparelho", async () => {
+    estado.fila = [{ tipo: "teste_dispositivo" }];
+    estado.lote = "2026-10-10T12:00:00.000Z";
+    await rodarAlertasPush(new Date("2026-10-10T13:00:00Z"));
+    expect(estado.fila).toEqual([{ tipo: "teste_dispositivo" }]);
+    expect(estado.envios).toBe(1);
   });
 });

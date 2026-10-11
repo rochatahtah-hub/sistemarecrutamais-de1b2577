@@ -62,6 +62,9 @@
 
 # Correção de entrega push após publicação
 
+- [x] Corrigir incompatibilidade da tela de erro após atualização; prévia abre com a sessão de Talita e compilação aprovada.
+- [x] Repetir transporte de lotes recentes ainda não confirmados sem renovar validade; preservar testes solicitados e validar com 65 testes automatizados.
+- [x] Enviar teste real para inscrição ativa da conta de Talita: provedor aceitou; exibição física ainda não comprovada.
 - [x] Preservar fila até confirmação do dispositivo, repetir consultas transitórias e oferecer teste autenticado no sino ativo.
 - [ ] Confirmar recebimento físico pelo botão de teste (depende do aparelho da usuária e da atualização publicada).
 
