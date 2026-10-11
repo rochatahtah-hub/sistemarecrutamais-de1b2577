@@ -64,9 +64,11 @@ export async function rodarAlertasPush(agora = new Date()) {
       .select("endpoint,mensagens,mensagens_em").eq("user_id", perfil.id).eq("status", "ativa");
     if (erroDispositivos) throw new Error("Não foi possível atualizar os alertas pendentes.");
     const ativos = new Set(mensagens.map((m) => m.tipo));
+    const filasAtuais = new Map<string, typeof dispositivos>();
     for (const dispositivo of dispositivos ?? []) {
       if (!Array.isArray(dispositivo.mensagens)) continue;
-      const validas = dispositivo.mensagens.filter((m) => m && typeof m === "object" && !Array.isArray(m) && typeof m['tipo'] === "string" && (m['tipo'].startsWith('levantamento_pronto_') || ativos.has(m['tipo']) || (!operacionaisVerificados && Object.hasOwn(REGRAS_ALERTA, m['tipo']))));
+      const validas = dispositivo.mensagens.filter((m) => m && typeof m === "object" && !Array.isArray(m) && typeof m['tipo'] === "string" && (m['tipo'] === 'teste_dispositivo' || m['tipo'].startsWith('levantamento_pronto_') || ativos.has(m['tipo']) || (!operacionaisVerificados && Object.hasOwn(REGRAS_ALERTA, m['tipo']))));
+      filasAtuais.set(dispositivo.endpoint, [{ ...dispositivo, mensagens: validas }]);
       if (validas.length === dispositivo.mensagens.length) continue;
       let limpeza = supabaseAdmin.from("push_usuarios").update({ mensagens: validas }).eq("endpoint", dispositivo.endpoint);
       if (dispositivo.mensagens_em) limpeza = limpeza.eq("mensagens_em", dispositivo.mensagens_em);
@@ -74,7 +76,22 @@ export async function rodarAlertasPush(agora = new Date()) {
       if (error) throw new Error("Não foi possível limpar os alertas resolvidos.");
     }
     const naoEnviadas = mensagens.filter((m) => !enviadosHoje.has(m.tipo));
-    if (naoEnviadas.length === 0) continue;
+    if (naoEnviadas.length === 0) {
+      // Provider acceptance is not display. Wake devices with an unacknowledged
+      // live batch again, without replacing its ID or extending its lifetime.
+      const pendentes = [...filasAtuais.values()].flatMap(fila => fila ?? []).filter(d => {
+        if (!d.mensagens_em || !Array.isArray(d.mensagens) || d.mensagens.length === 0) return false;
+        const idade = agora.getTime() - new Date(d.mensagens_em).getTime();
+        return idade >= 0 && idade < 2 * 3600 * 1000;
+      }).map(d => d.endpoint);
+      if (pendentes.length > 0) {
+        const tentativa = await enviarAvisoPush(pendentes, 3600);
+        enviados += tentativa.enviados;
+        if (tentativa.invalidos.length > 0) await supabaseAdmin.from("push_usuarios")
+          .update({ status: "invalida" }).in("endpoint", tentativa.invalidos);
+      }
+      continue;
+    }
 
     // Registra antes de enviar: se o envio repetir, o log impede duplicidade.
     const { data: gravados, error: erroClaim } = await supabaseAdmin
@@ -95,7 +112,7 @@ export async function rodarAlertasPush(agora = new Date()) {
       if (!Array.isArray(dispositivo.mensagens)) continue;
       for (const m of dispositivo.mensagens) {
         if (!m || typeof m !== "object" || Array.isArray(m) || typeof m["tipo"] !== "string") continue;
-        if (!novos.has(m["tipo"]) && (m["tipo"].startsWith("levantamento_pronto_") || ativos.has(m["tipo"]) || (!operacionaisVerificados && Object.hasOwn(REGRAS_ALERTA, m["tipo"])))) preservadas.set(m["tipo"], m);
+        if (!novos.has(m["tipo"]) && (m["tipo"] === "teste_dispositivo" || m["tipo"].startsWith("levantamento_pronto_") || ativos.has(m["tipo"]) || (!operacionaisVerificados && Object.hasOwn(REGRAS_ALERTA, m["tipo"])))) preservadas.set(m["tipo"], m);
       }
     }
     const { error: erroFila } = await supabaseAdmin
