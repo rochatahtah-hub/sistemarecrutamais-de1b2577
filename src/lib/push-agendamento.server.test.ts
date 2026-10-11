@@ -73,6 +73,9 @@ describe("disparos semanais pelo mesmo backend Web Push", () => {
   it("hoje envia agora e às 18h, sem repetir cada disparo", async () => {
     for (const hora of ["11:44:00", "12:00:00", "20:59:59", "21:00:00", "22:00:00"]) {
       await rodarAlertasPush(new Date(`2026-10-09T${hora}Z`));
+      // Device acknowledges each successful display in this frequency scenario.
+      estado.fila = [];
+      estado.lote = null;
     }
     expect(estado.envios).toBe(2);
     expect(estado.logs.map(l => l.tipo)).toEqual(["boa_sexta", "boa_sexta_18h"]);
