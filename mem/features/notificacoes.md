@@ -12,3 +12,5 @@ type: constraint
 - Pendências não têm horário fixo nem janela de envio; revalidar antes de cada disparo e entrega e evitar duplicidade.
 - Mensagens motivacionais independem de pendências: uma por segunda-feira e uma por sexta-feira para cada usuário inscrito, respeitando autorização e preferências.
 - Exceção solicitada para sexta-feira, 09/10/2026: enviar a mensagem de sexta agora e uma segunda vez às 18h de São Paulo; não repetir a exceção nas próximas semanas.
+
+- O aviãozinho e a função de teste de notificações são exclusivos do ADM Master; os demais perfis não podem acessar nem executar o teste, inclusive por API.
