@@ -71,3 +71,9 @@
 - [x] Trocar modo de redirecionamento por manual com rejeição explícita de 3xx; 26 testes passaram e compilação sem erros.
 - [x] Conferir registros de aceitação anteriores: existem reservas de envio de sexta e das 18h; isso não comprova exibição nos aparelhos.
 - [ ] Atualizar publicação com confirmação de exibição e botão de teste (depende de atualizar o site publicado).
+
+# Correção de notificações e teste exclusivo Master
+
+- [ ] Restringir o aviãozinho e o envio de teste ao ADM Master no cliente e no servidor.
+- [ ] Investigar segunda-feira, levantamentos, cron, filas e exibição; corrigir causas reais.
+- [ ] Validar autorização e envios reais, sem confundir aceitação com exibição física.

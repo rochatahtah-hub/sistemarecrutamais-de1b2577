@@ -41,8 +41,6 @@ export async function registrarAvisosLevantamento(tenantId: string, dataReferenc
 
 /** Revalidate recipient and persisted report on device delivery. */
 export async function avisoLevantamentoAtual(userId: string, id: string, agora = new Date()) {
-  const { hora, semana } = agoraBrasilia(agora);
-  if (semana === 0 || hora < 9 || hora >= 20) return null;
   const { data: perfil, error } = await supabaseAdmin.from("profiles")
     .select("nome,ativo,tenant_id,tenants(ativo,status)").eq("id", userId).maybeSingle();
   if (error) throw error;
@@ -101,6 +99,7 @@ export async function enviarAvisosLevantamento(agora = new Date()) {
       if (!erroFila) endpoints.push(dispositivo.endpoint);
     }
     const resultado = await enviarAvisoPush(endpoints, 3600);
+    console.info("[levantamento-push] transporte", { dispositivos: endpoints.length, enviados: resultado.enviados, falhas: resultado.falhas, invalidos: resultado.invalidos.length });
     if (!resultado.enviados) await supabaseAdmin.from("push_alertas_log").delete()
       .eq("user_id", aviso.user_id).eq("tipo", mensagem.tipo).eq("dia", dia);
   }

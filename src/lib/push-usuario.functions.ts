@@ -65,6 +65,8 @@ export const testarAlertasUsuario = createServerFn({ method: "POST" })
   .inputValidator((d: { endpoint: string }) => ({ endpoint: String(d?.endpoint ?? "").slice(0, 1000) }))
   .handler(async ({ data, context }) => {
     if (!endpointValido(data.endpoint)) throw new Error("Dispositivo inválido.");
+    const { data: master, error: erroMaster } = await context.supabase.rpc("eh_super_admin_atual");
+    if (erroMaster || master !== true) throw new Error("Teste de notificações exclusivo do ADM Master.");
     const { data: inscricao, error } = await context.supabase.from("push_usuarios")
       .select("id,mensagens,mensagens_em").eq("endpoint", data.endpoint).eq("user_id", context.userId).eq("status", "ativa").maybeSingle();
     if (error || !inscricao) throw new Error("Ative as notificações neste dispositivo primeiro.");

@@ -9,3 +9,5 @@
 - Use IANA user timezone with tenant fallback for push day boundaries and weekly greetings; acknowledge queued batches only after device display, serialize service-worker deliveries and deduplicate by batch to avoid lost messages and concurrent duplicate notifications.
 - One-day greeting exceptions use a distinct deduplication type in the shared weekly evaluator so scheduling and device delivery enforce the same rule without resetting previous delivery logs.
 - Retry transport for recent unacknowledged push batches without changing their batch ID or lifetime; provider acceptance alone cannot establish device display.
+- Restrict push tests with the existing super-admin RPC on both invocation and delivery; ordinary tenant administrators are not global Master administrators.
+- Queue validity is message-specific: weekly greetings survive throughout their local day, unread report events survive delayed device wake-ups, and operational messages always use live conditions.

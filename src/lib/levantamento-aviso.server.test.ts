@@ -41,7 +41,7 @@ describe("entrega de levantamento pronto", () => {
     estado.lida = true;
     expect(await avisoLevantamentoAtual("usuario", "evento", horario)).toBeNull();
   });
-  it("não entrega fora do horário adequado", async () => {
-    expect(await avisoLevantamentoAtual("usuario", "evento", new Date("2026-10-10T02:00:00Z"))).toBeNull();
+  it("não descarta relatório ainda pendente quando o aparelho acorda depois das 20h", async () => {
+    expect(await avisoLevantamentoAtual("usuario", "evento", new Date("2026-10-10T02:00:00Z"))).toEqual(expect.objectContaining({ tipo: "levantamento_pronto_evento" }));
   });
 });

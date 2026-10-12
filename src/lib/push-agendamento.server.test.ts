@@ -121,8 +121,15 @@ describe("disparos semanais pelo mesmo backend Web Push", () => {
   });
   it("lote expirado não é reenviado", async () => {
     await rodarAlertasPush(new Date("2026-10-05T12:00:00Z"));
-    await rodarAlertasPush(new Date("2026-10-05T14:00:00Z"));
+    await rodarAlertasPush(new Date("2026-10-06T12:00:00Z"));
     expect(estado.envios).toBe(1);
+  });
+  it("segunda preparada à meia-noite continua sendo tentada de manhã com o mesmo lote", async () => {
+    await rodarAlertasPush(new Date("2026-10-12T03:00:00Z"));
+    await rodarAlertasPush(new Date("2026-10-12T13:00:00Z"));
+    expect(estado.envios).toBe(2);
+    expect(estado.logs).toHaveLength(1);
+    expect(estado.lote).toBe("2026-10-12T03:00:00.000Z");
   });
   it("mantém teste solicitado até confirmação do aparelho", async () => {
     estado.fila = [{ tipo: "teste_dispositivo" }];
