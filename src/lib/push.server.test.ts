@@ -105,6 +105,16 @@ describe("transporte Web Push compatível com publicação", () => {
       .toEqual({ enviados: 1, invalidos: [], falhas: 0 });
     expect(envio).toHaveBeenCalledTimes(1);
   });
+  it("pede entrega imediata e deixa o provedor substituir o aviso anterior", async () => {
+    // Sem Urgency alta o provedor pode segurar a mensagem até o aparelho sair
+    // do modo de economia; o tópico evita empilhar um aviso por hora.
+    const envio = preparar(201);
+    await enviarAvisoPush(["https://fcm.googleapis.com/fcm/send/test"], 3600);
+    const cabecalhos = envio.mock.calls[0]?.[1]?.headers as Record<string, string>;
+    expect(cabecalhos["Urgency"]).toBe("high");
+    expect(cabecalhos["Topic"]).toBe("recruta-alerta");
+    expect(cabecalhos["TTL"]).toBe("3600");
+  });
   it("bloqueia redirecionamentos sem visitar o destino", async () => {
     const envio = preparar(302);
     expect(await enviarAvisoPush(["https://fcm.googleapis.com/fcm/send/test"]))

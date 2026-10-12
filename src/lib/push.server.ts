@@ -103,7 +103,15 @@ export interface ResultadoEnvio {
  * push recusa em definitivo (404/410) voltam em `invalidos` para serem
  * marcados e não tentados de novo.
  */
-export async function enviarAvisoPush(endpoints: string[], ttl = 86400): Promise<ResultadoEnvio> {
+/**
+ * Topico do Web Push: o provedor guarda apenas a mensagem mais recente de cada
+ * topico por inscricao. Como todo push nosso vai vazio e significa a mesma
+ * coisa ("busque sua fila"), o retransporte de hora em hora substitui o aviso
+ * anterior em vez de empilhar onze avisos para quando o aparelho acordar.
+ */
+const TOPICO_PADRAO = "recruta-alerta";
+
+export async function enviarAvisoPush(endpoints: string[], ttl = 86400, topico = TOPICO_PADRAO): Promise<ResultadoEnvio> {
   const publica = process.env["VAPID_PUBLIC_KEY"];
   const privada = process.env["VAPID_PRIVATE_KEY"];
   const contato = process.env["VAPID_CONTATO"] ?? "mailto:contato@recrutamaisrh.ia.br";
@@ -131,6 +139,12 @@ export async function enviarAvisoPush(endpoints: string[], ttl = 86400): Promise
         headers: {
           Authorization: await cabecalhoVapid(endpoint, publica, privada, contato),
           TTL: String(ttl),
+          // Sem Urgency o padrão do protocolo é "normal", e o provedor pode
+          // segurar a mensagem até o aparelho sair do modo de economia — por
+          // horas, num celular parado. Era por isso que o teste feito com o
+          // celular na mão chegava e o aviso automático não.
+          Urgency: "high",
+          Topic: topico,
           // Sem corpo: o texto do aviso é fixo, no service worker.
           "Content-Length": "0",
         },

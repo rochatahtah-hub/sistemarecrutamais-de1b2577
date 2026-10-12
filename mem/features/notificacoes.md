@@ -16,3 +16,4 @@ type: constraint
 - Exceção solicitada para sexta-feira, 09/10/2026: enviar a mensagem de sexta agora e uma segunda vez às 18h de São Paulo; não repetir a exceção nas próximas semanas.
 
 - O aviãozinho e a função de teste de notificações são exclusivos do ADM Master; os demais perfis não podem acessar nem executar o teste, inclusive por API.
+- O envio vai com Urgency alta e Topic fixo. Sem Urgency o padrão é normal e o provedor pode segurar a mensagem até o aparelho sair do modo de economia: era por isso que o teste feito com o celular na mão chegava e o aviso automático das 00:00 nunca aparecia, mesmo com o provedor aceitando todos os envios.
