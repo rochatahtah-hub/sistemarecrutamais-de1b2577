@@ -37,8 +37,10 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
           .eq("status", "ativa")
           .maybeSingle();
         if (erroInscricao) return Response.json({ mensagens: [], interno: true }, { headers, status: 503 });
-        const recente =
-          data?.mensagens_em && Date.now() - new Date(data.mensagens_em).getTime() < 2 * 3600 * 1000;
+        const idade = data?.mensagens_em ? Date.now() - new Date(data.mensagens_em).getTime() : Infinity;
+        // Weekly messages remain deliverable throughout their local day. The
+        // operational evaluator still rechecks live data; no stale fallback.
+        const recente = data?.mensagens_em && idade >= 0 && idade < 26 * 3600 * 1000;
         let mensagens: { tipo: string; titulo: string; corpo: string; url: string }[] = [];
         if (recente && data && Array.isArray(data.mensagens)) {
           // Keep the batch until the device confirms display; retrieval alone is not delivery.
@@ -66,7 +68,8 @@ export const Route = createFileRoute("/api/public/push/mensagem")({
               const aviso = await avisoLevantamentoAtual(data.user_id, item["notificacaoId"]);
               if (aviso && !mensagens.some(m => m.tipo === aviso.tipo)) mensagens.push(aviso);
             }
-          } catch {
+          } catch (erro) {
+            console.error("[push-mensagem] falha na revalidação", erro);
             // A failed live check is not evidence of a pending action.
             return Response.json({ mensagens: [], interno: true }, { headers, status: 503 });
           }

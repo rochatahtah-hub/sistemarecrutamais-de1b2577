@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { chavePublicaPush } from "@/lib/push.functions";
 import { ativarAlertasUsuario, desativarAlertasUsuario, estadoAlertasUsuario, testarAlertasUsuario } from "@/lib/push-usuario.functions";
 import { useAuth } from "@/lib/auth";
+import { useSuperAdmin } from "@/components/RequerSuperAdmin";
 
 type Estado = "oculto" | "bloqueado" | "inativo" | "ativo";
 
@@ -22,6 +23,7 @@ function bytes(valor: string): ArrayBuffer {
 /** Liga/desliga os alertas automáticos no dispositivo. Pede permissão só no clique. */
 export function BotaoNotificacoesPush() {
   const { user } = useAuth();
+  const { data: master } = useSuperAdmin();
   const consultar = useServerFn(estadoAlertasUsuario);
   const ativar = useServerFn(ativarAlertasUsuario);
   const desativar = useServerFn(desativarAlertasUsuario);
@@ -102,7 +104,7 @@ export function BotaoNotificacoesPush() {
     >
       {ocupado ? <Loader2 className="h-4 w-4 animate-spin" /> : ativo ? <BellRing className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
     </Button>
-    {ativo && <Button variant="ghost" size="icon" disabled={ocupado} title="Enviar notificação de teste" aria-label="Enviar notificação de teste" onClick={async () => {
+    {ativo && master === true && <Button variant="ghost" size="icon" disabled={ocupado} title="Enviar notificação de teste" aria-label="Enviar notificação de teste" onClick={async () => {
       setOcupado(true);
       try {
         const reg = await navigator.serviceWorker.ready;

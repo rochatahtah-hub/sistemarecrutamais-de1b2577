@@ -52,7 +52,8 @@ export async function rodarAlertasPush(agora = new Date()) {
     let mensagens: { titulo: string; corpo: string; url: string; tipo: string; dia?: string }[] = [];
     try {
       mensagens = await alertasAtuaisDoUsuario(supabaseAdmin, perfil.id, tipos, agora);
-    } catch {
+    } catch (erro) {
+      console.error("[alertas-push] falha na verificação operacional", erro);
       // Weekly greetings do not depend on the operational query succeeding.
       operacionaisVerificados = false;
     }
@@ -82,10 +83,12 @@ export async function rodarAlertasPush(agora = new Date()) {
       const pendentes = [...filasAtuais.values()].flatMap(fila => fila ?? []).filter(d => {
         if (!d.mensagens_em || !Array.isArray(d.mensagens) || d.mensagens.length === 0) return false;
         const idade = agora.getTime() - new Date(d.mensagens_em).getTime();
-        return idade >= 0 && idade < 2 * 3600 * 1000;
+        const semanalPendente = d.mensagens.some(m => m && typeof m === "object" && !Array.isArray(m) && m['tipo'] === semanal?.tipo && m['dia'] === semanal?.dia);
+        return idade >= 0 && (idade < 2 * 3600 * 1000 || semanalPendente);
       }).map(d => d.endpoint);
       if (pendentes.length > 0) {
         const tentativa = await enviarAvisoPush(pendentes, 3600);
+        console.info("[alertas-push] tentativa de lote pendente", { dispositivos: pendentes.length, ...tentativa, invalidos: tentativa.invalidos.length });
         enviados += tentativa.enviados;
         if (tentativa.invalidos.length > 0) await supabaseAdmin.from("push_usuarios")
           .update({ status: "invalida" }).in("endpoint", tentativa.invalidos);
@@ -125,6 +128,7 @@ export async function rodarAlertasPush(agora = new Date()) {
       throw new Error("Não foi possível preparar os alertas para envio.");
     }
     const r = await enviarAvisoPush(endpoints, 3600);
+    console.info("[alertas-push] transporte de novo lote", { dispositivos: endpoints.length, enviados: r.enviados, falhas: r.falhas, invalidos: r.invalidos.length });
     // A total failure did not deliver anything: allow the next scheduled run
     // to retry. Keep the claim if even one device accepted the push.
     if (r.enviados === 0) {
