@@ -83,8 +83,8 @@ export async function rodarAlertasPush(agora = new Date()) {
       const pendentes = [...filasAtuais.values()].flatMap(fila => fila ?? []).filter(d => {
         if (!d.mensagens_em || !Array.isArray(d.mensagens) || d.mensagens.length === 0) return false;
         const idade = agora.getTime() - new Date(d.mensagens_em).getTime();
-        const semanalPendente = d.mensagens.some(m => m && typeof m === "object" && !Array.isArray(m) && m['tipo'] === semanal?.tipo && m['dia'] === semanal?.dia);
-        return idade >= 0 && (idade < 2 * 3600 * 1000 || semanalPendente);
+        const duravel = d.mensagens.some(m => m && typeof m === "object" && !Array.isArray(m) && ((m['tipo'] === semanal?.tipo && m['dia'] === semanal?.dia) || (typeof m['tipo'] === "string" && m['tipo'].startsWith("levantamento_pronto_"))));
+        return idade >= 0 && (idade < 2 * 3600 * 1000 || (idade < 7 * 86400000 && duravel));
       }).map(d => d.endpoint);
       if (pendentes.length > 0) {
         const tentativa = await enviarAvisoPush(pendentes, 3600);
