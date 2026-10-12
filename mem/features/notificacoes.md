@@ -9,7 +9,9 @@ type: constraint
 - Atendimento somente para pendências atribuídas ao usuário, nunca contagem genérica de toda a empresa.
 - Sem pendência real não há notificação, nem aviso genérico substituto; situações resolvidas devem limpar o estado e não gerar alertas repetidos.
 - Levantamento pronto: personalizar com o nome real do administrador destinatário e especificar diário ou da quinzena: “Olá Talita Rocha, o levantamento diário já está pronto.” (substituir nome e modalidade conforme o destinatário e relatório).
-- Pendências não têm horário fixo nem janela de envio; revalidar antes de cada disparo e entrega e evitar duplicidade.
+- Pendências não têm janela de envio por tipo: a condição real, não o relógio, decide SE o alerta existe; revalidar antes de cada disparo e entrega e evitar duplicidade.
+- Nenhum lote novo é reservado antes das 8h locais do destinatário (HORA_MINIMA_ALERTA). O push vale 1 hora e o registro de duplicidade é diário: reservar de madrugada queimava a única chance do dia com o celular dormindo. Retransporte de lote já reservado continua livre em qualquer hora.
+- Lote que o aparelho nunca confirmou e que passou das 2 horas devolve a reserva dos alertas operacionais ainda verdadeiros, para o dia montar um lote novo em vez de perder o aviso. O resgate também respeita a janela da manhã.
 - Mensagens motivacionais independem de pendências: uma por segunda-feira e uma por sexta-feira para cada usuário inscrito, respeitando autorização e preferências.
 - Exceção solicitada para sexta-feira, 09/10/2026: enviar a mensagem de sexta agora e uma segunda vez às 18h de São Paulo; não repetir a exceção nas próximas semanas.
 

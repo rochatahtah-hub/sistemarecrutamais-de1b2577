@@ -1,10 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type { Database } from "@/integrations/supabase/types";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { endpointPushValido } from "./push-endpoint";
 import { fusoValido } from "./alertas-push";
 
 const endpointValido = endpointPushValido;
+
+/** Mesmo cliente que o middleware de autenticação entrega no contexto. */
+type SupabaseDoUsuario = SupabaseClient<Database>;
 
 export const estadoAlertasUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -59,25 +65,35 @@ export const desativarAlertasUsuario = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/**
+ * Regra do teste de dispositivo, isolada da camada de transporte para poder ser
+ * verificada em teste: o plugin do TanStack reescreve createServerFn em tempo de
+ * build, então o corpo do handler não é alcançável a partir de um teste.
+ */
+export async function solicitarTesteDeAlerta(
+  contexto: { supabase: SupabaseDoUsuario; userId: string },
+  endpoint: string,
+) {
+  if (!endpointValido(endpoint)) throw new Error("Dispositivo inválido.");
+  const { data: master, error: erroMaster } = await contexto.supabase.rpc("eh_super_admin_atual");
+  if (erroMaster || master !== true) throw new Error("Teste de notificações exclusivo do ADM Master.");
+  const { data: inscricao, error } = await contexto.supabase.from("push_usuarios")
+    .select("id,mensagens,mensagens_em").eq("endpoint", endpoint).eq("user_id", contexto.userId).eq("status", "ativa").maybeSingle();
+  if (error || !inscricao) throw new Error("Ative as notificações neste dispositivo primeiro.");
+  if (inscricao.mensagens_em && Date.now() - new Date(inscricao.mensagens_em).getTime() < 60000) throw new Error("Aguarde um minuto antes de testar novamente.");
+  const lote = new Date().toISOString();
+  const { error: erroFila } = await contexto.supabase.from("push_usuarios")
+    .update({ mensagens: [...(Array.isArray(inscricao.mensagens) ? inscricao.mensagens : []), { tipo: "teste_dispositivo" }], mensagens_em: lote })
+    .eq("id", inscricao.id).eq("user_id", contexto.userId);
+  if (erroFila) throw new Error("Não foi possível preparar o teste.");
+  const { enviarAvisoPush } = await import("./push.server");
+  const resultado = await enviarAvisoPush([endpoint], 120);
+  if (!resultado.enviados) throw new Error("O serviço de notificações recusou o envio. Desative e ative as notificações novamente.");
+  return { aceito: true };
+}
+
 /** Explicit device test, scoped to the authenticated user's active subscription. */
 export const testarAlertasUsuario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { endpoint: string }) => ({ endpoint: String(d?.endpoint ?? "").slice(0, 1000) }))
-  .handler(async ({ data, context }) => {
-    if (!endpointValido(data.endpoint)) throw new Error("Dispositivo inválido.");
-    const { data: master, error: erroMaster } = await context.supabase.rpc("eh_super_admin_atual");
-    if (erroMaster || master !== true) throw new Error("Teste de notificações exclusivo do ADM Master.");
-    const { data: inscricao, error } = await context.supabase.from("push_usuarios")
-      .select("id,mensagens,mensagens_em").eq("endpoint", data.endpoint).eq("user_id", context.userId).eq("status", "ativa").maybeSingle();
-    if (error || !inscricao) throw new Error("Ative as notificações neste dispositivo primeiro.");
-    if (inscricao.mensagens_em && Date.now() - new Date(inscricao.mensagens_em).getTime() < 60000) throw new Error("Aguarde um minuto antes de testar novamente.");
-    const lote = new Date().toISOString();
-    const { error: erroFila } = await context.supabase.from("push_usuarios")
-      .update({ mensagens: [...(Array.isArray(inscricao.mensagens) ? inscricao.mensagens : []), { tipo: "teste_dispositivo" }], mensagens_em: lote })
-      .eq("id", inscricao.id).eq("user_id", context.userId);
-    if (erroFila) throw new Error("Não foi possível preparar o teste.");
-    const { enviarAvisoPush } = await import("./push.server");
-    const resultado = await enviarAvisoPush([data.endpoint], 120);
-    if (!resultado.enviados) throw new Error("O serviço de notificações recusou o envio. Desative e ative as notificações novamente.");
-    return { aceito: true };
-  });
+  .handler(({ data, context }) => solicitarTesteDeAlerta(context, data.endpoint));

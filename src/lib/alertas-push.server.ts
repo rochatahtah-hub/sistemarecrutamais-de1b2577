@@ -1,4 +1,4 @@
-import { REGRAS_ALERTA, agoraNoFuso, limitesDiaNoFuso, type TipoAlerta } from "./alertas-push";
+import { HORA_MINIMA_ALERTA, REGRAS_ALERTA, agoraNoFuso, limitesDiaNoFuso, type TipoAlerta } from "./alertas-push";
 import { mensagemSemanal } from "./push-semanal";
 
 /**
@@ -43,7 +43,7 @@ export async function rodarAlertasPush(agora = new Date()) {
   for (const perfil of perfis ?? []) {
     if (!perfil.ativo || !perfil.tenant_id || !tenantsAtivos.has(perfil.tenant_id)) continue;
     const fuso = perfil.fuso_horario ?? tenants?.find(t => t.id === perfil.tenant_id)?.fuso_horario;
-    const { dia } = agoraNoFuso(agora, fuso);
+    const { dia, hora } = agoraNoFuso(agora, fuso);
     const { data: jaEnviados, error: erroLog } = await supabaseAdmin.from("push_alertas_log")
       .select("tipo").eq("user_id", perfil.id).eq("dia", dia);
     if (erroLog) throw new Error("Não foi possível verificar duplicidades.");
@@ -76,7 +76,35 @@ export async function rodarAlertasPush(agora = new Date()) {
       const { error } = await limpeza;
       if (error) throw new Error("Não foi possível limpar os alertas resolvidos.");
     }
-    const naoEnviadas = mensagens.filter((m) => !enviadosHoje.has(m.tipo));
+    // Resgate do lote preso: um lote reservado que o aparelho nunca exibiu e que
+    // já passou da validade de 2 horas ficaria perdido pelo resto do dia, porque
+    // o registro de duplicidade marcou o dia como enviado. Devolver a reserva dos
+    // alertas operacionais que continuam verdadeiros faz esta mesma execução
+    // montar um lote novo. Nunca antes da janela da manhã, para não acordar
+    // ninguém de madrugada.
+    const presas = new Set<string>();
+    if (hora >= HORA_MINIMA_ALERTA) {
+      for (const fila of filasAtuais.values()) {
+        for (const d of fila ?? []) {
+          if (!d.mensagens_em || !Array.isArray(d.mensagens)) continue;
+          if (agora.getTime() - new Date(d.mensagens_em).getTime() < 2 * 3600 * 1000) continue;
+          for (const m of d.mensagens) {
+            if (!m || typeof m !== "object" || Array.isArray(m) || typeof m['tipo'] !== "string") continue;
+            if (Object.hasOwn(REGRAS_ALERTA, m['tipo']) && ativos.has(m['tipo']) && enviadosHoje.has(m['tipo'])) presas.add(m['tipo']);
+          }
+        }
+      }
+    }
+    if (presas.size > 0) {
+      const { error } = await supabaseAdmin.from("push_alertas_log").delete()
+        .eq("user_id", perfil.id).eq("dia", dia).in("tipo", [...presas]);
+      if (error) throw new Error("Não foi possível liberar os alertas que não chegaram.");
+      for (const tipo of presas) enviadosHoje.delete(tipo);
+      console.info("[alertas-push] lote preso liberado para nova tentativa", { tipos: [...presas] });
+    }
+    // A trava de horário vale para a reserva de lote novo; o retransporte abaixo
+    // continua livre, porque o aviso já foi reservado em horário adequado.
+    const naoEnviadas = hora < HORA_MINIMA_ALERTA ? [] : mensagens.filter((m) => !enviadosHoje.has(m.tipo));
     if (naoEnviadas.length === 0) {
       // Provider acceptance is not display. Wake devices with an unacknowledged
       // live batch again, without replacing its ID or extending its lifetime.

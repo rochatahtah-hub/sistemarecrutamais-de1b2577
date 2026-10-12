@@ -48,6 +48,27 @@ export const REGRAS_ALERTA: Record<TipoAlerta, RegraAlerta> = {
   },
 };
 
+/**
+ * Hora local a partir da qual um novo lote de alertas pode ser reservado.
+ *
+ * O cron roda de hora em hora, o dia inteiro. Sem esta trava, o primeiro lote
+ * do dia era reservado às 00:00: o push sai com validade de 1 hora, o celular
+ * está dormindo, o provedor descarta a mensagem antes de alguém acordar e o
+ * registro de duplicidade já marcou o dia como enviado. O aviso desaparece sem
+ * nunca ter aparecido — e, por ser o único do dia, não volta.
+ *
+ * Isto não é teoria: em 12/10 a saudação foi reservada às 00:00 para as três
+ * pessoas e, onze horas depois, três filas no banco ainda estavam intactas —
+ * sinal de que nenhuma chegou a ser exibida. Na sexta anterior, quando saiu às
+ * 09:00, funcionou.
+ *
+ * A trava decide apenas QUANDO um lote novo pode ser reservado; quem decide SE
+ * o alerta é verdadeiro continua sendo a condição real, verificada ao vivo.
+ * Retransporte de lote já reservado não espera: segue de madrugada se o
+ * aparelho ainda não confirmou a exibição.
+ */
+export const HORA_MINIMA_ALERTA = 8;
+
 /** Data (AAAA-MM-DD), hora e dia da semana no horário de Brasília (UTC-3). */
 export function agoraBrasilia(agora: Date = new Date()) {
   return agoraNoFuso(agora);

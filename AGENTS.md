@@ -10,4 +10,7 @@
 - One-day greeting exceptions use a distinct deduplication type in the shared weekly evaluator so scheduling and device delivery enforce the same rule without resetting previous delivery logs.
 - Retry transport for recent unacknowledged push batches without changing their batch ID or lifetime; provider acceptance alone cannot establish device display.
 - Restrict push tests with the existing super-admin RPC on both invocation and delivery; ordinary tenant administrators are not global Master administrators.
+- Reserve a new alert batch only from the recipient's local morning onward; a push lives one hour and deduplication is per day, so a batch claimed at midnight burns the day's only chance on a sleeping device. Retrying an already reserved batch stays unrestricted.
+- When a reserved batch goes stale unacknowledged, release the day's claim for operational alerts whose condition is still true, so the same day can queue a fresh batch instead of losing the notice.
+- Keep server-function bodies in exported plain functions: the TanStack Start plugin rewrites createServerFn at build time, so a handler defined inline cannot be reached from a test.
 - Queue validity is message-specific: weekly greetings survive throughout their local day, unread report events survive delayed device wake-ups, and operational messages always use live conditions.

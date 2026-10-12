@@ -22,6 +22,17 @@ describe("mensagens semanais independentes de pendências", () => {
   it("outros dias não geram mensagens semanais", () => {
     for (const dia of [6, 7, 8, 10, 11]) expect(mensagemSemanal(new Date(`2026-10-${String(dia).padStart(2, "0")}T15:00:00Z`))).toBeNull();
   });
+  it("madrugada fica em silêncio e a saudação sai a partir das 8h", () => {
+    // 03:00Z = 00:00 em São Paulo (segunda 12/10); 11:00Z = 08:00.
+    expect(mensagemSemanal(new Date("2026-10-12T03:00:00Z"))).toBeNull();
+    expect(mensagemSemanal(new Date("2026-10-12T10:59:59Z"))).toBeNull();
+    expect(mensagemSemanal(new Date("2026-10-12T11:00:00Z"))?.tipo).toBe("boa_semana");
+  });
+  it("a trava de horário usa o fuso de quem recebe", () => {
+    const hora = new Date("2026-10-12T03:00:00Z"); // 00h em São Paulo, 12h em Tóquio
+    expect(mensagemSemanal(hora, "America/Sao_Paulo")).toBeNull();
+    expect(mensagemSemanal(hora, "Asia/Tokyo")?.tipo).toBe("boa_semana");
+  });
   it("dia da semana é o do fuso do destinatário", () => {
     const hora = new Date("2026-10-09T01:00:00Z");
     expect(mensagemSemanal(hora, "America/Sao_Paulo")).toBeNull();
