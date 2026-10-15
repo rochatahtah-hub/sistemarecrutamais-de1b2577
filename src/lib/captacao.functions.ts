@@ -1,4 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { cpfValido } from "./diarias";
+import { diaPublicacaoAtual, motivoIndisponibilidade } from "./oportunidade-disponibilidade";
 
 const LIMITE_CURRICULO = 8 * 1024 * 1024;
 const TIPOS_CURRICULO = ["application/pdf", "image/jpeg", "image/png"];
@@ -24,75 +27,79 @@ async function empresaAtiva(slug: string) {
   return data ?? null;
 }
 
-/** Modalidades ativas e oportunidades abertas do link público. */
+const CAMPOS_PUBLICOS = "id,modalidade,tipo_diaria,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio,genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo,transporte_detalhes";
+const CAMPOS_VERIFICACAO = CAMPOS_PUBLICOS + ",status,vaga_id,vaga:vagas(tenant_id,situacao,status,genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo,transporte_detalhes)";
+interface AnuncioRow {
+  id: string; modalidade: "especifica" | "clt"; tipo_diaria: string; titulo: string;
+  data_oportunidade: string | null; descricao: string; requisitos: string; informacoes_adicionais: string;
+  curriculo_obrigatorio: boolean; status: string; vaga_id: string | null;
+  genero: string | null; cidade: string | null; bairro: string | null; horario_inicio: string | null;
+  horario_fim: string | null; transporte_tipo: string | null; transporte_detalhes: string | null;
+  vaga: (Omit<AnuncioRow, "vaga"> & { tenant_id: string; situacao: string }) | null;
+}
+
+async function configuracaoPublica(tenantId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("captacao_config")
+    .select("diarias_ativa,oportunidades_ativa,clt_ativa").eq("tenant_id", tenantId).maybeSingle();
+  if (error) throw new Error("Não foi possível carregar as oportunidades.");
+  return { diarias_ativa: data?.diarias_ativa ?? true, oportunidades_ativa: data?.oportunidades_ativa ?? false, clt_ativa: data?.clt_ativa ?? false };
+}
+
+function anuncioPublico(o: AnuncioRow) {
+  // Projeção explícita: estado operacional, vínculo, tenant e candidatos nunca saem do servidor.
+  return {
+    id: o.id, modalidade: o.modalidade, tipo_diaria: o.tipo_diaria,
+    titulo: o.titulo, data_oportunidade: o.data_oportunidade, descricao: o.descricao,
+    requisitos: o.requisitos, informacoes_adicionais: o.informacoes_adicionais,
+    curriculo_obrigatorio: o.curriculo_obrigatorio,
+    genero: o.genero ?? o.vaga?.genero ?? null, cidade: o.cidade ?? o.vaga?.cidade ?? null,
+    bairro: o.bairro ?? o.vaga?.bairro ?? null,
+    horario_inicio: (o.horario_inicio ?? o.vaga?.horario_inicio)?.slice(0, 5) ?? null,
+    horario_fim: (o.horario_fim ?? o.vaga?.horario_fim)?.slice(0, 5) ?? null,
+    transporte_tipo: o.transporte_tipo ?? o.vaga?.transporte_tipo ?? null,
+    transporte_detalhes: o.transporte_detalhes ?? o.vaga?.transporte_detalhes ?? null,
+    vaga: null,
+  };
+}
+
+export async function carregarPortalPublico({ slug }: { slug: string }) {
+  const empresa = await empresaAtiva(slug);
+  if (!empresa) return null;
+  const config = await configuracaoPublica(empresa.id);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("captacao_oportunidades")
+    .select(CAMPOS_VERIFICACAO).eq("tenant_id", empresa.id).eq("status", "ativa")
+    .order("data_oportunidade", { ascending: true }).limit(1000);
+  if (error) throw new Error("Não foi possível carregar as oportunidades.");
+  const oportunidades = ((data ?? []) as unknown as AnuncioRow[])
+    .filter(o => (!o.vaga || o.vaga.tenant_id === empresa.id) && !motivoIndisponibilidade(o, config, diaPublicacaoAtual()))
+    .map(anuncioPublico);
+  return { empresa, modalidades: { diarias: config.diarias_ativa, oportunidades: config.oportunidades_ativa, clt: config.clt_ativa }, oportunidades };
+}
+
 export const portalCaptacaoPublico = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => ({ slug: texto(d?.slug, 80).toLowerCase() }))
-  .handler(async ({ data }) => {
-    if (!data.slug) return null;
-    const empresa = await empresaAtiva(data.slug);
-    if (!empresa) return null;
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  .handler(({ data }) => carregarPortalPublico(data));
 
-    const { data: config } = await supabaseAdmin
-      .from("captacao_config")
-      .select("diarias_ativa,oportunidades_ativa,clt_ativa")
-      .eq("tenant_id", empresa.id)
-      .maybeSingle();
+export async function carregarOportunidadePublica({ slug, id }: { slug: string; id: string }) {
+  const empresa = await empresaAtiva(slug);
+  if (!empresa) return { empresa: null, oportunidade: null, motivo: "Este link não está disponível." };
+  const config = await configuracaoPublica(empresa.id);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("captacao_oportunidades")
+    .select(CAMPOS_VERIFICACAO).eq("tenant_id", empresa.id).eq("id", id).maybeSingle();
+  if (error) throw new Error("Não foi possível carregar a vaga.");
+  const o = data as unknown as AnuncioRow | null;
+  const motivo = o ? motivoIndisponibilidade(o, config, diaPublicacaoAtual()) : "Esta oportunidade não está disponível.";
+  if (!o || motivo || (o.vaga && o.vaga.tenant_id !== empresa.id))
+    return { empresa, oportunidade: null, motivo: motivo ?? "Esta oportunidade não está disponível." };
+  return { empresa, oportunidade: anuncioPublico(o), motivo: null };
+}
 
-    const modalidades = {
-      diarias: config?.diarias_ativa ?? true,
-      oportunidades: config?.oportunidades_ativa ?? false,
-      clt: config?.clt_ativa ?? false,
-    };
-
-    const { data: oportunidadesBrutas } = await supabaseAdmin
-      .from("captacao_oportunidades")
-      .select(
-        "id,modalidade,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio," +
-          "genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo,transporte_detalhes," +
-          "vaga:vagas(genero,cidade,bairro,horario_inicio,horario_fim,transporte_tipo,transporte_detalhes)",
-      )
-      .eq("tenant_id", empresa.id)
-      .eq("status", "ativa")
-      .order("data_oportunidade", { ascending: true })
-      .limit(200);
-
-    interface VagaResumoRow {
-      genero: string | null;
-      cidade: string | null;
-      bairro: string | null;
-      horario_inicio: string | null;
-      horario_fim: string | null;
-      transporte_tipo: string | null;
-      transporte_detalhes: string | null;
-    }
-    interface OportunidadePortalRow extends VagaResumoRow {
-      id: string;
-      modalidade: string;
-      titulo: string;
-      data_oportunidade: string | null;
-      descricao: string;
-      requisitos: string;
-      informacoes_adicionais: string;
-      curriculo_obrigatorio: boolean;
-      vaga: VagaResumoRow | null;
-    }
-    const sliceHora = (v: string | null) => (v ? v.slice(0, 5) : null);
-    const oportunidades = ((oportunidadesBrutas ?? []) as unknown as OportunidadePortalRow[]).map((o) => ({
-      ...o,
-      horario_inicio: sliceHora(o.horario_inicio),
-      horario_fim: sliceHora(o.horario_fim),
-      vaga: o.vaga
-        ? { ...o.vaga, horario_inicio: sliceHora(o.vaga.horario_inicio), horario_fim: sliceHora(o.vaga.horario_fim) }
-        : null,
-    }));
-
-    const visiveis = oportunidades.filter((o) =>
-      o.modalidade === "clt" ? modalidades.clt : modalidades.oportunidades,
-    );
-
-    return { empresa, modalidades, oportunidades: visiveis };
-  });
+export const oportunidadePublica = createServerFn({ method: "GET" })
+  .inputValidator((d: { slug: string; id: string }) => z.object({ slug: z.string().trim().min(1).max(80), id: z.string().uuid() }).parse(d))
+  .handler(({ data }) => carregarOportunidadePublica(data));
 
 export interface EnvioCandidatura {
   slug: string;
@@ -124,7 +131,7 @@ export const candidatarPublico = createServerFn({ method: "POST" })
       : null,
   }))
   .handler(async ({ data }) => {
-    if (data.nome.length < 3 || data.telefone.length < 10 || data.cpf.length !== 11) {
+    if (data.nome.length < 3 || data.telefone.length < 10 || !cpfValido(data.cpf) || data.cidade.length < 2) {
       throw new Error("Confira os dados informados antes de enviar.");
     }
     const empresa = await empresaAtiva(data.slug);
@@ -132,27 +139,9 @@ export const candidatarPublico = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: config } = await supabaseAdmin
-      .from("captacao_config")
-      .select("oportunidades_ativa,clt_ativa")
-      .eq("tenant_id", empresa.id)
-      .maybeSingle();
-
-    const { data: oportunidade } = await supabaseAdmin
-      .from("captacao_oportunidades")
-      .select("id,modalidade,status,curriculo_obrigatorio")
-      .eq("id", data.oportunidadeId)
-      .eq("tenant_id", empresa.id)
-      .maybeSingle();
-
-    if (!oportunidade || oportunidade.status !== "ativa") {
-      throw new Error("Esta oportunidade não está mais recebendo cadastros.");
-    }
-    const modalidadeAtiva =
-      oportunidade.modalidade === "clt"
-        ? (config?.clt_ativa ?? false)
-        : (config?.oportunidades_ativa ?? false);
-    if (!modalidadeAtiva) throw new Error("Esta oportunidade não está mais disponível.");
+    const anuncio = await carregarOportunidadePublica({ slug: data.slug, id: data.oportunidadeId });
+    const oportunidade = anuncio.oportunidade;
+    if (!oportunidade) throw new Error(anuncio.motivo ?? "Esta oportunidade não está mais disponível.");
 
     if (oportunidade.curriculo_obrigatorio && !data.curriculo?.base64) {
       throw new Error("Esta vaga exige o envio do currículo.");
@@ -177,7 +166,7 @@ export const candidatarPublico = createServerFn({ method: "POST" })
           cpf: data.cpf,
           city: data.cidade,
           neighborhood: data.bairro,
-          available_for_daily: false,
+          available_for_daily: oportunidade.modalidade !== "clt",
           available_days: [],
           available_periods: [],
           desired_role: "",
