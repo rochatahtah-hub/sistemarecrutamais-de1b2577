@@ -53,11 +53,13 @@ import { Route as ColaboradoresIndexRouteImport } from './routes/colaboradores.i
 import { Route as ColaboradoresNomeRouteImport } from './routes/colaboradores.$nome'
 import { Route as EmpresasIndexRouteImport } from './routes/empresas.index'
 import { Route as EmpresasNomeRouteImport } from './routes/empresas.$nome'
+import { Route as OportunidadesSlugRouteImport } from './routes/oportunidades.$slug'
 import { Route as ResponderFeedbackTokenRouteImport } from './routes/responder-feedback.$token'
 import { Route as RsCandidatosRouteImport } from './routes/rs.candidatos'
 import { Route as RsDashboardRouteImport } from './routes/rs.dashboard'
 import { Route as RsEmpresasRouteImport } from './routes/rs.empresas'
 import { Route as RsLevantamentoRouteImport } from './routes/rs.levantamento'
+import { Route as OportunidadeSlugIdRouteImport } from './routes/oportunidade.$slug.$id'
 import { Route as ApiPublicHooksAlertasPushRouteImport } from './routes/api/public/hooks/alertas-push'
 import { Route as ApiPublicHooksBackupAgendadoRouteImport } from './routes/api/public/hooks/backup-agendado'
 import { Route as ApiPublicHooksLevantamentoDiarioRouteImport } from './routes/api/public/hooks/levantamento-diario'
@@ -284,6 +286,11 @@ const EmpresasNomeRoute = EmpresasNomeRouteImport.update({
   path: '/empresas/$nome',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OportunidadesSlugRoute = OportunidadesSlugRouteImport.update({
+  id: '/oportunidades/$slug',
+  path: '/oportunidades/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResponderFeedbackTokenRoute = ResponderFeedbackTokenRouteImport.update({
   id: '/responder-feedback/$token',
   path: '/responder-feedback/$token',
@@ -307,6 +314,11 @@ const RsEmpresasRoute = RsEmpresasRouteImport.update({
 const RsLevantamentoRoute = RsLevantamentoRouteImport.update({
   id: '/rs/levantamento',
   path: '/rs/levantamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OportunidadeSlugIdRoute = OportunidadeSlugIdRouteImport.update({
+  id: '/oportunidade/$slug/$id',
+  path: '/oportunidade/$slug/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicHooksAlertasPushRoute =
@@ -381,6 +393,7 @@ export interface FileRoutesByFullPath {
   '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
+  '/oportunidades/$slug': typeof OportunidadesSlugRoute
   '/responder-feedback/$token': typeof ResponderFeedbackTokenRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
@@ -389,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/oportunidade/$slug/$id': typeof OportunidadeSlugIdRoute
   '/api/public/hooks/alertas-push': typeof ApiPublicHooksAlertasPushRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
@@ -437,6 +451,7 @@ export interface FileRoutesByTo {
   '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
+  '/oportunidades/$slug': typeof OportunidadesSlugRoute
   '/responder-feedback/$token': typeof ResponderFeedbackTokenRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
@@ -445,6 +460,7 @@ export interface FileRoutesByTo {
   '/cadastro-diarias': typeof CadastroDiariasIndexRoute
   '/colaboradores': typeof ColaboradoresIndexRoute
   '/empresas': typeof EmpresasIndexRoute
+  '/oportunidade/$slug/$id': typeof OportunidadeSlugIdRoute
   '/api/public/hooks/alertas-push': typeof ApiPublicHooksAlertasPushRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
@@ -494,6 +510,7 @@ export interface FileRoutesById {
   '/cadastro-diarias/$slug': typeof CadastroDiariasSlugRoute
   '/colaboradores/$nome': typeof ColaboradoresNomeRoute
   '/empresas/$nome': typeof EmpresasNomeRoute
+  '/oportunidades/$slug': typeof OportunidadesSlugRoute
   '/responder-feedback/$token': typeof ResponderFeedbackTokenRoute
   '/rs/candidatos': typeof RsCandidatosRoute
   '/rs/dashboard': typeof RsDashboardRoute
@@ -502,6 +519,7 @@ export interface FileRoutesById {
   '/cadastro-diarias/': typeof CadastroDiariasIndexRoute
   '/colaboradores/': typeof ColaboradoresIndexRoute
   '/empresas/': typeof EmpresasIndexRoute
+  '/oportunidade/$slug/$id': typeof OportunidadeSlugIdRoute
   '/api/public/hooks/alertas-push': typeof ApiPublicHooksAlertasPushRoute
   '/api/public/hooks/backup-agendado': typeof ApiPublicHooksBackupAgendadoRoute
   '/api/public/hooks/levantamento-diario': typeof ApiPublicHooksLevantamentoDiarioRoute
@@ -552,6 +570,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
+    | '/oportunidades/$slug'
     | '/responder-feedback/$token'
     | '/rs/candidatos'
     | '/rs/dashboard'
@@ -560,6 +579,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
+    | '/oportunidade/$slug/$id'
     | '/api/public/hooks/alertas-push'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
@@ -608,6 +628,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
+    | '/oportunidades/$slug'
     | '/responder-feedback/$token'
     | '/rs/candidatos'
     | '/rs/dashboard'
@@ -616,6 +637,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias'
     | '/colaboradores'
     | '/empresas'
+    | '/oportunidade/$slug/$id'
     | '/api/public/hooks/alertas-push'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
@@ -664,6 +686,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/$slug'
     | '/colaboradores/$nome'
     | '/empresas/$nome'
+    | '/oportunidades/$slug'
     | '/responder-feedback/$token'
     | '/rs/candidatos'
     | '/rs/dashboard'
@@ -672,6 +695,7 @@ export interface FileRouteTypes {
     | '/cadastro-diarias/'
     | '/colaboradores/'
     | '/empresas/'
+    | '/oportunidade/$slug/$id'
     | '/api/public/hooks/alertas-push'
     | '/api/public/hooks/backup-agendado'
     | '/api/public/hooks/levantamento-diario'
@@ -721,6 +745,7 @@ export interface RootRouteChildren {
   CadastroDiariasSlugRoute: typeof CadastroDiariasSlugRoute
   ColaboradoresNomeRoute: typeof ColaboradoresNomeRoute
   EmpresasNomeRoute: typeof EmpresasNomeRoute
+  OportunidadesSlugRoute: typeof OportunidadesSlugRoute
   ResponderFeedbackTokenRoute: typeof ResponderFeedbackTokenRoute
   RsCandidatosRoute: typeof RsCandidatosRoute
   RsDashboardRoute: typeof RsDashboardRoute
@@ -729,6 +754,7 @@ export interface RootRouteChildren {
   CadastroDiariasIndexRoute: typeof CadastroDiariasIndexRoute
   ColaboradoresIndexRoute: typeof ColaboradoresIndexRoute
   EmpresasIndexRoute: typeof EmpresasIndexRoute
+  OportunidadeSlugIdRoute: typeof OportunidadeSlugIdRoute
   ApiPublicHooksAlertasPushRoute: typeof ApiPublicHooksAlertasPushRoute
   ApiPublicHooksBackupAgendadoRoute: typeof ApiPublicHooksBackupAgendadoRoute
   ApiPublicHooksLevantamentoDiarioRoute: typeof ApiPublicHooksLevantamentoDiarioRoute
@@ -1046,6 +1072,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmpresasNomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/oportunidades/$slug': {
+      id: '/oportunidades/$slug'
+      path: '/oportunidades/$slug'
+      fullPath: '/oportunidades/$slug'
+      preLoaderRoute: typeof OportunidadesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/responder-feedback/$token': {
       id: '/responder-feedback/$token'
       path: '/responder-feedback/$token'
@@ -1079,6 +1112,13 @@ declare module '@tanstack/react-router' {
       path: '/rs/levantamento'
       fullPath: '/rs/levantamento'
       preLoaderRoute: typeof RsLevantamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oportunidade/$slug/$id': {
+      id: '/oportunidade/$slug/$id'
+      path: '/oportunidade/$slug/$id'
+      fullPath: '/oportunidade/$slug/$id'
+      preLoaderRoute: typeof OportunidadeSlugIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/alertas-push': {
@@ -1161,6 +1201,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroDiariasSlugRoute: CadastroDiariasSlugRoute,
   ColaboradoresNomeRoute: ColaboradoresNomeRoute,
   EmpresasNomeRoute: EmpresasNomeRoute,
+  OportunidadesSlugRoute: OportunidadesSlugRoute,
   ResponderFeedbackTokenRoute: ResponderFeedbackTokenRoute,
   RsCandidatosRoute: RsCandidatosRoute,
   RsDashboardRoute: RsDashboardRoute,
@@ -1169,6 +1210,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroDiariasIndexRoute: CadastroDiariasIndexRoute,
   ColaboradoresIndexRoute: ColaboradoresIndexRoute,
   EmpresasIndexRoute: EmpresasIndexRoute,
+  OportunidadeSlugIdRoute: OportunidadeSlugIdRoute,
   ApiPublicHooksAlertasPushRoute: ApiPublicHooksAlertasPushRoute,
   ApiPublicHooksBackupAgendadoRoute: ApiPublicHooksBackupAgendadoRoute,
   ApiPublicHooksLevantamentoDiarioRoute: ApiPublicHooksLevantamentoDiarioRoute,

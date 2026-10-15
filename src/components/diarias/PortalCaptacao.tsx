@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Briefcase, CalendarDays, ChevronLeft, HandHeart, Loader2, Sparkles } from "lucide-react";
 
@@ -78,7 +79,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
 
   const lista = (portal?.oportunidades ?? []) as unknown as OportunidadePublica[];
   const listaModalidade = lista.filter((o) =>
-    modalidade === "clt" ? o.modalidade === "clt" : o.modalidade === "especifica",
+    modalidade === "clt" ? o.modalidade === "clt" : o.modalidade === "especifica" && (o as OportunidadePublica & { tipo_diaria?: string }).tipo_diaria !== "avulsa",
   );
 
   return (
@@ -106,6 +107,7 @@ export function PortalCaptacao({ slug }: { slug: string }) {
 
         <ConviteInstalacaoPortal />
         {empresa && <AvisoNovasVagas slug={slugEmpresa} />}
+        {empresa && <Button variant="outline" asChild className="mb-5 w-full"><Link to="/oportunidades/$slug" params={{ slug: slugEmpresa }}>Ver todas as vagas disponíveis</Link></Button>}
 
         {carregando && slugEmpresa && (
           <p className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-sidebar-border p-4 text-center text-sm text-sidebar-foreground/70">

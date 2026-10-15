@@ -73,6 +73,9 @@ import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
 import { formatarCPF, formatarTelefone } from "@/lib/programacao";
 import { formatarResumoVaga, GENERO_LABEL, GENEROS, TRANSPORTE_VAGA_LABEL } from "@/lib/tipos";
+import { CompartilharVaga } from "@/components/CompartilharVaga";
+import { useTenantAtual } from "@/lib/tenant";
+import { linkGeralVagas, linkIndividualVaga } from "@/lib/portal-url";
 import { linkWhatsApp } from "@/lib/whatsapp";
 
 export const Route = createFileRoute("/captacao")({
@@ -105,6 +108,7 @@ function Pagina() {
   const { data: config, isPending } = useConfigCaptacao();
   const salvarConfig = useSalvarConfigCaptacao();
   const atual = config ?? CONFIG_PADRAO;
+  const { data: tenant } = useTenantAtual();
 
   function alternar(campo: "diarias_ativa" | "oportunidades_ativa" | "clt_ativa", valor: boolean) {
     salvarConfig.mutate(
@@ -122,6 +126,12 @@ function Pagina() {
         titulo="Configuração de Captação"
         descricao={`${FRASE_INSTITUCIONAL} Escolha o que fica disponível para os candidatos.`}
       />
+
+      {tenant?.slug && <section className="space-y-3 border-b border-border pb-5">
+        <h2 className="text-sm font-semibold">Link geral de vagas</h2>
+        <p className="break-all text-sm text-muted-foreground">{linkGeralVagas(tenant.slug)}</p>
+        <CompartilharVaga link={linkGeralVagas(tenant.slug)} titulo={`Vagas disponíveis — ${tenant.nome}`} />
+      </section>}
 
       <Card>
         <CardHeader>
@@ -170,7 +180,7 @@ function Pagina() {
         <TabsContent value="diarias" className="pt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Diárias</CardTitle>
+              <CardTitle className="text-base">Cadastro geral de diárias</CardTitle>
               <CardDescription>
                 O cadastro de diárias continua funcionando exatamente como hoje, pelo link público da
                 empresa. Aqui você apenas define se ele aparece para o candidato.
@@ -182,6 +192,7 @@ function Pagina() {
               </Badge>
             </CardContent>
           </Card>
+          <div className="mt-5"><h2 className="mb-3 text-lg font-semibold">Diárias avulsas</h2><ListaOportunidades modalidade="especifica" tipoDiaria="avulsa" /></div>
         </TabsContent>
         <TabsContent value="especifica" className="pt-4">
           <ListaOportunidades modalidade="especifica" />
@@ -214,19 +225,20 @@ const VAZIO: DadosOportunidade = {
   transporte_detalhes: "",
 };
 
-function ListaOportunidades({ modalidade }: { modalidade: "especifica" | "clt" }) {
+function ListaOportunidades({ modalidade, tipoDiaria = "selecionada" }: { modalidade: "especifica" | "clt"; tipoDiaria?: "selecionada" | "avulsa" }) {
+  const { data: tenant } = useTenantAtual();
   const { pode } = usePermissoes();
   const [aba, setAba] = useState<"ativa" | "arquivada">("ativa");
   const [formulario, setFormulario] = useState<DadosOportunidade | null>(null);
   const [verCandidatos, setVerCandidatos] = useState<Oportunidade | null>(null);
   const [restaurar, setRestaurar] = useState<Oportunidade | null>(null);
 
-  const { data: lista, isPending } = useOportunidades(modalidade, aba);
+  const { data: lista, isPending } = useOportunidades(modalidade, aba, tipoDiaria);
   const { data: contagem } = useContagemCandidaturas();
   const arquivar = useArquivarOportunidade();
   const restaurarM = useRestaurarOportunidade();
 
-  const rotuloNovo = modalidade === "clt" ? "+ Nova vaga CLT" : "+ Nova oportunidade";
+  const rotuloNovo = modalidade === "clt" ? "Nova vaga CLT" : tipoDiaria === "avulsa" ? "Nova diária avulsa" : "Nova oportunidade";
 
   return (
     <div className="space-y-4">
@@ -238,7 +250,7 @@ function ListaOportunidades({ modalidade }: { modalidade: "especifica" | "clt" }
           </TabsList>
         </Tabs>
         {pode("captacao", "criar") && (
-          <Button size="sm" onClick={() => setFormulario({ ...VAZIO, modalidade })}>
+          <Button size="sm" onClick={() => setFormulario({ ...VAZIO, modalidade, tipo_diaria: tipoDiaria })}>
             <Plus className="mr-2 h-4 w-4" /> {rotuloNovo}
           </Button>
         )}
@@ -273,6 +285,7 @@ function ListaOportunidades({ modalidade }: { modalidade: "especifica" | "clt" }
                   </Badge>
                   {o.curriculo_obrigatorio && <Badge variant="secondary">Currículo obrigatório</Badge>}
                 </div>
+                {tenant?.slug && aba === "ativa" && <CompartilharVaga link={linkIndividualVaga(tenant.slug, o.id)} titulo={o.titulo} />}
                 <div className="mt-auto flex flex-wrap gap-2 pt-2">
                   <Button size="sm" variant="outline" onClick={() => setVerCandidatos(o)}>
                     Cadastros
@@ -422,7 +435,7 @@ function DialogOportunidade({
     <Dialog open onOpenChange={(v) => !v && onFechar()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{clt ? "Vaga CLT" : "Diária selecionada"}</DialogTitle>
+          <DialogTitle>{clt ? "Vaga CLT" : form.tipo_diaria === "avulsa" ? "Diária avulsa" : "Diária selecionada"}</DialogTitle>
           <DialogDescription>
             Use uma vaga que já existe no sistema e complete as informações do anúncio.
           </DialogDescription>
