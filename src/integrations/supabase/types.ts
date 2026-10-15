@@ -777,6 +777,7 @@ export type Database = {
           requisitos: string
           status: string
           tenant_id: string
+          tipo_diaria: string
           titulo: string
           transporte_detalhes: string | null
           transporte_tipo: string | null
@@ -804,6 +805,7 @@ export type Database = {
           requisitos?: string
           status?: string
           tenant_id?: string
+          tipo_diaria?: string
           titulo?: string
           transporte_detalhes?: string | null
           transporte_tipo?: string | null
@@ -831,6 +833,7 @@ export type Database = {
           requisitos?: string
           status?: string
           tenant_id?: string
+          tipo_diaria?: string
           titulo?: string
           transporte_detalhes?: string | null
           transporte_tipo?: string | null

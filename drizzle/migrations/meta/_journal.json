@@ -15,6 +15,13 @@
       "when": 1791545923320,
       "tag": "0001_push_fuso_horario",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792063043051,
+      "tag": "0002_links_publicos_vagas_disponibilidade",
+      "breakpoints": true
     }
   ]
 }
