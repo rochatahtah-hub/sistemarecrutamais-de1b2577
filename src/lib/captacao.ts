@@ -49,6 +49,7 @@ export interface VagaResumo {
 export interface Oportunidade {
   id: string;
   modalidade: "especifica" | "clt";
+  tipo_diaria?: "selecionada" | "avulsa";
   vaga_id: string | null;
   titulo: string;
   data_oportunidade: string | null;
@@ -161,7 +162,7 @@ export interface Candidatura {
 }
 
 const CAMPOS_OPORTUNIDADE =
-  "id,modalidade,vaga_id,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio,status,created_at," +
+  "id,modalidade,tipo_diaria,vaga_id,titulo,data_oportunidade,descricao,requisitos,informacoes_adicionais,curriculo_obrigatorio,status,created_at," +
   "genero,cidade,bairro,horario_inicio,horario_fim,intervalo_inicio,intervalo_fim,transporte_tipo,transporte_detalhes," +
   "vaga:vagas(genero,cidade,bairro,horario_inicio,horario_fim,intervalo_inicio,intervalo_fim,transporte_tipo,transporte_detalhes)";
 
@@ -232,9 +233,9 @@ function normalizarOportunidade(o: Oportunidade): Oportunidade {
   };
 }
 
-export function useOportunidades(modalidade: "especifica" | "clt", status: "ativa" | "arquivada") {
+export function useOportunidades(modalidade: "especifica" | "clt", status: "ativa" | "arquivada", tipoDiaria: "selecionada" | "avulsa" = "selecionada") {
   return useQuery({
-    queryKey: ["captacao-oportunidades", modalidade, status],
+    queryKey: ["captacao-oportunidades", modalidade, status, tipoDiaria],
     queryFn: async (): Promise<Oportunidade[]> => {
       const { data, error } = await supabase
         .from("captacao_oportunidades")
@@ -244,7 +245,8 @@ export function useOportunidades(modalidade: "especifica" | "clt", status: "ativ
         .order("created_at", { ascending: false })
         .limit(300);
       if (error) throw error;
-      return ((data ?? []) as unknown as Oportunidade[]).map(normalizarOportunidade);
+      return ((data ?? []) as unknown as Oportunidade[])
+        .filter(o => modalidade === "clt" || (o.tipo_diaria ?? "selecionada") === tipoDiaria).map(normalizarOportunidade);
     },
   });
 }
@@ -272,6 +274,7 @@ export function useContagemCandidaturas() {
 export interface DadosOportunidade {
   id?: string;
   modalidade: "especifica" | "clt";
+  tipo_diaria?: "selecionada" | "avulsa";
   vaga_id: string | null;
   titulo: string;
   data_oportunidade: string | null;
@@ -302,6 +305,7 @@ export function useSalvarOportunidade() {
     mutationFn: async (dados: DadosOportunidade) => {
       const registro = {
         modalidade: dados.modalidade,
+        tipo_diaria: dados.tipo_diaria ?? "selecionada",
         vaga_id: dados.vaga_id,
         titulo: dados.titulo.trim().slice(0, 160),
         data_oportunidade: dados.data_oportunidade || null,

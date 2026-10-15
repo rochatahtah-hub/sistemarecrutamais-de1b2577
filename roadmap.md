@@ -1,3 +1,9 @@
+# Links públicos de vagas
+
+- [ ] Integrar links individuais e gerais para diárias selecionadas, CLT e avulsas.
+- [ ] Reutilizar candidaturas e validar disponibilidade no servidor e na gravação.
+- [ ] Validar compartilhamento, páginas públicas, indisponibilidade e segurança.
+
 # Animação visual RECRUTA+
 
 - [x] Criar uma rede visual reutilizável com estados de interação e movimento reduzido.

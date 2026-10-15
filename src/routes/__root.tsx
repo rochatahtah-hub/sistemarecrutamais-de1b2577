@@ -30,7 +30,7 @@ import { registrarServiceWorker } from "@/lib/pwa";
 import { ConviteInstalacao } from "@/components/ConviteInstalacao";
 
 /** Rotas públicas: acessíveis sem login (portal de candidatura e tela de acesso). */
-const ROTAS_PUBLICAS = ["/auth", "/acesso", "/reset-password", "/cadastro-diarias", "/leads", "/contratar", "/contratacao-status"];
+const ROTAS_PUBLICAS = ["/auth", "/acesso", "/reset-password", "/cadastro-diarias", "/oportunidade", "/oportunidades", "/leads", "/contratar", "/contratacao-status"];
 
 function NotFoundComponent() {
   return (

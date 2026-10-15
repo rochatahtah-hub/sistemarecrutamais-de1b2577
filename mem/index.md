@@ -11,6 +11,7 @@ Módulo CLT (R&S) é isolado do módulo de diárias, com tabelas prefixadas rs_.
 LGPD: MODO PRIVACIDADE mascara CPF e telefone. Nunca expor dado pessoal a visitante.
 
 ## Memories
+- [Links de vagas](mem/features/links-vagas.md) — compartilhamento individual e geral, disponibilidade validada e cadastros integrados.
 - [Notificações](mem/features/notificacoes.md) — somente pendências reais do usuário, sem avisos genéricos nem contagens antigas.
 - Segurança: ver documento de memória de segurança do projeto (modelo de acesso, exceções deliberadas, regras de migração).
 - Pentest autorizado: relatório completo em `pentest/relatorio.md`; F-1/F-2/F-3 corrigidos.
