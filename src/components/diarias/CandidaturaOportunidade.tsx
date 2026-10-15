@@ -38,7 +38,7 @@ async function lerArquivo(arquivo: File) {
   const buffer = await arquivo.arrayBuffer();
   let binario = "";
   const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.length; i += 1) binario += String.fromCharCode(bytes[i]!);
+  for (const byte of bytes) binario += String.fromCharCode(byte);
   return btoa(binario);
 }
 
@@ -135,6 +135,8 @@ export function CandidaturaOportunidade({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-5">
+        {oportunidade.descricao && <p className="whitespace-pre-line text-sm text-sidebar-foreground/80">{oportunidade.descricao}</p>}
+        {oportunidade.informacoes_adicionais && <p className="whitespace-pre-line text-sm text-sidebar-foreground/70">{oportunidade.informacoes_adicionais}</p>}
         {resumoOportunidade(oportunidade).length > 0 && (
           <div className="space-y-1 text-sm text-sidebar-foreground/80">
             {resumoOportunidade(oportunidade).map((linha) => (
