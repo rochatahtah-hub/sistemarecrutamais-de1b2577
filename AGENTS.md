@@ -1,4 +1,6 @@
 - Keep heterogeneous backup reads behind a narrow typed query boundary; expanding generated relationship types for a union of tables can exceed compiler limits.
+- Public job links reuse captacao opportunities and candidaturas; avulsas are a subtype rather than a parallel registry, preserving candidate identity and existing permissions.
+- Public opportunity reads project only advertised fields after tenant and availability checks; submission and an insert trigger revalidate publication to prevent stale-page registrations.
 - Validate Web Push endpoints through the shared browser-provider allowlist and forbid redirects before server requests; this prevents subscriptions from becoming arbitrary server-side requests.
 - Web Push fetch uses manual redirect mode and rejects 3xx responses; Workers does not support redirect:error and provider redirects must never be followed.
 - Determine internal notification activation from the authenticated user's server record, not just the browser subscription; portal and staff opt-ins share a browser but remain independent.
