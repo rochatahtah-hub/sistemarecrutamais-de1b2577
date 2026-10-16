@@ -17,3 +17,4 @@
 - Keep server-function bodies in exported plain functions: the TanStack Start plugin rewrites createServerFn at build time, so a handler defined inline cannot be reached from a test.
 - Send Web Push with high urgency and a shared topic: the protocol default is normal urgency, which lets a provider hold the message until the device leaves power saving, and the topic makes an hourly retry replace the previous notice instead of stacking.
 - Queue validity is message-specific: weekly greetings survive throughout their local day, unread report events survive delayed device wake-ups, and operational messages always use live conditions.
+- Vacancy deletion uses database-validated Master policies without relaxing tenant isolation; a database trigger protects linked records, and shared deletion checks returned IDs to reject silent RLS denials.

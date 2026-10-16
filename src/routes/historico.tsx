@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useExcluirFicha, useVagas } from "@/lib/dados";
+import { useSuperAdmin } from "@/components/RequerSuperAdmin";
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
 import { fmtData, fmtNum, fmtPct } from "@/lib/metricas";
@@ -41,6 +42,8 @@ export const Route = createFileRoute("/historico")({
         content: "Consulte os resultados arquivados de cada quinzena encerrada.",
       },
       { property: "og:title", content: "Histórico de Quinzenas | Sistema de Vagas" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         property: "og:description",
         content: "Consulte os resultados arquivados de cada quinzena encerrada.",
@@ -59,13 +62,14 @@ function Pagina() {
   const priv = usePrivacidade();
   const { pode } = usePermissoes();
   const excluir = useExcluirFicha();
+  const { data: master } = useSuperAdmin();
 
   const [busca, setBusca] = useState("");
   const [emEdicao, setEmEdicao] = useState<VagaRegistro | null>(null);
   const [paraExcluir, setParaExcluir] = useState<VagaRegistro | null>(null);
 
   const podeEditar = pode("historico", "editar");
-  const podeExcluir = pode("historico", "excluir");
+  const podeExcluir = master === true || pode("historico", "excluir");
 
   /** Fichas já processadas (com confirmação registrada). */
   const fichas = useMemo(() => {
