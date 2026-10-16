@@ -25,6 +25,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useExcluirFicha, useVagas } from "@/lib/dados";
+import { useSuperAdmin } from "@/components/RequerSuperAdmin";
 import { usePermissoes } from "@/lib/permissoes";
 import { usePrivacidade } from "@/lib/privacidade";
 import { fmtData, fmtNum, fmtPct } from "@/lib/metricas";
@@ -59,13 +60,14 @@ function Pagina() {
   const priv = usePrivacidade();
   const { pode } = usePermissoes();
   const excluir = useExcluirFicha();
+  const { data: master } = useSuperAdmin();
 
   const [busca, setBusca] = useState("");
   const [emEdicao, setEmEdicao] = useState<VagaRegistro | null>(null);
   const [paraExcluir, setParaExcluir] = useState<VagaRegistro | null>(null);
 
   const podeEditar = pode("historico", "editar");
-  const podeExcluir = pode("historico", "excluir");
+  const podeExcluir = master === true || pode("historico", "excluir");
 
   /** Fichas já processadas (com confirmação registrada). */
   const fichas = useMemo(() => {

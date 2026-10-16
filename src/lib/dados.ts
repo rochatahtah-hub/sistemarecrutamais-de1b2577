@@ -165,6 +165,9 @@ export async function dependenciasDaFicha(id: string): Promise<string[]> {
       .eq("vaga_id", id),
     supabase.from("feedbacks").select("id", { count: "exact", head: true }).eq("vaga_id", id),
   ]);
+  for (const resultado of [pag, conf, div, fb]) {
+    if (resultado.error) throw resultado.error;
+  }
   const itens: string[] = [];
   if ((pag.count ?? 0) > 0) itens.push("pagamento");
   if ((conf.count ?? 0) > 0) itens.push("conferência de atendimento");
@@ -177,19 +180,22 @@ export async function dependenciasDaFicha(id: string): Promise<string[]> {
  * Exclui uma ficha do histórico. Recusa a exclusão quando existem registros
  * vinculados. A auditoria é registrada pelo gatilho do banco (tabela vagas).
  */
-export function useExcluirFicha() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
+export async function excluirFicha(id: string) {
       const vinculos = await dependenciasDaFicha(id);
       if (vinculos.length > 0) {
         throw new Error(
           `Não é possível excluir: esta ficha possui ${vinculos.join(", ")} vinculado(s). Remova ou trate esses registros antes de excluir.`,
         );
       }
-      const { error } = await supabase.from("vagas").delete().eq("id", id);
+      const { data, error } = await supabase.from("vagas").delete().eq("id", id).select("id");
       if (error) throw error;
-    },
+      if (!data?.length) throw new Error("Vaga não encontrada ou você não tem permissão para excluí-la.");
+}
+
+export function useExcluirFicha() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: excluirFicha,
     onSuccess: () => sincronizarSistema(qc),
   });
 }

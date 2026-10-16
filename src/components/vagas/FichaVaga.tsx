@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, Save } from "lucide-react";
+import { CheckCircle2, Save, Trash2 } from "lucide-react";
+import { useSuperAdmin } from "@/components/RequerSuperAdmin";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAtualizarVaga, useRegistrarConfirmacao } from "@/lib/dados";
+import { useAtualizarVaga, useRegistrarConfirmacao, useExcluirFicha } from "@/lib/dados";
 import { usePrivacidade } from "@/lib/privacidade";
 import { usePermissoes } from "@/lib/permissoes";
 import { useEmpresas } from "@/lib/programacao";
@@ -53,6 +55,9 @@ export function FichaVaga({
 }) {
   const atualizar = useAtualizarVaga();
   const confirmar = useRegistrarConfirmacao();
+  const excluir = useExcluirFicha();
+  const { data: master } = useSuperAdmin();
+  const [confirmarExclusao, setConfirmarExclusao] = useState(false);
   const priv = usePrivacidade();
   const { pode } = usePermissoes();
   const { data: empresas = [] } = useEmpresas();
@@ -176,6 +181,18 @@ export function FichaVaga({
     { label: "Aguardando", valor: fmtNum(total.pendentes) },
   ];
   const valorProtegido = (valor: string) => (priv.privado ? priv.texto(valor) : valor);
+
+  async function apagar() {
+    if (!vaga || master !== true) return;
+    try {
+      await excluir.mutateAsync(vaga.id);
+      setConfirmarExclusao(false);
+      toast.success("Vaga excluída. Registro salvo no histórico de alterações.");
+      onFechar();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  }
 
   return (
     <Dialog open={aberto} onOpenChange={(v) => !v && onFechar()}>
@@ -457,7 +474,12 @@ export function FichaVaga({
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
+          {master === true && (
+            <Button variant="destructive" onClick={() => setConfirmarExclusao(true)} disabled={excluir.isPending || priv.privado}>
+              <Trash2 className="mr-2 h-4 w-4" /> Excluir vaga
+            </Button>
+          )}
           <Button variant="outline" onClick={onFechar}>
             Fechar
           </Button>
@@ -466,6 +488,23 @@ export function FichaVaga({
           </Button>
         </div>
       </DialogContent>
+      <AlertDialog open={confirmarExclusao} onOpenChange={setConfirmarExclusao}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir esta vaga?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A vaga de {priv.empresa(vaga.empresa)} em {fmtData(vaga.data)} será removida permanentemente.
+              Vagas com pagamento, atendimento ou feedback vinculados não podem ser excluídas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={excluir.isPending}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction disabled={excluir.isPending} onClick={(e) => { e.preventDefault(); void apagar(); }}>
+              Excluir vaga
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
