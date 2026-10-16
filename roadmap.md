@@ -1,3 +1,8 @@
+# Exclusão de vagas pelo ADM Master
+
+- [ ] Permitir excluir vagas de outros responsáveis, mantendo isolamento, auditoria e proteção de vínculos.
+- [ ] Validar exclusão autorizada e bloqueio de usuários sem permissão.
+
 # Links públicos de vagas
 
 - [ ] Integrar links individuais e gerais para diárias selecionadas, CLT e avulsas.
