@@ -1,7 +1,7 @@
 # Exclusão de vagas pelo ADM Master
 
-- [ ] Permitir excluir vagas de outros responsáveis, mantendo isolamento, auditoria e proteção de vínculos.
-- [ ] Validar exclusão autorizada e bloqueio de usuários sem permissão.
+- [x] Permitir excluir vagas de outros responsáveis, mantendo isolamento, auditoria e proteção de vínculos.
+- [x] Validar exclusão real com a conta Master e negativa de exclusão nos testes automatizados (29 testes aprovados).
 
 # Links públicos de vagas
 

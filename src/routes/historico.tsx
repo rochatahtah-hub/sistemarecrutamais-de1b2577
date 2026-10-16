@@ -42,6 +42,8 @@ export const Route = createFileRoute("/historico")({
         content: "Consulte os resultados arquivados de cada quinzena encerrada.",
       },
       { property: "og:title", content: "Histórico de Quinzenas | Sistema de Vagas" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       {
         property: "og:description",
         content: "Consulte os resultados arquivados de cada quinzena encerrada.",
