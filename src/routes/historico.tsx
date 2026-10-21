@@ -295,8 +295,10 @@ function Pagina() {
             <AlertDialogTitle>Tem certeza que deseja excluir esta ficha?</AlertDialogTitle>
             <AlertDialogDescription>
               A ficha de {priv.nome(paraExcluir?.candidato || paraExcluir?.descricao || "—")} em{" "}
-              {priv.empresa(paraExcluir?.empresa ?? "")} será removida. Fichas com pagamento,
-              atendimento ou feedback vinculados não podem ser excluídas.
+              {priv.empresa(paraExcluir?.empresa ?? "")} será removida.
+              {master === true
+                ? " As conferências e divergências de atendimento desta vaga também serão removidas. Fichas com pagamento ou feedback vinculados continuam protegidas."
+                : " Fichas com pagamento, atendimento ou feedback vinculados não podem ser excluídas."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

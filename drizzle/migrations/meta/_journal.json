@@ -29,6 +29,13 @@
       "when": 1792190281465,
       "tag": "0003_master_exclusao_vagas_outros_responsaveis",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792596388039,
+      "tag": "0004_master_excluir_vaga_com_atendimento",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,7 @@
 # Exclusão de vagas pelo ADM Master
 
+- [x] Permitir ao Master excluir vagas lançadas por engano com atendimento vinculado, mantendo pagamentos e feedbacks protegidos (54 testes aprovados).
+- [x] Validar falta → aguardando → exclusão com sessão real de Talita; vaga e atendimento temporários removidos, auditoria preservada.
 - [x] Permitir excluir vagas de outros responsáveis, mantendo isolamento, auditoria e proteção de vínculos.
 - [x] Validar exclusão real com a conta Master e negativa de exclusão nos testes automatizados (29 testes aprovados).
 

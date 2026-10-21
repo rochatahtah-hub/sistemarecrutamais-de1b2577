@@ -494,7 +494,8 @@ export function FichaVaga({
             <AlertDialogTitle>Excluir esta vaga?</AlertDialogTitle>
             <AlertDialogDescription>
               A vaga de {priv.empresa(vaga.empresa)} em {fmtData(vaga.data)} será removida permanentemente.
-              Vagas com pagamento, atendimento ou feedback vinculados não podem ser excluídas.
+              As conferências e divergências de atendimento desta vaga também serão removidas.
+              Vagas com pagamento ou feedback vinculados continuam protegidas contra exclusão.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
