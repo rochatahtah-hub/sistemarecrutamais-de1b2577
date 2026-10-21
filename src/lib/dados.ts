@@ -168,28 +168,36 @@ export async function dependenciasDaFicha(id: string): Promise<string[]> {
   for (const resultado of [pag, conf, div, fb]) {
     if (resultado.error) throw resultado.error;
   }
+  const temAtendimento = (conf.count ?? 0) > 0 || (div.count ?? 0) > 0;
+  let master = false;
+  if (temAtendimento) {
+    const { data, error } = await supabase.rpc("eh_super_admin_atual");
+    if (error) throw error;
+    master = data === true;
+  }
   const itens: string[] = [];
   if ((pag.count ?? 0) > 0) itens.push("pagamento");
-  if ((conf.count ?? 0) > 0) itens.push("conferência de atendimento");
-  if ((div.count ?? 0) > 0) itens.push("divergência de atendimento");
+  if (!master && (conf.count ?? 0) > 0) itens.push("conferência de atendimento");
+  if (!master && (div.count ?? 0) > 0) itens.push("divergência de atendimento");
   if ((fb.count ?? 0) > 0) itens.push("feedback");
   return itens;
 }
 
 /**
- * Exclui uma ficha do histórico. Recusa a exclusão quando existem registros
- * vinculados. A auditoria é registrada pelo gatilho do banco (tabela vagas).
+ * Exclui uma ficha. O Master pode remover atendimentos junto da vaga;
+ * pagamentos e feedbacks continuam protegidos. O banco revalida a permissão
+ * e remove os atendimentos atomicamente pelas FKs, registrando auditoria.
  */
 export async function excluirFicha(id: string) {
-      const vinculos = await dependenciasDaFicha(id);
-      if (vinculos.length > 0) {
-        throw new Error(
-          `Não é possível excluir: esta ficha possui ${vinculos.join(", ")} vinculado(s). Remova ou trate esses registros antes de excluir.`,
-        );
-      }
-      const { data, error } = await supabase.from("vagas").delete().eq("id", id).select("id");
-      if (error) throw error;
-      if (!data?.length) throw new Error("Vaga não encontrada ou você não tem permissão para excluí-la.");
+  const vinculos = await dependenciasDaFicha(id);
+  if (vinculos.length > 0) {
+    throw new Error(
+      `Não é possível excluir: esta ficha possui ${vinculos.join(", ")} vinculado(s). Remova ou trate esses registros antes de excluir.`,
+    );
+  }
+  const { data, error } = await supabase.from("vagas").delete().eq("id", id).select("id");
+  if (error) throw error;
+  if (!data?.length) throw new Error("Vaga não encontrada ou você não tem permissão para excluí-la.");
 }
 
 export function useExcluirFicha() {

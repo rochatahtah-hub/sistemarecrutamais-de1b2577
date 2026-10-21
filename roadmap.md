@@ -1,5 +1,7 @@
 # Exclusão de vagas pelo ADM Master
 
+- [ ] Permitir ao Master excluir vagas lançadas por engano com atendimento vinculado, mantendo pagamentos e feedbacks protegidos.
+- [ ] Validar falta → aguardando → exclusão e remoção do atendimento correspondente com sessão real.
 - [x] Permitir excluir vagas de outros responsáveis, mantendo isolamento, auditoria e proteção de vínculos.
 - [x] Validar exclusão real com a conta Master e negativa de exclusão nos testes automatizados (29 testes aprovados).
 
