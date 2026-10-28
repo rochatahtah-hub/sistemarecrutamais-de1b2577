@@ -77,6 +77,7 @@ import { CompartilharVaga } from "@/components/CompartilharVaga";
 import { useTenantAtual } from "@/lib/tenant";
 import { linkGeralVagas, linkIndividualVaga } from "@/lib/portal-url";
 import { linkWhatsApp } from "@/lib/whatsapp";
+import { validarHorariosOportunidade } from "@/lib/captacao-horarios";
 
 export const Route = createFileRoute("/captacao")({
   head: () => ({
@@ -420,14 +421,7 @@ function DialogOportunidade({
     !form.transporte_tipo && "Transporte",
   ].filter(Boolean) as string[];
 
-  const erroHorario =
-    Boolean(form.horario_inicio) !== Boolean(form.horario_fim)
-      ? "Informe início e fim do horário, ou deixe os dois em branco."
-      : form.horario_inicio && form.horario_fim && form.horario_fim <= form.horario_inicio
-        ? "O horário de término deve ser depois do horário de início."
-        : Boolean(form.intervalo_inicio) !== Boolean(form.intervalo_fim)
-          ? "Informe início e fim do intervalo, ou deixe os dois em branco."
-          : null;
+  const erroHorario = validarHorariosOportunidade(form);
 
   const resumo = formatarResumoVaga(form);
 
