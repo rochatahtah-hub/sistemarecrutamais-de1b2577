@@ -8,3 +8,4 @@ type: feature
 - Link individual abre detalhes e cadastro da própria oportunidade, sem procurar em lista.
 - Encerramento, cancelamento, despublicação e indisponibilidade impedem inscrições também no servidor.
 - Preservar cadastros existentes, reutilizar colaboradores e candidaturas, sem fluxos paralelos; páginas públicas nunca expõem candidatos ou informações administrativas.
+- Diárias selecionadas aceitam jornada que atravessa a meia-noite: das 17h às 02h significa término no dia seguinte.
